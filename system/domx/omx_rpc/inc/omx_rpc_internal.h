@@ -38,14 +38,14 @@ extern "C" {
 #include <HeapBuf.h>
 
 //#include <xdc/runtime/Error.h>
-#include "omx_component.h"
-#include "omx_core.h"      
-#include "omx_audio.h"
-#include "omx_video.h"	
-#include "omx_types.h"
-#include "omx_index.h"
-#include "omx_ti_index.h"
-#include "omx_ti_video.h"
+#include <OMX_Component.h>
+#include <OMX_Core.h>
+#include <OMX_Audio.h>
+#include <OMX_Video.h>
+#include <OMX_Types.h>
+#include <OMX_Index.h>
+#include <OMX_TI_Index.h>
+#include <OMX_TI_Video.h>
 
 /* ************************************************************************ */
 

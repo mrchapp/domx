@@ -33,20 +33,20 @@
 #include "omx_rpc_stub.h"
 #include "omx_rpc_utils.h"
 #include "timm_osal_memory.h"
-#include "omx_ti_common.h"
+#include "OMX_TI_Common.h"
 
 #define TILER_BUFF
 
 #ifdef TILER_BUFF
 #include <ProcMgr.h>
 #include <SysLinkMemUtils.h>
-#include "memmgr/mem_types.h"
+#include <mem_types.h>
 //#include "utils/utils.h"
 //#include "debug_utils.h"
 //#include "list_utils.h"
 //#include "tilermem_utils.h"
-#include "d2c/phase1_d2c_remap.h"
-#include "memmgr/memmgr.h"
+#include <phase1_d2c_remap.h>
+#include <memmgr.h>
 //#include "tiler.h"
 #define PortFormatIsNotYUV 0
 #endif

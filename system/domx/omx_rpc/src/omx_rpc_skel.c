@@ -61,7 +61,7 @@ split common EBDFDB call to separate implementations
 #include "omx_proxy_common.h"
 #include "omx_rpc_skel.h"
 #include <timm_osal_interfaces.h>
-#include "omx_ti_common.h"
+#include <OMX_TI_Common.h>
 
 #include <SharedRegion.h>
 static TunnelManager tMgr[10]; //Static implementation of Tunnel Manager - Will change to link list if memory constraints appear

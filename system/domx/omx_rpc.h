@@ -45,7 +45,7 @@ extern "C" {
 #else
 #define DOMX_DEBUG(ARGS,...) printf(ARGS,##__VA_ARGS__)
 #endif
-#include <omx_types.h>
+#include <OMX_Types.h>
 
 //#define BUF_HEAP
 //#define BUF_HEAP_UB

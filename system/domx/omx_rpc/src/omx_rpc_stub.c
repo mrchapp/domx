@@ -33,7 +33,7 @@
 #include "omx_rpc_utils.h"
 #include "omx_proxy_common.h"
 #include "omx_rpc_stub.h"
-#include "omx_ti_common.h"
+#include <OMX_TI_Common.h>
 #include <timm_osal_interfaces.h>
 #include <MultiProc.h>
 
