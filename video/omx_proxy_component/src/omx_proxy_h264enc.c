@@ -38,7 +38,7 @@
 
 #define COMPONENT_NAME "OMX.TI.DUCATI1.VIDEO.H264E" // needs to be specific for every configuration wrapper
 
-OMX_ERRORTYPE OMX_H264VE_Proxy_ComponentInit (OMX_HANDLETYPE hComponent)
+OMX_ERRORTYPE OMX_ComponentInit (OMX_HANDLETYPE hComponent)
 {
 	OMX_ERRORTYPE eError = OMX_ErrorNone;
 	OMX_COMPONENTTYPE *pHandle = NULL;

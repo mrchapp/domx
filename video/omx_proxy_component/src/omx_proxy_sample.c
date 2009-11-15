@@ -38,7 +38,7 @@
 //change to ducati1 later
 #define COMPONENT_NAME "OMX.TI.DUCATI1.MISC.SAMPLE" // needs to be specific for every configuration wrapper
 
-OMX_ERRORTYPE OMX_Sample_Proxy_ComponentInit (OMX_HANDLETYPE hComponent)
+OMX_ERRORTYPE OMX_ComponentInit (OMX_HANDLETYPE hComponent)
 {
 	OMX_ERRORTYPE eError = OMX_ErrorNone;
 	OMX_COMPONENTTYPE *pHandle = NULL;
