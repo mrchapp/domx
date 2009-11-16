@@ -22,8 +22,8 @@
 
 
 /*-------program files ----------------------------------------*/
-#include "omx_core.h"
-#include "omx_component.h"
+#include <OMX_Core.h>
+#include <OMX_Component.h>
 #include "timm_osal_interfaces.h"
 //#include "thc.h"
 
@@ -56,8 +56,8 @@ extern HeapBuf_Handle heapHandle;
 
 #ifdef OMX_SAMPLE_TILER_TEST 
 
-#include <memmgr/memmgr.h>
-#include <memmgr/mem_types.h>
+#include <memmgr.h>
+#include <mem_types.h>
 
  #define OMX_SAMPLE_IN_2DYHEIGHT 4
  #define OMX_SAMPLE_IN_2DYWIDTH 8

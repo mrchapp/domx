@@ -35,7 +35,7 @@
 
 #include <stdio.h>
 #include "omx_jpegd_test.h"
-#include <omx_types.h>
+#include <OMX_Types.h>
 #include <mmplatform.h>
 
 #define OMX_PORT_DUCATI
@@ -45,7 +45,7 @@
 
 #ifdef OMX_LINUX_TILERTEST
 /*Tiler APIs*/
-#include <memmgr/memmgr.h>
+#include <memmgr.h>
 #include <mmplatform.h>
 
 #endif

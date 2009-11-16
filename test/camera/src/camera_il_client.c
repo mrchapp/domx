@@ -13,14 +13,14 @@
 #include <syslog.h>
 
 /*omx related include files */
-#include "omx_core.h"
-#include "omx_component.h"
-#include "timm_osal_interfaces.h"
-#include "timm_osal_trace.h"
-#include "omx_image.h"
-#include "../../../../omx/omx_il_1_x/omx_iss_cam/inc/omx_iss_cam_def.h"
-#include "omx_ti_ivcommon.h"
-#include "omx_ti_index.h"
+#include <OMX_Core.h>
+#include <OMX_Component.h>
+#include <timm_osal_interfaces.h>
+#include <timm_osal_trace.h>
+#include <OMX_Image.h>
+//#include "../../../../omx/omx_il_1_x/omx_iss_cam/inc/omx_iss_cam_def.h"
+#include <OMX_TI_IVCommon.h>
+#include <OMX_TI_Index.h>
 
 /* bridge related include files */
 #include <mmplatform.h>
@@ -45,7 +45,7 @@ extern HeapBuf_Handle heapHandle;
 
 /*Tiler APIs*/
 #ifdef TILER_BUFFERS
-#include <memmgr/memmgr.h>
+#include <memmgr.h>
 #include <mmplatform.h>
 #define STRIDE_8BIT (4 * 1024)
 #define STRIDE_16BIT (4 * 1024)

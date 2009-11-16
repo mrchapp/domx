@@ -45,7 +45,7 @@
 
 #ifdef OMX_H264E_LINUX_TILERTEST
 /*Tiler APIs*/
-#include <memmgr/memmgr.h>
+#include <memmgr.h>
 #include <mmplatform.h>
 
 #endif

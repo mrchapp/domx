@@ -12,16 +12,17 @@
 #include <syslog.h>
 
 
-#include "omx_core.h"
-#include "omx_component.h"
+#include <OMX_Core.h>
+#include <OMX_Component.h>
 #include "timm_osal_interfaces.h"
 #include "timm_osal_trace.h"
-#include "omx_image.h"
-#include "../../../../omx/omx_il_1_x/omx_iss_cam/inc/omx_iss_cam_def.h"
-#include "omx_ti_ivcommon.h"
-#include "omx_ti_index.h"
+#include <OMX_Image.h>
+//#include "../../../../omx/omx_il_1_x/omx_iss_cam/inc/omx_iss_cam_def.h"
+#include "camera_test.h"
+#include <OMX_TI_IVCommon.h>
+#include <OMX_TI_Index.h>
 
-#include <mmplatform.h>
+#include "mmplatform.h"
 #include <RcmClient.h>
 #include <HeapBuf.h>
 #include <SharedRegion.h>
@@ -49,56 +50,6 @@ extern HeapBuf_Handle heapHandle;
 int streaming = 0, numbuf=0;
 int qbuf_calls = 0,count =0;
 
-#define OMX_TEST_BAIL_IF_ERROR(_eError)		\
-        if(OMX_ErrorNone != (eError = _eError)){	\
-                goto OMX_TEST_BAIL;		\
-        }
-
-#define OMX_TEST_SET_ERROR_BAIL(_eCode, _desc)	\
-{						\
-    eError = _eCode;				\
-    printf(_desc);\
-    goto OMX_TEST_BAIL;			\
-}
-
-#define OMX_TEST_INIT_STRUCT(_s_, _name_)	\
-    memset(&(_s_), 0x0, sizeof(_name_));	\
-    (_s_).nSize = sizeof(_name_);		\
-    (_s_).nVersion.s.nVersionMajor = 0x1;	\
-    (_s_).nVersion.s.nVersionMinor = 0x1;	\
-    (_s_).nVersion.s.nRevision = 0x0;		\
-    (_s_).nVersion.s.nStep = 0x0
-
- struct port_param {
-	OMX_U32 hostbufaddr[MAX_NO_BUFFERS];
-	OMX_BUFFERHEADERTYPE *bufferheader[MAX_NO_BUFFERS];
-
-	OMX_U32 nPrvWidth;
-	OMX_U32 nPrvHeight;
-	OMX_U32 nPrvStride;
-	OMX_U32 nCapWidth;
-	OMX_U32 nCapHeight;
-	OMX_U32 nCapStride;
-	OMX_PARAM_VIDEONOISEFILTERTYPE tVNFMode;
-	OMX_PARAM_VIDEOYUVRANGETYPE tYUVRange;
-	OMX_CONFIG_BOOLEANTYPE tVidStabParam;
-	OMX_CONFIG_FRAMESTABTYPE tVidStabConfig;
-	OMX_U32 nCapFrame;
-	
-};
-
-
-typedef struct SampleCompTestCtxt{
-        OMX_HANDLETYPE hComp;
-        OMX_U32 nPorts;
-        OMX_STATETYPE eState ;
-        OMX_HANDLETYPE hStateSetEvent;
-        OMX_HANDLETYPE hExitSem;
-        FILE *pOutputFile;
-	OMX_U32 nVideoPortIndex;
-	OMX_U32 nPrevPortIndex;
-	struct port_param sPortParam[6];
-}SampleCompTestCtxt;
 
 int TotalCapFrame = 0;
 OMX_ERRORTYPE eError = OMX_ErrorNone;

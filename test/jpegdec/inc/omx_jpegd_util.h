@@ -18,7 +18,7 @@
 
 /********************/
 /* Files Needed for EXIF reading */
-#include <omx_types.h>
+#include <OMX_Types.h>
 
 /**
 * Testcase return values

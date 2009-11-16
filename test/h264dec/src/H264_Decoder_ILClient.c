@@ -60,8 +60,8 @@
 #endif
 
 #ifdef OMX_H264D_LINUX_TILERTEST
-#include <memmgr/memmgr.h>
-#include <mmplatform.h>
+#include <memmgr.h>
+#include "mmplatform.h"
 
 #endif
 #ifdef OMX_H264D_BUF_HEAP

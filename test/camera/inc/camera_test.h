@@ -1,5 +1,10 @@
 
+#ifndef __CAMERA_TEST_H__
+#define __CAMERA_TEST_H__
+
 #define TILER_BUFFERS
+
+#include <OMX_TI_IVCommon.h>
 
 /* FIXME check min and max values of different use cases */
 #define MAX_PREVIEW_WIDTH	2500
@@ -83,4 +88,37 @@ typedef struct SampleCompTestCtxt{
 	OMX_U32 nPrevPortIndex;
 	struct port_param sPortParam[6];
 }SampleCompTestCtxt;
+
+
+/* ****** from omx_iss_cam_def.h ******************************************* */
+/* need to find a better place for this, because right now same thing is
+ * cut/paste in gstomx_camera.h as well as here... maybe this goes in one
+ * of the OMX_TI*.h headers??
+ */
+/* Default portstartnumber of Camera component */
+#define OMX_CAMERA_DEFAULT_START_PORT_NUM 0
+
+/* Define number of ports for differt domains */
+#define OMX_CAMERA_PORT_OTHER_NUM 1
+#define OMX_CAMERA_PORT_VIDEO_NUM 4
+#define OMX_CAMERA_PORT_IMAGE_NUM 1
+#define OMX_CAMERA_PORT_AUDIO_NUM 0
+#define OMX_CAMERA_NUM_PORTS      (OMX_CAMERA_PORT_OTHER_NUM + OMX_CAMERA_PORT_VIDEO_NUM + OMX_CAMERA_PORT_IMAGE_NUM + OMX_CAMERA_PORT_AUDIO_NUM)
+
+/* Define start port number for differt domains */
+#define OMX_CAMERA_PORT_OTHER_START OMX_CAMERA_DEFAULT_START_PORT_NUM
+#define OMX_CAMERA_PORT_VIDEO_START (OMX_CAMERA_PORT_OTHER_START + OMX_CAMERA_PORT_OTHER_NUM)
+#define OMX_CAMERA_PORT_IMAGE_START (OMX_CAMERA_PORT_VIDEO_START + OMX_CAMERA_PORT_VIDEO_NUM)
+#define OMX_CAMERA_PORT_AUDIO_START (OMX_CAMERA_PORT_IMAGE_START + OMX_CAMERA_PORT_IMAGE_NUM)
+
+/* Port index for camera component */
+#define OMX_CAMERA_PORT_OTHER_IN                (OMX_CAMERA_PORT_OTHER_START + 0)
+#define OMX_CAMERA_PORT_VIDEO_IN_VIDEO          (OMX_CAMERA_PORT_VIDEO_START + 0)
+#define OMX_CAMERA_PORT_VIDEO_OUT_PREVIEW       (OMX_CAMERA_PORT_VIDEO_START + 1)
+#define OMX_CAMERA_PORT_VIDEO_OUT_VIDEO         (OMX_CAMERA_PORT_VIDEO_START + 2)
+#define OMX_CAMERA_PORT_VIDEO_OUT_MEASUREMENT   (OMX_CAMERA_PORT_VIDEO_START + 3)
+#define OMX_CAMERA_PORT_IMAGE_OUT_IMAGE         (OMX_CAMERA_PORT_IMAGE_START + 0)
+/* ************************************************************************* */
+
+#endif
 

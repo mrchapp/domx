@@ -91,7 +91,7 @@
 #include "omx_rpc_utils.h"
 
 /*  ********************** OMX OSAL Other Headers ************************* */
-#include <omx_types.h>
+#include <OMX_Types.h>
 #include <timm_osal_interfaces.h>
 #include <timm_osal_trace.h>
 //#include <xdc/cfg/global.h> /* Wrong global.h being included */

@@ -27,9 +27,9 @@
  ****************************************************************/
 
 #include "stdio.h"
-#include <omx_core.h>
-#include <omx_component.h>
-#include <omx_ivcommon.h>
+#include <OMX_Core.h>
+#include <OMX_Component.h>
+#include <OMX_IVCommon.h>
 #include <timm_osal_error.h>
 #include <timm_osal_trace.h>
 #include <timm_osal_memory.h>

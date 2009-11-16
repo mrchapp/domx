@@ -36,12 +36,12 @@
 #include <timm_osal_error.h>
 #include <timm_osal_memory.h>
 
-#include <omx_types.h>
-#include <omx_core.h>
-#include <omx_image.h>
-#include <omx_index.h>
-#include <omx_ti_index.h>
-#include <omx_ivcommon.h>
+#include <OMX_Types.h>
+#include <OMX_Core.h>
+#include <OMX_Image.h>
+#include <OMX_Index.h>
+#include <OMX_TI_Index.h>
+#include <OMX_IVCommon.h>
 
 #include "omx_jpegd_util.h"
 #include "omx_jpegd_test.h"
@@ -55,8 +55,8 @@
 
 #ifdef OMX_LINUX_TILERTEST
 /*Tiler APIs*/
-#include <memmgr/memmgr.h>
-#include <memmgr/tiler.h>
+#include <memmgr.h>
+#include <tiler.h>
 #endif
 
 FILE *op_file,*ref_op_file;
