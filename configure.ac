@@ -71,6 +71,17 @@ dnl *** checks for library functions ***
 dnl *** checks for dependancy libraries ***
 
 dnl *** set variables based on configure arguments ***
+dnl *** set variables based on configure arguments ***
+dnl check for enabled testapp build
+AC_ARG_ENABLE(tests,
+        AC_HELP_STRING([--enable-tests], [Build test app(s) (default: disabled)]),
+        [case "${enableval}" in
+              yes) enable_tests=true ;;
+              no)  enable_tests=false ;;
+              *) AC_MSG_ERROR(bad value ${enableval} for --enable-tests)
+                ;;
+        esac], [enable_tests=false])
+AM_CONDITIONAL([BUILD_TESTS], test "x$enable_tests" = "xtrue")
 
 
 AC_CONFIG_FILES([
@@ -80,5 +91,10 @@ system/domx/Makefile
 system/domx/omx_proxy_common/src/Makefile
 system/domx/omx_rpc/src/Makefile
 video/omx_proxy_component/src/Makefile
+test/camera/Makefile
+test/h264dec/Makefile
+test/h264enc/Makefile
+test/jpegdec/Makefile
+test/sample_proxy/Makefile
 ])
 AC_OUTPUT

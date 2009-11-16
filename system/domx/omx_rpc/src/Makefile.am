@@ -7,7 +7,7 @@ libsrc_la_SOURCES       = \
 	omx_rpc_skel.c \
 	omx_rpc_stub.c \
 	omx_rpc_utils.c \
-	omx_rpc.
+	omx_rpc.c
 
 libsrc_la_LIBADD        = \
 	$(MMOSAL_LIBS) \

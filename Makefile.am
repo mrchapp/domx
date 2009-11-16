@@ -4,7 +4,6 @@ SUBDIRS = \
 	mmplatform/src \
 	system/domx \
 	video/omx_proxy_component/src
-	
 
 lib_LTLIBRARIES = \
 	libdomx.la \
@@ -41,13 +40,30 @@ libOMX_TI_DUCATI1_MISC_SAMPLE_la_SOURCES  =
 libOMX_TI_DUCATI1_MISC_SAMPLE_la_LDFLAGS  = -no-undefined
 libOMX_TI_DUCATI1_MISC_SAMPLE_la_LIBADD   = video/omx_proxy_component/src/libsample.la libdomx.la
 
-# test apps:
-#if BUILD_TESTS
-#  # TODO:  add test apps..
-#  SUBDIRS               += test
-#  bin_PROGRAMS           = foo
-#  foo_SOURCES            =
-#  foo_LDFLAGS            = -no-undefined
-#  foo_LDADD              = test/libfoo.la
-#endif
 
+# test apps:
+if BUILD_TESTS
+  SUBDIRS += test/camera test/h264dec test/h264enc test/jpegdec test/sample_proxy
+
+  bin_PROGRAMS = omx_camera_test omx_h264dec_test omx_h264enc_test omx_jpegdec_test omx_sample_test
+
+  omx_camera_test_SOURCES      =
+  omx_camera_test_LDFLAGS      = -no-undefined
+  omx_camera_test_LDADD        = test/camera/libsrc.la libdomx.la
+
+  omx_h264dec_test_SOURCES     =
+  omx_h264dec_test_LDFLAGS     = -no-undefined
+  omx_h264dec_test_LDADD       = test/h264dec/libsrc.la libdomx.la
+
+  omx_h264enc_test_SOURCES     =
+  omx_h264enc_test_LDFLAGS     = -no-undefined
+  omx_h264enc_test_LDADD       = test/h264enc/libsrc.la libdomx.la
+
+  omx_jpegdec_test_SOURCES     =
+  omx_jpegdec_test_LDFLAGS     = -no-undefined
+  omx_jpegdec_test_LDADD       = test/jpegdec/libsrc.la libdomx.la
+
+  omx_sample_test_SOURCES      =
+  omx_sample_test_LDFLAGS      = -no-undefined
+  omx_sample_test_LDADD        = test/sample_proxy/libsrc.la libdomx.la
+endif
