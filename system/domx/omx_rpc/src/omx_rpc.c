@@ -224,7 +224,7 @@ RPC_OMX_ERRORTYPE RPC_InstanceInit(OMX_STRING ServerName)
 {
 
 	OMX_U8 i;
-	OMX_S16 status;
+	OMX_S32 status;
     RcmClient_Config cfgParams;
 	RcmClient_Params rcmParams;
     OMX_BOOL bCreateClient = OMX_FALSE;
@@ -353,7 +353,7 @@ leave:
 RPC_OMX_ERRORTYPE RPC_InstanceDeInit(void)
 {
     RPC_OMX_ERRORTYPE rpcError = RPC_OMX_ErrorNone;
-	OMX_S16 status;
+	OMX_S32 status;
     TIMM_OSAL_MutexObtain(client_flag_mtx, TIMM_OSAL_SUSPEND);
         flag_client--;
 	
@@ -394,7 +394,7 @@ leave:
 RPC_OMX_ERRORTYPE RPC_ModDeInit(void)
 {
     RPC_OMX_ERRORTYPE rpcError = RPC_OMX_ErrorNone;
-	OMX_S16 status;
+	OMX_S32 status;
 	
 	DOMX_DEBUG("\nEntered %s",__FUNCTION__);
 	
@@ -552,7 +552,7 @@ leave:
 RPC_OMX_ERRORTYPE appRcmServerThrFxn(void)
 {
     RcmServer_Params rcmSrvParams;
-    OMX_S16 i,status;
+    OMX_S32 i,status;
     OMX_U32 fxIndx;
     RcmServer_Config cfgParams;
     RPC_OMX_ERRORTYPE rpcError = RPC_OMX_ErrorNone;
@@ -676,7 +676,7 @@ Int32 fxnExit(UInt32 size, UInt32 *data)
 RPC_OMX_ERRORTYPE fxn_exit_caller(void)
 {
     RcmClient_Message *rcmMsg = NULL;
-    OMX_S16 status;
+    OMX_S32 status;
 	RPC_OMX_ERRORTYPE rpcError = RPC_OMX_ErrorNone;
     
     DOMX_DEBUG("\n Entered %s",__FUNCTION__);	
@@ -720,7 +720,7 @@ void getFxnIndexFromRemote_stub(void)
 	OMX_U32 packetSize = 0x100;
 	RPC_INDEX *FxnIdxArr;
 	RcmClient_Message *rcmMsg;
-	OMX_S16 status;
+	OMX_S32 status;
 	RPC_INDEX fxnIdx;
 	OMX_U8 i;
 	FxnList FxnIdxList;
