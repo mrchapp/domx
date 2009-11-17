@@ -229,6 +229,8 @@ RPC_OMX_ERRORTYPE RPC_InstanceInit(OMX_STRING ServerName)
 	RcmClient_Params rcmParams;
     OMX_BOOL bCreateClient = OMX_FALSE;
     
+    mmplatform_init(2);
+
     /* RCM client configuration added in Bridge release 0.9-P1*/
 /* Added New */
     cfgParams.maxNameLen = 20;
@@ -354,6 +356,9 @@ RPC_OMX_ERRORTYPE RPC_InstanceDeInit(void)
 {
     RPC_OMX_ERRORTYPE rpcError = RPC_OMX_ErrorNone;
 	OMX_S32 status;
+
+	mmplatform_deinit();
+
     TIMM_OSAL_MutexObtain(client_flag_mtx, TIMM_OSAL_SUSPEND);
         flag_client--;
 	
