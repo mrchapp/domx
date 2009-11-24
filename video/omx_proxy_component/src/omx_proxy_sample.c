@@ -33,6 +33,7 @@
  ******************************************************************/
 #include <stdio.h>
 #include <string.h>
+#include <assert.h>
 #include "omx_proxy_common.h"
 #include <timm_osal_interfaces.h>
 //change to ducati1 later
@@ -56,8 +57,9 @@ OMX_ERRORTYPE OMX_ComponentInit (OMX_HANDLETYPE hComponent)
 		goto EXIT;
 	}
 	pComponentPrivate->cCompName = (OMX_U8 *)TIMM_OSAL_Malloc(MAX_COMPONENT_NAME_LENGTH*sizeof(OMX_U8),TIMM_OSAL_TRUE, 0, TIMMOSAL_MEM_SEGMENT_INT);
-     // Copying component Name - this will be picked up in the proxy common
-    TIMM_OSAL_Memcpy(pComponentPrivate->cCompName,COMPONENT_NAME,strlen(COMPONENT_NAME));
+	// Copying component Name - this will be picked up in the proxy common
+	assert(strlen(COMPONENT_NAME)+1 < MAX_COMPONENT_NAME_LENGTH);
+    TIMM_OSAL_Memcpy(pComponentPrivate->cCompName,COMPONENT_NAME,strlen(COMPONENT_NAME)+1);
 	eError = OMX_ProxyCommonInit(hComponent);// Calling Proxy Common Init()
 	
 	if(eError != OMX_ErrorNone){
