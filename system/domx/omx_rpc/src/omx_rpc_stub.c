@@ -104,6 +104,9 @@ RPC_OMX_ERRORTYPE RPC_EmptyThisBuffer(RPC_OMX_HANDLE remoteHandle, OMX_BUFFERHEA
 	TIMM_OSAL_Memcpy(msgBody+offset,&(pBufferHdr->nFlags),sizeof(OMX_U32));
 	offset+=sizeof(OMX_U32);
 
+    TIMM_OSAL_Memcpy(msgBody+offset,&(pBufferHdr->nTimeStamp),sizeof(pBufferHdr->nTimeStamp));
+    offset+=sizeof(pBufferHdr->nTimeStamp);
+
 	DOMX_DEBUG("\n pBufferHdr = %x BufHdrRemote %x",pBufferHdr,BufHdrRemote);
 	
     status = RcmClient_exec(rcmHndl, rcmMsg);
@@ -1859,6 +1862,9 @@ RPC_OMX_ERRORTYPE RPC_FillBufferDone(OMX_HANDLETYPE hComponent, OMX_PTR pAppData
 	//Filling up nFlags
 	TIMM_OSAL_Memcpy(msgBody+offset,&(pBuffer->nFlags),sizeof(OMX_U32));
 	offset+=sizeof(OMX_U32);
+
+    TIMM_OSAL_Memcpy(msgBody+offset,&(pBuffer->nTimeStamp),sizeof(pBuffer->nTimeStamp));
+    offset+=sizeof(pBuffer->nTimeStamp);
 
     status = RcmClient_exec(rcmHndl, rcmMsg);
     

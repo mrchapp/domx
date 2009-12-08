@@ -59,7 +59,7 @@ static OMX_ERRORTYPE PROXY_ComponentDeInit (OMX_HANDLETYPE hComponent);
 static OMX_ERRORTYPE PROXY_SetCallbacks (OMX_HANDLETYPE pComponent, OMX_CALLBACKTYPE* pCallBacks, OMX_PTR pAppData);
 static OMX_ERRORTYPE PROXY_UseBuffer (OMX_IN OMX_HANDLETYPE hComponent, OMX_INOUT OMX_BUFFERHEADERTYPE** ppBufferHdr,OMX_IN OMX_U32 nPortIndex,OMX_IN OMX_PTR pAppPrivate, OMX_IN OMX_U32 nSizeBytes, OMX_IN OMX_U8* pBuffer);
 static OMX_ERRORTYPE PROXY_EmptyBufferDone(OMX_HANDLETYPE hComponent,OMX_U32 remoteBufHdr, OMX_U32 nfilledLen, OMX_U32 nOffset, OMX_U32 nFlags);
-static OMX_ERRORTYPE PROXY_FillBufferDone(OMX_HANDLETYPE hComponent,OMX_U32 remoteBufHdr, OMX_U32 nfilledLen, OMX_U32 nOffset, OMX_U32 nFlags);
+static OMX_ERRORTYPE PROXY_FillBufferDone(OMX_HANDLETYPE hComponent,OMX_U32 remoteBufHdr, OMX_U32 nfilledLen, OMX_U32 nOffset, OMX_U32 nFlags, OMX_TICKS nTimeStamp);
 static OMX_ERRORTYPE PROXY_EventHandler(OMX_HANDLETYPE hComponent,OMX_EVENTTYPE eEvent,OMX_U32 nData1, OMX_U32 nData2, OMX_PTR pEventData);
 static OMX_ERRORTYPE PROXY_SetConfig(OMX_IN  OMX_HANDLETYPE hComponent,OMX_IN  OMX_INDEXTYPE nConfigIndex, OMX_IN  OMX_PTR pComponentConfigStructure);
 static OMX_ERRORTYPE PROXY_FreeBuffer( OMX_IN  OMX_HANDLETYPE hComponent, OMX_IN  OMX_U32 nPortIndex, OMX_IN  OMX_BUFFERHEADERTYPE* pBuffer);
@@ -148,7 +148,7 @@ static OMX_ERRORTYPE PROXY_EventHandler(OMX_HANDLETYPE hComponent,OMX_EVENTTYPE 
  *
  */
 /* ===========================================================================*/
-static OMX_ERRORTYPE PROXY_FillBufferDone(OMX_HANDLETYPE hComponent,OMX_U32 remoteBufHdr, OMX_U32 nfilledLen, OMX_U32 nOffset, OMX_U32 nFlags)
+static OMX_ERRORTYPE PROXY_FillBufferDone(OMX_HANDLETYPE hComponent,OMX_U32 remoteBufHdr, OMX_U32 nfilledLen, OMX_U32 nOffset, OMX_U32 nFlags, OMX_TICKS nTimeStamp)
 {
 	
 	OMX_COMPONENTTYPE *pHandle = (OMX_COMPONENTTYPE *)hComponent;
@@ -166,6 +166,7 @@ static OMX_ERRORTYPE PROXY_FillBufferDone(OMX_HANDLETYPE hComponent,OMX_U32 remo
 			pBufHdr->nOffset = nOffset;
 			pBufHdr->nFlags = nFlags;
 			pBufHdr->pBuffer = (OMX_U8 *)pComponentPrivate->bufferList[count].pBufferActual;
+			pBufHdr->nTimeStamp = nTimeStamp;
 			pComponentPrivate->cbInfo.FillBufferDone(hComponent,pHandle->pApplicationPrivate,pBufHdr);
 			break;
 		}
