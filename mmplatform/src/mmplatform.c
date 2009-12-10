@@ -15,16 +15,16 @@ void mmplatform_init(int setup)
 	if (cnt > 1)
 		return;
 
-    printf("Calling ipc setup\n");
+	DOMX_DEBUG("Calling ipc setup\n");
     
     if(ipc_setup(setup) < 0)
-        printf("\nipc_setup failed\n");
+        TIMM_OSAL_Error("\nipc_setup failed\n");
     else
-        printf("\nipc_setup successful\n");
+        DOMX_DEBUG("\nipc_setup successful\n");
 
-    printf("\nCreating Rcm Server\n");
+    DOMX_DEBUG("\nCreating Rcm Server\n");
     RPC_ModInit();
-    printf("\nRCM Server created\n");
+    DOMX_DEBUG("\nRCM Server created\n");
 
     return;
 }
@@ -35,9 +35,9 @@ void mmplatform_deinit()
 	if (cnt > 0)
 		return;
 
-    printf("\nCalling RPC Mod deinit\n");
+    DOMX_DEBUG("\nCalling RPC Mod deinit\n");
     RPC_ModDeInit();
-    printf("\nRPC mod deinit done\n");
+    DOMX_DEBUG("\nRPC mod deinit done\n");
 
     return;
 }
