@@ -43,12 +43,12 @@ H264_Decoder_TestCaseParamsType H264_Decoder_TestCaseParams[] =
 /*SR Id*/	/* Input File */	/* Input FrameSize File*/	/* Output File */	/* Width */	/* Height*/ /* Color Format*/
 
 {"SR10503",		"../patterns/input/test_bits_norc_1.264"	,"../patterns/output/test_bits_noRC_1.yuv"	,	176	,	144	,	OMX_COLOR_FormatYUV420Planar},
-{"SR11301",		"..\\patterns\\input\\SVA_BA2_D.264"	,"..\\patterns\\output\\SVA_BA2_D.yuv"	,	176	,	144	,	OMX_COLOR_FormatYUV420Planar},
-{"SR10714",		"..\\patterns\\input\\CI_MW_D.264"	,"..\\patterns\\output\\CI_MW_D.yuv"	,	176	,	144	,	OMX_COLOR_FormatYUV420Planar},
-{"SR11966",		"..\\patterns\\input\\SVA_FM1_E.264"	,"..\\patterns\\output\\SVA_FM1_E.yuv"	,	176	,	144	,	OMX_COLOR_FormatYUV420Planar},
-{"SR14062",		"..\\patterns\\input\\BA1_Sony_D.264"	,"..\\patterns\\output\\BA1_Sony_D.yuv"	,	176	,	144	,	OMX_COLOR_FormatYUV420Planar},
-{"SR18838",		"..\\patterns\\input\\CVPCMNL1_SVA_C.264"	,"..\\patterns\\output\\CVPCMNL1_SVA_C.yuv"	,	352	,	288	,	OMX_COLOR_FormatYUV420Planar},
-{"SR11603",		"..\\patterns\\input\\1088p25_pedestrian_area_BP01.264"	,"..\\patterns\\output\\1088p25_pedestrian_area_BP01.yuv"	,	1920	,	1088	,	OMX_COLOR_FormatYUV420Planar},
+{"SR11301",		"../patterns/input/SVA_BA2_D.264"	,"../patterns/output/SVA_BA2_D.yuv"	,	176	,	144	,	OMX_COLOR_FormatYUV420Planar},
+{"SR10714",		"../patterns/input/CI_MW_D.264"	,"../patterns/output/CI_MW_D.yuv"	,	176	,	144	,	OMX_COLOR_FormatYUV420Planar},
+{"SR11966",		"../patterns/input/SVA_FM1_E.264"	,"../patterns/output/SVA_FM1_E.yuv"	,	176	,	144	,	OMX_COLOR_FormatYUV420Planar},
+{"SR14062",		"../patterns/input/BA1_Sony_D.264"	,"../patterns/output/BA1_Sony_D.yuv"	,	176	,	144	,	OMX_COLOR_FormatYUV420Planar},
+{"SR18838",		"../patterns/input/CVPCMNL1_SVA_C.264"	,"../patterns/output/CVPCMNL1_SVA_C.yuv"	,	352	,	288	,	OMX_COLOR_FormatYUV420Planar},
+{"SR11603",		"../patterns/input/1088p25_pedestrian_area_BP01.264"	,"../patterns/output/1088p25_pedestrian_area_BP01.yuv"	,	1920	,	1088	,	OMX_COLOR_FormatYUV420Planar},
 {"SR19620",		NULL	,	NULL	,	0	,	0	,	0}
 
 };

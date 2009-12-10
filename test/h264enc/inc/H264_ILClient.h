@@ -15,22 +15,36 @@
  * INCLUDE FILES
  ****************************************************************/
 /**----- system and platform files ----------------------------**/
+#define OMX_TILERTEST
+#define H264_LINUX_CLIENT
 
-//#include <ti/sysbios/knl/Task.h>
-//#include <xdc/runtime/System.h>
+#ifndef H264_LINUX_CLIENT
+#include <ti/sysbios/knl/Task.h>
+#include <xdc/runtime/System.h>
+#endif
 
 #include <stdio.h>
 #include <string.h>
 
+#ifdef H264_LINUX_CLIENT
 #include <timm_osal_interfaces.h>
-
-#define H264ENC_TRACE_ENABLE
-#ifdef H264ENC_TRACE_ENABLE
-/*overwriting the default trcae flags*/
-#define TIMM_OSAL_DEBUG_TRACE_DETAIL 0
-#define TIMM_OSAL_DEBUG_TRACE_LEVEL 5
+#else
+#include <WTSD_DucatiMMSW/platform/osal/timm_osal_interfaces.h>
 #endif
+
+#ifndef H264_LINUX_CLIENT
+	#define H264ENC_TRACE_ENABLE
+	#ifdef H264ENC_TRACE_ENABLE
+	/*overwriting the default trcae flags*/
+	#define TIMM_OSAL_DEBUG_TRACE_DETAIL 0
+	#define TIMM_OSAL_DEBUG_TRACE_LEVEL 5
+	#endif
+#endif
+#ifdef H264_LINUX_CLIENT
 #include <timm_osal_trace.h>
+#else
+#include <WTSD_DucatiMMSW/platform/osal/timm_osal_trace.h>
+#endif
 
 /**-------program files ----------------------------------------**/
 #include <OMX_Core.h>
@@ -41,12 +55,26 @@
 #include <OMX_TI_Index.h>
 #include <OMX_TI_Common.h>
 
+#ifdef H264_LINUX_CLIENT
+	#define H264CLIENT_TRACE_PRINT(ARGS,...)  TIMM_OSAL_Trace(ARGS,##__VA_ARGS__)
+	#define H264CLIENT_ENTER_PRINT()	         TIMM_OSAL_Entering()
+	#define H264CLIENT_EXIT_PRINT(ARG)           TIMM_OSAL_Exiting(ARG)
+	#define H264CLIENT_ERROR_PRINT(ARGS,...)  TIMM_OSAL_Error(ARGS,##__VA_ARGS__ )
+	#define H264CLIENT_INFO_PRINT(ARGS,...)     TIMM_OSAL_Info(ARGS,##__VA_ARGS__ )
+#else
+	static TIMM_OSAL_TRACEGRP TraceGrp;
+	#define H264CLIENT_TRACE_PRINT(ARGS,...)   TIMM_OSAL_TraceExt(TraceGrp,ARGS,##__VA_ARGS__)
+	#define H264CLIENT_ENTER_PRINT()               TIMM_OSAL_EnteringExt(TraceGrp)
+	#define H264CLIENT_EXIT_PRINT(ARG)            TIMM_OSAL_ExitingExt(TraceGrp,ARG)
+	#define H264CLIENT_ERROR_PRINT(ARGS,...)   TIMM_OSAL_ErrorExt(TraceGrp,ARGS,##__VA_ARGS__ )
+	#define H264CLIENT_INFO_PRINT(ARGS,...)     TIMM_OSAL_InfoExt(TraceGrp,ARGS,##__VA_ARGS__ )
+#endif
 
 
 #define GOTO_EXIT_IF(_CONDITION,_ERROR) { \
             if((_CONDITION)) { \
-                TIMM_OSAL_Error("%s : %s : %d :: ", __FILE__, __FUNCTION__,__LINE__);\
-                TIMM_OSAL_Info(" Exiting because: %s \n", #_CONDITION); \
+                H264CLIENT_INFO_PRINT("%s : %s : %d :: ", __FILE__, __FUNCTION__,__LINE__);\
+                H264CLIENT_INFO_PRINT(" Exiting because: %s \n", #_CONDITION); \
                 eError = (_ERROR); \
                 goto EXIT; \
             } \
@@ -208,6 +236,7 @@ typedef struct H264E_TestCaseParamsDynamic
 	ForceFrame DynForceFrame;
 	QpSettings DynQpSettings;
 	IntraFrameInterval DynIntraFrmaeInterval;
+	NALSize DynNALSize;
 	SliceCodingSettings DynSliceSettings;
 	PixelInfo DynPixelInfo;
 
@@ -278,12 +307,16 @@ typedef struct OMX_H264E_DynamicConfigs{
 	OMX_CONFIG_INTRAREFRESHVOPTYPE tForceframe;
 	OMX_VIDEO_CONFIG_QPSETTINGSTYPE tQPSettings;
 	OMX_VIDEO_CONFIG_AVCINTRAPERIOD tAVCIntraPeriod;
+	OMX_VIDEO_CONFIG_NALSIZE tNALUSize;
 	OMX_VIDEO_CONFIG_SLICECODINGTYPE  tSliceSettings;
 	OMX_VIDEO_CONFIG_PIXELINFOTYPE tPixelInfo;
 }OMX_H264E_DynamicConfigs;
 
 
 #endif /*_H264_ILClient_ */
+
+
+
 
 
 

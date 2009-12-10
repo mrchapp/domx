@@ -29,6 +29,9 @@
 #include <stdint.h>
 #include <string.h>
 #include <stdlib.h>
+#include <fcntl.h>
+#include <sys/types.h>
+#include <unistd.h>
 
 /*-------program files ----------------------------------------*/
 #include <timm_osal_interfaces.h>
@@ -42,6 +45,10 @@
 #include <OMX_Index.h>
 #include <OMX_TI_Index.h>
 #include <OMX_IVCommon.h>
+#include <sys/ioctl.h>
+#include <linux/videodev2.h>
+#include <sys/mman.h>
+
 
 #include "omx_jpegd_util.h"
 #include "omx_jpegd_test.h"
@@ -65,22 +72,21 @@ FILE *op_file,*ref_op_file;
     int while_pass=0,loc_diff=0;
 
 
+struct {
+	void *start;
+	size_t length;
+} *buffers;
 
-/* PAK
-extern void BigEndianRead32Bits(Uint32 *pVal, Uint8* ptr);
-extern void BigEndianRead16Bits(Uint16 *pVal, Uint8* ptr);*/
-/*extern TIMM_OSAL_U32 TI_GetThumbnailInformation(Uint8 *pBuffer,
-                                          Uint32 *pNextIFDOffset,
-                                          EXIF_THUMBNAIL_INFO *pThumbnail,
-                                          Uint32 ulLittleEndian);*/
+
+extern OMX_U32 jpegdec_prev;
+
+int vid1_fd;
+#define VIDEO_DEVICE1	"/dev/video1"
+int  streamon = 0;
+
 OMX_ERRORTYPE JPEGD_releaseOnSemaphore(OMX_U16 unSemType);
 OMX_Status JPEGD_ParseTestCases (uint32_t uMsg, void *pParam, uint32_t paramSize);
 
-/*
-OMX_ERRORTYPE TI_JpegOcpCore_ParseJpegHeader( OMX_PTR hTObj, OMX_U32 nInputBitstreamSize);
-OMX_ERRORTYPE TI_GetExifInformation(OMX_EXIF_INFO_SUPPORTED *pExif,
-                                                            OMX_U8 *pExifBuffer);
-*/
 /* Semaphore type indicators */
 
 #define SEMTYPE_DUMMY  0
@@ -89,11 +95,6 @@ OMX_ERRORTYPE TI_GetExifInformation(OMX_EXIF_INFO_SUPPORTED *pExif,
 #define SEMTYPE_FTB    3
 
 #define MAX_4BIT 15
-/*
-#define THC_Trace(ARGS,...)  TIMM_OSAL_TraceExt(TIMM_OSAL_TRACEGRP_OMXIMGDEC,ARGS,##__VA_ARGS__)
-#define THC_Error(ARGS,...)   TIMM_OSAL_ErrorExt(TIMM_OSAL_TRACEGRP_OMXIMGDEC,ARGS,##__VA_ARGS__)
-#define THC_Entering   TIMM_OSAL_EnteringExt
-#define THC_Exiting(ARG) TIMM_OSAL_ExitingExt(TIMM_OSAL_TRACEGRP_OMXIMGDEC,ARG)*/
 #define JPEGD_Trace(ARGS,...)  TIMM_OSAL_InfoExt(TIMM_OSAL_TRACEGRP_OMXIMGDEC,ARGS,##__VA_ARGS__)
 #define JPEGD_Error(ARGS,...)   TIMM_OSAL_ErrorExt(TIMM_OSAL_TRACEGRP_OMXIMGDEC,ARGS,##__VA_ARGS__)
 #define JPEGD_Entering   TIMM_OSAL_EnteringExt
@@ -109,8 +110,6 @@ OMX_STRING strJPEGD = "OMX.TI.DUCATI1.IMAGE.JPEGD";
 /* Test context info */
 JpegDecoderTestObject TObjD ;
 
-//#define OMX_JPEGD_INPUT_PATH  "..\\..\\..\\..\\..\\alg\\jpeg_dec\\test\\test_vectors\\input\\"
-//#define OMX_JPEGD_OUTPUT_PATH "..\\..\\..\\..\\..\\alg\\jpeg_dec\\test\\test_vectors\\output\\"
 #define OMX_JPEGD_INPUT_PATH "/camera_bin/"
 #define OMX_JPEGD_OUTPUT_PATH "/camera_bin/"
 
@@ -713,7 +712,7 @@ OMX_Status JPEGD_ParseTestCases(uint32_t uMsg, void *pParam, uint32_t paramSize)
     {
         hTObj->tTestcaseParam.eInColorFormat = OMX_COLOR_FormatYUV444Interleaved;
         JPEGD_Trace("Input Image color format is OMX_COLOR_FormatYUV444Interleaved");
-    }	
+    }
     else
     {
         JPEGD_ASSERT(0,OMX_ErrorBadParameter,"Unsupported color format parameter\n");
@@ -751,7 +750,7 @@ OMX_Status JPEGD_ParseTestCases(uint32_t uMsg, void *pParam, uint32_t paramSize)
         hTObj->tTestcaseParam.eOutputImageMode = OMX_JPEG_UncompressedModeFrame;
         JPEGD_Trace("Uncompressed image mode: OMX_JPEG_UncompressedModeFrame");
     }
-    else if(!strcmp((char*)token[7],"OMX_JPEG_UncompressedModeSlice")) 
+    else if(!strcmp((char*)token[7],"OMX_JPEG_UncompressedModeSlice"))
     {
 	 hTObj->tTestcaseParam.eOutputImageMode = OMX_JPEG_UncompressedModeSlice;
 	 JPEGD_Trace("Uncompressed image mode: OMX_JPEG_UncompressedModeSlice");
@@ -822,10 +821,194 @@ EXIT:
     return status;
 }
 
+OMX_U32 getv4l2pixformat(OMX_COLOR_FORMATTYPE eOutColorFormat)
+{
+
+	switch ( eOutColorFormat ) {
+		case OMX_COLOR_FormatYCbYCr: {
+			return V4L2_PIX_FMT_YUYV;
+			break;
+		}
+		case OMX_COLOR_FormatCbYCrY: {
+			return V4L2_PIX_FMT_UYVY;
+			break;
+		}
+		case OMX_COLOR_FormatYUV420SemiPlanar: {
+			return V4L2_PIX_FMT_NV12;
+			break;
+		}
+	        default:
+	       {
+		       printf("\nD Color Format currently not supported \n");
+		       return -1;
+		       break;
+	       }
+	}
+}
+void SetFormatforDSSvid( unsigned int width, unsigned int height)
+{
+	struct v4l2_format format;
+	JpegDecoderTestObject *hTObj= &TObjD;
+	int result;
+	format.fmt.pix.width  = width;
+	format.fmt.pix.height = height;
+	format.type           = V4L2_BUF_TYPE_VIDEO_OUTPUT;
+	format.fmt.pix.pixelformat =  getv4l2pixformat(hTObj->tTestcaseParam.eOutColorFormat);
+	printf("\nD going to set width=%d, height =%d, format = %d\n", width, height, format.fmt.pix.pixelformat);
+	if (format.fmt.pix.pixelformat == -1) {
+		printf("\nD We didn't get the pixel format correct \n");
+		return;
+	}
+	/* set format of the picture captured */
+	result = ioctl(vid1_fd, VIDIOC_S_FMT, &format);
+	if (result != 0) {
+		perror("VIDIOC_S_FMT");
+	}
+	return;
+}
+
+uint getDSSBuffers(uint count, char *dssbuffer, uint length)
+{
+	int result;
+	struct v4l2_requestbuffers reqbuf;
+	struct v4l2_buffer filledbuffer;
+int ht,wt;
+	int i;
+
+	reqbuf.type = V4L2_BUF_TYPE_VIDEO_OUTPUT;
+	reqbuf.memory = V4L2_MEMORY_MMAP;
+	reqbuf.count = count;
+	result = ioctl(vid1_fd, VIDIOC_REQBUFS, &reqbuf);
+	if (result != 0) {
+		perror("VIDEO_REQBUFS");
+		return -1;
+	}
+	printf("\nD DSS driver allocated %d buffers \n", reqbuf.count);
+	if (reqbuf.count != count)
+	{
+		printf("\nD DSS DRIVER FAILED TO ALLOCATE THE REQUESTED");
+		printf(" NUMBER OF BUFFERS. NOT FORCING STRICT ERROR CHECK");
+		printf(" AND SO THE APPLIACTION MAY FAIL.\n");
+	}
+	buffers = calloc(reqbuf.count, sizeof(*buffers));
+
+	for (i = 0; i < reqbuf.count ; ++i) {
+		struct v4l2_buffer buffer;
+		buffer.type = reqbuf.type;
+		buffer.index = i;
+
+		result = ioctl(vid1_fd, VIDIOC_QUERYBUF, &buffer);
+		if (result != 0) {
+			perror("VIDIOC_QUERYBUF");
+			return -1;
+		}
+		printf("%d: buffer.length=%d, buffer.m.offset=%d\n",
+				i, buffer.length, buffer.m.offset);
+		if( buffers[i].length < length) {
+			printf("\n\nD WE GOT A PROBLEM, BUFFER LENGHT SUPPLIED BY dss IS LESS THAN DECODED PICTURE SIZE \n");
+			printf("\n OMX FILLED LENGTH = %d\n",length);
+		}
+		buffers[i].length = buffer.length;
+		buffers[i].start = mmap(NULL, buffer.length, PROT_READ|
+						PROT_WRITE, MAP_SHARED,
+						vid1_fd, buffer.m.offset);
+		if (buffers[i].start == MAP_FAILED) {
+			perror("mmap");
+			return -1;
+		}
+
+		printf("Buffers[%d].start = %x  length = %d\n", i,
+			buffers[i].start, buffers[i].length);
+	}
+	printf("\nD copying data from jpeg dec buffer to DSS buffer \n");
+	printf("\nD input address = %x, output address = %x, length = %d\n", buffers[0].start, dssbuffer, length);
+	ht = 128;//FIXME
+	wt = 128;
+	for (i=0; i <ht; i++)
+	{
+
+	memcpy((buffers[0].start + (i*2*wt)), (dssbuffer+ (i*4096)), (wt*2));
+
+	}
+
+//	memcpy(buffers[0].start, dssbuffer, length);
+	printf("\nD going to Queing the Buffer \n");
+	filledbuffer.type = V4L2_BUF_TYPE_VIDEO_OUTPUT;
+	filledbuffer.memory = V4L2_MEMORY_MMAP;
+	filledbuffer.flags = 0;
+	filledbuffer.index = 0;
+	result = ioctl(vid1_fd, VIDIOC_QBUF, &filledbuffer);
+	if (result != 0) {
+		perror("VIDIOC_QBUF");
+		return 1;
+	}
+	printf("\nD Queing Successfull\n, starting Streaming \n");
+	if ( streamon == 0) {
+		printf("\n STREAM ON DONE !!! \n");
+		result = ioctl(vid1_fd, VIDIOC_STREAMON,
+							&filledbuffer.type);
+		printf("\n STREAMON result = %d\n",result);
+		if (result != 0) {
+			perror("VIDIOC_STREAMON FAILED FAILED FAILED FAILED");
+
+		}
+		streamon = 1;
+	}
+	printf("\n DQBUF CALLED\n");
+	sleep(10);
+	result = ioctl(vid1_fd, VIDIOC_DQBUF, &filledbuffer);
+	printf("\n DQBUF result = %d\n",result);
+	if (result != 0) {
+		perror("VIDIOC_DQBUF FAILED FAILED FAILED FAILED");
+	}
+
+	return 0;
+
+}
+void open_video1(int width, int height)
+{
+	int result;
+	struct v4l2_capability capability;
+	struct v4l2_format format;
+	vid1_fd = open(VIDEO_DEVICE1, O_RDWR);
+	if ( vid1_fd <=0)
+	{
+		printf("\nD Failed to open the DSS Video Device\n");
+		exit(-1);
+	}
+	printf("\nD opened Video Device 1 for preview \n");
+	result = ioctl(vid1_fd, VIDIOC_QUERYCAP, &capability);
+	if (result != 0) {
+		perror("VIDIOC_QUERYCAP");
+		goto ERROR_EXIT;
+	}
+	if (capability.capabilities & V4L2_CAP_STREAMING == 0) {
+		printf("VIDIOC_QUERYCAP indicated that driver is not "
+			"capable of Streaming \n");
+		goto ERROR_EXIT;
+	}
+	format.type = V4L2_BUF_TYPE_VIDEO_OUTPUT;
+	result = ioctl(vid1_fd, VIDIOC_G_FMT, &format);
+
+	if (result != 0) {
+		perror("VIDIOC_G_FMT");
+		goto ERROR_EXIT;
+	}
+	/*FIXME get the width and height from the table and supply it here */
+	SetFormatforDSSvid(width,height);
+
+
+	return;
+ERROR_EXIT:
+	close(vid1_fd);
+	exit (-1);
+}
+
+
 
 /* ==================================================================== */
 /**
-  
+
 }; * @fn JPEGD_TestFrameMode    Executes the JPEG Decoder testcases For Frame mode
 *
 * @param[in] uMsg         Message code.
@@ -904,6 +1087,7 @@ OMX_TestStatus JPEGD_TestFrameMode (uint32_t uMsg, void *pParam, uint32_t paramS
         fclose(ipfile);
     }
 
+	open_video1(unOpImageWidth, unOpImageHeight);
     nframeSize = JPEGD_TEST_CalculateBufferSize(unOpImageWidth, unOpImageHeight, eOutColorFormat);
 
     /**************************************************************************************/
@@ -1220,6 +1404,8 @@ printf("\n +++WHY HERE ???? +++\n");
 
     /***************************************************************************************/
 
+	/* allocate 1 buffers from the DSS driver */
+	getDSSBuffers( 1,hTObj->pOutBufHeader->pBuffer, hTObj->pOutBufHeader->nFilledLen );
     opfile = fopen((const char *)omx_jpegd_output_file_path_and_name,"wb");
     if (opfile == NULL)
     {
@@ -1237,7 +1423,7 @@ printf("\n +++WHY HERE ???? +++\n");
 
 
 //------------------------- comparing results start
-#if 0 
+#if 0
 //not needed now
 
 eError = OMX_ErrorNone;
@@ -1306,7 +1492,7 @@ printf("\n DONE WITH CHECK PASS = %d",pass);
 
 
         if (hTObj->pOutBufHeader){
-#ifdef OMX_LINUX_TILERTEST 
+#ifdef OMX_LINUX_TILERTEST
                 MemMgr_Free(hTObj->pOutBufHeader->pBuffer);
 #endif
 
@@ -1363,18 +1549,7 @@ printf("\n EmptyThisBuffer semaphore deleted");
 printf("\nFillThisBuffer semaphore deleted");
 
 
-    /* Free input and output buffer pointers */
-/*
-    if(bIsApplnMemAllocatorforInBuff==OMX_TRUE)
-    {
-        TIMM_OSAL_Free(p_in);
-    }
-    if(bIsApplnMemAllocatorforOutBuff==OMX_TRUE)
-    {
-        TIMM_OSAL_Free(p_out);
-    }
-*/
-    /*************************************************************************************/
+ /*************************************************************************************/
 
     /* Calling OMX_Core OMX_FreeHandle function to unload a component */
     eError = OMX_FreeHandle (component);
@@ -1603,9 +1778,9 @@ OMX_TestStatus JPEGD_TestSliceMode (uint32_t uMsg, void *pParam, uint32_t paramS
 	JPEGD_ASSERT(eError == OMX_ErrorNone, eError,
 		                     "Error in Set Parameters OMX_JPEG_PARAM_UNCOMPRESSEDMODETYPE");
 	JPEGD_Trace("OMX_SetParameter input image uncompressed mode done successfully");
- 
+
     /* Set Parameteres OMX_IMAGE_PARAM_DECODE_SUBREGION   */
-    eError = OMX_SetParameter(component, 
+    eError = OMX_SetParameter(component,
                                 (OMX_INDEXTYPE)OMX_TI_IndexParamDecodeSubregion,
                                 &hTObj->pSubRegionDecode);
     JPEGD_ASSERT(eError == OMX_ErrorNone, eError,
@@ -1664,13 +1839,13 @@ printf("\n TILER BUFFERS \n");
 
 #else
         /* Request the component to allocate input buffer and buffer header */
-        p_in =(OMX_U32 *) TIMM_OSAL_MallocExtn(nInputBitstreamSize, TIMM_OSAL_TRUE, 0, 
+        p_in =(OMX_U32 *) TIMM_OSAL_MallocExtn(nInputBitstreamSize, TIMM_OSAL_TRUE, 0,
                                                                          TIMMOSAL_MEM_SEGMENT_EXT, NULL);
         JPEGD_ASSERT( NULL != p_in, eError,
                "Error while allocating input buffer by OMX component");
 #endif
 
-        eError = OMX_UseBuffer(component, &(hTObj->pInBufHeader), OMX_JPEGD_TEST_INPUT_PORT, 
+        eError = OMX_UseBuffer(component, &(hTObj->pInBufHeader), OMX_JPEGD_TEST_INPUT_PORT,
 		NULL, nInputBitstreamSize, (OMX_U8 *)p_in);
         JPEGD_ASSERT(eError == OMX_ErrorNone, eError,
 		"Error while allocating input buffer by OMX client");
@@ -1698,7 +1873,7 @@ printf("\n TILER BUFFERS \n");
 #else
 
         /* Request the component to allocate output buffer and buffer header */
-        p_out = (OMX_U32 *)TIMM_OSAL_MallocExtn(nframeSizeslice, TIMM_OSAL_TRUE, 64, 
+        p_out = (OMX_U32 *)TIMM_OSAL_MallocExtn(nframeSizeslice, TIMM_OSAL_TRUE, 64,
                                                                            TIMMOSAL_MEM_SEGMENT_EXT, NULL);
         JPEGD_ASSERT( NULL != p_out, eError,
             "Error while allocating output buffer by OMX component");
@@ -1719,7 +1894,7 @@ printf("\n TILER BUFFERS \n");
     hTObj->pOutBufHeader->nAllocLen = nframeSizeslice;
 
     /*************************************************************************************/
-    
+
     /*Move to Executing state*/
     eError = OMX_SendCommand(component,OMX_CommandStateSet, OMX_StateExecuting,NULL);
     JPEGD_ASSERT(eError == OMX_ErrorNone, eError, "");
@@ -1791,7 +1966,7 @@ printf("\n TILER BUFFERS \n");
 #if 0
     /* Clean already existing output file */
     opfile = fopen((const char *)omx_jpegd_output_file_path_and_name,"w+b");
-    if (opfile == NULL) 
+    if (opfile == NULL)
     {
         JPEGD_Trace("Error opening the output file %s\r", omx_jpegd_output_file_path_and_name);
         goto EXIT;
@@ -1821,7 +1996,7 @@ printf("\n TILER BUFFERS \n");
             strcat(fout_name, slice_ext);
 
            opfile = fopen(fout_name, "wb");
-           if (opfile == NULL) 
+           if (opfile == NULL)
             {
                 JPEGD_Trace("Error opening the output file %s\r", fout_name);
                 goto EXIT;
@@ -1833,7 +2008,7 @@ printf("\n TILER BUFFERS \n");
     }
 
     /***************************************************************************************/
-	
+
     /* Request the component to free up input  buffers and buffer headers */
         if (hTObj->pInBufHeader){
 #ifdef OMX_LINUX_TILERTEST
@@ -1924,907 +2099,3 @@ EXIT:
 }
 
 
-///////////////////////////////s t a r t
-#if 0
-
-/* ==================================================================== */
-/**
-* @fn JPEGD_TestEntry_Exif Executes the JPEG Decoder testcases For Frame mode
-*
-* @param[in] uMsg            Message code.
-* @param[in] pParam        pointer to Function table entry
-* @param[in] paramSize    size of the Function table entry structure
-*
-* @return
-*     OMX_RET_PASS if the test passed, OMX_RET_FAIL if the test fails,
-*     or possibly other special conditions.
-*
-*/
-/* ==================================================================== */
-
-
-OMX_TestStatus JPEGD_TestEntry_Exif(uint32_t uMsg, void *pParam, uint32_t paramSize)
-{
-    OMX_Status status = OMX_STATUS_OK;
-    OMX_TestStatus testResult = OMX_RET_PASS;
-    OMX_ERRORTYPE eError = OMX_ErrorUndefined;
-    TIMM_OSAL_ERRORTYPE bReturnStatus = TIMM_OSAL_ERR_NONE;
-    OMX_CALLBACKTYPE tJpegDecoderCb;
-    OMX_U32 nframeSize, nInputBitstreamSize, nBufferSize = 0;
-    OMX_U32 unOpImageWidth, unOpImageHeight, unSliceHeight;
-    OMX_COLOR_FORMATTYPE eInColorFormat, eOutColorFormat;
-    //OMX_BOOL bIsApplnMemAllocatorforInBuff, bIsApplnMemAllocatorforOutBuff;
-    FILE *ipfile, *opfile;
-    OMX_S32 nreadSize;
-    OMX_COMPONENTTYPE *component;
-    OMX_U32 actualSize = 0;
-    JpegDecoderTestObject  *hTObj = &TObjD;
-    OMX_EXIF_INFO_SUPPORTED *pExifInfoSupport;
-    OMX_EXIF_THUMBNAIL_INFO *pThumbnailInfo;
-
-
-    JPEGD_Entering();
-
-    JPEGD_Trace("*** Test Case : %s ***", __FUNCTION__);
-
-    status = JPEGD_ParseTestCases(uMsg,pParam,paramSize);
-    if(status != OMX_STATUS_OK)
-	{
-        testResult = OMX_RET_FAIL;
-	    goto EXIT;
-    }
-
-    unOpImageWidth = hTObj->tTestcaseParam.unOpImageWidth;
-    unOpImageHeight = hTObj->tTestcaseParam.unOpImageHeight;
-    unSliceHeight = hTObj->tTestcaseParam.unSliceHeight;
-    eInColorFormat = hTObj->tTestcaseParam.eInColorFormat;
-    eOutColorFormat = hTObj->tTestcaseParam.eOutColorFormat;
-    //bIsApplnMemAllocatorforInBuff = hTObj->tTestcaseParam.bIsApplnMemAllocatorforInBuff;
-    //bIsApplnMemAllocatorforOutBuff = hTObj->tTestcaseParam.bIsApplnMemAllocatorforOutBuff;
-
-	/* Input file size */
-
-    nInputBitstreamSize = sizeof("D:/test_vectorsJPG_DEC_5_320x240.jpg");
-    nframeSize = JPEGD_TEST_CalculateBufferSize(unOpImageWidth, unOpImageHeight, eOutColorFormat);
-
-    /**************************************************************************************/
-    
-    /* Create a dummy semaphore */
-    eError = JPEGD_CreateSemaphore(SEMTYPE_DUMMY);
-    JPEGD_ASSERT(eError == OMX_ErrorNone, eError,"Error in creating dummy semaphore");
-    JPEGD_Trace("Event semaphore created");
-
-    /* Create an Event semaphore */
-    eError = JPEGD_CreateSemaphore(SEMTYPE_EVENT);
-    JPEGD_ASSERT(eError == OMX_ErrorNone, eError,"Error in creating Event semaphore");
-    JPEGD_Trace("Event semaphore created \n");
-
-    /* Create an EmptyThisBuffer semaphore */
-    eError = JPEGD_CreateSemaphore(SEMTYPE_ETB);
-    JPEGD_ASSERT(eError == OMX_ErrorNone, eError,
-		"Error in creating EmptyThisBuffer semaphore");
-    JPEGD_Trace("EmptyThisBuffer semaphore created \n");
-
-    /* Create a FillThisBuffer semaphore */
-    eError = JPEGD_CreateSemaphore(SEMTYPE_FTB);
-    JPEGD_ASSERT(eError == OMX_ErrorNone, eError,
-		"Error in creating FillThisBuffer semaphore");
-    JPEGD_Trace("FillThisBuffer semaphore created \n");
-
-    /***************************************************************************************/
-
-    /* Set call back functions */
-    tJpegDecoderCb.EmptyBufferDone = OMX_JPEGD_TEST_EmptyBufferDone;
-    tJpegDecoderCb.EventHandler    = OMX_JPEGD_TEST_EventHandler;
-    tJpegDecoderCb.FillBufferDone  = OMX_JPEGD_TEST_FillBufferDone;
-
-    /* Load the OMX_JPG_DEC Component */
-    hTObj->hOMXJPEGD = NULL;
-    eError= OMX_GetHandle(&hTObj->hOMXJPEGD, strJPEGD, hTObj,
-		                          &tJpegDecoderCb);
-    JPEGD_ASSERT(eError == OMX_ErrorNone , eError,
-		"Error while obtaining component handle");
-    JPEGD_Trace("OMX_GetHandle sucessfully \n");
-
-    /* Handle of the component to be accessed */
-    component = (OMX_COMPONENTTYPE *)hTObj->hOMXJPEGD;
-
-    /*Initialize size and version information for all structures*/
-    JPEGD_STRUCT_INIT(hTObj->tJpegdecPortInit,OMX_PORT_PARAM_TYPE);
-    JPEGD_STRUCT_INIT(hTObj->tInputPortDefnType,OMX_PARAM_PORTDEFINITIONTYPE);
-    JPEGD_STRUCT_INIT(hTObj->tOutputPortDefnType,OMX_PARAM_PORTDEFINITIONTYPE);
-
-    /***************************************************************************************/
-    /*  Test Set Parameteres OMX_PORT_PARAM_TYPE */
-    hTObj->tJpegdecPortInit.nPorts                     = 2;
-    hTObj->tJpegdecPortInit.nStartPortNumber    = 0;
-    eError = OMX_SetParameter (component, OMX_IndexParamImageInit, &hTObj->tJpegdecPortInit);
-    JPEGD_ASSERT(eError == OMX_ErrorNone, eError,
-		"Error in Set Parameters OMX_PORT_PARAM_TYPE ");
-    JPEGD_Trace("OMX_SetParameter image param done \n");
-
-
-    /* Test Set Parameteres (OMX_PARAM_PORTDEFINITIONTYPE for input port */
-    hTObj->tInputPortDefnType.nPortIndex = OMX_JPEGD_TEST_INPUT_PORT;
-    hTObj->tInputPortDefnType.eDir = OMX_DirInput;
-    hTObj->tInputPortDefnType.nBufferCountActual = 1;
-    hTObj->tInputPortDefnType.nBufferCountMin = 1;
-    hTObj->tInputPortDefnType.nBufferSize = nBufferSize;
-    hTObj->tInputPortDefnType.bEnabled = OMX_TRUE;
-    hTObj->tInputPortDefnType.bPopulated = OMX_FALSE;
-    hTObj->tInputPortDefnType.eDomain = OMX_PortDomainImage;
-    hTObj->tInputPortDefnType.format.image.cMIMEType = "OMXJPEGD";
-    hTObj->tInputPortDefnType.format.image.pNativeRender = 0 ;
-    hTObj->tInputPortDefnType.format.image.nFrameWidth = unOpImageWidth;
-    hTObj->tInputPortDefnType.format.image.nFrameHeight = unOpImageHeight;
-    hTObj->tInputPortDefnType.format.image.nStride = 0;
-    hTObj->tInputPortDefnType.format.image.nSliceHeight = unSliceHeight;
-    hTObj->tInputPortDefnType.format.image.bFlagErrorConcealment = OMX_FALSE;
-    hTObj->tInputPortDefnType.format.image.eCompressionFormat = OMX_IMAGE_CodingJPEG;
-    hTObj->tInputPortDefnType.format.image.eColorFormat = eInColorFormat;
-    hTObj->tInputPortDefnType.format.image.pNativeWindow = 0x0;
-    hTObj->tInputPortDefnType.bBuffersContiguous = OMX_FALSE;
-    hTObj->tInputPortDefnType.nBufferAlignment = 0;
-
-    eError = OMX_SetParameter (component, OMX_IndexParamPortDefinition,
-		                         &hTObj->tInputPortDefnType);
-    JPEGD_ASSERT(eError == OMX_ErrorNone, eError,
-		   "Error in Set Parameters OMX_PARAM_PORTDEFINITIONTYPE for input port");
-    JPEGD_Trace("OMX_SetParameter input port defn done successfully\n");
-
-
-    /* Test Set Parameteres OMX_PARAM_PORTDEFINITIONTYPE for output port */
-    hTObj->tOutputPortDefnType.nPortIndex = OMX_JPEGD_TEST_OUTPUT_PORT;
-    hTObj->tOutputPortDefnType.eDir = OMX_DirOutput;
-    hTObj->tOutputPortDefnType.nBufferCountActual = 1;
-    hTObj->tOutputPortDefnType.nBufferCountMin = 1;
-    hTObj->tOutputPortDefnType.nBufferSize = (OMX_U32)(unOpImageWidth * unOpImageHeight
-		             *((eOutColorFormat == OMX_COLOR_FormatYUV420PackedSemiPlanar)?1.5:2)/3);
-    hTObj->tOutputPortDefnType.bEnabled = OMX_TRUE;
-    hTObj->tInputPortDefnType.bPopulated = OMX_FALSE;
-    hTObj->tOutputPortDefnType.eDomain = OMX_PortDomainImage;
-    hTObj->tOutputPortDefnType.format.image.cMIMEType = "OMXJPEGD";
-    hTObj->tOutputPortDefnType.format.image.pNativeRender = 0 ;
-    hTObj->tOutputPortDefnType.format.image.nFrameWidth = unOpImageWidth;
-    hTObj->tOutputPortDefnType.format.image.nFrameHeight = unOpImageHeight;
-
-    hTObj->tOutputPortDefnType.format.image.nStride = 0;
-    hTObj->tOutputPortDefnType.format.image.nSliceHeight = unSliceHeight;
-    hTObj->tOutputPortDefnType.format.image.bFlagErrorConcealment = OMX_FALSE;
-    hTObj->tOutputPortDefnType.format.image.eCompressionFormat = OMX_IMAGE_CodingUnused;
-    hTObj->tOutputPortDefnType.format.image.eColorFormat = eOutColorFormat;
-    hTObj->tOutputPortDefnType.format.image.pNativeWindow = 0x0;
-    hTObj->tOutputPortDefnType.bBuffersContiguous = OMX_FALSE;
-    hTObj->tOutputPortDefnType.nBufferAlignment = 64;
-
-    eError = OMX_SetParameter (hTObj->hOMXJPEGD, OMX_IndexParamPortDefinition,
-		                        &hTObj->tOutputPortDefnType);
-    JPEGD_ASSERT(eError == OMX_ErrorNone, eError,
-		 "Error in Set Parameters OMX_PARAM_PORTDEFINITIONTYPE for output port");
-    JPEGD_Trace("OMX_SetParameter output port defn done successfully\n");
-
-
-    /* Create data pipe for input port */
-    bReturnStatus = TIMM_OSAL_CreatePipe (&hTObj->dataPipes[OMX_JPEGD_TEST_INPUT_PORT],
-		                         OMX_JPEGD_TEST_PIPE_SIZE, OMX_JPEGD_TEST_PIPE_MSG_SIZE, 0);
-    JPEGD_REQUIRE( bReturnStatus == TIMM_OSAL_ERR_NONE,
-		OMX_ErrorContentPipeCreationFailed,
-		"Error while creating input pipe for JPEGD test object" );
-
-    /* Create data pipe for output port */
-    bReturnStatus = TIMM_OSAL_CreatePipe (&hTObj->dataPipes[OMX_JPEGD_TEST_OUTPUT_PORT],
-		OMX_JPEGD_TEST_PIPE_SIZE, OMX_JPEGD_TEST_PIPE_MSG_SIZE,  0);
-    JPEGD_REQUIRE( bReturnStatus == TIMM_OSAL_ERR_NONE,
-		OMX_ErrorContentPipeCreationFailed ,
-		"Error while creating output pipe for JPEGD test object");
-
-    /*************************************************************************************/  
-
-    /*Move to idle state*/
-    eError = OMX_SendCommand(component, OMX_CommandStateSet, OMX_StateIdle,NULL);
-    JPEGD_ASSERT(eError == OMX_ErrorNone, eError,"Error while issueing Idle command");
-
-    /* Request the component to allocate input buffer and buffer header */
-    eError = OMX_AllocateBuffer(component ,&hTObj->pInBufHeader,
-    OMX_JPEGD_TEST_INPUT_PORT,NULL,nInputBitstreamSize);
-    JPEGD_ASSERT(eError == OMX_ErrorNone, eError,
-		"Error while allocating input buffer by OMX component");
-
-    /* Request the component to allocate output buffer and buffer header */
-    eError = OMX_AllocateBuffer(component, &hTObj->pOutBufHeader,
-    OMX_JPEGD_TEST_OUTPUT_PORT, NULL, nframeSize);
-    JPEGD_ASSERT(eError == OMX_ErrorNone, eError,
-		"Error while allocating output buffer by OMX component");
-    /* Request the component to allocate buffer header  OMX_EXIF_INFO_SUPPORTED*/
-    pThumbnailInfo = (OMX_EXIF_THUMBNAIL_INFO *) 
-		               TIMM_OSAL_MallocExtn(sizeof(OMX_EXIF_THUMBNAIL_INFO),
-		               TIMM_OSAL_TRUE, 0, TIMMOSAL_MEM_SEGMENT_EXT, NULL);
-    pExifInfoSupport = (OMX_EXIF_INFO_SUPPORTED *) TIMM_OSAL_MallocExtn(sizeof(OMX_EXIF_INFO_SUPPORTED),
-		                 TIMM_OSAL_TRUE, 0, TIMMOSAL_MEM_SEGMENT_EXT, NULL);
-    hTObj->pExifInfoSupport = pExifInfoSupport;
-    hTObj->pExifInfoSupport->pThumbnailInfo = pThumbnailInfo;
-
-    /*************************************************************************************/
-    eError = OMX_SendCommand(component,OMX_CommandStateSet, OMX_StateExecuting,NULL);
-    JPEGD_ASSERT(eError == OMX_ErrorNone, eError,"");
-
-    ipfile = fopen ((const char *)omx_jpegd_input_file_path_and_name,"r");
-
-    if(ipfile == NULL)
-    {
-        JPEGD_Trace("Error opening the file %s\n", omx_jpegd_input_file_path_and_name);
-	    goto EXIT;
-    }
-    else
-    {
-        nreadSize = fread (hTObj->pInBufHeader->pBuffer, 1, nInputBitstreamSize,ipfile);
-    }
-
-    /*Call for EXIF header read*/
-    eError = TI_JpegOcpCore_ParseJpegHeader(hTObj, nInputBitstreamSize);
-
-    JPEGD_ASSERT(eError == OMX_ErrorNone, eError, "Error in creating Event semaphore");
-    fclose(ipfile);
-    // JPEGD_Trace("Error opening the file %d\r", hTObj->pExifInfoSupport->Orientation);
-
-    /* Write the input buffer info to the input data pipe */
-    bReturnStatus = TIMM_OSAL_WriteToPipe (hTObj->dataPipes[OMX_JPEGD_TEST_INPUT_PORT],
-					&hTObj->pInBufHeader, sizeof (hTObj->pInBufHeader),TIMM_OSAL_SUSPEND);
-    JPEGD_REQUIRE( bReturnStatus == TIMM_OSAL_ERR_NONE,OMX_ErrorInsufficientResources,"" );
-
-
-    /* Write the output buffer info to the output data pipe */
-    bReturnStatus = TIMM_OSAL_WriteToPipe (hTObj->dataPipes[OMX_JPEGD_TEST_OUTPUT_PORT],
-                    &hTObj->pOutBufHeader, sizeof (hTObj->pOutBufHeader),TIMM_OSAL_SUSPEND);
-    JPEGD_REQUIRE( bReturnStatus == TIMM_OSAL_ERR_NONE,OMX_ErrorInsufficientResources,"" );
-
-
-    /********************************************************************************************/
-
-    /* Send input and output buffers to the component for processing */
-    bReturnStatus = TIMM_OSAL_ReadFromPipe (hTObj->dataPipes[OMX_JPEGD_TEST_INPUT_PORT],
-			&hTObj->pInBufHeader, sizeof (hTObj->pInBufHeader), &actualSize, 0);
-    JPEGD_REQUIRE( bReturnStatus == TIMM_OSAL_ERR_NONE,OMX_ErrorInsufficientResources ,"");
-
-    hTObj->pInBufHeader->nFlags |= OMX_BUFFERFLAG_EOS;
-    hTObj->pInBufHeader->nInputPortIndex = OMX_JPEGD_TEST_INPUT_PORT;
-    hTObj->pInBufHeader->nAllocLen = nreadSize;
-    hTObj->pInBufHeader->nFilledLen= hTObj->pInBufHeader->nAllocLen;
-    hTObj->pInBufHeader->nOffset = 0;
-
-    eError = component->EmptyThisBuffer(component,hTObj->pInBufHeader);
-    JPEGD_ASSERT(eError == OMX_ErrorNone, eError, "");
-
-    bReturnStatus = TIMM_OSAL_ReadFromPipe (hTObj->dataPipes[OMX_JPEGD_TEST_OUTPUT_PORT],
-                    &hTObj->pOutBufHeader, sizeof (hTObj->pOutBufHeader),&actualSize,0);
-    JPEGD_REQUIRE( bReturnStatus == TIMM_OSAL_ERR_NONE,OMX_ErrorInsufficientResources,"" );
-
-    hTObj->pOutBufHeader->nOutputPortIndex = OMX_JPEGD_TEST_OUTPUT_PORT;
-    hTObj->pOutBufHeader->nFilledLen= 0;
-    hTObj->pOutBufHeader->nAllocLen = nreadSize;
-    hTObj->pInBufHeader->nOffset = 0;
-
-    eError = component->FillThisBuffer(component, hTObj->pOutBufHeader);
-    JPEGD_ASSERT(eError == OMX_ErrorNone, eError, "");
-
-    eError = JPEGD_pendOnSemaphore(SEMTYPE_ETB);
-    JPEGD_ASSERT(eError == OMX_ErrorNone, eError, "");
-
-     /* Wait till output  buffer is processed */
-    eError = JPEGD_pendOnSemaphore(SEMTYPE_FTB);
-    JPEGD_ASSERT(eError == OMX_ErrorNone, eError, "");
-
-    /***************************************************************************************/
-
-    opfile = fopen ((const char *)omx_jpegd_output_file_path_and_name,"w");
-    if (opfile == NULL)
-    {
-        JPEGD_Trace("Error opening the file %s\n", omx_jpegd_output_file_path_and_name);
-        goto EXIT;
-    }
-    fwrite (hTObj->pOutBufHeader->pBuffer,1,hTObj->pOutBufHeader->nFilledLen,opfile);
-    fclose (opfile);
-
-    /* Request the component to free up input  buffers and buffer headers */
-    eError = OMX_FreeBuffer(component ,OMX_JPEGD_TEST_INPUT_PORT,
-                            hTObj->pInBufHeader);
-    JPEGD_ASSERT(eError == OMX_ErrorNone, eError,
-		"Error while Dellocating input buffer by OMX component");
-
-    /* Request the component to free up output buffers and buffer headers */
-    eError = OMX_FreeBuffer(component, OMX_JPEGD_TEST_OUTPUT_PORT,
-                            hTObj->pOutBufHeader);
-    JPEGD_ASSERT(eError == OMX_ErrorNone, eError,
-		"Error while Dellocating output buffer by OMX component");
-
-    eError = OMX_SendCommand(component,OMX_CommandStateSet, OMX_StateIdle,NULL);
-    JPEGD_ASSERT(eError == OMX_ErrorNone, eError, "");
-
-    eError = JPEGD_pendOnSemaphore(SEMTYPE_EVENT);
-    JPEGD_ASSERT(eError == OMX_ErrorNone, eError, "");
-
-    /* Delete input port data pipe */
-    bReturnStatus = TIMM_OSAL_DeletePipe(hTObj->dataPipes[OMX_JPEGD_TEST_INPUT_PORT] );
-    JPEGD_REQUIRE(bReturnStatus == TIMM_OSAL_ERR_NONE, OMX_ErrorInsufficientResources,
-	    "Error while deleting input pipe of test object" );
-
-    /* Create output port data pipe */
-    bReturnStatus = TIMM_OSAL_DeletePipe (hTObj->dataPipes[OMX_JPEGD_TEST_OUTPUT_PORT] );
-    JPEGD_REQUIRE(bReturnStatus == TIMM_OSAL_ERR_NONE, OMX_ErrorInsufficientResources,
-	    "Error while deleting output pipe of test object" );
-
-    eError = OMX_SendCommand(component,OMX_CommandStateSet, OMX_StateLoaded,NULL);
-    JPEGD_ASSERT(eError == OMX_ErrorNone, eError,"");
-
-    /* Delete a dummy semaphore */
-    eError = JPEGD_DeleteSemaphore(SEMTYPE_DUMMY);
-    JPEGD_ASSERT(eError == OMX_ErrorNone, eError, "Error in deleting dummy semaphore");
-    JPEGD_Trace("Event semaphore deleted");
-
-    /* Delete an Event semaphore */
-    eError = JPEGD_DeleteSemaphore(SEMTYPE_EVENT);
-    JPEGD_ASSERT(eError == OMX_ErrorNone, eError, "Error in deleting Event semaphore");
-    JPEGD_Trace("Event semaphore deleted");
-
-    /* Delete an EmptyThisBuffer semaphore */
-    eError = JPEGD_DeleteSemaphore(SEMTYPE_ETB);
-    JPEGD_ASSERT( eError == OMX_ErrorNone, eError,
-		   "Error in deleting EmptyThisBuffer semaphore");
-    JPEGD_Trace("EmptyThisBuffer semaphore deleted");
-
-    /* Delete a FillThisBuffer semaphore */
-    eError = JPEGD_DeleteSemaphore(SEMTYPE_FTB);
-    JPEGD_ASSERT( eError == OMX_ErrorNone, eError,
-		      "Error in deleting FillThisBuffer semaphore");
-    JPEGD_Trace("FillThisBuffer semaphore deleted");
-
-    /*************************************************************************************/
-
-    /* Calling OMX_Core OMX_FreeHandle function to unload a component */
-    eError = OMX_FreeHandle (component);
-    JPEGD_ASSERT( eError == OMX_ErrorNone, eError,
-		        "Error while unloading JPEGD component");
-    JPEGD_Trace ("OMX Test: OMX_FreeHandle() successful");
-    eError = OMX_ErrorNone;
-
-EXIT:
-    if(eError != OMX_ErrorNone)
-    {
-        testResult = OMX_RET_FAIL;
-    }
-    JPEGD_Exiting(testResult);
-    return testResult;
-}
-
-
-/* ======================================================================= */
-/**
-*  @fn TI_JpegOcpCore_ParseJpegHeader() takes a input pointer to pointer
-*  to decoder component private data structure, parses the bitstream and
-*  extracts the decode parameters and returns JPEGOCP_SUCCESS or Error Type.
-*
-*  @return                JPEGOCP_SUCCESS or Error Type
-*/
-/* ======================================================================= */
-
-OMX_ERRORTYPE TI_JpegOcpCore_ParseJpegHeader( OMX_PTR hTObj, OMX_U32 nInputBitstreamSize)
-{
-
-    TIMM_OSAL_ERRORTYPE bReturnStatus = TIMM_OSAL_ERR_NONE;
-    JpegDecoderTestObject  *hTObj1 = (JpegDecoderTestObject *)hTObj;
-    OMX_ERRORTYPE eError = OMX_ErrorUndefined;
-    OMX_U8* pBuffer, *pBufferTemp;
-    OMX_U32 i;
-    OMX_U16 usJpegMarker, ulSkipFactor;
-    OMX_U32 ulSOFHeaderDone = 0, nSOSMarkers = 0;
-    OMX_U8 bDataPrecision;
-    //OMX_U8 bYSamplingFactor, bCbSamplingFactor, bCrSamplingFactor, bHuffmanTableSelector;
-    OMX_U32 ulImageWidth, ulImageHeight; //, nColorComponents, nScanHeaderComponents;
-
-     pBuffer = hTObj1->pInBufHeader->pBuffer;
-
-    /* Check the Parameter list received */
-
-    if(nInputBitstreamSize == 0)
-    {
-        goto EXIT;
-    }
-
-    /* Start parsing through the bitstream header starting from 0xFFD8 */
-    for(i=0; i<nInputBitstreamSize;)
-    {
-        usJpegMarker = *pBuffer++;
-        if(usJpegMarker!=0xFF)
-        {
-            i += 1;
-            break;
-        }
-        usJpegMarker <<= 8;
-        usJpegMarker |= *pBuffer++;
-
-        if(usJpegMarker==0xFF00 || usJpegMarker==0xFFFF)
-        {
-            i += 2;
-            break;
-        }
-
-        switch(usJpegMarker)
-        {
-            case 0xFFD8:
-                i += 2;
-                break;
-            case 0xFFE1:
-            {
-                OMX_U32 ulExifSize=0;
-                OMX_U8 *pExifBuffer;
-                OMX_EXIF_INFO_SUPPORTED *pExifData;
-
-                pBufferTemp = pBuffer;
-                ulSkipFactor = *pBuffer++;
-                ulSkipFactor <<= 8;
-                ulSkipFactor |= *pBuffer++;
-
-                pBuffer -= 2;
-                pBufferTemp = pBuffer;
-                ulExifSize = *pBuffer++;
-                ulExifSize <<= 8;
-                ulExifSize |= *pBuffer++;
-                JPEG_DEC_GOTO_EXIT_IF((ulExifSize > 64*1024),
-                          OMX_ErrorBadParameter);
-
-                /* Return back to the application if EXIF structure is
-                * not allocated, but continue with the decoding process */
-
-                if(hTObj1->pExifInfoSupport != NULL)
-                {
-                    hTObj1->pExifInfoSupport->ulExifSize = ulExifSize;
-
-                    pExifBuffer = (OMX_U8 *)TIMM_OSAL_MallocExtn(ulExifSize *
-                                   sizeof(OMX_U8), TIMM_OSAL_TRUE, 0, 
-								   TIMMOSAL_MEM_SEGMENT_EXT, NULL);
-                    JPEG_DEC_GOTO_EXIT_IF((pExifBuffer==NULL),OMX_ErrorBadParameter);
-
-                    TIMM_OSAL_Memcpy(pExifBuffer,(OMX_U8 *)(pBufferTemp-2),ulExifSize);
-
-                    pExifData = hTObj1->pExifInfoSupport;
-
-                    /* Get EXIF information into the EXIF structure pointer variable pExif */
-
-                        bReturnStatus = TI_GetExifInformation(pExifData, pExifBuffer);
-                        JPEG_DEC_GOTO_EXIT_IF((bReturnStatus!=TIMM_OSAL_ERR_NONE),
-							                   OMX_ErrorBadParameter);
-
-                        TIMM_OSAL_Free(pExifBuffer);
-                    }
-
-                    /* Jump to next marker in the JPEG Header */
-                    i += ulSkipFactor;
-                    pBuffer = pBufferTemp + ulSkipFactor;
-                }
-            break;
-
-            case 0xFFC0:/* Start of Frame Header */
-                pBufferTemp = pBuffer;
-                /*
-                 * Get the Length of the marker and various other fields of
-                 * SOF header
-                 */
-                ulSkipFactor = *pBuffer++;
-                ulSkipFactor <<= 8;
-                ulSkipFactor |= *pBuffer++;
-                ulSOFHeaderDone = 1;
-                bDataPrecision = *pBuffer++;
-                JPEG_DEC_GOTO_EXIT_IF((bDataPrecision != 0x8),
-                                         OMX_ErrorBadParameter);
-
-                /*
-                 * Width And Height of the Image to be decoded
-                 */
-                ulImageHeight = *pBuffer++;
-                ulImageHeight <<= 8;
-                ulImageHeight |= *pBuffer++;
-
-                ulImageWidth = *pBuffer++;
-                ulImageWidth <<= 8;
-                ulImageWidth |= *pBuffer++;
-
-                /*
-                 * Number of color components in the JPEG Image to be decoded
-                 * and their Sampling information
-                 */
-                //nColorComponents = *pBuffer++;
-                ++pBuffer;
-                //bYSamplingFactor = *pBuffer++;
-                //bCbSamplingFactor = *(pBuffer+2);
-                //bCrSamplingFactor = *(pBuffer+5);
-
-                /* Jump to next marker in the JPEG Header */
-                i += ulSkipFactor;
-                pBuffer = pBufferTemp + ulSkipFactor;
-            break;
-            case 0xFFDA:/* Start of Scan Header */
-                JPEG_DEC_GOTO_EXIT_IF((ulSOFHeaderDone == 0),
-                                OMX_ErrorBadParameter);
-
-                JPEG_DEC_GOTO_EXIT_IF((nSOSMarkers != 0),
-                                OMX_ErrorBadParameter);
-
-                pBufferTemp = pBuffer;
-                /*
-                 * Get the Length of the marker and various other fields of
-                 * SOF header
-                 */
-                ulSkipFactor = *pBuffer++;
-                ulSkipFactor <<= 8;
-                ulSkipFactor |= *pBuffer++;
-                /*pBuffer += 2;*/
-                /*
-                 * Number of Scan components in the JPEG Image to be decoded
-                 */
-                //nScanHeaderComponents = *pBuffer++;
-
-                pBuffer++;
-                //bHuffmanTableSelector = *pBuffer++;
-                /*
-                 * Get the Huffman table (AC/DC) used and store appropriately
-                 */
-
-                pBuffer++;
-
-                /* Jump to next marker in the JPEG Header */
-
-				i += ulSkipFactor;
-                pBuffer = pBufferTemp + ulSkipFactor;
-                nSOSMarkers += 1;
-            break;
-
-            case 0xFFC1:
-            case 0xFFC2:
-            case 0xFFC3:
-            case 0xFFC5:
-            case 0xFFC6:
-            case 0xFFC7:
-            case 0xFFC8:
-            case 0xFFC9:
-            case 0xFFCA:
-            case 0xFFCB:
-            case 0xFFCD:
-            case 0xFFCE:
-            case 0xFFCF:
-                JPEG_DEC_GOTO_EXIT_IF(OMX_TRUE,
-                                OMX_ErrorBadParameter);
-
-            default:
-
-                /* Skip the header which are not relevant ones */
-
-                ulSkipFactor = *(pBuffer);
-                ulSkipFactor <<= 8;
-                ulSkipFactor |= *(pBuffer+1);
-                i += ulSkipFactor;
-                pBuffer += ulSkipFactor;
-        }
-
-    }
-     eError = OMX_ErrorNone;
-EXIT:
-    return eError;
-}
-
-/* ======================================================================= */
-/**
-*  @fn TI_GetExifInformation() takes two input pointers parses the EXIF
-*  part of the bitstream and extracts the EXIF information into the
-*  OMX_EXIF_INFO_SUPPORTED data pointer.
-*  Returns JPEGOCP_SUCCESS or Error Type.
-*
-*  @param pExif         A pointer EXIF data structure OMX_EXIF_INFO_SUPPORTED
-*  @param pExifBuffer   A pointer to a EXIF Buffer
-*
-*  @pre                 This is executed only when bitstream has a 'FF E1'
-*                       tag somewhere after 'FF D8'.
-*
-*  @post                None
-*  @return              JPEGOCP_SUCCESS or Error Type
-*/
-/* ======================================================================= */
-OMX_ERRORTYPE TI_GetExifInformation(OMX_EXIF_INFO_SUPPORTED *pExif,
-                                                            OMX_U8 *pExifBuffer)
-{
-    OMX_U8 *pBuffer,*pTagHeader,*pValOffset;
-    OMX_EXIF_INFO_SUPPORTED *pExif_temp;
-    Uint32 SkipFactor, TagCount, TagValOffset, NextIFDOffset, NextOffset;
-    OMX_U32 j=0;
-    //OMX_U32 LastValOffset;
-    Uint16 nTagValues, Tag, TagType;
-    OMX_EXIF_THUMBNAIL_INFO *pThumbnail;
-    OMX_ERRORTYPE eError = OMX_ErrorNone; // = OMX_ErrorUndefined;
-    //TIMM_OSAL_ERRORTYPE bReturnStatus = TIMM_OSAL_ERR_NONE;
-    OMX_U32 ulLittleEndian = 0;
-    //OMX_U32 BYTES_REQUIREMENT[11] = {
-    //0, 1, 1, 2, 4, 8, 0, 1, 0, 4, 8 };
-
-    pThumbnail = pExif->pThumbnailInfo;
-
-    JPEG_DEC_GOTO_EXIT_IF(((pExif==NULL) || (pExifBuffer==NULL) || (pThumbnail==NULL )),
-                                                                OMX_ErrorBadParameter);
-
-    pExif_temp = pExif;
-    pBuffer = pExifBuffer;
-    if( !(*(pBuffer+4)=='E' || *(pBuffer+4)=='e') &&
-        !(*(pBuffer+5)=='X' || *(pBuffer+5)=='x') &&
-        !(*(pBuffer+6)=='I' || *(pBuffer+6)=='i') &&
-        !(*(pBuffer+7)=='F' || *(pBuffer+7)=='f'))
-    {
-        JPEGD_Trace("Exif Format not correct. Returning..\n");
-        return OMX_ErrorBadParameter;
-    }
-    pTagHeader = pBuffer + 0xA;
-    if((*pTagHeader == 0x49) && (*(pTagHeader+1) == 0x49))
-    {
-        ulLittleEndian = 1;
-    }
-
-    pBuffer += 0xE;
-
-    if(ulLittleEndian == 1)
-    {
-        SkipFactor = (OMX_U32)(*pBuffer);
-    }
-    else
-    {
-        BigEndianRead32Bits(&SkipFactor,pBuffer);
-    }
-
-    pBuffer = pTagHeader + SkipFactor;/* 0th IFD starts at this location */
-
-    //LastValOffset = 0;
-    NextIFDOffset = 0;
-    NextOffset = 0;
-    TagValOffset = 0;
-
-    do
-    {
-        pBuffer += NextOffset;
-        NextOffset = 0;
-
-        if(ulLittleEndian == 1)
-        {
-            nTagValues = (OMX_U16)((*pBuffer) + (*(pBuffer+1)<<8));
-        }
-        else
-        {
-            BigEndianRead16Bits(&nTagValues,pBuffer);
-        }
-        pBuffer += sizeof(OMX_U16);
-
-        for(j=0;j<nTagValues;j++)
-        {
-            if(ulLittleEndian == 1)
-            {
-                Tag = (OMX_U16)((*pBuffer) + (*(pBuffer+1)<<8));
-                pBuffer += sizeof(OMX_U16);
-
-                TagType = (OMX_U16)((*pBuffer) + (*(pBuffer+1)<<8));
-                pBuffer += sizeof(OMX_U16);
-
-                TagCount = (OMX_U32)((*pBuffer) + (*(pBuffer+1)<<8) +
-                                      (*(pBuffer+2)<<16) + (*(pBuffer+3)<<24));
-                pBuffer += sizeof(OMX_U32);
-
-                TagValOffset = (OMX_U32)((*pBuffer) + (*(pBuffer+1)<<8) +
-                                      (*(pBuffer+2)<<16) + (*(pBuffer+3)<<24));
-                pBuffer += sizeof(OMX_U32);
-
-            }
-            else
-            {
-                BigEndianRead16Bits(&Tag,pBuffer);
-                pBuffer += sizeof(OMX_U16);
-
-                BigEndianRead16Bits(&TagType,pBuffer);
-                pBuffer += sizeof(OMX_U16);
-
-                BigEndianRead32Bits(&TagCount,pBuffer);
-                pBuffer += sizeof(OMX_U32);
-
-                BigEndianRead32Bits(&TagValOffset,pBuffer);
-                pBuffer += sizeof(OMX_U32);
-            }
-
-            switch (Tag)
-            {
-                case 0x013B:/*Artist*/
-
-                    JPEG_DEC_GOTO_EXIT_IF((TagType != (OMX_U16)TAG_TYPE_ASCII),
-                                     OMX_ErrorBadParameter);
-                    pValOffset = pTagHeader + TagValOffset;
-                    pExif_temp->pArtist = (char *)TIMM_OSAL_MallocExtn(TagCount,
-						         TIMM_OSAL_TRUE, 0, TIMMOSAL_MEM_SEGMENT_EXT, NULL);
-                    TIMM_OSAL_Memcpy(pExif_temp->pArtist,pValOffset,TagCount);
-
-                    pValOffset = 0;
-                break;
-                case 0x0112:/*Orientation*/
-
-                    JPEG_DEC_GOTO_EXIT_IF((!(TagType == (OMX_U16)TAG_TYPE_LONG ||
-                                           TagType == (OMX_U16)TAG_TYPE_SHORT)),
-                                     OMX_ErrorBadParameter);
-                    pExif_temp->Orientation = (Exif_Orientation)TagValOffset;
-                break;
-                case 0x0131:/*Software*/
-
-                    JPEG_DEC_GOTO_EXIT_IF((TagType != (OMX_U16)TAG_TYPE_ASCII),
-                                     OMX_ErrorBadParameter);
-                    pValOffset = pTagHeader + TagValOffset;
-                    pExif_temp->pSoftware = (char *)TIMM_OSAL_MallocExtn(TagCount,
-						         TIMM_OSAL_TRUE, 0, TIMMOSAL_MEM_SEGMENT_EXT, NULL);
-                    TIMM_OSAL_Memcpy(pExif_temp->pSoftware,pValOffset,TagCount);
-
-                    pValOffset = 0;
-                break;
-                case 0x8298:/*Copyright*/
-
-                    JPEG_DEC_GOTO_EXIT_IF((TagType != (OMX_U16)TAG_TYPE_ASCII),
-                                     OMX_ErrorBadParameter);
-                    pValOffset = pTagHeader + TagValOffset;
-                    pExif_temp->pCopyright = (char *)TIMM_OSAL_MallocExtn(TagCount,
-						       TIMM_OSAL_TRUE, 0, TIMMOSAL_MEM_SEGMENT_EXT, NULL);
-                    TIMM_OSAL_Memcpy(pExif_temp->pCopyright,pValOffset,TagCount);
-
-                    pValOffset = 0;
-                break;
-                case 0x9003:/*Create Time*/
-
-                    JPEG_DEC_GOTO_EXIT_IF((TagType != (OMX_U16)TAG_TYPE_ASCII),
-                                     OMX_ErrorBadParameter);
-                    pValOffset = pTagHeader + TagValOffset;
-                    pExif_temp->pCreationDateTime =
-                                                 (char *)TIMM_OSAL_MallocExtn(TagCount,
-									TIMM_OSAL_TRUE, 0, TIMMOSAL_MEM_SEGMENT_EXT, NULL);
-                    TIMM_OSAL_Memcpy(pExif_temp->pCreationDateTime,pValOffset,TagCount);
-
-                    pValOffset = 0;
-                break;
-                case 0x0132:/*Last Change Date Time*/
-
-                    JPEG_DEC_GOTO_EXIT_IF((TagType != (OMX_U16)TAG_TYPE_ASCII),
-                                     OMX_ErrorBadParameter);
-                    pValOffset = pTagHeader + TagValOffset;
-                    pExif_temp->pLastChangeDateTime =
-                                                  (char *)TIMM_OSAL_MallocExtn(TagCount,
-									TIMM_OSAL_TRUE, 0, TIMMOSAL_MEM_SEGMENT_EXT, NULL);
-                    TIMM_OSAL_Memcpy(pExif_temp->pLastChangeDateTime,pValOffset,
-                                                                     TagCount);
-
-                    pValOffset = 0;
-                break;
-                case 0x010E:/*ImageDescription*/
-
-                     JPEG_DEC_GOTO_EXIT_IF((TagType != (OMX_U16)TAG_TYPE_ASCII),
-                                     OMX_ErrorBadParameter);
-                    pValOffset = pTagHeader + TagValOffset;
-                    pExif_temp->pImageDescription =
-                                                 (char *)TIMM_OSAL_MallocExtn(TagCount,
-									TIMM_OSAL_TRUE, 0, TIMMOSAL_MEM_SEGMENT_EXT, NULL);
-                    TIMM_OSAL_Memcpy(pExif_temp->pImageDescription,pValOffset,TagCount);
-
-                    pValOffset = 0;
-                break;
-                case 0x010F:/*Make*/
-
-                    JPEG_DEC_GOTO_EXIT_IF((TagType != (OMX_U16)TAG_TYPE_ASCII),
-                                     OMX_ErrorBadParameter);
-                    pValOffset = pTagHeader + TagValOffset;
-                    pExif_temp->pMake = (char *)TIMM_OSAL_MallocExtn(TagCount,
-						         TIMM_OSAL_TRUE, 0, TIMMOSAL_MEM_SEGMENT_EXT, NULL);
-                    TIMM_OSAL_Memcpy(pExif_temp->pMake,pValOffset,TagCount);
-
-                    pValOffset = 0;
-                break;
-                case 0x0110:/*Model*/
-
-                    JPEG_DEC_GOTO_EXIT_IF((TagType != (OMX_U16)TAG_TYPE_ASCII),
-                                     OMX_ErrorBadParameter);
-
-                    pValOffset = pTagHeader + TagValOffset;
-                    pExif_temp->pModel = (char *)TIMM_OSAL_MallocExtn(TagCount,
-						        TIMM_OSAL_TRUE, 0, TIMMOSAL_MEM_SEGMENT_EXT, NULL);
-                    TIMM_OSAL_Memcpy(pExif_temp->pModel,pValOffset,TagCount);
-
-                    pValOffset = 0;
-                break;
-                case 0xA002:/*imagewidth*/
-
-                    JPEG_DEC_GOTO_EXIT_IF((!(TagType == (OMX_U16)TAG_TYPE_LONG ||
-                                           TagType == (OMX_U16)TAG_TYPE_SHORT)),
-                                     OMX_ErrorBadParameter);
-                    pExif_temp->ulImageWidth = TagValOffset;
-                break;
-                case 0xA003:/*ImageHeight*/
-
-                    JPEG_DEC_GOTO_EXIT_IF((!(TagType == (OMX_U16)TAG_TYPE_LONG ||
-                                           TagType == (OMX_U16)TAG_TYPE_SHORT)),
-                                     OMX_ErrorBadParameter);
-                    pExif_temp->ulImageHeight = TagValOffset;
-                break;
-                case 0x8769:/*Next Offset of the 0th IFD*/
-
-                    JPEG_DEC_GOTO_EXIT_IF((TagType != (OMX_U16)TAG_TYPE_LONG),
-                                     OMX_ErrorBadParameter);
-                    NextOffset = TagValOffset;
-                break;
-                default:
-
-                break;
-            }
-/*            if((TagType == TAG_TYPE_ASCII) || (TagType == TAG_TYPE_RATIONAL)
-                                            || (TagType == TAG_TYPE_SRATIONAL))
-            {
-                LastValOffset = TagValOffset + (TagCount *
-                                           BYTES_REQUIREMENT[(OMX_U32)TagType]);
-            } 
-*/
-        }
-        if(NextIFDOffset==0)
-        {
-            if(ulLittleEndian == 1)
-            {
-                NextIFDOffset = (OMX_U32)((*pBuffer) + (*(pBuffer+1)<<8) +
-                                (*(pBuffer+2)<<16) + (*(pBuffer+3)<<24));
-            }
-            else
-            {
-                BigEndianRead32Bits(&NextIFDOffset,pBuffer);
-            }
-        }
-
-        if(NextOffset==0)
-        {
-            if(ulLittleEndian == 1)
-            {
-                NextOffset = (OMX_U32)((*pBuffer) + (*(pBuffer+1)<<8) +
-                             (*(pBuffer+2)<<16) + (*(pBuffer+3)<<24));
-            }
-            else
-            {
-                BigEndianRead32Bits(&NextOffset,pBuffer);
-            }
-            pBuffer += sizeof(OMX_U32);
-        }
-
-        if((NextOffset>(pExif->ulExifSize-10)) ||
-                  (NextIFDOffset >(pExif->ulExifSize-10)))
-        {
-            NextIFDOffset =0;
-            NextOffset=0;
-        }
-
-        pBuffer = pTagHeader;/* Reset */
-
-    } while(NextOffset!=NULL);
-
-    if(NextIFDOffset!=NULL)
-    {
-        //bReturnStatus = TI_GetThumbnailInformation(pTagHeader, &NextIFDOffset,
-                                       //pThumbnail, ulLittleEndian);
-        //JPEG_DEC_GOTO_EXIT_IF((bReturnStatus != TIMM_OSAL_ERR_NONE), bReturnStatus);
-        //JPEG_DEC_GOTO_EXIT_IF(bReturnStatus != TIMM_OSAL_ERR_NONE,
-                                        //OMX_ErrorBadParameter);
-    }
-    //bReturnStatus=TIMM_OSAL_ERR_NONE;
-    eError = OMX_ErrorNone;
-
-EXIT:
-    //return bReturnStatus;
-    return eError;
-}
-
-#endif
-
-
-
-
-
-
-///// e n d
