@@ -71,8 +71,7 @@ SOURCES     = \
 src/camera_il_client.c
 
 
-EXEC_ARGS  =  utils.o
-
+EXEC_ARGS  = 
 
 # Search path for include files
 
@@ -89,7 +88,7 @@ INCLUDES    = \
 # Libraries needed for linking.
 
 ST_LIBS        = omx_core omx_proxy_component mmplatform  domx mm_osal
-SH_LIBS        = pthread rt utils procmgr ipc rcm notify nl nl-genl
+SH_LIBS        = pthread rt utils procmgr ipc rcm notify
 SH_LIBS        += sysmgr sysmemmgr memmgr d2cmap
 
 

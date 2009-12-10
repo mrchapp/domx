@@ -90,8 +90,7 @@ TIMM_OSAL_ERRORTYPE TIMM_OSAL_CreatePipe (TIMM_OSAL_PTR *pPipe,
         printf("\nCreate_Pipe failed!!!\n");
 		goto EXIT;
 	}
-    printf("\nPipe craeted = %d\n", pHandle->pfd[0]);
-    printf("\nPipe craeted = %d\n", pHandle->pfd[1]);
+
 /*AD - This ensures that file descriptors for stdin/out/err are not assigned to 
   component pipes incase those file descriptors are free Normally this if 
   condition will not be true and we'll go directly to the else part*/
@@ -251,7 +250,7 @@ TIMM_OSAL_ERRORTYPE TIMM_OSAL_WriteToPipe (TIMM_OSAL_PTR pPipe,
 		bReturnStatus = TIMM_OSAL_ERR_PARAMETER;
 		goto EXIT;
 	}
-	printf("\nWriting to pipe %d\n", pHandle->pfd[1]);
+
     lSizeWritten = write(pHandle->pfd[1], pMessage, size);
 
 	if(lSizeWritten != size){
@@ -367,7 +366,7 @@ TIMM_OSAL_ERRORTYPE TIMM_OSAL_ReadFromPipe (TIMM_OSAL_PTR pPipe,
 			bReturnStatus = TIMM_OSAL_ERR_PARAMETER;
 			goto EXIT;
 		}
-printf("\nreading from pipe %d\n", pHandle->pfd[0]);
+
 		*actualSize =  lSizeRead = read(pHandle->pfd[0], pMessage, size);
 		if(0 == lSizeRead){
 			printf("\nEOF reached or no data in pipe\n");
@@ -377,12 +376,11 @@ printf("\nreading from pipe %d\n", pHandle->pfd[0]);
 
 		bReturnStatus = TIMM_OSAL_ERR_NONE;
         
-        printf("\nUpdate message count and pipe size\n");
+
         pHandle->messageCount--;
         pHandle->totalBytesInPipe -= size;
 
 	EXIT:
-    printf("\nReturning from read pipe with status =\n",bReturnStatus);
 		return bReturnStatus;
 
 }

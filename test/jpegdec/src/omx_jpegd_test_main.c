@@ -52,7 +52,7 @@
 
 extern OMX_TEST_CASE_ENTRY OMX_JPEGDTestCaseTable[];
 OMX_U32 OMX_Jpegd_MemStatPrint(void);
-
+OMX_U32 jpegdec_prev=0;
 
 void main()
 {
@@ -85,17 +85,21 @@ void main()
     }
 
 
+TIMM_OSAL_InfoExt(TIMM_OSAL_TRACEGRP_OMXIMGDEC," do you want to have preview on lcd of decoded frames:");
+TIMM_OSAL_InfoExt(TIMM_OSAL_TRACEGRP_OMXIMGDEC," enter 1 for yes, 2 for no\n");
 
-#if 0
-    TIMM_OSAL_InfoExt(TIMM_OSAL_TRACEGRP_OMXIMGDEC," Select test case end ID (1-51):");
-    scanf("%d", &test_case_end);
+	fflush(stdout);
+	scanf("%d", &jpegdec_prev);
 
-    if(test_case_end<test_case_start || test_case_start < 1 || test_case_end > 56)
+    if(jpegdec_prev < 1 || jpegdec_prev > 2)
     {
-        TIMM_OSAL_ErrorExt(TIMM_OSAL_TRACEGRP_OMXIMGDEC," Invalid test ID range selection.");
+        TIMM_OSAL_ErrorExt(TIMM_OSAL_TRACEGRP_OMXIMGDEC," Invalid selection.");
         goto EXIT;
     }
-#endif
+
+if ( jpegdec_prev == 1)
+	TIMM_OSAL_InfoExt(TIMM_OSAL_TRACEGRP_OMXIMGDEC," preview selected.\n");
+
     TIMM_OSAL_EnteringExt(TIMM_OSAL_TRACEGRP_OMXIMGDEC);
     TIMM_OSAL_InfoExt(TIMM_OSAL_TRACEGRP_OMXIMGDEC," JPEG Decoder Test case begin");
 	printf("\n-----------------------------------------------");
@@ -111,12 +115,8 @@ void main()
 
 test_case=(test_case_start-1);
 
-//    for(test_case=(test_case_start-1); test_case<test_case_end; test_case++)
-  //  {
         testcaseEntry = &OMX_JPEGDTestCaseTable[test_case];
         testcaseEntry->pTestProc(1,(TIMM_OSAL_U32*)&OMX_JPEGDTestCaseTable[test_case],NULL);
-   // }
-
 
 
 #ifdef MEMORY_DEBUG

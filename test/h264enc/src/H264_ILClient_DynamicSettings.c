@@ -18,13 +18,13 @@
 H264E_TestCaseParamsDynamic H264_TestCaseDynTable[1]= {
 {
 	{
-		{0,-1},
-		{30,0}
+		{2,20,-1},
+		{20,30,0}
 		
 	},
 	{
-		{0,-1},
-		{128000,0}
+		{0,20,-1},
+		{128000,50000,0}
 		
 	},
 	{
@@ -37,8 +37,8 @@ H264E_TestCaseParamsDynamic H264_TestCaseDynTable[1]= {
 		
 	},	
 	{
-		{0,-1},
-		{0}
+		{5,20,-1},
+		{1,1}
 	},
 	{
 		{0,-1},
@@ -57,6 +57,10 @@ H264E_TestCaseParamsDynamic H264_TestCaseDynTable[1]= {
 		{10}
 	},
 	{
+		{-1},
+		{0}
+	},
+	{
 		{0,-1},
 		{0},
 		{0}
@@ -70,6 +74,9 @@ H264E_TestCaseParamsDynamic H264_TestCaseDynTable[1]= {
 }
 
 };
+
+
+
 
 
 

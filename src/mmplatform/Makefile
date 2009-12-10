@@ -82,6 +82,7 @@ INCLUDES    = \
     $(BRIDGEROOT)/syslink/api/include \
     $(PROJROOT)/system/omx_core \
 	$(PROJROOT)/system/domx \
+$(PROJROOT)/system/mm_osal \
 	
 
 

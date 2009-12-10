@@ -43,7 +43,8 @@ extern "C" {
 #ifndef LINUX_TRACE
 #define DOMX_DEBUG(ARGS,...)  TIMM_OSAL_TraceExt(TIMM_OSAL_TRACEGRP_DOMX,ARGS,##__VA_ARGS__)
 #else
-#define DOMX_DEBUG(ARGS,...) printf(ARGS,##__VA_ARGS__)
+#include <timm_osal_trace.h>
+#define DOMX_DEBUG(ARGS,...) TIMM_OSAL_Trace(ARGS,##__VA_ARGS__)
 #endif
 #include <omx_types.h>
 

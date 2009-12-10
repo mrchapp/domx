@@ -35,7 +35,7 @@ extern "C" {
 #include "omx_rpc.h"
 #include "omx_rpc_internal.h"
 
-#define MAX_NUM_PROXY_BUFFERS             20
+#define MAX_NUM_PROXY_BUFFERS             25
 #define MAX_COMPONENT_NAME_LENGTH         128
 
 typedef struct PROXY_BUFFER_INFO{

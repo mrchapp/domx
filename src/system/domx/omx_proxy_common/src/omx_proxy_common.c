@@ -421,6 +421,7 @@ static OMX_ERRORTYPE PROXY_UseBuffer (OMX_IN OMX_HANDLETYPE hComponent, OMX_INOU
     OMX_COMPONENTTYPE * pHandle =(OMX_COMPONENTTYPE *) hComponent;
 	PROXY_COMPONENT_PRIVATE* pComponentPrivate=(PROXY_COMPONENT_PRIVATE*)pHandle->pComponentPrivate;;
     currentBuffer = pComponentPrivate->numOfBuffers;
+DOMX_DEBUG("\nIn UB, no. of buffers = %d\n",pComponentPrivate->numOfBuffers);
 	//Allocating Local bufferheader to be maintained locally within proxy
 	pBufferHeader = (OMX_BUFFERHEADERTYPE*)TIMM_OSAL_Malloc(sizeof(OMX_BUFFERHEADERTYPE),TIMM_OSAL_TRUE, 0, TIMMOSAL_MEM_SEGMENT_INT);
 
@@ -571,6 +572,7 @@ This is done simple replace from the buffer list - this needs to be added to the
 
 			//keeping track of number of Buffers
 			pComponentPrivate->numOfBuffers++;
+DOMX_DEBUG("\nUpdating no. of buffer to %d\n",pComponentPrivate->numOfBuffers);
 			*ppBufferHdr = pBufferHeader;
 		}
 		else
@@ -673,9 +675,11 @@ static OMX_ERRORTYPE PROXY_FillThisBuffer(OMX_HANDLETYPE hComponent,OMX_BUFFERHE
 	OMX_U8 isMatchFound = 0;
 	OMX_ERRORTYPE eError = OMX_ErrorNone;
 
+        DOMX_DEBUG("\nEntered\n", __FUNCTION__);
 
 	//This is check, but Ideally we should skip this.
 	//These buffer calls should be independent of these loops in order to decrease latency
+        DOMX_DEBUG("\nNo. of buffers = %d\n", pComponentPrivate->numOfBuffers);
 	for(count=0;count<pComponentPrivate->numOfBuffers;count++)
 	{
 		if(pComponentPrivate->bufferList[count].pBufferMapped == pBufferMapped)
@@ -687,12 +691,12 @@ static OMX_ERRORTYPE PROXY_FillThisBuffer(OMX_HANDLETYPE hComponent,OMX_BUFFERHE
 	}
 	if(!isMatchFound)
 	{
-		DOMX_DEBUG("\n%s: Could not find the mapped address in component private buffer list",__FUNCTION__);
+		DOMX_DEBUG("\n%s: Could not find the mapped address in component private buffer list\n",__FUNCTION__);
 		eError = OMX_ErrorBadParameter;
 		goto leave;
 	}
 
-	DOMX_DEBUG("\n%s:  pBufferHdr->pBuffer : 0x%x, pBufferHdr->nFilledLen : %d ",__FUNCTION__,pBufferHdr->pBuffer,pBufferHdr->nFilledLen);
+	DOMX_DEBUG("\n%s:  pBufferHdr->pBuffer : 0x%x, pBufferHdr->nFilledLen : %d \n",__FUNCTION__,pBufferHdr->pBuffer,pBufferHdr->nFilledLen);
 	//Flushing the buffer
 	RPC_FlushBuffer(pBufferHdr->pBuffer, pBufferHdr->nAllocLen);
 	//RPC_FlushBuffer(pComponentPrivate->realCore,pBufferHdr->pBuffer, pBufferHdr->nFilledLen);
@@ -704,7 +708,7 @@ static OMX_ERRORTYPE PROXY_FillThisBuffer(OMX_HANDLETYPE hComponent,OMX_BUFFERHE
 	//changing back the local buffer address
 	pBufferHdr->pBuffer = (OMX_U8 *)pComponentPrivate->bufferList[count].pBufferActual;
 
-	DOMX_DEBUG("\n%s: Exiting: ",__FUNCTION__);
+	DOMX_DEBUG("\n%s: Exiting:\n ",__FUNCTION__);
 
 leave:
 	return eError;
