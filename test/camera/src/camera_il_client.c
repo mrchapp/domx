@@ -930,10 +930,10 @@ static int SetFormat( int width, int height, OMX_COLOR_FORMATTYPE pix_fmt)
         portCheck.nBufferSize = nStride * height;
 
 	PrevPort = &(pContext->sPortParam[pContext->nPrevPortIndex]);
-	PrevPort->nWidth= width;
-	PrevPort->nHeight=height;
-	PrevPort->nStride= nStride;
-	PrevPort->eColorFormat = pix_fmt;
+	PrevPort->nPrvWidth= width;
+	PrevPort->nPrvHeight=height;
+	PrevPort->nPrvStride= nStride;
+	PrevPort->ePrvColorFormat = pix_fmt;
 
         /* fill some default buffer count as of now.  */
         portCheck.nBufferCountActual = PrevPort->nActualBuffer = DEFAULT_BUFF_CNT;
