@@ -18,6 +18,7 @@
 
 /**-------program files ----------------------------------------**/
 
+#define OMX_SKIP64BIT 
 #include "H264_ILClient.h"
 
 #define OMX_TILERTEST
