@@ -82,7 +82,9 @@ extern OMX_U32 jpegdec_prev;
 
 int vid1_fd;
 #define VIDEO_DEVICE1	"/dev/video1"
+#define VIDEO_DEVICE2  "/dev/video2"
 int  streamon = 0;
+static int display_device = 1;
 
 OMX_ERRORTYPE JPEGD_releaseOnSemaphore(OMX_U16 unSemType);
 OMX_Status JPEGD_ParseTestCases (uint32_t uMsg, void *pParam, uint32_t paramSize);
@@ -111,7 +113,7 @@ OMX_STRING strJPEGD = "OMX.TI.DUCATI1.IMAGE.JPEGD";
 JpegDecoderTestObject TObjD ;
 
 #define OMX_JPEGD_INPUT_PATH "/camera_bin/"
-#define OMX_JPEGD_OUTPUT_PATH "/camera_bin/"
+#define OMX_JPEGD_OUTPUT_PATH "/camera_bin/output/"
 
 /* ===================================================================== */
 /**
@@ -715,7 +717,9 @@ OMX_Status JPEGD_ParseTestCases(uint32_t uMsg, void *pParam, uint32_t paramSize)
     }
     else
     {
-        JPEGD_ASSERT(0,OMX_ErrorBadParameter,"Unsupported color format parameter\n");
+        JPEGD_Trace("Unsupported color format parameter\n");
+        eError = OMX_ErrorBadParameter;
+        goto EXIT;
     }
 
     /* Parse output image color format */
@@ -867,12 +871,11 @@ void SetFormatforDSSvid( unsigned int width, unsigned int height)
 	return;
 }
 
-uint getDSSBuffers(uint count, char *dssbuffer, uint length)
+uint getDSSBuffers(uint count, char *omxbuffer, uint length, unsigned int width, unsigned int height)
 {
 	int result;
 	struct v4l2_requestbuffers reqbuf;
 	struct v4l2_buffer filledbuffer;
-int ht,wt;
 	int i;
 
 	reqbuf.type = V4L2_BUF_TYPE_VIDEO_OUTPUT;
@@ -904,7 +907,7 @@ int ht,wt;
 		}
 		printf("%d: buffer.length=%d, buffer.m.offset=%d\n",
 				i, buffer.length, buffer.m.offset);
-		if( buffers[i].length < length) {
+		if( buffers[i].length > length) {
 			printf("\n\nD WE GOT A PROBLEM, BUFFER LENGHT SUPPLIED BY dss IS LESS THAN DECODED PICTURE SIZE \n");
 			printf("\n OMX FILLED LENGTH = %d\n",length);
 		}
@@ -921,57 +924,109 @@ int ht,wt;
 			buffers[i].start, buffers[i].length);
 	}
 	printf("\nD copying data from jpeg dec buffer to DSS buffer \n");
-	printf("\nD input address = %x, output address = %x, length = %d\n", buffers[0].start, dssbuffer, length);
-	ht = 128;//FIXME
-	wt = 128;
-	for (i=0; i <ht; i++)
-	{
+	printf("\nD input address = %x, output address = %x, length = %d\n", buffers[0].start, omxbuffer, length);
 
-	memcpy((buffers[0].start + (i*2*wt)), (dssbuffer+ (i*4096)), (wt*2));
+        /* copy the omx buffer data into the dss buffer. this is necessary because omx buffer is 1D and
+         * dss buffer is 2D with 4096 bytes as stride
+         */
+        for (i=0; i <height; i++)
+        {
+                /* copy same data in to two buffer and use two buffers to display the image
+                 * With one buffer DQbuffer will not work. Reason: DSS wants alteast one buffer
+                 * to be in QUE to display the contents on the screen
+                 */
+                memcpy((buffers[0].start + (i*4096)), (omxbuffer+ (i*2*width)), (width*2));
+                memcpy((buffers[1].start + (i*4096)), (omxbuffer+ (i*2*width)), (width*2));
+                //
+                //for ( j=0; j< wt/2; ++j) {
+                //      printf("%8x, ", (uint)(*(uint *)(buffers[0].start + (i *4096) + (j))));
+                //}
+                printf("\n");
 
-	}
+        }
 
-//	memcpy(buffers[0].start, dssbuffer, length);
-	printf("\nD going to Queing the Buffer \n");
-	filledbuffer.type = V4L2_BUF_TYPE_VIDEO_OUTPUT;
-	filledbuffer.memory = V4L2_MEMORY_MMAP;
-	filledbuffer.flags = 0;
-	filledbuffer.index = 0;
-	result = ioctl(vid1_fd, VIDIOC_QBUF, &filledbuffer);
-	if (result != 0) {
-		perror("VIDIOC_QBUF");
-		return 1;
-	}
-	printf("\nD Queing Successfull\n, starting Streaming \n");
-	if ( streamon == 0) {
-		printf("\n STREAM ON DONE !!! \n");
-		result = ioctl(vid1_fd, VIDIOC_STREAMON,
-							&filledbuffer.type);
-		printf("\n STREAMON result = %d\n",result);
-		if (result != 0) {
-			perror("VIDIOC_STREAMON FAILED FAILED FAILED FAILED");
+        printf("\nD going to Queing the Buffer \n");
+        filledbuffer.type = V4L2_BUF_TYPE_VIDEO_OUTPUT;
+        filledbuffer.memory = V4L2_MEMORY_MMAP;
+        filledbuffer.flags = 0;
+        filledbuffer.index = 0;
+        result = ioctl(vid1_fd, VIDIOC_QBUF, &filledbuffer);
 
-		}
-		streamon = 1;
-	}
-	printf("\n DQBUF CALLED\n");
-	sleep(10);
-	result = ioctl(vid1_fd, VIDIOC_DQBUF, &filledbuffer);
-	printf("\n DQBUF result = %d\n",result);
-	if (result != 0) {
-		perror("VIDIOC_DQBUF FAILED FAILED FAILED FAILED");
-	}
 
-	return 0;
+        if (result != 0) {
+                perror("VIDIOC_QBUF");
+                return 1;
+        }
+        printf("\nD Queing Successfull\n, starting Streaming \n");
+        if ( streamon == 0) {
+                printf("\n STREAM ON DONE !!! \n");
+                result = ioctl(vid1_fd, VIDIOC_STREAMON,
+                                                        &filledbuffer.type);
+                printf("\n STREAMON result = %d\n",result);
+                if (result != 0) {
+                        perror("VIDIOC_STREAMON FAILED FAILED FAILED FAILED");
+
+                }
+                streamon = 1;
+        }
+        printf("\n DQBUF CALLED\n");
+
+        filledbuffer.index = 1;
+        result = ioctl(vid1_fd, VIDIOC_QBUF, &filledbuffer);
+        if (result != 0) {
+                perror("VIDIOC_QBUF");
+                return 1;
+        }
+        for ( i=0; i< 200; ++i) {
+                result = ioctl(vid1_fd, VIDIOC_DQBUF, &filledbuffer);
+                if (result != 0) {
+                        perror("VIDIOC_DQBUF FAILED FAILED FAILED FAILED");
+                }
+                filledbuffer.index = i%2;
+                result = ioctl(vid1_fd, VIDIOC_QBUF, &filledbuffer);
+                if (result != 0) {
+                        perror("VIDIOC_QBUF");
+                        return 1;
+                }
+        }
+        result = ioctl(vid1_fd, VIDIOC_DQBUF, &filledbuffer);
+        printf("\n DQBUF result = %d\n",result);
+        if (result != 0) {
+                perror("VIDIOC_DQBUF FAILED FAILED FAILED FAILED");
+        }
+        /* what else do you want, shown all buffers on the screen
+         * going to disable the streaming
+         */
+        for (i = 0; i < reqbuf.count; i++) {
+                if (buffers[i].start)
+                        munmap(buffers[i].start, buffers[i].length);
+        }
+
+        result = ioctl(vid1_fd , VIDIOC_STREAMOFF, &filledbuffer.type);
+        if (result != 0) {
+                perror("VIDIOC_STREAMOFF");
+                return 1;
+        }
+
+
+        return 0;
 
 }
+
+
 void open_video1(int width, int height)
 {
 	int result;
 	struct v4l2_capability capability;
 	struct v4l2_format format;
-	vid1_fd = open(VIDEO_DEVICE1, O_RDWR);
-	if ( vid1_fd <=0)
+        if (display_device == 1) {
+                vid1_fd = open(VIDEO_DEVICE1, O_RDWR);
+                display_device = 2;
+        } else {
+		vid1_fd = open(VIDEO_DEVICE2, O_RDWR);
+		display_device = 1;
+        }
+	if (vid1_fd <=0)
 	{
 		printf("\nD Failed to open the DSS Video Device\n");
 		exit(-1);
@@ -994,7 +1049,6 @@ void open_video1(int width, int height)
 		perror("VIDIOC_G_FMT");
 		goto ERROR_EXIT;
 	}
-	/*FIXME get the width and height from the table and supply it here */
 	SetFormatforDSSvid(width,height);
 
 
@@ -1087,6 +1141,7 @@ OMX_TestStatus JPEGD_TestFrameMode (uint32_t uMsg, void *pParam, uint32_t paramS
         fclose(ipfile);
     }
 
+    if(jpegdec_prev == 1)
 	open_video1(unOpImageWidth, unOpImageHeight);
     nframeSize = JPEGD_TEST_CalculateBufferSize(unOpImageWidth, unOpImageHeight, eOutColorFormat);
 
@@ -1371,11 +1426,6 @@ printf("\n +++WHY HERE ???? +++\n");
 
     /********************************************************************************************/
 
-    /* Send input and output buffers to the component for processing */
-    bReturnStatus = TIMM_OSAL_ReadFromPipe (hTObj->dataPipes[OMX_JPEGD_TEST_INPUT_PORT],
-	             &hTObj->pInBufHeader, sizeof (hTObj->pInBufHeader), &actualSize, 0);
-    JPEGD_REQUIRE( bReturnStatus == TIMM_OSAL_ERR_NONE,OMX_ErrorInsufficientResources ,"");
-
     hTObj->pInBufHeader->nFlags |= OMX_BUFFERFLAG_EOS;
     hTObj->pInBufHeader->nInputPortIndex = OMX_JPEGD_TEST_INPUT_PORT;
     hTObj->pInBufHeader->nAllocLen = nreadSize;
@@ -1395,6 +1445,11 @@ printf("\n +++WHY HERE ???? +++\n");
     eError = component->FillThisBuffer(component, hTObj->pOutBufHeader);
     JPEGD_ASSERT(eError == OMX_ErrorNone, eError, "");
 
+    /* Send input and output buffers to the component for processing */
+    bReturnStatus = TIMM_OSAL_ReadFromPipe (hTObj->dataPipes[OMX_JPEGD_TEST_INPUT_PORT],
+                     &hTObj->pInBufHeader, sizeof (hTObj->pInBufHeader), &actualSize, 0);
+    JPEGD_REQUIRE( bReturnStatus == TIMM_OSAL_ERR_NONE,OMX_ErrorInsufficientResources ,"");
+
     eError = JPEGD_pendOnSemaphore(SEMTYPE_ETB);
     JPEGD_ASSERT(eError == OMX_ErrorNone, eError, "");
 
@@ -1405,77 +1460,20 @@ printf("\n +++WHY HERE ???? +++\n");
     /***************************************************************************************/
 
 	/* allocate 1 buffers from the DSS driver */
-	getDSSBuffers( 1,hTObj->pOutBufHeader->pBuffer, hTObj->pOutBufHeader->nFilledLen );
+    if(jpegdec_prev == 1)
+        getDSSBuffers( 2,hTObj->pOutBufHeader->pBuffer, hTObj->pOutBufHeader->nFilledLen, unOpImageWidth, unOpImageHeight );
     opfile = fopen((const char *)omx_jpegd_output_file_path_and_name,"wb");
     if (opfile == NULL)
     {
         JPEGD_Trace("Error opening the file %s", omx_jpegd_output_file_path_and_name);
- printf("\n P Error in opening output file ");
+	printf("\n P Error in opening output file ");
         goto EXIT;
     }
 
     fwrite(hTObj->pOutBufHeader->pBuffer,1,hTObj->pOutBufHeader->nFilledLen,opfile);
     fclose (opfile);
-
-
-
-
-
-
-//------------------------- comparing results start
-#if 0
-//not needed now
-
-eError = OMX_ErrorNone;
-        printf("\nTest case has ended, now comparing output and reference files\n");
-                op_file = fopen (OUTPUT_FILE, "rb");
-            if (NULL == op_file) {
-            printf ("\n Error in opening generated output file!!!");
-            eError = OMX_ErrorInsufficientResources;
-            }
-
-            ref_op_file = fopen (REF_OUTPUT_FILE, "rb");
-            if(NULL == ref_op_file ) {
-           printf ("\n Error in opening REF OUTPUT FILE");
-           eError = OMX_ErrorInsufficientResources;
-            }
-                pass = 1;
-                while(1)
-                {
-                        if(eError != OMX_ErrorNone)
-                        {
-                                pass = 0;
-                                break;
-                        }
-                        ch1 = fgetc(op_file);
-                        ch2 = fgetc(ref_op_file);
-                        loc_diff++;
-                        if(ch1 == EOF || ch2 == EOF)
-                        {
-                                break;
-                        }
-                        if(ch1 != ch2)
-                        {
-                                pass = 0;
-                                printf("\nFILES NOT SAME \n");
-                                printf("\n ################### LOCATION OF DIFFERENCE: %d ################### \n", loc_diff);
-                                break;
-                        }
-                }
-printf("\n DONE WITH CHECK PASS = %d",pass);
-                fclose (op_file);
-                fclose (ref_op_file);
-                if(pass == 1)
-            printf (" \n ----- SUCCESS: Test Case has Passed\n");
-                else
-                {
-                        printf("\n FAILURE: Test case has failed. (EOF not reached)\n");
-                        eError = OMX_ErrorUndefined;
-                }
-
-#endif
-//------------------------- comparing results end
-
+    if (jpegdec_prev == 1)
+    	close(vid1_fd);
 
         if (hTObj->pInBufHeader){
 #ifdef OMX_LINUX_TILERTEST
@@ -1832,7 +1830,7 @@ printf("\n TILER BUFFERS \n");
 					MemReqDescTiler[0].dim.len=  nInputBitstreamSize;
 					MemReqDescTiler[0].stride=0;
 
-					printf("\nBefore tiler alloc for the Codec Internal buffer %d\n");
+					printf("\nBefore tiler alloc for the Codec Internal buffer %d\n",TilerAddrIn);
 					TilerAddrIn=MemMgr_Alloc(MemReqDescTiler,1);
 					printf("\nTiler buffer allocated is %x\n",TilerAddrIn);
                     p_in = (OMX_U32 *)TilerAddrIn;
@@ -1865,7 +1863,7 @@ printf("\n TILER BUFFERS \n");
 					MemReqDescTiler[0].dim.len=  nframeSize;
 					MemReqDescTiler[0].stride=0;
 
-					printf("\nBefore tiler alloc for the Codec Internal buffer %d\n");
+					printf("\nBefore tiler alloc for the Codec Internal buffer %d\n",TilerAddrOut);
 					TilerAddrOut=MemMgr_Alloc(MemReqDescTiler,1);
 					printf("\nTiler buffer allocated is %x\n",TilerAddrOut);
                     p_out = (OMX_U32 *)TilerAddrOut;

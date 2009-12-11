@@ -27,12 +27,6 @@
 #include <timm_osal_interfaces.h>
 #include <timm_osal_trace.h>
 
-/*PAK
-#include <WTSD_DucatiMMSW/drivers/csl/iss/iss_common/iss_common.h>
-#include <WTSD_DucatiMMSW/drivers/csl/iss/simcop/common/simcop_irq.h>
-#include <WTSD_DucatiMMSW/framework/resource_manager/rm.h>*/
-
-
 #include <stdio.h>
 #include "omx_jpegd_test.h"
 #include <OMX_Types.h>
@@ -62,14 +56,13 @@ void main()
 
 
 
-       printf("\n In JPEG DECODER MAIN and Calling platform init\n");
+	printf("\n In JPEG DECODER MAIN and Calling platform init\n");
         mmplatform_init(2);
         printf("\n Wait until RCM Server is created on other side. Press any key after that\n");
         getchar();
 
 
-	TraceGrp = TIMM_OSAL_TRACEGRP_SYSTEM; //TIMM_OSAL_GetTraceGrp();
-//	TIMM_OSAL_SetTraceGrp(TraceGrp|TIMM_OSAL_TRACEGRP_OMXIMGDEC);/*Enable OMX ImageDecoder traces*/
+	TraceGrp = TIMM_OSAL_TRACEGRP_SYSTEM;
 	TIMM_OSAL_TraceExt(TIMM_OSAL_TRACEGRP_OMXIMGDEC,"tracegroup=%x",TraceGrp);
 
 
@@ -78,31 +71,35 @@ void main()
 	scanf("%d", &test_case_start);
 
 
-    if(test_case_start < 1 || test_case_start > 51)
+    while(test_case_start < 1 || test_case_start > 51)
     {
-        TIMM_OSAL_ErrorExt(TIMM_OSAL_TRACEGRP_OMXIMGDEC," Invalid test ID selection.");
-        goto EXIT;
+        TIMM_OSAL_ErrorExt(TIMM_OSAL_TRACEGRP_OMXIMGDEC," Invalid test ID selection.Select test case start ID (1-51):");
+                fflush(stdout);
+                scanf("%d", &test_case_start);
     }
 
 
-TIMM_OSAL_InfoExt(TIMM_OSAL_TRACEGRP_OMXIMGDEC," do you want to have preview on lcd of decoded frames:");
-TIMM_OSAL_InfoExt(TIMM_OSAL_TRACEGRP_OMXIMGDEC," enter 1 for yes, 2 for no\n");
+	TIMM_OSAL_InfoExt(TIMM_OSAL_TRACEGRP_OMXIMGDEC," Do you want to have preview of Decoded Frames on Display?");
+	TIMM_OSAL_InfoExt(TIMM_OSAL_TRACEGRP_OMXIMGDEC," Enter 1 for yes, 2 for no\n");
 
 	fflush(stdout);
 	scanf("%d", &jpegdec_prev);
 
-    if(jpegdec_prev < 1 || jpegdec_prev > 2)
+
+    while(jpegdec_prev < 1 || jpegdec_prev > 2)
     {
-        TIMM_OSAL_ErrorExt(TIMM_OSAL_TRACEGRP_OMXIMGDEC," Invalid selection.");
-        goto EXIT;
+        TIMM_OSAL_ErrorExt(TIMM_OSAL_TRACEGRP_OMXIMGDEC," Invalid selection. Please select again: [1|2]");
+        fflush(stdout);
+        scanf("%d", &jpegdec_prev);
     }
 
-if ( jpegdec_prev == 1)
-	TIMM_OSAL_InfoExt(TIMM_OSAL_TRACEGRP_OMXIMGDEC," preview selected.\n");
 
-    TIMM_OSAL_EnteringExt(TIMM_OSAL_TRACEGRP_OMXIMGDEC);
-    TIMM_OSAL_InfoExt(TIMM_OSAL_TRACEGRP_OMXIMGDEC," JPEG Decoder Test case begin");
-	printf("\n-----------------------------------------------");
+	if (jpegdec_prev == 1)
+		TIMM_OSAL_InfoExt(TIMM_OSAL_TRACEGRP_OMXIMGDEC," Preview On Display selected.\n");
+
+	TIMM_OSAL_EnteringExt(TIMM_OSAL_TRACEGRP_OMXIMGDEC);
+	TIMM_OSAL_InfoExt(TIMM_OSAL_TRACEGRP_OMXIMGDEC," JPEG Decoder Test case begin");
+	printf("\n----------------JPEG Decoder Test Start-------------------------------");
 
 
     // Get Memory status before running the test case
@@ -124,16 +121,16 @@ test_case=(test_case_start-1);
 #endif
 
     // Get Memory status after running the test case
-    mem_size_end = OMX_Jpegd_MemStatPrint();
-    if(mem_size_end != mem_size_start)
-        TIMM_OSAL_ErrorExt(TIMM_OSAL_TRACEGRP_OMXIMGDEC," Memory leak detected. Bytes lost = %d", (mem_size_end - mem_size_start));
+	mem_size_end = OMX_Jpegd_MemStatPrint();
+	if(mem_size_end != mem_size_start)
+		TIMM_OSAL_ErrorExt(TIMM_OSAL_TRACEGRP_OMXIMGDEC," Memory leak detected. Bytes lost = %d", (mem_size_end - mem_size_start));
     TIMM_OSAL_InfoExt(TIMM_OSAL_TRACEGRP_OMXIMGDEC," JPEG Decoder Test End");
 
-printf("\n -------------- JPEG Decoder Test End --------------------");
-    printf("\nCalling platform deinit()\n");
-    mmplatform_deinit();
-    printf("\nPlatform deinitialized\n");
+	printf("\n----------------JPEG Decoder Test End-------------------------------");
 
+	printf("\nCalling platform deinit()\n");
+	mmplatform_deinit();
+	printf("\nPlatform deinitialized\n");
 
 EXIT:
     return 0;

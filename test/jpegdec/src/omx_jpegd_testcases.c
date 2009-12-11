@@ -122,5 +122,3 @@ OMX_TEST_CASE_ENTRY OMX_JPEGDTestCaseTable[] =
 {"JPEGDecode_OMX_JPEGD_0016",   "YUV420 image Decoding in FRAME Mode",      "JPEGD_0016_fall_3072x2304_7MP_420.jpg      JPEGD_0016_fall_3072x2304_7MP_420.yuv      3072       2304     0     OMX_COLOR_FormatYUV420PackedSemiPlanar    OMX_COLOR_FormatYUV420PackedSemiPlanar    OMX_JPEG_UncompressedModeFrame    0  0  0  0   OMX_TRUE   OMX_FALSE  ", "", 1, JPEGD_TestFrameMode},
 {"JPEGDecode_OMX_JPEGD_0039",   "YUV420 image Decoding in FRAME Mode",      "18_16x16_nv12.jpg                          18_16x16_nv12.yuv                            16        16      0     OMX_COLOR_FormatYUV420PackedSemiPlanar    OMX_COLOR_FormatYUV420PackedSemiPlanar    OMX_JPEG_UncompressedModeFrame    0  0  0  0   OMX_TRUE   OMX_FALSE  ", "", 1, JPEGD_TestFrameMode},
 };
-
-
