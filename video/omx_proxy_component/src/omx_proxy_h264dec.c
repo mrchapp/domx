@@ -63,7 +63,7 @@ OMX_ERRORTYPE OMX_ComponentInit (OMX_HANDLETYPE hComponent)
 	eError = OMX_ProxyCommonInit(hComponent);// Calling Proxy Common Init()
 	
 	if(eError != OMX_ErrorNone){
-        DOMX_DEBUG("\Error in Initializing Proxy");
+        DOMX_DEBUG("\nError in Initializing Proxy");
         TIMM_OSAL_Free(pComponentPrivate->cCompName);
         TIMM_OSAL_Free(pComponentPrivate);
         }

@@ -251,6 +251,16 @@ RPC_OMX_ERRORTYPE RPC_InstanceInit(OMX_STRING ServerName)
 		 
     DOMX_DEBUG( "\nRPC_InstanceInit: creating rcm instance\n");
 
+    /* Added New */
+    DOMX_DEBUG("\nCalling client setup\n");
+    status = RcmClient_setup(&cfgParams);
+    DOMX_DEBUG("\nClient setup done\n");
+    if(status < 0 )
+    {
+    	DOMX_DEBUG( "Client  exist.Error Code:%d\n",status);
+    	goto leave;
+    }
+
     RcmClient_Params_init(NULL,&rcmParams); 
     
     rcmParams.heapId = heapIdArray[LOCAL_CORE_ID];
@@ -265,15 +275,6 @@ RPC_OMX_ERRORTYPE RPC_InstanceInit(OMX_STRING ServerName)
 
 /* Component Name based Server Name*/
     RCM_SERVER_NAME = ServerName;
-/* Added New */    
-    DOMX_DEBUG("\nCalling client setup\n");
-    status = RcmClient_setup(&cfgParams);
-    DOMX_DEBUG("\nClient setup done\n");
-    if(status < 0 )
-    {
-        DOMX_DEBUG( "Client  exist.Error Code:%d\n",status);
-        goto leave;
-    }
 
     while (rcmHndl == NULL) {
     DOMX_DEBUG("\nCalling client create with server name = %s\n", RCM_SERVER_NAME);
@@ -569,9 +570,7 @@ RPC_OMX_ERRORTYPE appRcmServerThrFxn(void)
     RcmServer_getConfig(&cfgParams);
 
     // create an rcm server instance
-    DOMX_DEBUG("\n GetConfig done - calling Sercer params init\n");
-    RcmServer_Params_init(NULL,&rcmSrvParams);
-    DOMX_DEBUG("\n Server params init done - calling Server setup\n");
+    DOMX_DEBUG("\ncalling Server setup\n");
     status = RcmServer_setup(&cfgParams);
     if(status < 0 )
     {
@@ -580,6 +579,9 @@ RPC_OMX_ERRORTYPE appRcmServerThrFxn(void)
         goto leave;
     }
     
+    DOMX_DEBUG("\n calling Server params init\n");
+    RcmServer_Params_init(NULL,&rcmSrvParams);
+
     //rcmSrvParams.priority = 1;  // TODO what does this mean?
     DOMX_DEBUG("\n Server setup done - calling Server create\n");
     status = RcmServer_create(RCM_SERVER_NAME_LOCAL, &rcmSrvParams, &rcmSrvHndl);
