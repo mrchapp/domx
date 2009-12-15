@@ -303,11 +303,6 @@ OMX_ERRORTYPE OMX_ProxyCommonInit(OMX_HANDLETYPE hComponent)
 		//Need to do more accurate Error Handling
 		eError = OMX_ErrorHardware;
 		DOMX_DEBUG("\nFailed in RPC_GetHandle - Error in RPC");
-		
-		if(pComponentPrivate)
-			{TIMM_OSAL_Free ((void*)pComponentPrivate);
-		         
-			}
 
 		goto EXIT;
 
