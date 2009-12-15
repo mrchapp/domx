@@ -53,7 +53,7 @@
 #include <OMX_IVCommon.h>
 #include <OMX_TI_Video.h>
 #include <OMX_TI_Index.h>
-#include <OMX_TI_Common.h>
+#include <OMX_TI_Common.h> 
 
 #ifdef H264_LINUX_CLIENT
 	#define H264CLIENT_TRACE_PRINT(ARGS,...)  TIMM_OSAL_Trace(ARGS,##__VA_ARGS__)
@@ -276,6 +276,8 @@ typedef struct H264E_TestCaseParams
 	OMX_U32 maxInterFrameInterval;	
 	OMX_U32 nBitEnableAdvanced;
 	OMX_U32 nBitEnableDynamic;
+	OMX_U32 nNumInputBuf;
+	OMX_U32 nNumOutputBuf;
 	OMX_BOOL bInAllocatebuffer;
 	OMX_BOOL bOutAllocatebuffer;
 	OMX_U8 TestType;
