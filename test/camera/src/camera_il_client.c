@@ -306,6 +306,7 @@ OMX_U32 getv4l2pixformat(const char *image_fmt)
 	if (!strcmp (image_fmt, "YUYV"))
 		return V4L2_PIX_FMT_YUYV;
 	else if (!strcmp (image_fmt, "UYVY"))
+		//return V4L2_PIX_FMT_YUYV;
 		return V4L2_PIX_FMT_UYVY;
 	else if (!strcmp (image_fmt, "RGB565"))
 		return V4L2_PIX_FMT_RGB565;
@@ -335,6 +336,7 @@ OMX_COLOR_FORMATTYPE getomxformat(const char *format)
 	}
         else if (!strcmp (format, "UYVY")){
                 printf(" pixel format = %s\n", "UYVY");
+			//return OMX_COLOR_FormatYCbYCr;
 			return OMX_COLOR_FormatCbYCrY;
 	}
         else if (!strcmp (format, "NV12")){
@@ -681,8 +683,12 @@ OMX_ERRORTYPE SampleTest_AllocateBuffers( OMX_PARAM_PORTDEFINITIONTYPE *pPortDef
 		getDSSBuffers(pPortDef->nBufferCountActual);
 	} else {
 	/* Allocate the buffers now */
-		buffersize = pPortDef->format.video.nFrameWidth
-			* pPortDef->format.video.nFrameHeight * 2 + PAGE_SIZE;
+		if ( pPortDef->format.video.eColorFormat == OMX_COLOR_FormatCbYCrY)
+				buffersize = 4096 * pPortDef->format.video.nFrameHeight;
+		else if ( pPortDef->format.video.eColorFormat == OMX_COLOR_FormatYUV420SemiPlanar)
+				buffersize = 4096 * (pPortDef->format.video.nFrameHeight +
+														pPortDef->format.video.nFrameHeight >>2);
+	
 
 #ifdef TILER_BUFFERS
 		MemReqDescTiler=(MemAllocBlock*)TIMM_OSAL_Malloc((sizeof(MemAllocBlock) * 2), 
@@ -696,6 +702,23 @@ OMX_ERRORTYPE SampleTest_AllocateBuffers( OMX_PARAM_PORTDEFINITIONTYPE *pPortDef
 	for (i = 0; i < pPortDef->nBufferCountActual; i++) {
 		if (dss_enable == 0) {
 #ifdef TILER_BUFFERS
+
+		if ( pPortDef->format.video.eColorFormat == OMX_COLOR_FormatCbYCrY){
+			memset((void *) MemReqDescTiler , 0,
+					(sizeof(MemAllocBlock) * 2));
+			MemReqDescTiler[0].pixelFormat=PIXEL_FMT_16BIT;
+			MemReqDescTiler[0].dim.area.width=pPortDef->format.video.nFrameWidth*2;/*width*/
+			MemReqDescTiler[0].dim.area.height= pPortDef->format.video.nFrameHeight;/*height*/
+			MemReqDescTiler[0].stride=STRIDE_16BIT;
+
+			//MemReqDescTiler.reserved
+			/*call to tiler Alloc*/
+			printf("\nBefore tiler alloc for the Codec Internal buffer\n");
+			TilerAddr=MemMgr_Alloc(MemReqDescTiler,1);
+			printf("\nTiler buffer allocated is %x\n",
+				(unsigned int)TilerAddr);
+			pTmpBuffer = (OMX_U8 *)TilerAddr;
+		}else {
 			memset((void *) MemReqDescTiler , 0,
 					(sizeof(MemAllocBlock) * 2));
 			MemReqDescTiler[0].pixelFormat=PIXEL_FMT_8BIT;
@@ -715,6 +738,7 @@ OMX_ERRORTYPE SampleTest_AllocateBuffers( OMX_PARAM_PORTDEFINITIONTYPE *pPortDef
 			printf("\nTiler buffer allocated is %x\n",
 				(unsigned int)TilerAddr);
 			pTmpBuffer = (OMX_U8 *)TilerAddr;
+		}
 #endif
 			if (pTmpBuffer== TIMM_OSAL_NULL) {
 				printf("OMX_ErrorInsufficientResources\n");
@@ -818,7 +842,7 @@ OMX_ERRORTYPE SampleTest_TransitionWait(OMX_STATETYPE eToState)
         */
         /* Verify that the component is still in Loaded state */
         eError = OMX_GetState (pContext->hComp, &pContext->eState);
-        if(!eError)
+        if (eError != OMX_ErrorNone) 
         	printf("\nD get state from sample test transition wait failed\n");
         OMX_TEST_BAIL_IF_ERROR(eError);
         if ((eToState == OMX_StateIdle) &&
@@ -992,7 +1016,8 @@ printf("\n D CALLING DSS Set Format \n");
 #endif
 	}
 
-	SetFormatforDSSvid( width, height);
+	if(dss_enable)
+		SetFormatforDSSvid( width, height);
 printf("\n D RETURNed FROM DSS SET FORMAT\n");
 OMX_TEST_BAIL:
         if(eError != OMX_ErrorNone)
@@ -1062,10 +1087,11 @@ int main()
 			((test_case_id > 129) && ( test_case_id < 144)) ||
 			((test_case_id > 200) && ( test_case_id < 214))))
 	{
-		printf(" \nSelect test case ID (1 - 22): preview NV12 format \n");
-		printf(" \nSelect test case ID (41 - 51): preview UYVY format \n");
-		printf(" \nSelect test case ID (130 - 141): Capture jpeg format \n");
-		printf(" \nSelect test case ID (201 - 213): video capture UYVY format \n");
+                printf(" \nSelect test case ID (1 - 11): Preview UVYV format \n");
+		printf(" \nSelect test case ID (12 - 22): Preview NV12 format \n");
+		printf(" \nSelect test case ID (41 - 51): Preview UYVY format \n");
+		printf(" \nSelect test case ID (130 - 143): Capture jpeg format \n");
+		printf(" \nSelect test case ID (201 - 213): Video capture UYVY format \n");
 		printf("\n Enter Test Case ID to run:");
         fflush(stdout);
         scanf("%d", &test_case_id);
@@ -1296,9 +1322,9 @@ int main()
 
 
  		case 41:   {
- 			printf("\n Going to test resolution 864x480 format YUYV\n");
+ 			printf("\n Going to test resolution 864x480 format UVYV\n");
 			video_capture = 0;
- 			eError = test_camera_preview(864, 480,"YUYV");
+ 			eError = test_camera_preview(860, 480,"UYVY");
 			if(!eError)
 				printf("\n eError From Preview test= %d\n",eError);
  			OMX_TEST_BAIL_IF_ERROR(eError);
@@ -1306,9 +1332,9 @@ int main()
  		}
 
   		case 42:   {
- 			printf("\n Going to test resolution 640x480 format YUYV\n");
+ 			printf("\n Going to test resolution 640x480 format UYVY\n");
 			video_capture = 0;
- 			eError = test_camera_preview(640, 480,"YUYV");
+ 			eError = test_camera_preview(640, 480,"UYVY");
 			if(!eError)
 				printf("\n eError From Preview test= %d\n",eError);
  			OMX_TEST_BAIL_IF_ERROR(eError);
@@ -1317,9 +1343,9 @@ int main()
 
 
  		case 43:   {
- 			printf("\n Going to test resolution 320x240 format YUYV\n");
+ 			printf("\n Going to test resolution 320x240 format UYVY\n");
 			video_capture = 0;
- 			eError = test_camera_preview(320, 240,"YUYV");
+ 			eError = test_camera_preview(320, 240,"UYVY");
 			if(!eError)
 				printf("\n eError From Preview test= %d\n",eError);
  			OMX_TEST_BAIL_IF_ERROR(eError);
@@ -1327,9 +1353,9 @@ int main()
  		}
 
  		case 44:   {
- 			printf("\n Going to test resolution 800x600 format YUYV\n");
+ 			printf("\n Going to test resolution 800x600 format UYVY\n");
 			video_capture = 0;
- 			eError = test_camera_preview(800, 600,"YUYV");
+ 			eError = test_camera_preview(800, 600,"UYVY");
 			if(!eError)
 				printf("\n eError From Preview test= %d\n",eError);
  			OMX_TEST_BAIL_IF_ERROR(eError);
@@ -1337,9 +1363,9 @@ int main()
  		}
 
  		case 45:   {
- 			printf("\n Going to test resolution 176x144 format YUYV\n");
+ 			printf("\n Going to test resolution 176x144 format UYVY\n");
 			video_capture = 0;
- 			eError = test_camera_preview(176, 144,"YUYV");
+ 			eError = test_camera_preview(176, 144,"UYVY");
 			if(!eError)
 				printf("\n eError From Preview test= %d\n",eError);
  			OMX_TEST_BAIL_IF_ERROR(eError);
@@ -1347,9 +1373,9 @@ int main()
  		}
 
  		case 46:   {
- 			printf("\n Going to test resolution 768x576format YUYV\n");
+ 			printf("\n Going to test resolution 768x576format UYVY\n");
 			video_capture = 0;
- 			eError = test_camera_preview(768, 576,"YUYV");
+ 			eError = test_camera_preview(768, 576,"UYVY");
 			if(!eError)
 				printf("\n eError From Preview test= %d\n",eError);
  			OMX_TEST_BAIL_IF_ERROR(eError);
@@ -1357,9 +1383,9 @@ int main()
  		}
 
  		case 47:   {
- 			printf("\n Going to test resolution 128x96 format YUYV\n");
+ 			printf("\n Going to test resolution 128x96 format UYVY\n");
 			video_capture = 0;
- 			eError = test_camera_preview(128, 96,"YUYV");
+ 			eError = test_camera_preview(128, 96,"UYVY");
 			if(!eError)
 				printf("\n eError From Preview test= %d\n",eError);
  			OMX_TEST_BAIL_IF_ERROR(eError);
@@ -1367,9 +1393,9 @@ int main()
  		}
 
  		case 48:   {
- 			printf("\n Going to test resolution 64x64 format YUYV\n");
+ 			printf("\n Going to test resolution 64x64 format UYVY\n");
 			video_capture = 0;
- 			eError = test_camera_preview(64, 64,"YUYV");
+ 			eError = test_camera_preview(64, 64,"UYVY");
 			if(!eError)
 				printf("\n eError From Preview test= %d\n",eError);
  			OMX_TEST_BAIL_IF_ERROR(eError);
@@ -1377,9 +1403,9 @@ int main()
  		}
 
  		case 49:   {
- 			printf("\n Going to test resolution 80x60 formatYUYV\n");
+ 			printf("\n Going to test resolution 80x60 formatUYVY\n");
 			video_capture = 0;
- 			eError = test_camera_preview(80, 60,"YUYV");
+ 			eError = test_camera_preview(80, 60,"UYVY");
 			if(!eError)
 				printf("\n eError From Preview test= %d\n",eError);
  			OMX_TEST_BAIL_IF_ERROR(eError);
@@ -1387,9 +1413,9 @@ int main()
  		}
 
  		case 50:   {
- 			printf("\n Going to test resolution 864x486 format YUYV\n");
+ 			printf("\n Going to test resolution 864x486 format UYVY\n");
 			video_capture = 0;
- 			eError = test_camera_preview(864, 486,"YUYV");
+ 			eError = test_camera_preview(864, 486,"UYVY");
 			if(!eError)
 				printf("\n eError From Preview test= %d\n",eError);
  			OMX_TEST_BAIL_IF_ERROR(eError);
@@ -1397,9 +1423,9 @@ int main()
  		}
 
  		case 51:   {
- 			printf("\n Going to test resolution 720x480 format YUYV\n");
+ 			printf("\n Going to test resolution 720x480 format UYVY\n");
 			video_capture = 0;
- 			eError = test_camera_preview(720, 480,"YUYV");
+ 			eError = test_camera_preview(720, 480,"UYVY");
 			if(!eError)
 				printf("\n eError From Preview test= %d\n",eError);
  			OMX_TEST_BAIL_IF_ERROR(eError);
@@ -1410,7 +1436,7 @@ int main()
  		case 130:   {
 			printf("\nD 2. Starting image capture test case QCIF 176x144: \n");
 			zoom_prv=0;
-                        test_camera_capture(176, 144, "YUYV");
+                        test_camera_capture(176, 144, "UYVY");
                         break;
                 }
 
@@ -1419,77 +1445,77 @@ int main()
         case 131:   {
 			printf("\nD 2. Starting image capture test case: QVGA 320x240\n");
 			zoom_prv=0;
-                        test_camera_capture(320, 240, "YUYV");
+                        test_camera_capture(320, 240, "UYVY");
                         break;
                 }
 
         case 132:   {
 			printf("\nD 2. Starting image capture test case: PAL 768x576\n");
 			zoom_prv=0;
-                        test_camera_capture(768, 576, "YUYV");
+                        test_camera_capture(768, 576, "UYVY");
                         break;
                 }
 
         case 133:   {
 			printf("\nD 2. Starting image capture test case: SVGA 800x600\n");
 			zoom_prv=0;
-                        test_camera_capture(800, 600, "YUYV");
+                        test_camera_capture(800, 600, "UYVY");
                         break;
                 }
 
         case 134:   {
 			printf("\nD 2. Starting image capture test case: XGA 1024x768\n");
 			zoom_prv=0;
-                        test_camera_capture(1024, 768, "YUYV");
+                        test_camera_capture(1024, 768, "UYVY");
                         break;
                 }
 
         case 135:   {
 			printf("\nD 2. Starting image capture test case: SQCIF 128x128\n");
 			zoom_prv=0;
-                        test_camera_capture(128, 128, "YUYV");
+                        test_camera_capture(128, 128, "UYVY");
                         break;
                 }
 
         case 136:   {
 			printf("\nD 2. Starting image capture test case: UXGA 1600x1200\n");
 			zoom_prv=0;
-                        test_camera_capture(1600, 1200, "YUYV");
+                        test_camera_capture(1600, 1200, "UYVY");
                         break;
                 }
 
         case 137:   {
 			printf("\nD 2. Starting image capture test case: XGA 1280x1024\n");
 			zoom_prv=0;
-                        test_camera_capture(1280, 1024, "YUYV");
+                        test_camera_capture(1280, 1024, "UYVY");
                         break;
                 }
 
         case 138:   {
 			printf("\nD 2. Starting image capture test case: 64x64\n");
 			zoom_prv=0;
-                        test_camera_capture(64, 64, "YUYV");
+                        test_camera_capture(64, 64, "UYVY");
                         break;
                 }
 
         case 139:   {
 			printf("\nD 2. Starting image capture test case: 1152x768\n");
 			zoom_prv=0;
-                        test_camera_capture(1152, 768, "YUYV");
+                        test_camera_capture(1152, 768, "UYVY");
                         break;
                 }
 
         case 140:   {
 			printf("\nD 2. Starting image capture test case: 1920x1080\n");
 			zoom_prv=0;
-                        test_camera_capture(1920, 1080, "YUYV");
+                        test_camera_capture(1920, 1080, "UYVY");
                         break;
                 }
 
         case 141:   {
 			printf("\nD 2. Starting image capture test case: 1920x1020\n");
 			zoom_prv=0;
-                        test_camera_capture(1920, 1020, "YUYV");
+                        test_camera_capture(1920, 1020, "UYVY");
                         break;
                 }
 
@@ -1497,14 +1523,14 @@ int main()
         case 142:   {
 			printf("\nD 2. Starting image capture test case: 1280x720\n");
 			zoom_prv=0;
-                        test_camera_capture(1280, 720, "YUYV");
+                        test_camera_capture(1280, 720, "UYVY");
                         break;
                 }
 
         case 143:   {
 			printf("\nD 2. Starting image capture test case 12 MP: 4032x3024\n");
 			zoom_prv=0;
-                        test_camera_capture(4032, 3024, "YUYV");
+                        test_camera_capture(4032, 3024, "UYVY");
                         break;
                 }
 
@@ -1513,7 +1539,7 @@ int main()
         case 160:   {
 			printf("\nD 3. Starting zoom in preview test case: \n");
 			zoom_prv=1;
-                        test_camera_capture(640, 480, "YUYV");
+                        test_camera_capture(640, 480, "UYVY");
                         break;
                 }
 
@@ -1733,9 +1759,12 @@ int test_camera_preview( int width, int height, char *image_fmt)
 	cmd_width = width;
 	cmd_height = height;
 
-	if( width < 848 && height < 486 )
+	printf("\nD value of DSS_enable = %d \n", dss_enable);
+	if( (video_capture == 0) || (width < 848 && height < 486)  ) {
+		printf("\nD the display will be on LCD\n");
 		dss_enable=1;
-	if ( dss_enable = 1) {
+	}
+	if ( dss_enable == 1) {
 		open_video1();
 		printf("\n BACK FROM VIDEO DEV OPEN CALL\n");
 	}
@@ -2004,7 +2033,7 @@ static OMX_ERRORTYPE test_OMX_CAM_FillBufferDone(OMX_HANDLETYPE hComponent,
 		printf("\nD pBuffer in the FillBufferDone is NULL\n");
 		goto EXIT;
 	}
-	printf ("\n **********Cute FillBufferDone has come for port %d\n", appData->nPreviewPortIndex);
+	printf ("\n ****FillBufferDone has come for port %d\n", appData->nPreviewPortIndex);
 
 	if (appData->nPreviewPortIndex == pBuffer->nOutputPortIndex) {
 		OMX_TEST_INIT_STRUCT_PTR(&bOMX, OMX_CONFIG_BOOLEANTYPE);
