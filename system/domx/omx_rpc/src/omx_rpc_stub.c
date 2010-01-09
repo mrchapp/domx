@@ -109,7 +109,7 @@ RPC_OMX_ERRORTYPE RPC_EmptyThisBuffer(RPC_OMX_HANDLE remoteHandle, OMX_BUFFERHEA
 
 	DOMX_DEBUG("\n pBufferHdr = %x BufHdrRemote %x",pBufferHdr,BufHdrRemote);
 	
-    status = RcmClient_exec(rcmHndl, rcmMsg);
+    status = RcmClient_execNoReply(rcmHndl, rcmMsg);
     
     if (status < 0) {
 	    DOMX_DEBUG( "\n Error RcmClient_exec failed \n");
@@ -142,9 +142,6 @@ RPC_OMX_ERRORTYPE RPC_EmptyThisBuffer(RPC_OMX_HANDLE remoteHandle, OMX_BUFFERHEA
 			DOMX_DEBUG("\n %s: Error Sending Message: 0x%x\n",__FUNCTION__,rpcError);
 			*nCmdStatus = pRPCMsg->msgHeader.nOMXReturn;
 	}
-
-	//Freeing Msg Frame
-	 RcmClient_free(rcmHndl, rcmMsg);
 
 	EXIT:
         
@@ -216,7 +213,7 @@ RPC_OMX_ERRORTYPE RPC_FillThisBuffer(RPC_OMX_HANDLE remoteHandle, OMX_BUFFERHEAD
 	offset+=sizeof(OMX_U32);
 	DOMX_DEBUG("\n pBufferHdr = %x BufHdrRemote %x",pBufferHdr,BufHdrRemote);
 	
-	status = RcmClient_exec(rcmHndl, rcmMsg);
+	status = RcmClient_execNoReply(rcmHndl, rcmMsg);
 	
 	if (status < 0) {
 	    DOMX_DEBUG( "\n Error RcmClient_exec failed \n");
@@ -247,9 +244,6 @@ RPC_OMX_ERRORTYPE RPC_FillThisBuffer(RPC_OMX_HANDLE remoteHandle, OMX_BUFFERHEAD
 			DOMX_DEBUG("\n %s: Error Sending Message: 0x%x\n",__FUNCTION__,rpcError);
 			*nCmdStatus = pRPCMsg->msgHeader.nOMXReturn;
 	}
-	
-	//Freeing Msg Frame
-	 RcmClient_free(rcmHndl, rcmMsg);
 
 	EXIT:
         
@@ -1780,7 +1774,7 @@ RPC_OMX_ERRORTYPE  RPC_EmptyBufferDone(OMX_HANDLETYPE hComponent, OMX_PTR pAppDa
 	TIMM_OSAL_Memcpy(msgBody+offset,&(pBuffer->nFlags),sizeof(OMX_U32));
 	offset+=sizeof(OMX_U32);
 
-    status = RcmClient_exec(rcmHndl, rcmMsg);
+    status = RcmClient_execNoReply(rcmHndl, rcmMsg);
     
 	if (status < 0) {
 	    DOMX_DEBUG( "\n Error RcmClient_exec failed \n");
@@ -1788,8 +1782,6 @@ RPC_OMX_ERRORTYPE  RPC_EmptyBufferDone(OMX_HANDLETYPE hComponent, OMX_PTR pAppDa
         rpcError = RPC_OMX_RCM_ErrorExecFail;
         goto EXIT;        
         }  
-			
-	RcmClient_free(rcmHndl, rcmMsg);
 	
 	if(rpcError!=RPC_OMX_ErrorNone)
 	{
@@ -1866,7 +1858,7 @@ RPC_OMX_ERRORTYPE RPC_FillBufferDone(OMX_HANDLETYPE hComponent, OMX_PTR pAppData
     TIMM_OSAL_Memcpy(msgBody+offset,&(pBuffer->nTimeStamp),sizeof(pBuffer->nTimeStamp));
     offset+=sizeof(pBuffer->nTimeStamp);
 
-    status = RcmClient_exec(rcmHndl, rcmMsg);
+    status = RcmClient_execNoReply(rcmHndl, rcmMsg);
     
     if (status < 0) {
 	    DOMX_DEBUG( "\n Error RcmClient_exec failed \n");
@@ -1875,7 +1867,6 @@ RPC_OMX_ERRORTYPE RPC_FillBufferDone(OMX_HANDLETYPE hComponent, OMX_PTR pAppData
         goto EXIT;        
         }  
 EXIT:
-    RcmClient_free(rcmHndl, rcmMsg);
 	return rpcError;
 }
 /* ###################################### CALLBACK STUBS END ############################################ */
