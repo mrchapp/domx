@@ -156,7 +156,8 @@ typedef enum rpc_fxn_list{
 	RPC_OMX_FXN_IDX_EVENTHANDLER = 16, //new
 	RPC_OMX_FXN_IDX_ALLOCATE_BUFFER = 17,//new
 	RPC_OMX_FXN_IDX_COMP_TUNNEL_REQUEST = 18,//new
-	RPC_OMX_FXN_IDX_MAX = 19 //16
+	RPC_OMX_FXN_IDX_GET_ADDITIONAL_SERVER = 19,
+	RPC_OMX_FXN_IDX_MAX = 20
 }rpc_fxn_list;
 
 /* ********************************************* RPC LAYER HANDLE ************************************** */
