@@ -308,6 +308,9 @@ RPC_OMX_ERRORTYPE RPC_SKEL_EmptyThisBuffer(UInt32 size, UInt32 *data)
 	TIMM_OSAL_Memcpy(&(pBufHdr->nFlags),msgBody+offset,sizeof(OMX_U32));
 	offset+=sizeof(OMX_U32);
 
+    TIMM_OSAL_Memcpy(&(pBufHdr->nTimeStamp),msgBody+offset,sizeof(pBufHdr->nTimeStamp));
+    offset+=sizeof(pBufHdr->nTimeStamp);
+
     //Calling the actual ETB onthe TC
     pHandle = (OMX_COMPONENTTYPE * )hComp;
     DOMX_DEBUG("\n%s: ETB: filledLen  %d",__FUNCTION__, pBufHdr->nFilledLen);
@@ -926,6 +929,7 @@ RPC_OMX_ERRORTYPE RPC_SKEL_FillBufferDone(UInt32 size, UInt32 *data)
 	OMX_U32 nfilledLen =0;
 	OMX_U32 nOffset=0;
 	OMX_U32 nFlags =0;
+    OMX_TICKS nTimeStamp;
 	OMX_U32 bufferHdr;
 	OMX_COMPONENTTYPE * pHandle=NULL;  
 	PROXY_COMPONENT_PRIVATE *pCompPrivate  =NULL;  
@@ -958,10 +962,13 @@ RPC_OMX_ERRORTYPE RPC_SKEL_FillBufferDone(UInt32 size, UInt32 *data)
 	
 	TIMM_OSAL_Memcpy(&nFlags,msgBody+offset,sizeof(OMX_U32));
 	offset+=sizeof(OMX_U32);
+
+    TIMM_OSAL_Memcpy(&nTimeStamp,msgBody+offset,sizeof(nTimeStamp));
+    offset+=sizeof(nTimeStamp);
 	  
 	DOMX_DEBUG("\n%s:  hComp : 0x%x, bufHdr : 0x%x, nFilledLen : 0x%x, nOffset: 0x%x\n",__FUNCTION__,hComp,bufferHdr,nfilledLen, nOffset);
 
-    rpcError = (*pCompPrivate->proxyFillBufferDone)(hComp,bufferHdr,nfilledLen,nOffset,nFlags);		
+    rpcError = (*pCompPrivate->proxyFillBufferDone)(hComp,bufferHdr,nfilledLen,nOffset,nFlags,nTimeStamp);
 
 	return rpcError;
 }

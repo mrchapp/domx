@@ -34,14 +34,11 @@ extern "C" {
  *   INCLUDE FILES
  ******************************************************************/
 #include <stdio.h>
-#ifdef OSALTRACE
-#include <WTSD_DucatiMMSW/platform/osal/timm_osal_error.h>
-#include <WTSD_DucatiMMSW/platform/osal/timm_osal_osal.h>
-#include <WTSD_DucatiMMSW/platform/osal/timm_osal_trace.h>
-#endif
-#define LINUX_TRACE
 #ifndef LINUX_TRACE
-#define DOMX_DEBUG(ARGS,...)  TIMM_OSAL_TraceExt(TIMM_OSAL_TRACEGRP_DOMX,ARGS,##__VA_ARGS__)
+#  include <timm_osal_error.h>
+#  include <timm_osal_osal.h>
+#  include <timm_osal_trace.h>
+#  define DOMX_DEBUG(ARGS,...)  TIMM_OSAL_TraceExt(TIMM_OSAL_TRACEGRP_DOMX,ARGS,##__VA_ARGS__)
 #else
 #include <timm_osal_trace.h>
 #define DOMX_DEBUG(ARGS,...) TIMM_OSAL_Trace(ARGS,##__VA_ARGS__)

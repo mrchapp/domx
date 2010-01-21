@@ -224,11 +224,13 @@ RPC_OMX_ERRORTYPE RPC_InstanceInit(OMX_STRING ServerName)
 {
 
 	OMX_U8 i;
-	OMX_S16 status;
+	OMX_S32 status;
     RcmClient_Config cfgParams;
 	RcmClient_Params rcmParams;
     OMX_BOOL bCreateClient = OMX_FALSE;
     
+    mmplatform_init(2);
+
     /* RCM client configuration added in Bridge release 0.9-P1*/
 /* Added New */
     cfgParams.maxNameLen = 20;
@@ -249,6 +251,16 @@ RPC_OMX_ERRORTYPE RPC_InstanceInit(OMX_STRING ServerName)
 		 
     DOMX_DEBUG( "\nRPC_InstanceInit: creating rcm instance\n");
 
+    /* Added New */
+    DOMX_DEBUG("\nCalling client setup\n");
+    status = RcmClient_setup(&cfgParams);
+    DOMX_DEBUG("\nClient setup done\n");
+    if(status < 0 )
+    {
+    	DOMX_DEBUG( "Client  exist.Error Code:%d\n",status);
+    	goto leave;
+    }
+
     RcmClient_Params_init(NULL,&rcmParams); 
     
     rcmParams.heapId = heapIdArray[LOCAL_CORE_ID];
@@ -263,15 +275,6 @@ RPC_OMX_ERRORTYPE RPC_InstanceInit(OMX_STRING ServerName)
 
 /* Component Name based Server Name*/
     RCM_SERVER_NAME = ServerName;
-/* Added New */    
-    DOMX_DEBUG("\nCalling client setup\n");
-    status = RcmClient_setup(&cfgParams);
-    DOMX_DEBUG("\nClient setup done\n");
-    if(status < 0 )
-    {
-        DOMX_DEBUG( "Client  exist.Error Code:%d\n",status);
-        goto leave;
-    }
 
     while (rcmHndl == NULL) {
     DOMX_DEBUG("\nCalling client create with server name = %s\n", RCM_SERVER_NAME);
@@ -353,7 +356,10 @@ leave:
 RPC_OMX_ERRORTYPE RPC_InstanceDeInit(void)
 {
     RPC_OMX_ERRORTYPE rpcError = RPC_OMX_ErrorNone;
-	OMX_S16 status;
+	OMX_S32 status;
+
+	mmplatform_deinit();
+
     TIMM_OSAL_MutexObtain(client_flag_mtx, TIMM_OSAL_SUSPEND);
         flag_client--;
 	
@@ -394,7 +400,7 @@ leave:
 RPC_OMX_ERRORTYPE RPC_ModDeInit(void)
 {
     RPC_OMX_ERRORTYPE rpcError = RPC_OMX_ErrorNone;
-	OMX_S16 status;
+	OMX_S32 status;
 	
 	DOMX_DEBUG("\nEntered %s",__FUNCTION__);
 	
@@ -552,7 +558,7 @@ leave:
 RPC_OMX_ERRORTYPE appRcmServerThrFxn(void)
 {
     RcmServer_Params rcmSrvParams;
-    OMX_S16 i,status;
+    OMX_S32 i,status;
     OMX_U32 fxIndx;
     RcmServer_Config cfgParams;
     RPC_OMX_ERRORTYPE rpcError = RPC_OMX_ErrorNone;
@@ -564,9 +570,7 @@ RPC_OMX_ERRORTYPE appRcmServerThrFxn(void)
     RcmServer_getConfig(&cfgParams);
 
     // create an rcm server instance
-    DOMX_DEBUG("\n GetConfig done - calling Sercer params init\n");
-    RcmServer_Params_init(NULL,&rcmSrvParams);
-    DOMX_DEBUG("\n Server params init done - calling Server setup\n");
+    DOMX_DEBUG("\ncalling Server setup\n");
     status = RcmServer_setup(&cfgParams);
     if(status < 0 )
     {
@@ -575,6 +579,9 @@ RPC_OMX_ERRORTYPE appRcmServerThrFxn(void)
         goto leave;
     }
     
+    DOMX_DEBUG("\n calling Server params init\n");
+    RcmServer_Params_init(NULL,&rcmSrvParams);
+
     //rcmSrvParams.priority = 1;  // TODO what does this mean?
     DOMX_DEBUG("\n Server setup done - calling Server create\n");
     status = RcmServer_create(RCM_SERVER_NAME_LOCAL, &rcmSrvParams, &rcmSrvHndl);
@@ -676,7 +683,7 @@ Int32 fxnExit(UInt32 size, UInt32 *data)
 RPC_OMX_ERRORTYPE fxn_exit_caller(void)
 {
     RcmClient_Message *rcmMsg = NULL;
-    OMX_S16 status;
+    OMX_S32 status;
 	RPC_OMX_ERRORTYPE rpcError = RPC_OMX_ErrorNone;
     
     DOMX_DEBUG("\n Entered %s",__FUNCTION__);	
@@ -720,7 +727,7 @@ void getFxnIndexFromRemote_stub(void)
 	OMX_U32 packetSize = 0x100;
 	RPC_INDEX *FxnIdxArr;
 	RcmClient_Message *rcmMsg;
-	OMX_S16 status;
+	OMX_S32 status;
 	RPC_INDEX fxnIdx;
 	OMX_U8 i;
 	FxnList FxnIdxList;
