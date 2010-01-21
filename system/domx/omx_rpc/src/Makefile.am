@@ -1,7 +1,7 @@
 ## Process this file with automake to produce Makefile.in
 
-noinst_LTLIBRARIES      = libsrc.la
-libsrc_la_SOURCES       = \
+noinst_LTLIBRARIES      = libomx_rpc.la
+libomx_rpc_la_SOURCES       = \
 	omx_rpc_config.c \
 	omx_rpc_platform.c \
 	omx_rpc_skel.c \
@@ -9,13 +9,13 @@ libsrc_la_SOURCES       = \
 	omx_rpc_utils.c \
 	omx_rpc.c
 
-libsrc_la_LIBADD        = \
+libomx_rpc_la_LIBADD        = \
 	$(MMOSAL_LIBS) \
 	$(OMXCORE_LIBS) \
 	$(SYSLINK_LIBS) \
 	@LTLIBOBJS@
 
-libsrc_la_CFLAGS        = \
+libomx_rpc_la_CFLAGS        = \
 	-I$(top_srcdir)/system/domx \
 	-I$(top_srcdir)/system/domx/omx_rpc/inc \
 	$(MMOSAL_CFLAGS) \

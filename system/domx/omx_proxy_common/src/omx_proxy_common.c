@@ -438,6 +438,11 @@ DOMX_DEBUG("\nIn UB, no. of buffers = %d\n",pComponentPrivate->numOfBuffers);
 	//	pComponentPrivate->bufferList[currentBuffer].pPlatformPrivateClient =pBufferHeader->pPlatformPrivate;
 	pBufferHeader->pPlatformPrivate = pPlatformPrivate;
     
+	if(pComponentPrivate->numOfBuffers >= MAX_NUM_PROXY_BUFFERS) {
+	    DOMX_DEBUG("Proxy cannot handle more than %d buffers", MAX_NUM_PROXY_BUFFERS);
+	     eError = OMX_ErrorInsufficientResources;
+	     goto leave;
+	}
 
 #ifdef TILER_BUFF
        //If Tiler 1D buffer, get corresponding ducati address and send out buffer to ducati
@@ -1220,6 +1225,11 @@ OMX_U32 i = 0;
 		 goto EXIT;
 	    }
 			
+	    if(pComponentPrivate->numOfBuffers >= MAX_NUM_PROXY_BUFFERS) {
+		DOMX_DEBUG("Proxy cannot handle more than %d buffers", MAX_NUM_PROXY_BUFFERS);
+		 eError = OMX_ErrorInsufficientResources;
+		 goto EXIT;
+	    }
 		
         /* Storing the original Content of pPlatformPrivate*/
     	//	pComponentPrivate->bufferList[currentBuffer].pPlatformPrivateClient =pBufferHeader->pPlatformPrivate;

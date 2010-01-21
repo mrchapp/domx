@@ -17,7 +17,7 @@ lib_LTLIBRARIES = \
 # core DOMX:
 libdomx_la_SOURCES      = 
 libdomx_la_LDFLAGS      = -no-undefined
-libdomx_la_LIBADD       = mmplatform/src/libsrc.la system/domx/libsrc.la
+libdomx_la_LIBADD       = mmplatform/src/libipc_setup.la system/domx/libsrc.la
 
 # proxy components:
 libOMX_TI_DUCATI1_VIDEO_H264E_la_SOURCES  =
