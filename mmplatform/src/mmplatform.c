@@ -2,6 +2,8 @@
 #include <omx_rpc.h>
 
 extern int ipc_setup(int);
+extern int ipc_finalize();
+
 OMX_U8 CHIRON_IPC_FLAG=1;
 
 
@@ -38,6 +40,9 @@ void mmplatform_deinit()
     DOMX_DEBUG("\nCalling RPC Mod deinit\n");
     RPC_ModDeInit();
     DOMX_DEBUG("\nRPC mod deinit done\n");
-
+    if(ipc_finalize() < 0)
+        TIMM_OSAL_Error("\nIPC finalize failed\n");
+    else
+        TIMM_OSAL_Info("\nIPC Deinitialized\n");
     return;
 }

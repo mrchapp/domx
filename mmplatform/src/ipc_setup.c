@@ -413,6 +413,48 @@ exit:
     return status;
 }
 
-void ipc_finalize()
+int ipc_finalize()
 {    
+    Int status = 0;
+    Int retstatus = 0;
+    
+#ifdef BUF_HEAP
+  if(heapHandle)
+  {
+    status = HeapBuf_close (&heapHandle);   
+    if(status < 0) 
+    {
+        retstatus = status;
+        printf ("\nError in HeapBuf_close [0x%x]\n", status);
+    }
+  }
+  if(gateHandle_client)
+  {
+    status = GatePeterson_close (&gateHandle_client);   
+    if(status < 0) 
+    {
+        retstatus = status;
+        printf ("\nError in GatePeterson_close [0x%x]\n", status);
+    }
+  }    
+#endif    
+  if(procMgrHandle)
+  {
+    status = ProcMgr_close(&procMgrHandle);
+    if (status < 0) 
+    {
+        retstatus = status;
+        printf ("\nError in ProcMgr_close [0x%x]\n", status);
+    }
+  }
+    printf("\nClosing sysmgr\n");
+    status = SysMgr_destroy();
+    if (status < 0) 
+    {
+        retstatus = status;
+        printf ("Error in SysMgr_destroy [0x%x]\n", status);
+    }
+    return retstatus;
 }
+
+
