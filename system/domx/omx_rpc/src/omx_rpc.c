@@ -229,7 +229,12 @@ RPC_OMX_ERRORTYPE RPC_InstanceInit(OMX_STRING ServerName)
 	RcmClient_Params rcmParams;
     OMX_BOOL bCreateClient = OMX_FALSE;
     
-    mmplatform_init(2);
+    status = mmplatform_init(2);
+    if(status < 0)
+    {
+        TIMM_OSAL_Error("Platform init failed");
+        goto leave;
+    }
 
     /* RCM client configuration added in Bridge release 0.9-P1*/
 /* Added New */
@@ -358,7 +363,7 @@ RPC_OMX_ERRORTYPE RPC_InstanceDeInit(void)
     RPC_OMX_ERRORTYPE rpcError = RPC_OMX_ErrorNone;
 	OMX_S32 status;
 
-	mmplatform_deinit();
+	
 
     TIMM_OSAL_MutexObtain(client_flag_mtx, TIMM_OSAL_SUSPEND);
         flag_client--;
@@ -379,7 +384,13 @@ RPC_OMX_ERRORTYPE RPC_InstanceDeInit(void)
 			rpcError = RPC_OMX_RCM_ClientFail;
             goto leave;
 	}
-	}	
+        status = mmplatform_deinit();
+        if(status < 0)
+        {
+            TIMM_OSAL_Error("Platform deinit returned error");
+            rpcError = RPC_OMX_ErrorUndefined;
+        }
+    }	
 leave:
     TIMM_OSAL_MutexRelease(client_flag_mtx);
     DOMX_DEBUG("\n Leaving %s",__FUNCTION__);

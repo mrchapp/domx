@@ -11,38 +11,61 @@ OMX_U8 CHIRON_IPC_FLAG=1;
 static int cnt = 0;
 
 
-void mmplatform_init(int setup)
+int mmplatform_init(int setup)
 {
+    int nRetVal = 0;
 	cnt++;
 	if (cnt > 1)
-		return;
+		return nRetVal;
 
 	DOMX_DEBUG("Calling ipc setup\n");
-    
-    if(ipc_setup(setup) < 0)
+    nRetVal = ipc_setup(setup);
+    if(nRetVal < 0)
+    {
         TIMM_OSAL_Error("\nipc_setup failed\n");
+        goto leave;
+    }
     else
+    {
         DOMX_DEBUG("\nipc_setup successful\n");
+        nRetVal = 0;
+    }
 
     DOMX_DEBUG("\nCreating Rcm Server\n");
-    RPC_ModInit();
-    DOMX_DEBUG("\nRCM Server created\n");
-
-    return;
+    nRetVal = (int)RPC_ModInit();
+    if(nRetVal != 0)
+    {
+        TIMM_OSAL_Error("RPC Mod Init failed");
+        nRetVal = -1;
+    }
+    else
+        DOMX_DEBUG("\nRCM Server created\n");
+leave:
+    return nRetVal;
 }
 
-void mmplatform_deinit()
+int mmplatform_deinit()
 {
+    int nRetVal = 0;
 	cnt--;
 	if (cnt > 0)
-		return;
+		return nRetVal;
 
     DOMX_DEBUG("\nCalling RPC Mod deinit\n");
-    RPC_ModDeInit();
-    DOMX_DEBUG("\nRPC mod deinit done\n");
+    nRetVal = (int)RPC_ModDeInit();
+    if(nRetVal != 0)
+    {
+        TIMM_OSAL_Error("RPC_ModDeInit failed");
+        nRetVal = -1;
+    }
+    else
+        DOMX_DEBUG("\nRPC mod deinit done\n");
     if(ipc_finalize() < 0)
+    {
         TIMM_OSAL_Error("\nIPC finalize failed\n");
+        nRetVal = -1;
+    }
     else
         TIMM_OSAL_Info("\nIPC Deinitialized\n");
-    return;
+    return nRetVal;
 }

@@ -9,8 +9,7 @@ extern "C" {
 setup = 1 for full ipc setup(including procmgr_start for loading the base image)
 setup = 2 for ipc setup without loading the base image
 */
-void mmplatform_init(int setup);
+int mmplatform_init(int setup);
 
-
-void mmplatform_deinit();
+int mmplatform_deinit();
 #endif 

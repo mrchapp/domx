@@ -153,18 +153,18 @@
 #define HEAPMBMEM1_BUFS             (HEAPMBMEM1_CTRL + HEAPMBMEMSIZE1_CTRL)
 #define HEAPMBMEMSIZE1_BUFS         0x3000
 
-ProcMgr_Handle                  procMgrHandle;
-Char *                          remoteServerName;
+ProcMgr_Handle                  procMgrHandle = NULL;
+Char *                          remoteServerName = NULL;
 UInt16                          remoteId;
 
 //#ifdef BUF_HEAP
 HeapBuf_Handle                  heapHandle = NULL;
-GatePeterson_Handle             gateHandle_client;
+GatePeterson_Handle             gateHandle_client = NULL;
 //#endif
 
 Int ipc_setup (int setup)
 {
-    Char *                          procName;
+    Char *                          procName = NULL;
     UInt16                          procId;
     UInt32                          shAddrBase;
     UInt32                          shAddrBase1;
@@ -197,6 +197,7 @@ Int ipc_setup (int setup)
     MessageQTransportShm_Params     msgqTransportParams;*/
 //#endif /* if defined(SYSLINK_USE_SYSMGR) */
     Int                             status = 0;
+    Int                             callFinalIfErr = 0;
 
 #ifdef BUF_HEAP
 	UInt32                          shAddrBase2;
@@ -223,7 +224,10 @@ Int ipc_setup (int setup)
     status = SysMgr_setup (&config);
     if (status < 0) {
         printf ("Error in SysMgr_setup [0x%x]\n", status);
+        goto leave;
     }
+    else
+        callFinalIfErr = 1;
 
 
     if (status >= 0) {
@@ -235,6 +239,7 @@ Int ipc_setup (int setup)
                            procId);
         if (status < 0) {
             printf ("Error in ProcMgr_open [0x%x]\n", status);
+            goto leave;
         }
         else {
             printf ("ProcMgr_open Status [0x%x]\n", status);
@@ -247,6 +252,7 @@ Int ipc_setup (int setup)
             if (status < 0) {
                 printf ("Error in ProcMgr_translateAddr [0x%x]\n",
                              status);
+                goto leave;
             }
             else {
                 printf ("Virt address of shared address base #1:"
@@ -263,6 +269,7 @@ Int ipc_setup (int setup)
                 if (status < 0) {
                     printf ("Error in ProcMgr_translateAddr [0x%x]\n",
                                  status);
+                    goto leave;
                 }
                 else {
                     printf ("Virt address of shared address base #2:"
@@ -280,6 +287,7 @@ Int ipc_setup (int setup)
                 if (status < 0) {
                     printf ("Error in ProcMgr_translateAddr [0x%x]\n",
                                  status);
+                    goto leave;
                 }
                 else {
                     printf ("Virt address of shared address base #3:"
@@ -299,6 +307,7 @@ Int ipc_setup (int setup)
         if (status < 0) {
             printf ("ipc_setup: Error in SharedRegion_add [0x%x]\n",
                             status);
+            goto leave;
         }
         else {
             printf ("SharedRegion_add [0x%x]\n", status);
@@ -313,6 +322,7 @@ Int ipc_setup (int setup)
         if (status < 0) {
             printf ("ipc_setup: Error in SharedRegion_add1 [0x%x]\n",
                             status);
+            goto leave;
         }
         else {
             printf ("SharedRegion_add1 [0x%x]\n", status);
@@ -327,6 +337,7 @@ Int ipc_setup (int setup)
         if (status < 0) {
             printf ("ipc_setup: Error in SharedRegion_add2 [0x%x]\n",
                             status);
+            goto leave;
         }
         else {
             printf ("SharedRegion_add2 [0x%x]\n", status);
@@ -370,6 +381,7 @@ GatePeterson_Params_init (gateHandle_client, &gateParams);
     if (status < 0) {
         printf ("ipc_setup: Error in GatePeterson_open [0x%x]\n",
                         status);
+        goto leave;
     }
     else {
         printf ("ipc_setup: GatePeterson_open Status [0x%x]\n",
@@ -398,6 +410,7 @@ GatePeterson_Params_init (gateHandle_client, &gateParams);
         status = HeapBuf_open (&heapHandle, &heapbufParams);
         if(status < 0) {
             printf ("ipc_setup: Error in HeapBuf_create\n");
+            goto leave;
         }
         else {
             printf ("ipc_setup: HeapBuf_create Handle [0x%x]\n",
@@ -408,7 +421,9 @@ GatePeterson_Params_init (gateHandle_client, &gateParams);
      //   MessageQ_registerHeap (heapHandle, HEAPID);
     }
 #endif
-exit:
+leave:
+    if(status < 0 && callFinalIfErr == 1)
+        ipc_finalize();
     printf ("ipc_setup: Leaving ipc_setup()\n");
     return status;
 }
@@ -421,7 +436,8 @@ int ipc_finalize()
 #ifdef BUF_HEAP
   if(heapHandle)
   {
-    status = HeapBuf_close (&heapHandle);   
+    status = HeapBuf_close (&heapHandle);  
+    heapHandle = NULL; 
     if(status < 0) 
     {
         retstatus = status;
@@ -431,6 +447,7 @@ int ipc_finalize()
   if(gateHandle_client)
   {
     status = GatePeterson_close (&gateHandle_client);   
+    gateHandle_client = NULL;
     if(status < 0) 
     {
         retstatus = status;
@@ -441,6 +458,7 @@ int ipc_finalize()
   if(procMgrHandle)
   {
     status = ProcMgr_close(&procMgrHandle);
+    procMgrHandle = NULL;
     if (status < 0) 
     {
         retstatus = status;
