@@ -19,7 +19,7 @@
 #include <ProcMgr.h>
 
 //For the new shared heap
-#define BUF_HEAP
+//#define BUF_HEAP
 
 #ifdef BUF_HEAP
 #include <HeapBuf.h>
