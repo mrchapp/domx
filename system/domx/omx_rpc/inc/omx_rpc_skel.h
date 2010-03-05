@@ -37,6 +37,11 @@ extern "C" {
 #include "../inc/omx_rpc_internal.h"
 #include "../inc/omx_rpc_stub.h"
 
+RPC_OMX_ERRORTYPE RPC_SKEL_EmptyBufferDone(UInt32 size, UInt32 *data); 
+RPC_OMX_ERRORTYPE RPC_SKEL_FillBufferDone(UInt32 size, UInt32 *data); 
+RPC_OMX_ERRORTYPE RPC_SKEL_EventHandler(UInt32 size, UInt32 *data);
+
+/*Empty SKEL*/
 RPC_OMX_ERRORTYPE RPC_SKEL_GetHandle(UInt32 size, UInt32 *data);
 RPC_OMX_ERRORTYPE RPC_SKEL_SetParameter(UInt32 size, UInt32 *data);
 RPC_OMX_ERRORTYPE RPC_SKEL_GetParameter(UInt32 size, UInt32 *data);
@@ -51,10 +56,7 @@ RPC_OMX_ERRORTYPE RPC_SKEL_GetState(UInt32 size, UInt32 *data);
 RPC_OMX_ERRORTYPE RPC_SKEL_SendCommand(UInt32 size, UInt32 *data);
 RPC_OMX_ERRORTYPE RPC_SKEL_GetComponentVersion(UInt32 size, UInt32 *data);
 RPC_OMX_ERRORTYPE RPC_SKEL_GetExtensionIndex(UInt32 size, UInt32 *data);
-RPC_OMX_ERRORTYPE RPC_SKEL_EmptyBufferDone(UInt32 size, UInt32 *data); 
-RPC_OMX_ERRORTYPE RPC_SKEL_FillBufferDone(UInt32 size, UInt32 *data); 
-RPC_OMX_ERRORTYPE RPC_SKEL_EventHandler(UInt32 size, UInt32 *data);
-RPC_OMX_ERRORTYPE RPC_SKEL_AllocateBuffer(UInt32 size, UInt32 *data); //new
-RPC_OMX_ERRORTYPE RPC_SKEL_ComponentTunnelRequest(UInt32 size, UInt32 *data); //new
-RPC_OMX_ERRORTYPE RPC_SKEL_GetAdditionalServer(UInt32 size, UInt32 *data);//new
+RPC_OMX_ERRORTYPE RPC_SKEL_AllocateBuffer(UInt32 size, UInt32 *data);
+RPC_OMX_ERRORTYPE RPC_SKEL_ComponentTunnelRequest(UInt32 size, UInt32 *data);
+
 #endif

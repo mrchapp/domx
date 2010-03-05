@@ -37,12 +37,12 @@ extern "C" {
 #include "omx_rpc_internal.h"
 
 extern char rcmservertable[CORE_MAX][MAX_SERVER_NAME_LENGTH];
+
 RPC_OMX_ERRORTYPE RPC_UnMapBuffer(OMX_U32 mappedBuffer );
 RPC_OMX_ERRORTYPE RPC_MapBuffer(OMX_U32 mappedBuffer );
 RPC_OMX_ERRORTYPE RPC_FlushBuffer(OMX_U8 * pBuffer, OMX_U32 size );
 RPC_OMX_ERRORTYPE RPC_GetStructSize(OMX_PTR pCompParam, RPC_OMX_SIZE* nSize);
 RPC_OMX_ERRORTYPE RPC_GetTargetServerName(OMX_STRING ComponentName, OMX_STRING * ServerName);
 RPC_OMX_ERRORTYPE RPC_GetLocalServerName(OMX_STRING ComponentName, OMX_STRING * ServerName);
-
 
 #endif

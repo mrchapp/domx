@@ -45,9 +45,6 @@ extern "C" {
 #endif
 #include <OMX_Types.h>
 
-//#define BUF_HEAP
-//#define BUF_HEAP_UB
-
 #define TILER_BUFF
 
 extern OMX_U8 CHIRON_IPC_FLAG;
@@ -60,33 +57,33 @@ extern OMX_U8 CHIRON_IPC_FLAG;
   */
 
 typedef enum RPC_OMX_ERRORTYPE{
-	RPC_OMX_ErrorNone=0,
+    RPC_OMX_ErrorNone=0,
 
-	/* OMX Error Mapped */
-	RPC_OMX_ErrorInsufficientResources=0x81000,
-	RPC_OMX_ErrorUndefined = 0x81001,
-	RPC_OMX_ErrorBadParameter=0x81005,
-	RPC_OMX_ErrorHardware = 0x81009,
-	RPC_OMX_ErrorUnsupportedIndex=0x8101A,
-	RPC_OMX_ErrorTimeout = 0x81011,
-	/* END OF OMX Error */
+    /* OMX Error Mapped */
+    RPC_OMX_ErrorInsufficientResources=0x81000,
+    RPC_OMX_ErrorUndefined = 0x81001,
+    RPC_OMX_ErrorBadParameter=0x81005,
+    RPC_OMX_ErrorHardware = 0x81009,
+    RPC_OMX_ErrorUnsupportedIndex=0x8101A,
+    RPC_OMX_ErrorTimeout = 0x81011,
+    /* END OF OMX Error */
 
-	/* RPC Specific Error - to depricate */
-	RPC_OMX_ErrorUnknown=0x70000,
-	RPC_OMX_ErrorProccesorInit=0x70001,
-	RPC_OMX_InvalidRPCCmd = 0x70002,
-	RPC_OMX_ErrorHLOS=0x70003,
-	RPC_OMX_ErrorInvalidMsg = 0x70004,
+    /* RPC Specific Error - to depricate */
+    RPC_OMX_ErrorUnknown=0x70000,
+    RPC_OMX_ErrorProccesorInit=0x70001,
+    RPC_OMX_InvalidRPCCmd = 0x70002,
+    RPC_OMX_ErrorHLOS=0x70003,
+    RPC_OMX_ErrorInvalidMsg = 0x70004,
 
-	/* RCM Specific */
-	RPC_OMX_RCM_ErrorExecFail = 0x70005,
-	RPC_OMX_RCM_ErrorExecDpcFail = 0x70006,
-	RPC_OMX_RCM_ErrorTimeout = 0x70007,
-	RPC_OMX_RCM_ServerFail = 0x70008,
-	RPC_OMX_RCM_ClientFail = 0x70009,
-	
+    /* RCM Specific */
+    RPC_OMX_RCM_ErrorExecFail = 0x70005,
+    RPC_OMX_RCM_ErrorExecDpcFail = 0x70006,
+    RPC_OMX_RCM_ErrorTimeout = 0x70007,
+    RPC_OMX_RCM_ServerFail = 0x70008,
+    RPC_OMX_RCM_ClientFail = 0x70009,
+    
 
-	
+    
 }RPC_OMX_ERRORTYPE;
 
  
@@ -94,10 +91,7 @@ typedef enum RPC_OMX_ERRORTYPE{
  * PUBLIC DECLARATIONS Defined here, used elsewhere
 
  ****************************************************************/
- 
- 
-
-/* ===========================================================================*/
+ /* ===========================================================================*/
 /**
  * @name RPC_InstanceInit() 
  * @brief RPC instance init is used to bring up a instance of a client - this should be ideally invokable from any core
@@ -128,7 +122,7 @@ RPC_OMX_ERRORTYPE RPC_InstanceInit(OMX_STRING ServerName);
 RPC_OMX_ERRORTYPE RPC_ModInit(void);
 
 
-	
+    
 /* ===========================================================================*/
 /**
  * @name RPC_InstanceDeInit() 
@@ -160,4 +154,3 @@ RPC_OMX_ERRORTYPE RPC_ModDeInit(void);
 
 
 #endif 
-

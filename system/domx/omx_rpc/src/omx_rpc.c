@@ -105,7 +105,7 @@
 #define MAX_INDEX 1
 #define MAX_NUMBER_OF_HEAPS 4
 #define MAX_FUNCTION_NAME_LENGHT 50
-#define MAX_FUNCTION_LIST 20
+#define MAX_FUNCTION_LIST 19
 #define DO_SPIN 0
 
 /* ******************************* GLOBALS ********************************* */
@@ -151,9 +151,8 @@ static char rpcFxns[][80]= {
           "RPC_SKEL_EmptyBufferDone",
           "RPC_SKEL_EventHandler",
           "RPC_SKEL_AllocateBuffer",
-          "RPC_SKEL_ComponentTunnelRequest",
-          "RPC_SKEL_GetAdditionalServer"
-          };
+          "RPC_SKEL_ComponentTunnelRequest"
+};
           
 static rpcSkelArr rpcSkelFxns[] =
 {
@@ -175,15 +174,13 @@ static rpcSkelArr rpcSkelFxns[] =
           RPC_SKEL_EmptyBufferDone,
           RPC_SKEL_EventHandler,
           RPC_SKEL_AllocateBuffer,
-          RPC_SKEL_ComponentTunnelRequest,
-          RPC_SKEL_GetAdditionalServer
-		  
+          RPC_SKEL_ComponentTunnelRequest
 };
 
 char *RCM_SERVER_NAME;
 char *RCM_SERVER_NAME_LOCAL;
 
-static UInt32 fxnExitidx,getFxnIndexFromRemote_skelIdx;
+static UInt32 fxnExitidx;
 
 /*This list needs to be a comprehensive list of all possible communicating RCM servers avalilable across the whole system (core 0 core 1, tesla, chiron)*/
 char Core_Array[][20] = {"CHIRON","TESLA","DUCATI0","DUCATI1"};
@@ -193,8 +190,6 @@ static OMX_U32 heapIdArray[MAX_NUMBER_OF_HEAPS] = {1,0,0,1};
 /* ************************* EXTERNS, FUNCTION DECLARATIONS ***************************** */
 extern Int32 ipc_finalize(Void);
 static Int32 fxnExit(UInt32 size, UInt32 *data);
-static Int32 getFxnIndexFromRemote_skel(UInt32 size, UInt32 *data);
-void getFxnIndexFromRemote_stub(void);
 RPC_OMX_ERRORTYPE fxn_exit_caller(void);
 RPC_OMX_ERRORTYPE appRcmServerThrFxn(void);
 
@@ -300,18 +295,6 @@ RPC_OMX_ERRORTYPE RPC_InstanceInit(OMX_STRING ServerName)
 	DOMX_DEBUG("\n Getting Symbols\n");
 	/* cached indices recovery*/
 	
-	status = RcmClient_getSymbolIndex(rcmHndl, "getFxnIndexFromRemote_skel", &getFxnIndexFromRemote_skelIdx);
-    
-     if(status < 0) {
-            DOMX_DEBUG("\nInvalid Symbol.Error Code:%d\n",status);
-            goto leave;
-        }
-		/* cached indices recovery*/		
-	//DOMX_DEBUG("\n Calling stub to cache remote function indices");		
-	//getFxnIndexFromRemote_stub();
-	//DOMX_DEBUG("\n Returned from stub :caching Done");
-	
-    
     for (i=0;i<MAX_FUNCTION_LIST;i++) {
     
         status = RcmClient_getSymbolIndex(rcmHndl, rpcHndl[TARGET_CORE_ID].rpcFxns[i].FxnName, &rpcHndl[TARGET_CORE_ID].rpcFxns[i].rpcFxnIdx);
@@ -621,16 +604,6 @@ DOMX_DEBUG("\nServer create done\n");
         goto leave;
     }
 	
-	status = RcmServer_addSymbol(rcmSrvHndl, "getFxnIndexFromRemote_skel", getFxnIndexFromRemote_skel,&getFxnIndexFromRemote_skelIdx);
-	
-	if(status < 0 || getFxnIndexFromRemote_skelIdx == 0xFFFFFFFF)
-    {
-        DOMX_DEBUG("\nError occured while RcmServer_addSymbol Status:%d\n",status);
-		rpcError = RPC_OMX_RCM_ServerFail;
-        goto leave;
-    }
-
-     
      for(i=0;i<MAX_FUNCTION_LIST;i++)
     {
         status = RcmServer_addSymbol(rcmSrvHndl, rpcFxns[i], rpcSkelFxns[i].FxnPtr,&rpcHndl[LOCAL_CORE_ID].rpcFxns[i].rpcFxnIdx);
@@ -721,87 +694,4 @@ leave:
 	return rpcError;
 
 }
-
-/* ===========================================================================*/
-/**
- * @name getFxnIndexFromRemote_stub() 
- * @brief 
- * @param void 
- * @return RPC_OMX_ErrorNone = Successful 
- * @sa TBD
- *
- */
-/* ===========================================================================*/
-void getFxnIndexFromRemote_stub(void)
-{
-    //RPC_INDEX FxnIdxArr[MAX_FUNCTION_LIST];
-	OMX_U32 packetSize = 0x100;
-	RPC_INDEX *FxnIdxArr;
-	RcmClient_Message *rcmMsg;
-	OMX_S32 status;
-	RPC_INDEX fxnIdx;
-	OMX_U8 i;
-	FxnList FxnIdxList;
-	
-	DOMX_DEBUG("\nENTERED %s",__FUNCTION__);
-	
-	rcmMsg = RcmClient_alloc(rcmHndl, packetSize);
-	
-	if(rcmMsg ==NULL) {
-	    DOMX_DEBUG("\nError in Allocting rcm message");        
-        goto EXIT;
-    }
-	
-	rcmMsg->fxnIdx = getFxnIndexFromRemote_skelIdx;
-       FxnIdxArr = (RPC_INDEX *)(&rcmMsg->data);
-	TIMM_OSAL_Memcpy(FxnIdxArr,0,sizeof(RPC_INDEX)*MAX_FUNCTION_LIST);
-
-	status = RcmClient_exec(rcmHndl, rcmMsg);
-    
-    if (status < 0) {
-	    DOMX_DEBUG( "\n Error RcmClient_exec failed \n");
-        goto EXIT;        
-        }
-		
-	for(i=0;i<MAX_FUNCTION_LIST;i++)
-	{
-	
-	    DOMX_DEBUG("\n function index from remote side %x",  (OMX_U32)(*(FxnIdxArr+i)));
-	    //rpcHndl[TARGET_CORE_ID].rpcFxns[i].rpcFxnIdx =  (RPC_INDEX *)(FxnIdxArr+i);
-		
-	}
-EXIT:
-    return;
-}
-
-/* ===========================================================================*/
-/**
- * @name getFxnIndexFromRemote_skel() 
- * @brief 
- * @param void 
- * @return RPC_OMX_ErrorNone = Successful 
- * @sa TBD
- *
- */
-/* ===========================================================================*/
-
-static
-Int32 getFxnIndexFromRemote_skel(UInt32 size, UInt32 *data)
-{
-    Int status = 0;  /* success */
-	RPC_INDEX *FxnIdxArr;
-	OMX_U32 i;
-	
-	FxnIdxArr = (RPC_INDEX *)(data);
-	
-	DOMX_DEBUG("\nENTERED %s",__FUNCTION__);
-	
-	for(i=0;i<MAX_FUNCTION_LIST;i++)
-	//TIMM_OSAL_Memcpy(FxnIdxArr+i,rpcHndl[LOCAL_CORE_ID].rpcFxns[i].rpcFxnIdx,sizeof(RPC_INDEX));
-	TIMM_OSAL_Memcpy(FxnIdxArr+i,i,sizeof(RPC_INDEX));
-	//    (RPC_INDEX )(*(FxnIdxArr+i)) = rpcHndl[LOCAL_CORE_ID].rpcFxns[i].rpcFxnIdx;
-
-    return status;
-}
-
 
