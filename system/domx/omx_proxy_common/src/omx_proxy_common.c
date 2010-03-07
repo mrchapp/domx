@@ -498,8 +498,11 @@ static OMX_ERRORTYPE PROXY_UseBuffer (OMX_IN OMX_HANDLETYPE hComponent,
     }   
     pBufferHeader->pPlatformPrivate = pPlatformPrivate;
     
-    /* save pBuffer in buffer header*/
-    pBuffer = pBufferHeader->pBuffer;
+    DOMX_DEBUG("Preparing buffer to Remote Core...");
+    
+    pBufferHeader->pBuffer = pBuffer;
+    
+    DOMX_DEBUG("Prepared buffer header for preparebuffer function...");
 
     eError=RPC_PrepareBuffer_Remote(pCompPrv->hRemoteComp,nPortIndex,nSizeBytes, pBufferHeader, NULL);
     
@@ -510,6 +513,7 @@ static OMX_ERRORTYPE PROXY_UseBuffer (OMX_IN OMX_HANDLETYPE hComponent,
                      "ERROR WHILE GETTING FRAME HEIGHT");   
     }
     
+    DOMX_DEBUG("Making Remote call...");    
     eRPCError = RPC_UseBuffer(pCompPrv->hRemoteComp,&pBufferHeader,nPortIndex,pAppPrivate,nSizeBytes,pBuffer,&pBufferMapped,&pBufHeaderRemote, &eCompReturn);
 
     if(eRPCError == RPC_OMX_ErrorNone)
@@ -540,6 +544,8 @@ static OMX_ERRORTYPE PROXY_UseBuffer (OMX_IN OMX_HANDLETYPE hComponent,
         }
         else
         {
+            DOMX_DEBUG("\n***ERROR in UseBuffer return value, freeing buffer header");
+            TIMM_OSAL_Free(pPlatformPrivate);
             TIMM_OSAL_Free((void *)pBufferHeader);
             eError = eCompReturn;
         }
@@ -548,7 +554,8 @@ static OMX_ERRORTYPE PROXY_UseBuffer (OMX_IN OMX_HANDLETYPE hComponent,
     {
         eError = OMX_ErrorUndefined;
     }
-    
+
+     DOMX_DEBUG("Exited: %s\n",__FUNCTION__);
 EXIT:
     return eError;
 }
@@ -1201,7 +1208,7 @@ OMX_ERRORTYPE OMX_ProxyCommonInit(OMX_HANDLETYPE hComponent)
     
     if(eRPCError==RPC_OMX_ErrorNone) {
        if(eCompReturn==OMX_ErrorNone) {
-          DOMX_DEBUG("\n%s RPC_GetHandle Successful");
+          DOMX_DEBUG("\nRPC_GetHandle Successful");
           pCompPrv->hRemoteComp = hRemoteComp;
        }
        else {
@@ -1246,7 +1253,7 @@ EXIT:
 OMX_ERRORTYPE RPC_PrepareBuffer_Chiron(OMX_COMPONENTTYPE *hRemoteComp, OMX_U32 nPortIndex, OMX_U32 nSizeBytes, OMX_BUFFERHEADERTYPE *pDucBuf, OMX_BUFFERHEADERTYPE *pChironBuf)
 {
       OMX_ERRORTYPE eError = OMX_ErrorNone;
-      OMX_U32 nNumOfLines = 0;
+      OMX_U32 nNumOfLines = 1;
       OMX_U8 *pBuffer;
       
       DSPtr dsptr[2];
@@ -1299,19 +1306,23 @@ EXIT:
 OMX_ERRORTYPE RPC_PrepareBuffer_Remote(OMX_COMPONENTTYPE *hRemoteComp, OMX_U32 nPortIndex, OMX_U32 nSizeBytes, OMX_BUFFERHEADERTYPE *pChironBuf, OMX_BUFFERHEADERTYPE *pDucBuf)
 {
       OMX_ERRORTYPE eError = OMX_ErrorNone;
-      OMX_U32 nNumOfLines = 0;
+      OMX_U32 nNumOfLines = 1;
       OMX_U8 *pBuffer;
       
-      eError=RPC_UTIL_GetNumLines(hRemoteComp,nPortIndex,&nNumOfLines);
-      PROXY_assert((eError== OMX_ErrorNone), OMX_ErrorUndefined,
-                     "ERROR WHILE GETTING FRAME HEIGHT");
-                     
+      DOMX_DEBUG("\n Entered %s ____ \n",__FUNCTION__);
+      
       pBuffer = pChironBuf->pBuffer;
                      
-      if(nNumOfLines == 1) {
+      if(!MemMgr_Is2DBlock(pBuffer)) {
+        pChironBuf->pBuffer = NULL;
         RPC_MapBuffer_Ducati(pBuffer, nSizeBytes, nNumOfLines, &(pChironBuf->pBuffer)); 
       }
       else {
+      eError=RPC_UTIL_GetNumLines(hRemoteComp,nPortIndex,&nNumOfLines);
+      
+      PROXY_assert((eError== OMX_ErrorNone), OMX_ErrorUndefined,
+                     "ERROR WHILE GETTING FRAME HEIGHT");
+                     
       pChironBuf->pBuffer = NULL;
       ((OMX_TI_PLATFORMPRIVATE *)(pChironBuf->pPlatformPrivate))->pAuxBuf1 = NULL;
       
@@ -1319,6 +1330,8 @@ OMX_ERRORTYPE RPC_PrepareBuffer_Remote(OMX_COMPONENTTYPE *hRemoteComp, OMX_U32 n
       RPC_MapBuffer_Ducati((OMX_U8*) ((OMX_U32)pBuffer + nNumOfLines*4*1024), 4 * 1024, nNumOfLines/2, &((OMX_TI_PLATFORMPRIVATE *)(pChironBuf->pPlatformPrivate))->pAuxBuf1
 );
      }
+     
+     DOMX_DEBUG("Exited: %s\n",__FUNCTION__);
      
 EXIT:
     return OMX_ErrorNone;
@@ -1334,18 +1347,15 @@ EXIT:
  *
  */
 /* ===========================================================================*/
- OMX_ERRORTYPE RPC_UTIL_GetNumLines(OMX_COMPONENTTYPE *hComp, OMX_U32 nPortIndex, OMX_U32 * nNumOfLines)
+ OMX_ERRORTYPE RPC_UTIL_GetNumLines(OMX_COMPONENTTYPE *hRemoteComp, OMX_U32 nPortIndex, OMX_U32 * nNumOfLines)
  {
       OMX_ERRORTYPE eError = OMX_ErrorNone;
-      PROXY_COMPONENT_PRIVATE* pCompPrv=NULL;
       OMX_ERRORTYPE eCompReturn;
       RPC_OMX_ERRORTYPE eRPCError = RPC_OMX_ErrorNone;
-      pCompPrv = (PROXY_COMPONENT_PRIVATE*)hComp->pComponentPrivate;
       
       OMX_PARAM_PORTDEFINITIONTYPE portDef;      
       OMX_U8 * pBuffer;
       OMX_PTR pUVBuffer;
-      
 
       DOMX_DEBUG("Entered: %s\n",__FUNCTION__);
 
@@ -1358,7 +1368,7 @@ EXIT:
         
      portDef.nPortIndex = nPortIndex;
  
-     eRPCError = RPC_GetParameter(pCompPrv->hRemoteComp,OMX_IndexParamPortDefinition,(OMX_PTR)&portDef, &eCompReturn);
+     eRPCError = RPC_GetParameter(hRemoteComp,OMX_IndexParamPortDefinition,(OMX_PTR)&portDef, &eCompReturn);
 
      if(eRPCError == RPC_OMX_ErrorNone) {
          DOMX_DEBUG("\n PROXY_UTIL Get Parameter Successful\n", __FUNCTION__);
@@ -1375,8 +1385,18 @@ EXIT:
      *nNumOfLines = 1;
      
      if(portDef.eDomain==OMX_PortDomainVideo) {
-           if(portDef.format.video.eCompressionFormat == OMX_VIDEO_CodingUnused)
             *nNumOfLines = portDef.format.video.nFrameHeight;
+           //DOMX_DEBUG("\nPort definition Type is video...");           
+           //DOMX_DEBUG("\n&&Colorformat is:0x%x", portDef.format.video.eColorFormat);
+           //DOMX_DEBUG("\nnFrameHeight is:%d", portDef.format.video.nFrameHeight);
+           //*nNumOfLines = portDef.format.video.nFrameHeight;
+           
+           //if((portDef.format.video.eColorFormat == OMX_COLOR_FormatYUV420PackedSemiPlanar) ||
+             //  (portDef.format.video.eColorFormat == OMX_COLOR_FormatYUV420Planar))
+           //{
+            //DOMX_DEBUG("\nSetting FrameHeight as Number of lines...");
+            //*nNumOfLines = portDef.format.video.nFrameHeight;
+           //}
         }
         else if(portDef.eDomain==OMX_PortDomainImage) {
             DOMX_DEBUG("\nImage DOMAIN TILER SUPPORT");
@@ -1396,6 +1416,10 @@ EXIT:
      else {
          DOMX_DEBUG("\n ERROR IN RECOVERING UV POINTER");
      }
+     
+     DOMX_DEBUG("Port Number: %d :: NumOfLines %d\n",nPortIndex,*nNumOfLines); 
+     DOMX_DEBUG("Exited: %s\n",__FUNCTION__);
+EXIT:     
      return eError;
 }
 
@@ -1416,8 +1440,10 @@ OMX_ERRORTYPE RPC_MapBuffer_Ducati(OMX_U8 *pBuf, OMX_U32 nBufLineSize, OMX_U32 n
     MemAllocBlock block;
     OMX_U32 status;
     
+    DOMX_DEBUG("\n Entered %s ____ \n",__FUNCTION__);
+    
     if(!MemMgr_IsMapped(pBuf) && (nBufLines == 1)) {
-
+        DOMX_DEBUG("\nBuffer is not mapped: Mapping as 1D buffer now..");
         block.pixelFormat = PIXEL_FMT_PAGE;
         block.dim.len = nBufLineSize;
         block.stride = 0;
@@ -1436,7 +1462,8 @@ OMX_ERRORTYPE RPC_MapBuffer_Ducati(OMX_U8 *pBuf, OMX_U32 nBufLineSize, OMX_U32 n
         
         status = SysLinkMemUtils_map(&MpuAddr_list_1D, 1, pMappedBuf, mapType, PROC_APPM3);
     }
-    
+
+     DOMX_DEBUG("Exited: %s\n",__FUNCTION__);    
 EXIT:
     return OMX_ErrorNone;
 }
