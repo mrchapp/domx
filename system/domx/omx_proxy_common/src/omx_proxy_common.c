@@ -205,40 +205,65 @@ static OMX_ERRORTYPE PROXY_EmptyThisBuffer(OMX_HANDLETYPE hComponent,
     PROXY_COMPONENT_PRIVATE* pCompPrv;    
     OMX_COMPONENTTYPE *hComp = (OMX_COMPONENTTYPE *)hComponent;
   
-    OMX_U8 *pBufferMapped = NULL;    
     OMX_U32 count=0;
-    OMX_U8 isMatchFound = 0;    
+    OMX_U8 isMatchFound = 0;
+    OMX_U8 pBuffer=NULL;
+    
+    DOMX_DEBUG("\n%s Entered",__FUNCTION__);
     
     PROXY_assert((pBufferHdr != NULL) && (hComp->pComponentPrivate != NULL) &&
                  (hComp->pComponentPrivate != NULL),
                  OMX_ErrorBadParameter, NULL);
                  
     pCompPrv=(PROXY_COMPONENT_PRIVATE*)hComp->pComponentPrivate;
-    pBufferMapped =  (OMX_U32)pBufferHdr->pInputPortPrivate;
     
+    pBuffer = pBufferHdr->pBuffer;
+    
+    DOMX_DEBUG("\n%s:  pBufferHdr->pBuffer : 0x%x, pBufferHdr->nFilledLen : %d ",__FUNCTION__,pBufferHdr->pBuffer,pBufferHdr->nFilledLen);
+    
+    /*First find the index of this buffer header to retrieve remote buffer header */
     for(count=0;count<pCompPrv->nNumOfBuffers;count++)
     {
-        if(pCompPrv->tBufList[count].pBufferMapped == pBufferMapped)
+        if(pCompPrv->tBufList[count].pBufHeader == pBufferHdr)
         {
             DOMX_DEBUG("%s: Buffer Index of Match %d \n",__FUNCTION__,count);
             isMatchFound = 1;
             break;
         }
     }
-    
     if(!isMatchFound)
     {
-        DOMX_DEBUG("\n%s: Could not find the mapped address in component private buffer list",__FUNCTION__);
+        DOMX_DEBUG("\n%s: Could not find the remote header in buffer list",__FUNCTION__);
         eError = OMX_ErrorBadParameter;
         goto EXIT;
     }
-
-    DOMX_DEBUG("\n%s:  pBufferHdr->pBuffer : 0x%x, pBufferHdr->nFilledLen : %d ",__FUNCTION__,pBufferHdr->pBuffer,pBufferHdr->nFilledLen);
     
-    RPC_FlushBuffer(pBufferHdr->pBuffer, pBufferHdr->nAllocLen);
-
-    //Changing the local buffer address to remote mapped buffer address
-    pBufferHdr->pBuffer = (OMX_U8 *)pBufferMapped;
+    /*[NPA] If the buffer is modified in buffer header, force remap. 
+    TBD: Even if MODIFIED is set, the pBuffer can be a pre-mapped buffer
+    */
+    if((pBufferHdr->nFlags)&(OMX_BUFFERHEADERFLAG_MODIFIED)){
+    
+        /* Same pBufferHdr will get updated with remote pBuffer and pAuxBuf1 if a 2D buffer */
+        eError=RPC_PrepareBuffer_Remote(pCompPrv->hRemoteComp,pBufferHdr->nInputPortIndex,
+                                        pBufferHdr->nAllocLen,
+                                        pBufferHdr, NULL);
+    
+        if(eError != OMX_ErrorNone) {            
+            PROXY_assert(0, OMX_ErrorUndefined,
+                         "Unable to map buffer");   
+        }
+        
+        /*Now update the buffer list with new details*/
+        pCompPrv->tBufList[count].pBufferMapped = (OMX_U32)(pBufferHdr->pBuffer);
+        pCompPrv->tBufList[count].pBufferActual = (OMX_U32)pBuffer;        
+    }
+    else {
+        /*Update pBuffer with pBufferMapped stored in input port private
+        AuxBuf1 remains untouched as stored during use or allocate calls*/
+        pBufferHdr->pBuffer = (OMX_U8 *) pBufferHdr->pInputPortPrivate;
+    }
+        
+    RPC_FlushBuffer(pBuffer, pBufferHdr->nAllocLen);
 
     eRPCError = RPC_EmptyThisBuffer(pCompPrv->hRemoteComp, pBufferHdr, pCompPrv->tBufList[count].pBufHeaderRemote, &eCompReturn);
 
@@ -277,21 +302,27 @@ static OMX_ERRORTYPE PROXY_FillThisBuffer(OMX_HANDLETYPE hComponent,
     RPC_OMX_ERRORTYPE eRPCError = RPC_OMX_ErrorNone;
     PROXY_COMPONENT_PRIVATE* pCompPrv;    
     OMX_COMPONENTTYPE *hComp = (OMX_COMPONENTTYPE *)hComponent;
-    
-    OMX_U8 *pBufferMapped = NULL;    
+  
     OMX_U32 count=0;
-    OMX_U8 isMatchFound = 0;    
+    OMX_U8 isMatchFound = 0;
+    OMX_U8 pBuffer=NULL;
+    
+    DOMX_DEBUG("\n%s Entered",__FUNCTION__);
     
     PROXY_assert((pBufferHdr != NULL) && (hComp->pComponentPrivate != NULL) &&
                  (hComp->pComponentPrivate != NULL),
                  OMX_ErrorBadParameter, NULL);
                  
-    pCompPrv=(PROXY_COMPONENT_PRIVATE*)hComp->pComponentPrivate;    
-    pBufferMapped =  (OMX_U32)pBufferHdr->pInputPortPrivate;
+    pCompPrv=(PROXY_COMPONENT_PRIVATE*)hComp->pComponentPrivate;
     
+    pBuffer = pBufferHdr->pBuffer;
+    
+    DOMX_DEBUG("\n%s:  pBufferHdr->pBuffer : 0x%x, pBufferHdr->nFilledLen : %d ",__FUNCTION__,pBufferHdr->pBuffer,pBufferHdr->nFilledLen);
+    
+    /*First find the index of this buffer header to retrieve remote buffer header */
     for(count=0;count<pCompPrv->nNumOfBuffers;count++)
     {
-        if(pCompPrv->tBufList[count].pBufferMapped == pBufferMapped)
+        if(pCompPrv->tBufList[count].pBufHeader == pBufferHdr)
         {
             DOMX_DEBUG("%s: Buffer Index of Match %d \n",__FUNCTION__,count);
             isMatchFound = 1;
@@ -300,18 +331,38 @@ static OMX_ERRORTYPE PROXY_FillThisBuffer(OMX_HANDLETYPE hComponent,
     }
     if(!isMatchFound)
     {
-        DOMX_DEBUG("\n%s: Could not find the mapped address in component private buffer list\n",__FUNCTION__);
+        DOMX_DEBUG("\n%s: Could not find the remote header in buffer list",__FUNCTION__);
         eError = OMX_ErrorBadParameter;
         goto EXIT;
     }
-
-    DOMX_DEBUG("\n%s:  pBufferHdr->pBuffer : 0x%x, pBufferHdr->nFilledLen : %d \n",__FUNCTION__,pBufferHdr->pBuffer,pBufferHdr->nFilledLen);
     
-    RPC_FlushBuffer(pBufferHdr->pBuffer, pBufferHdr->nAllocLen);
+    /*[NPA] If the buffer is modified in buffer header, force remap. 
+    TBD: Even if MODIFIED is set, the pBuffer can be a pre-mapped buffer
+    */
+    if((pBufferHdr->nFlags)&(OMX_BUFFERHEADERFLAG_MODIFIED)){
     
-    //Changing the local buffer address to remote mapped buffer address
-    pBufferHdr->pBuffer = (OMX_U8 *)pBufferMapped;
-
+        /* Same pBufferHdr will get updated with remote pBuffer and pAuxBuf1 if a 2D buffer */
+        eError=RPC_PrepareBuffer_Remote(pCompPrv->hRemoteComp,pBufferHdr->nOutputPortIndex,
+                                        pBufferHdr->nAllocLen,
+                                        pBufferHdr, NULL);
+    
+        if(eError != OMX_ErrorNone) {            
+            PROXY_assert(0, OMX_ErrorUndefined,
+                         "Unable to map buffer");   
+        }
+        
+        /*Now update the buffer list with new details*/
+        pCompPrv->tBufList[count].pBufferMapped = (OMX_U32)(pBufferHdr->pBuffer);
+        pCompPrv->tBufList[count].pBufferActual = (OMX_U32)pBuffer;
+    }
+    else {
+        /*Update pBuffer with pBufferMapped stored in input port private
+        AuxBuf1 remains untouched as stored during use or allocate calls*/
+        pBufferHdr->pBuffer = (OMX_U8 *) pBufferHdr->pInputPortPrivate;
+    }
+        
+    RPC_FlushBuffer(pBuffer, pBufferHdr->nAllocLen);
+    
     RPC_FillThisBuffer(pCompPrv->hRemoteComp, pBufferHdr, pCompPrv->tBufList[count].pBufHeaderRemote,&eCompReturn);
 
     //changing back the local buffer address
@@ -504,14 +555,17 @@ static OMX_ERRORTYPE PROXY_UseBuffer (OMX_IN OMX_HANDLETYPE hComponent,
     pBufferHeader->pBuffer = pBuffer;
     
     DOMX_DEBUG("Prepared buffer header for preparebuffer function...");
-
+    
+    /*[NPA] With NPA, pBuffer can be NULL*/
+    if(pBuffer != NULL) {
     eError=RPC_PrepareBuffer_Remote(pCompPrv->hRemoteComp,nPortIndex,nSizeBytes, pBufferHeader, NULL);
     
-    if(eError != OMX_ErrorNone) {
-        TIMM_OSAL_Free(pPlatformPrivate);
-        TIMM_OSAL_Free(pBufferHeader);        
-        PROXY_assert(0, OMX_ErrorUndefined,
-                     "ERROR WHILE GETTING FRAME HEIGHT");   
+        if(eError != OMX_ErrorNone) {
+            TIMM_OSAL_Free(pPlatformPrivate);
+            TIMM_OSAL_Free(pBufferHeader);        
+            PROXY_assert(0, OMX_ErrorUndefined,
+                         "ERROR WHILE GETTING FRAME HEIGHT");   
+        }
     }
     
     DOMX_DEBUG("Making Remote call...");    

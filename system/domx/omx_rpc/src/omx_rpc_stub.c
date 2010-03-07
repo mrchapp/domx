@@ -779,7 +779,9 @@ RPC_OMX_ERRORTYPE RPC_EmptyThisBuffer(RPC_OMX_HANDLE hComp, OMX_BUFFERHEADERTYPE
     RPC_OMX_BYTE * pMsgBody;
     RPC_INDEX fxnIdx;
     OMX_U32 nPos = 0;
-    OMX_S16 status;     
+    OMX_S16 status;
+    
+    OMX_U8* pAuxBuf1=NULL;
     
     DOMX_DEBUG("\n Entering: %s __________ BUFFER READ-WRITE ", __FUNCTION__);
     
@@ -789,10 +791,18 @@ RPC_OMX_ERRORTYPE RPC_EmptyThisBuffer(RPC_OMX_HANDLE hComp, OMX_BUFFERHEADERTYPE
     pRPCMsg = (RPC_OMX_MESSAGE*)(&pPacket->data);
     pMsgBody = &pRPCMsg->msgBody[0];
            
-     //Marshalled:[>hComp|>BufHdrRemote|>nFilledLen|>nOffset|>nFlags|>nTimeStamp]
+    //Marshalled:[>hComp|>BufHdrRemote|>nFilledLen|>nOffset|>nFlags|>nTimeStamp]
     
     RPC_SETFIELDVALUE(pMsgBody, nPos, hComp, RPC_OMX_HANDLE);
     RPC_SETFIELDVALUE(pMsgBody, nPos, (OMX_BUFFERHEADERTYPE*)BufHdrRemote, OMX_BUFFERHEADERTYPE*);
+    
+    RPC_SETFIELDVALUE(pMsgBody, nPos, pBufferHdr->pBuffer, OMX_U8*);
+    /*Check if valid platformPrivate exists, if so set AuxBuf1. It is always marshalled
+    even though it could be NULL*/
+    if(pBufferHdr->pPlatformPrivate != NULL) {
+        pAuxBuf1 = ((OMX_TI_PLATFORMPRIVATE *) (pBufferHdr->pPlatformPrivate))->pAuxBuf1;
+    }    
+    RPC_SETFIELDVALUE(pMsgBody, nPos, pAuxBuf1, OMX_U8*);
     
     RPC_SETFIELDVALUE(pMsgBody, nPos, pBufferHdr->nFilledLen, OMX_U32);
     RPC_SETFIELDVALUE(pMsgBody, nPos, pBufferHdr->nOffset, OMX_U32);
@@ -831,7 +841,9 @@ RPC_OMX_ERRORTYPE RPC_FillThisBuffer(RPC_OMX_HANDLE hComp, OMX_BUFFERHEADERTYPE*
     RPC_OMX_BYTE * pMsgBody;
     RPC_INDEX fxnIdx;
     OMX_U32 nPos = 0;
-    OMX_S16 status; 
+    OMX_S16 status;
+    
+    OMX_U8* pAuxBuf1;
         
     DOMX_DEBUG("\n Entering: %s __________ BUFFER READ-WRITE ", __FUNCTION__);
     
@@ -845,6 +857,14 @@ RPC_OMX_ERRORTYPE RPC_FillThisBuffer(RPC_OMX_HANDLE hComp, OMX_BUFFERHEADERTYPE*
     
     RPC_SETFIELDVALUE(pMsgBody, nPos, hComp, RPC_OMX_HANDLE);
     RPC_SETFIELDVALUE(pMsgBody, nPos, (OMX_BUFFERHEADERTYPE*)BufHdrRemote, OMX_BUFFERHEADERTYPE*);
+    
+    RPC_SETFIELDVALUE(pMsgBody, nPos, pBufferHdr->pBuffer, OMX_U8*);
+    /*Check if valid platformPrivate exists, if so set AuxBuf1. It is always marshalled
+    even though it could be NULL*/
+    if(pBufferHdr->pPlatformPrivate != NULL) {
+        pAuxBuf1 = ((OMX_TI_PLATFORMPRIVATE *) (pBufferHdr->pPlatformPrivate))->pAuxBuf1;
+    }    
+    RPC_SETFIELDVALUE(pMsgBody, nPos, pAuxBuf1, OMX_U8*);
     
     RPC_SETFIELDVALUE(pMsgBody, nPos, pBufferHdr->nFilledLen, OMX_U32);
     RPC_SETFIELDVALUE(pMsgBody, nPos, pBufferHdr->nOffset, OMX_U32);
