@@ -1200,8 +1200,8 @@ OMX_ERRORTYPE OMX_ProxyCommonInit(OMX_HANDLETYPE hComponent)
     
     pCompPrv->nNumOfBuffers = 0;    
     pCompPrv->proxyEmptyBufferDone = PROXY_EmptyBufferDone;
-    pCompPrv->proxyFillBufferDone = PROXY_EventHandler;
-    pCompPrv->proxyEventHandler = PROXY_FillBufferDone;
+    pCompPrv->proxyFillBufferDone = PROXY_FillBufferDone;
+    pCompPrv->proxyEventHandler = PROXY_EventHandler;
     
     //Send the proxy component handle for pAppData
     eRPCError = RPC_GetHandle(&hRemoteComp, pCompPrv->cCompName, (OMX_PTR)hComponent, NULL, &eCompReturn);

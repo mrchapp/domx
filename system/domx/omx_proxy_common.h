@@ -29,47 +29,93 @@
 extern "C" {
 #endif /* __cplusplus */
 
+/* ------compilation control switches ----------------------------------------*/
+
 /******************************************************************
  *   INCLUDE FILES
  ******************************************************************/
+/* ----- system and platform files ----------------------------*/ 
+#include <OMX_Core.h>
+/*-------program files ----------------------------------------*/
 #include "omx_rpc.h"
 #include "omx_rpc_internal.h"
 
+/****************************************************************
+ * PUBLIC DECLARATIONS Defined here, used elsewhere
+ ****************************************************************/
+/*--------data declarations -----------------------------------*/
 #define MAX_NUM_PROXY_BUFFERS             25
 #define MAX_COMPONENT_NAME_LENGTH         128
 
+/******************************************************************
+ *   MACROS - ASSERTS
+ ******************************************************************/
+#define PROXY_assert  PROXY_paramCheck
+#define PROXY_require PROXY_paramCheck
+#define PROXY_ensure  PROXY_paramCheck
+
+#define PROXY_paramCheck(C,V,S)  if (!(C)) { eError = V;\
+TIMM_OSAL_TraceFunction("##Error:: %s::in %s::line %d \n",S,__FUNCTION__, __LINE__); \
+goto EXIT; }
+
+
+typedef OMX_ERRORTYPE (*PROXY_EMPTYBUFFER_DONE)(OMX_HANDLETYPE hComponent, OMX_U32 remoteBufHdr,
+                                                 OMX_U32 nfilledLen, OMX_U32 nOffset,
+                                                 OMX_U32 nFlags);
+                                                 
+typedef OMX_ERRORTYPE (*PROXY_FILLBUFFER_DONE)(OMX_HANDLETYPE hComponent, OMX_U32 remoteBufHdr,
+                                                OMX_U32 nfilledLen, OMX_U32 nOffset,
+                                                OMX_U32 nFlags, OMX_TICKS nTimeStamp);
+
+typedef OMX_ERRORTYPE (*PROXY_EVENTHANDLER)(OMX_HANDLETYPE hComponent, OMX_PTR pAppData,
+                                             OMX_EVENTTYPE eEvent, OMX_U32 nData1,
+                                             OMX_U32 nData2, OMX_PTR pEventData);
+
+/*******************************************************************************
+* Structures
+*******************************************************************************/
+/* ========================================================================== */
+/**
+* PROXY_BUFFER_INFO
+*
+*/
+/* ========================================================================== */
 typedef struct PROXY_BUFFER_INFO{
-	OMX_BUFFERHEADERTYPE* pBufHeader;
-	OMX_U32 pBufHeaderRemote;
-	OMX_U32 pBufferMapped;
-	OMX_U32 pBufferActual;
-	OMX_U32 actualContent;
-	OMX_U32 pAlloc_localBuffCopy;
+    OMX_BUFFERHEADERTYPE* pBufHeader;
+    OMX_U32 pBufHeaderRemote;
+    OMX_U32 pBufferMapped;
+    OMX_U32 pBufferActual;
+    OMX_U32 actualContent;
+    OMX_U32 pAlloc_localBuffCopy;
 }PROXY_BUFFER_INFO;
 
-typedef RPC_OMX_ERRORTYPE (*PROXY_EMPTYBUFFER_DONE)(OMX_HANDLETYPE, OMX_U32, OMX_U32, OMX_U32, OMX_U32);
-typedef RPC_OMX_ERRORTYPE (*PROXY_FILLBUFFER_DONE)(OMX_HANDLETYPE, OMX_U32, OMX_U32, OMX_U32, OMX_U32, OMX_TICKS);
-typedef RPC_OMX_ERRORTYPE (*PROXY_EVENTHANDLER)(OMX_HANDLETYPE,OMX_EVENTTYPE,OMX_U32, OMX_U32, OMX_PTR);
-
-typedef struct PROXY_COMPONENT_PRIVATE
-{
-	/* OMX Related Information */
-	OMX_CALLBACKTYPE cbInfo;
-	OMX_COMPONENTTYPE * pHandle;
-	OMX_PTR pApplicationPrivate;
-	
-	/* PROXY specific data - PROXY PRIVATE DATA */
-       char *cCompName;
-	/*RPC Related information
-	This is the handle of the real component on the remote side.
-	The pHandle received by the Proxy is replaced by the following handle */
-	RPC_OMX_HANDLE remoteHandle; 
-	PROXY_EMPTYBUFFER_DONE proxyEmptyBufferDone;
-	PROXY_FILLBUFFER_DONE proxyFillBufferDone;
-	PROXY_EVENTHANDLER proxyEventHandler;
-       PROXY_BUFFER_INFO bufferList[MAX_NUM_PROXY_BUFFERS];
-	OMX_U16 numOfBuffers; 
+/* ========================================================================== */
+/**
+* PROXY_COMPONENT_PRIVATE
+*
+*/
+/* ========================================================================== */
+typedef struct PROXY_COMPONENT_PRIVATE {
+    /* OMX Related Information */
+    OMX_CALLBACKTYPE tCBFunc;
+    OMX_PTR pILAppData;
+    RPC_OMX_HANDLE hRemoteComp; 
+    
+    PROXY_BUFFER_INFO tBufList[MAX_NUM_PROXY_BUFFERS];
+    OMX_U32 nNumOfBuffers;
+    
+    /* PROXY specific data - PROXY PRIVATE DATA */
+    char *cCompName;
+    
+    PROXY_EMPTYBUFFER_DONE proxyEmptyBufferDone;
+    PROXY_FILLBUFFER_DONE proxyFillBufferDone;
+    PROXY_EVENTHANDLER proxyEventHandler;    
 }PROXY_COMPONENT_PRIVATE;
 
+
+/*******************************************************************************
+* Functions
+*******************************************************************************/
 OMX_ERRORTYPE OMX_ProxyCommonInit(OMX_HANDLETYPE hComponent);
+
 #endif
