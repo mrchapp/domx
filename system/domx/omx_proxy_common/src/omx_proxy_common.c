@@ -207,7 +207,7 @@ static OMX_ERRORTYPE PROXY_EmptyThisBuffer(OMX_HANDLETYPE hComponent,
   
     OMX_U32 count=0;
     OMX_U8 isMatchFound = 0;
-    OMX_U8 pBuffer=NULL;
+    OMX_U8 *pBuffer=NULL;
     
     DOMX_DEBUG("\n%s Entered",__FUNCTION__);
     
@@ -305,7 +305,7 @@ static OMX_ERRORTYPE PROXY_FillThisBuffer(OMX_HANDLETYPE hComponent,
   
     OMX_U32 count=0;
     OMX_U8 isMatchFound = 0;
-    OMX_U8 pBuffer=NULL;
+    OMX_U8 *pBuffer=NULL;
     
     DOMX_DEBUG("\n%s Entered",__FUNCTION__);
     
@@ -648,7 +648,7 @@ static OMX_ERRORTYPE PROXY_FreeBuffer(OMX_IN  OMX_HANDLETYPE hComponent,
     
     for(count=0;count<pCompPrv->nNumOfBuffers;count++)
     {
-        if(pCompPrv->tBufList[count].pBufferMapped == pBufferMapped)
+        if(pCompPrv->tBufList[count].pBufHeader == pBufferHdr)
         {
             DOMX_DEBUG("%s: Buffer Index of Match %d \n",__FUNCTION__,count);
             isMatchFound = 1;
