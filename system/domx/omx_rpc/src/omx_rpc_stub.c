@@ -803,7 +803,7 @@ RPC_OMX_ERRORTYPE RPC_EmptyThisBuffer(RPC_OMX_HANDLE hComp, OMX_BUFFERHEADERTYPE
     
     RPC_sendPacket_async(rcmHndl, pPacket, fxnIdx);
     
-    *eCompReturn = pRPCMsg->msgHeader.nOMXReturn;
+    *eCompReturn = OMX_ErrorNone;//pRPCMsg->msgHeader.nOMXReturn;
         
 EXIT:
     DOMX_DEBUG("Exited: %s\n",__FUNCTION__);
@@ -854,7 +854,7 @@ RPC_OMX_ERRORTYPE RPC_FillThisBuffer(RPC_OMX_HANDLE hComp, OMX_BUFFERHEADERTYPE*
     
     RPC_sendPacket_async(rcmHndl, pPacket, fxnIdx);
     
-    *eCompReturn = pRPCMsg->msgHeader.nOMXReturn;
+    *eCompReturn = OMX_ErrorNone;//pRPCMsg->msgHeader.nOMXReturn;
 
 EXIT:
     DOMX_DEBUG("Exited: %s\n",__FUNCTION__);

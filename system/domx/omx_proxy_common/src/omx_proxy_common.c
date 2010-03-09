@@ -397,7 +397,7 @@ static OMX_ERRORTYPE PROXY_AllocateBuffer(OMX_IN OMX_HANDLETYPE hComponent,
 
             if(eCompReturn == OMX_ErrorNone)
             {
-                  pBuffer = pBufferHeader->pBuffer;
+                  //pBuffer = pBufferHeader->pBuffer;
                   
                   eError = RPC_PrepareBuffer_Chiron(pCompPrv->hRemoteComp, nPortIndex, nSizeBytes, pBufferHeader, NULL);
                   
@@ -408,6 +408,7 @@ static OMX_ERRORTYPE PROXY_AllocateBuffer(OMX_IN OMX_HANDLETYPE hComponent,
                   PROXY_assert(0, OMX_ErrorUndefined,
                   "ERROR WHILE GETTING FRAME HEIGHT");
                  }
+                 pBuffer = pBufferHeader->pBuffer;
                  /*
 pBufferMapped here will contain the Y pointer (basically the unity mapped pBuffer)
 pBufferHeaderRemote is the header that contains both Y, UV pointers 
