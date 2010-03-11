@@ -1,7 +1,6 @@
 #ifndef __CAMERA_TEST_H__
 #define __CAMERA_TEST_H__
 
-#define TILER_BUFFERS
 
 #include <OMX_TI_IVCommon.h>
 
@@ -21,7 +20,7 @@
 #define MIN_VIDEO_HEIGHT	100
 
 #define MAX_NO_BUFFERS 32
-#define DEFAULT_BUFF_CNT 4
+#define DEFAULT_BUFF_CNT 4 
 #define PAGE_SIZE 4096
 
 #define OUTPUT_NUMPORTS 6 //change number of ports here
@@ -60,9 +59,9 @@
  struct port_param {
 	OMX_U32 hostbufaddr[MAX_NO_BUFFERS];
 	OMX_BUFFERHEADERTYPE *bufferheader[MAX_NO_BUFFERS];
-
 	OMX_U32 nWidth;
 	OMX_U32 nHeight;
+	OMX_U32 nBytesPerPixel;
 	OMX_U32 nStride;
 	OMX_COLOR_FORMATTYPE eColorFormat;
 	OMX_PARAM_VIDEONOISEFILTERTYPE tVNFMode;
@@ -71,25 +70,24 @@
 	OMX_CONFIG_FRAMESTABTYPE tVidStabConfig;
 	OMX_U32 nCapFrame;
 	OMX_U32 nActualBuffer;
-
+	FILE *pOutputFile;
 };
 
 
 typedef struct SampleCompTestCtxt{
         OMX_HANDLETYPE hComp;
-        OMX_U32 nPorts;
         OMX_STATETYPE eState ;
         OMX_HANDLETYPE hStateSetEvent;
         OMX_HANDLETYPE hExitSem;
-        FILE *pOutputFile;
 	OMX_U32 nVideoPortIndex;
 	OMX_U32 nPrevPortIndex;
 	struct port_param sPortParam[6];
-        OMX_PARAM_VIDEONOISEFILTERTYPE tVNFMode;
-        OMX_PARAM_VIDEOYUVRANGETYPE tYUVRange;
-        OMX_CONFIG_BOOLEANTYPE tVidStabParam;
-        OMX_CONFIG_FRAMESTABTYPE tVidStabConfig;
-	
+	OMX_SENSORSELECT eSenSelect;
+	OMX_CAMOPERATINGMODETYPE opMode;
+	OMX_BOOL bEventPortSettingsChanged;
+	void * processFbd;
+	void * dqBuff;
+	OMX_PTR FBD_pipe;
 }SampleCompTestCtxt;
 
 
@@ -124,4 +122,3 @@ typedef struct SampleCompTestCtxt{
 /* ************************************************************************** */
 
 #endif
-
