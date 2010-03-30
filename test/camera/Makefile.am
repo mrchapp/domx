@@ -1,11 +1,26 @@
 ## Process this file with automake to produce Makefile.in
 
-noinst_LTLIBRARIES      = libsrc.la
+COMMON_FLAGS = \
+        -I$(top_srcdir)/test/camera/inc \
+        -I$(top_srcdir)/mmplatform \
+        $(OMXCORE_CFLAGS) $(MMOSAL_CFLAGS) $(SYSLINK_CFLAGS) $(MEMMGR_CFLAGS)
+noinst_LTLIBRARIES      = libsrc.la libsrc_pre.la libsrc_imgcap.la libsrc_vidcap.la
 libsrc_la_SOURCES       = src/camera_il_client.c
 libsrc_la_LIBADD        = @LTLIBOBJS@ \
 	$(OMXCORE_LIBS) $(MMOSAL_LIBS) $(SYSLINK_LIBS) $(MEMMGR_LIBS)
-libsrc_la_CFLAGS        = \
-	-I$(top_srcdir)/test/camera/inc \
-	-I$(top_srcdir)/mmplatform \
-	$(OMXCORE_CFLAGS) $(MMOSAL_CFLAGS) $(SYSLINK_CFLAGS) $(MEMMGR_CFLAGS)
+libsrc_la_CFLAGS        = $(COMMON_FLAGS)
 
+libsrc_pre_la_SOURCES       = src/cam_pre_test.c src/dss_lib.c
+libsrc_pre_la_LIBADD        = @LTLIBOBJS@ \
+        $(OMXCORE_LIBS) $(MMOSAL_LIBS) $(SYSLINK_LIBS) $(MEMMGR_LIBS)
+libsrc_pre_la_CFLAGS        = $(COMMON_FLAGS)
+
+libsrc_vidcap_la_SOURCES       = src/cam_vidcap_test.c src/dss_lib.c
+libsrc_vidcap_la_LIBADD        = @LTLIBOBJS@ \
+        $(OMXCORE_LIBS) $(MMOSAL_LIBS) $(SYSLINK_LIBS) $(MEMMGR_LIBS)
+libsrc_vidcap_la_CFLAGS        = $(COMMON_FLAGS)
+
+libsrc_imgcap_la_SOURCES       = src/cam_imgcap_test.c src/dss_lib.c
+libsrc_imgcap_la_LIBADD        = @LTLIBOBJS@ \
+        $(OMXCORE_LIBS) $(MMOSAL_LIBS) $(SYSLINK_LIBS) $(MEMMGR_LIBS)
+libsrc_imgcap_la_CFLAGS        = $(COMMON_FLAGS)
