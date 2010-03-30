@@ -1,3 +1,26 @@
+/* ======================================================================
+*             Texas Instruments OMAP(TM) Platform Software
+*  (c) Copyright Texas Instruments, Incorporated.  All Rights Reserved.
+*
+*  Use of this software is controlled by the terms and conditions found
+*  in the license agreement under which this software has been supplied.
+* ======================================================================= */
+/*
+* @file camera_test.h
+*
+* This File contains common includes and variable/structure definitions
+* for Camera Tests
+*
+* @path  domx/test/camera/inc
+*
+* @rev  0.1
+*/
+/*
+*!
+*! Revision History
+*! =======================================================================
+*!  Initial Version
+* ========================================================================*/
 #ifndef __CAMERA_TEST_H__
 #define __CAMERA_TEST_H__
 
@@ -20,10 +43,15 @@
 #define MIN_VIDEO_HEIGHT	100
 
 #define MAX_NO_BUFFERS 32
-#define DEFAULT_BUFF_CNT 4 
+#define DEFAULT_BUFF_CNT 4
 #define PAGE_SIZE 4096
 
-#define OUTPUT_NUMPORTS 6 //change number of ports here
+
+#define ROUND_UP32(x)   (((x) + 31) & ~31)
+#define ROUND_UP16(x)   (((x) + 15) & ~15)
+
+#define OUTPUT_NUMPORTS 6
+#define CAM_FRAME_TO_MAKE_STILL_CAPTURE     6
 
 #define NUM_DOMAINS 0x6
 #define OMX_NOPORT 0xfffffffe
@@ -64,23 +92,30 @@
 	OMX_U32 nBytesPerPixel;
 	OMX_U32 nStride;
 	OMX_COLOR_FORMATTYPE eColorFormat;
+	OMX_IMAGE_CODINGTYPE eCapCompressionFormat;
 	OMX_PARAM_VIDEONOISEFILTERTYPE tVNFMode;
 	OMX_PARAM_VIDEOYUVRANGETYPE tYUVRange;
 	OMX_CONFIG_BOOLEANTYPE tVidStabParam;
 	OMX_CONFIG_FRAMESTABTYPE tVidStabConfig;
+	OMX_MIRRORTYPE  eCaptureMirror;
+	OMX_S32 nCaptureRot;
+	OMX_U32 nThumbWidth;
+	OMX_U32 nThumbHeight;
 	OMX_U32 nCapFrame;
 	OMX_U32 nActualBuffer;
 	FILE *pOutputFile;
+
 };
 
 
 typedef struct SampleCompTestCtxt{
-        OMX_HANDLETYPE hComp;
-        OMX_STATETYPE eState ;
-        OMX_HANDLETYPE hStateSetEvent;
-        OMX_HANDLETYPE hExitSem;
+	OMX_HANDLETYPE hComp;
+	OMX_STATETYPE eState ;
+	OMX_HANDLETYPE hStateSetEvent;
+	OMX_HANDLETYPE hExitSem;
 	OMX_U32 nVideoPortIndex;
 	OMX_U32 nPrevPortIndex;
+	OMX_U32 nImgPortIndex;
 	struct port_param sPortParam[6];
 	OMX_SENSORSELECT eSenSelect;
 	OMX_CAMOPERATINGMODETYPE opMode;
@@ -90,12 +125,6 @@ typedef struct SampleCompTestCtxt{
 	OMX_PTR FBD_pipe;
 }SampleCompTestCtxt;
 
-
-/* ****** from omx_iss_cam_def.h ******************************************* */
-/* need to find a better place for this, because right now same thing is
- * cut/paste in gstomx_camera.h as well as here... maybe this goes in one
- * of the OMX_TI*.h headers??
- */
 /* Default portstartnumber of Camera component */
 #define OMX_CAMERA_DEFAULT_START_PORT_NUM 0
 
@@ -119,6 +148,5 @@ typedef struct SampleCompTestCtxt{
 #define OMX_CAMERA_PORT_VIDEO_OUT_VIDEO (OMX_CAMERA_PORT_VIDEO_START + 2)
 #define OMX_CAMERA_PORT_VIDEO_OUT_MEASUREMENT (OMX_CAMERA_PORT_VIDEO_START + 3)
 #define OMX_CAMERA_PORT_IMAGE_OUT_IMAGE (OMX_CAMERA_PORT_IMAGE_START + 0)
-/* ************************************************************************** */
 
 #endif
