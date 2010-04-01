@@ -33,6 +33,7 @@
 //#include <stdlib.h>
 #include "timm_osal_memory.h"
 #include "OMX_TI_Common.h"
+#include "OMX_TI_Index.h"
 /*-------program files ----------------------------------------*/
 #include "omx_proxy_common.h"
 #include "omx_rpc.h"
@@ -72,6 +73,9 @@ static OMX_ERRORTYPE PROXY_EventHandler(OMX_HANDLETYPE hComponent, OMX_PTR pAppD
   OMX_ERRORTYPE eError = OMX_ErrorNone;
   PROXY_COMPONENT_PRIVATE* pCompPrv;    
   OMX_COMPONENTTYPE *hComp = (OMX_COMPONENTTYPE *)hComponent;
+  
+  OMX_U16 count;
+  OMX_BUFFERHEADERTYPE * pLocalBufHdr = NULL;
     
   DOMX_DEBUG("\nEntered Proxy event handler__________________________________________PROXY EH");
     
@@ -82,7 +86,39 @@ static OMX_ERRORTYPE PROXY_EventHandler(OMX_HANDLETYPE hComponent, OMX_PTR pAppD
     
   DOMX_DEBUG("hComponent:0x%x,hComp->pApplicationPrivate: 0x%x,eEvent: 0x%x,nData1: 0x%x,nData2: 0x%x,pEventData: 0x%x\n",
                hComponent,pCompPrv->pILAppData,eEvent,nData1,nData2,pEventData);
-    
+               
+  switch(eEvent)
+  {
+  
+    case OMX_TI_EventBufferRefCount:
+          DOMX_DEBUG("\nReceived Ref Count Event");
+          /*nData1 will be pBufferHeader, nData2 will be present count. Need to find local
+          buffer header for nData1 which is remote buffer header*/
+          
+          PROXY_assert((nData1 != 0), OMX_ErrorBadParameter,
+          "Received NULL buffer header from OMX component");
+                 
+          /*find local buffer header equivalent*/            
+          for(count = 0; count<pCompPrv->nNumOfBuffers;++count)
+          {
+            if(pCompPrv->tBufList[count].pBufHeaderRemote == nData1)
+            {
+                pLocalBufHdr = pCompPrv->tBufList[count].pBufHeader;                
+                pLocalBufHdr->pBuffer = (OMX_U8 *)pCompPrv->tBufList[count].pBufferActual;
+                break;
+            }
+          }
+          PROXY_assert((count != pCompPrv->nNumOfBuffers), OMX_ErrorBadParameter,
+          "Received invalid-buffer header from OMX component");
+          
+          /*update local buffer header*/
+          nData1 = pLocalBufHdr;
+          break;
+          
+    default:
+          break;  
+  }
+      
   pCompPrv->tCBFunc.EventHandler(hComponent,pCompPrv->pILAppData,eEvent,nData1,nData2,pEventData);
 
 EXIT:
