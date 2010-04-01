@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <omx_rpc.h>
+#include <omx_rpc_utils.h>
 
 extern int ipc_setup(int);
 extern int ipc_finalize();

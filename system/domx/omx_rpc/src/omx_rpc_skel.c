@@ -19,6 +19,8 @@
 /*==============================================================
  *! Revision History
  *! ============================
+ *! 29-Mar-2010 Abhishek Ranka : Revamped DOMX implementation
+ *!
  *! 19-August-2009 B Ravi Kiran ravi.kiran@ti.com: Initial Version
  *================================================================*/
 
@@ -35,6 +37,8 @@
 #include "omx_rpc.h"
 #include "omx_proxy_common.h"
 #include "omx_rpc_skel.h"
+#include "omx_rpc_utils.h"
+#include "omx_rpc_internal.h"
 
 /* FUNCTION LIST*/
 /*

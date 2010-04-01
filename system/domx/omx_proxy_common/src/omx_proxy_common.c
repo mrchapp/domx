@@ -644,7 +644,7 @@ static OMX_ERRORTYPE PROXY_FreeBuffer(OMX_IN  OMX_HANDLETYPE hComponent,
                  OMX_ErrorBadParameter, NULL);
                  
     pCompPrv=(PROXY_COMPONENT_PRIVATE*)hComp->pComponentPrivate;
-    pBufferMapped =  (OMX_U32)pBufferHdr->pInputPortPrivate;
+    pBufferMapped =  (OMX_U8 *)pBufferHdr->pInputPortPrivate;
     
     for(count=0;count<pCompPrv->nNumOfBuffers;count++)
     {
@@ -1197,10 +1197,16 @@ static OMX_ERRORTYPE PROXY_ComponentDeInit (OMX_HANDLETYPE hComponent)
             RPC_UnMapBuffer(pCompPrv->tBufList[count].pBufferMapped);
 
         if(pCompPrv->tBufList[count].pBufHeader){
+
+            if(pCompPrv->tBufList[count].pBufHeader->pPlatformPrivate)
+            TIMM_OSAL_Free(pCompPrv->tBufList[count].pBufHeader->pPlatformPrivate);
+
             TIMM_OSAL_Free(pCompPrv->tBufList[count].pBufHeader);
             pCompPrv->tBufList[count].pBufHeader = NULL;
         }
     }
+    
+    RPC_InstanceDeInit(pCompPrv->hRemoteComp);
     
     if(pCompPrv->cCompName){
         TIMM_OSAL_Free(pCompPrv->cCompName);
@@ -1258,8 +1264,12 @@ OMX_ERRORTYPE OMX_ProxyCommonInit(OMX_HANDLETYPE hComponent)
     pCompPrv->proxyFillBufferDone = PROXY_FillBufferDone;
     pCompPrv->proxyEventHandler = PROXY_EventHandler;
     
+    eRPCError = RPC_InstanceInit(pCompPrv->cCompName,&hRemoteComp);
+    PROXY_assert((eRPCError == RPC_OMX_ErrorNone) && (hRemoteComp!= NULL),
+                 OMX_ErrorUndefined, "Error initializing RPC");
+        
     //Send the proxy component handle for pAppData
-    eRPCError = RPC_GetHandle(&hRemoteComp, pCompPrv->cCompName, (OMX_PTR)hComponent, NULL, &eCompReturn);
+    eRPCError = RPC_GetHandle(hRemoteComp, pCompPrv->cCompName, (OMX_PTR)hComponent, NULL, &eCompReturn);
     
     if(eRPCError==RPC_OMX_ErrorNone) {
        if(eCompReturn==OMX_ErrorNone) {
@@ -1267,13 +1277,15 @@ OMX_ERRORTYPE OMX_ProxyCommonInit(OMX_HANDLETYPE hComponent)
           pCompPrv->hRemoteComp = hRemoteComp;
        }
        else {
-          eError = eCompReturn;
           DOMX_DEBUG("\n ERROR executing OMX_GetHandle remotely");
+          eError = eCompReturn;
+          RPC_InstanceDeInit(hRemoteComp);
        }
      }
     else {
-       eError = OMX_ErrorHardware;
-       DOMX_DEBUG("****RPC_GetHandle RPC Error");
+       DOMX_DEBUG("****RPC_GetHandle RPC Error");       
+       RPC_InstanceDeInit(hRemoteComp);
+       eError = OMX_ErrorHardware;       
        goto EXIT;
     }
 
@@ -1294,6 +1306,8 @@ OMX_ERRORTYPE OMX_ProxyCommonInit(OMX_HANDLETYPE hComponent)
     hComp->ComponentRoleEnum = PROXY_ComponentRoleEnum;    
     hComp->AllocateBuffer = PROXY_AllocateBuffer;
     hComp->ComponentTunnelRequest = PROXY_ComponentTunnelRequest;
+    
+    pCompPrv->hRemoteComp = hRemoteComp;
         
     DOMX_DEBUG("\n Proxy Initted");    
 

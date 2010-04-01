@@ -19,9 +19,10 @@
 /*==============================================================
  *! Revision History
  *! ============================
+ *! 29-Mar-2010 Abhishek Ranka : Revamped DOMX implementation
+ *!
  *! 19-August-2009 B Ravi Kiran ravi.kiran@ti.com: Initial Version
  *================================================================*/
- 
  
 #ifndef OMXRPC_H
 #define OMXRPC_H
@@ -34,28 +35,30 @@ extern "C" {
  *   INCLUDE FILES
  ******************************************************************/
 #include <stdio.h>
-#ifndef LINUX_TRACE
-#  include <timm_osal_error.h>
-#  include <timm_osal_osal.h>
-#  include <timm_osal_trace.h>
-#  define DOMX_DEBUG(ARGS,...)  TIMM_OSAL_TraceExt(TIMM_OSAL_TRACEGRP_DOMX,ARGS,##__VA_ARGS__)
-#else
-#include <timm_osal_trace.h>
-#define DOMX_DEBUG(ARGS,...) TIMM_OSAL_Trace(ARGS,##__VA_ARGS__)
-#endif
 #include <OMX_Types.h>
+#include <OMX_Core.h>
 
 #define TILER_BUFF
-
 extern OMX_U8 CHIRON_IPC_FLAG;
+
+/******************************************************************
+ *   DATA TYPES
+ ******************************************************************/
+/* ************************* OMX RPC DATA TYPES *************************** */
+typedef OMX_PTR 	     RPC_OMX_HANDLE;
+typedef OMX_ERRORTYPE    RPC_OMX_CMD_STATUS;
+typedef OMX_U8  	     RPC_OMX_BYTE;
+typedef OMX_U32          RPC_INDEX;
+
+//typedef OMX_HANDLETYPE RPC_HANDLE_TYPE;
+//typedef OMX_U32          RPC_OMX_SIZE;
+//typedef OMX_PTR		     RPC_OMX_PTR;
+//typedef OMX_U32	         RPC_OMX_ARG;
+//typedef OMX_U32	         RPC_OMX_ID;
  
  /*******************************************************************************
 * Enumerated Types
 *******************************************************************************/
-/** 
-  *  @brief           Status of the RPC Stub, Util calls. 
-  */
-
 typedef enum RPC_OMX_ERRORTYPE{
     RPC_OMX_ErrorNone=0,
 
@@ -82,16 +85,14 @@ typedef enum RPC_OMX_ERRORTYPE{
     RPC_OMX_RCM_ServerFail = 0x70008,
     RPC_OMX_RCM_ClientFail = 0x70009,
     
-
-    
 }RPC_OMX_ERRORTYPE;
 
  
- /****************************************************************
+/****************************************************************
  * PUBLIC DECLARATIONS Defined here, used elsewhere
 
- ****************************************************************/
- /* ===========================================================================*/
+****************************************************************/
+/* ===========================================================================*/
 /**
  * @name RPC_InstanceInit() 
  * @brief RPC instance init is used to bring up a instance of a client - this should be ideally invokable from any core
@@ -107,7 +108,7 @@ typedef enum RPC_OMX_ERRORTYPE{
  *
  */
 /* ===========================================================================*/
-RPC_OMX_ERRORTYPE RPC_InstanceInit(OMX_STRING ServerName);
+RPC_OMX_ERRORTYPE RPC_InstanceInit(OMX_STRING cComponentName,RPC_OMX_HANDLE* phRPCCtx);
 
 /* ===========================================================================*/
 /**
@@ -120,8 +121,6 @@ RPC_OMX_ERRORTYPE RPC_InstanceInit(OMX_STRING ServerName);
  */
  /* ===========================================================================*/
 RPC_OMX_ERRORTYPE RPC_ModInit(void);
-
-
     
 /* ===========================================================================*/
 /**
@@ -134,10 +133,7 @@ RPC_OMX_ERRORTYPE RPC_ModInit(void);
  *
  */
 /* ===========================================================================*/
-RPC_OMX_ERRORTYPE RPC_InstanceDeInit(void);
-
-
-
+RPC_OMX_ERRORTYPE RPC_InstanceDeInit(RPC_OMX_HANDLE hRPCCtx);
 
 /* ===========================================================================*/
 /**
@@ -152,5 +148,8 @@ RPC_OMX_ERRORTYPE RPC_InstanceDeInit(void);
  /* ===========================================================================*/
 RPC_OMX_ERRORTYPE RPC_ModDeInit(void);
 
+/*
+RPC_UTIL_RetrieveOMXHandle()
+*/
 
 #endif 

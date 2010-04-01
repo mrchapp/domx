@@ -19,185 +19,77 @@
 /*==============================================================
  *! Revision History
  *! ============================
+ *! 29-Mar-2010 Abhishek Ranka : Revamped DOMX implementation
+ *!
  *! 19-August-2009 B Ravi Kiran ravi.kiran@ti.com: Initial Version
  *================================================================*/
 
 /******************************************************************
  *   INCLUDE FILES
  ******************************************************************/
-
-/*  ********************** SYSTEM Headers ************************ */
-
-//#include <xdc/std.h>
+/* ----- system and platform files ----------------------------*/ 
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
 #include <Std.h>
 
-/*  ****************** XDC.RUNTIME module Headers ****************** */
-/*
-#include <xdc/runtime/Memory.h>
-#include <xdc/runtime/System.h>
-#include <xdc/runtime/Error.h>
-#include <xdc/runtime/knl/Semaphore.h>
-#include <xdc/runtime/knl/Thread.h>
-*/
-/* ************************ Link IPC Headers *********************** */
-/*
-#include <ti/sdo/ipc/include/biostypes.h>
-#include <ti/sdo/ipc/include/ipctypes.h>
-*/
-/* ********************* Notify module Headers ********************* */
-/*
-#include <notifyerr.h>
-#include <Notify.h>
-#include <INotifyDriver.h>
-#include <NotifyDriverIPI.h>
-#include <NameServerRemoteNotify.h>
-*/
-/* ********************* BIOS6 module Headers ********************* */
-/*
-#include <ti/sysbios/knl/Task.h>
-#include <ti/sysbios/ipc/Semaphore.h>
-#include <ti/sysbios/BIOS.h>
-*/
-#include <MultiProc.h>
+#include <OMX_Types.h>
+#include <timm_osal_interfaces.h>
+#include <timm_osal_trace.h>
 
-/* ************** To get globals from .cfg Header ***************** */
+#include <MultiProc.h>
 #include <RcmClient.h>
 #include <RcmServer.h>
-//#include <ti/sysbios/hal/ammu/AMMU.h>
-#include <SharedRegion.h>
 
-/*
- *  ======== ipc_setup ========
- */
-/*
-#include <ti/sdo/ipc/MessageQ.h>
-#include <ti/sdo/ipc/GatePeterson.h>
-#include <ti/sdo/ipc/HeapBuf.h>
-#include <ti/sdo/ipc/MessageQTransportShm.h>
-#include <ti/sdo/ipc/SharedRegion.h>
-#include <ti/sysbios/heaps/HeapMem.h>
-#include <ti/sysbios/syncs/SyncSem.h>
-#include <ti/sdo/ipc/HeapBuf.h>
-#include <ti/sysbios/gates/GateMutex.h>
-*/
-/* ********************** RPC Headers ************************* */
+/*-------program files ----------------------------------------*/
 #include "omx_rpc.h"
 #include "omx_rpc_stub.h"
 #include "omx_rpc_skel.h"
 #include "omx_rpc_internal.h"
 #include "omx_rpc_utils.h"
-
-/*  ********************** OMX OSAL Other Headers ************************* */
-#include <OMX_Types.h>
-#include <timm_osal_interfaces.h>
-#include <timm_osal_trace.h>
-//#include <xdc/cfg/global.h> /* Wrong global.h being included */
  
- /* **************************** MACROS DEFINES *************************** */
-#define APPM3_PROC 3
-#define SYSM3_PROC 2
-#define TESLA_PROC 1
-#define CHIRON_PROC 0
-
-#define MAX_INDEX 1
-#define MAX_NUMBER_OF_HEAPS 4
-#define MAX_FUNCTION_NAME_LENGHT 50
-#define MAX_FUNCTION_LIST 19
+/* **************************** MACROS DEFINES *************************** */
 #define DO_SPIN 0
 
-/* ******************************* GLOBALS ********************************* */
+/* ******************************* EXTERNS ********************************* */
+extern char rpcFxns[][MAX_FUNCTION_NAME_LENGTH];
+extern rpcSkelArr rpcSkelFxns[];
+extern char Core_Array[][MAX_CORENAME_LENGTH];
+extern char rcmservertable[][MAX_SERVER_NAME_LENGTH];
+extern OMX_U32 heapIdArray[MAX_NUMBER_OF_HEAPS];
+
 extern TIMM_OSAL_PTR testSem;
 extern TIMM_OSAL_PTR testSemSys;
 extern OMX_U8 CHIRON_IPC_FLAG;
 
+/* ******************************* GLOBALS ********************************* */
+RPC_Object rpcHndl[CORE_MAX];
+
 RcmClient_Handle rcmHndl = NULL;
 RcmServer_Handle rcmSrvHndl;
-TIMM_OSAL_PTR rcmServerSem;
-
-COREID TARGET_CORE_ID = CORE_MAX; //Should be configured in the CFG or header file for SYS APP split header.   
-COREID LOCAL_CORE_ID = CORE_MAX; 
-RPC_Object rpcHndl[CORE_MAX];
-OMX_U32 PACKET_SIZE;// different packet sizes required for INTER-M3 case and MPU-APPM3 
-
-static OMX_U8 rpcOmxInit = 0; //this flag is to make sure we run RPC_Init() once during initialization
-static OMX_U8 flag_client=0;// flag to reflect the number of users/clients
-static OMX_U8 flag_server=0;//flag to reflect the number of users/servers
-/*Mutex to be used while updating flag_client. This mtx is currently created in 
-  ModInit*/
-TIMM_OSAL_PTR client_flag_mtx = NULL;
-
-static char rpcFxns[][80]= {
-          "RPC_SKEL_SetParameter",
-          "RPC_SKEL_GetParameter",
-          "RPC_SKEL_GetHandle",
-          "RPC_SKEL_UseBuffer",
-          
-          "RPC_SKEL_FreeHandle",
-          
-          "RPC_SKEL_SetConfig",
-          "RPC_SKEL_GetConfig",
-          "RPC_SKEL_GetState",
-          "RPC_SKEL_SendCommand",
-          "RPC_SKEL_GetComponentVersion",
-          "RPC_SKEL_GetExtensionIndex",
-          "RPC_SKEL_FillThisBuffer",
-          "RPC_SKEL_FillBufferDone",
-          "RPC_SKEL_FreeBuffer",
-         
-          "RPC_SKEL_EmptyThisBuffer",
-          "RPC_SKEL_EmptyBufferDone",
-          "RPC_SKEL_EventHandler",
-          "RPC_SKEL_AllocateBuffer",
-          "RPC_SKEL_ComponentTunnelRequest"
-};
-          
-static rpcSkelArr rpcSkelFxns[] =
-{
-          RPC_SKEL_SetParameter,
-          RPC_SKEL_GetParameter,
-          RPC_SKEL_GetHandle,
-          RPC_SKEL_UseBuffer,
-          RPC_SKEL_FreeHandle,
-          RPC_SKEL_SetConfig,
-          RPC_SKEL_GetConfig,
-          RPC_SKEL_GetState,
-          RPC_SKEL_SendCommand,
-          RPC_SKEL_GetComponentVersion,
-          RPC_SKEL_GetExtensionIndex,
-          RPC_SKEL_FillThisBuffer,
-          RPC_SKEL_FillBufferDone,
-          RPC_SKEL_FreeBuffer,
-          RPC_SKEL_EmptyThisBuffer,
-          RPC_SKEL_EmptyBufferDone,
-          RPC_SKEL_EventHandler,
-          RPC_SKEL_AllocateBuffer,
-          RPC_SKEL_ComponentTunnelRequest
-};
 
 char *RCM_SERVER_NAME;
 char *RCM_SERVER_NAME_LOCAL;
 
-static UInt32 fxnExitidx;
+COREID TARGET_CORE_ID = CORE_MAX; //Should be configured in the CFG or header file for SYS APP split header.   
+COREID LOCAL_CORE_ID = CORE_MAX; 
+OMX_U32 PACKET_SIZE;// different packet sizes required for INTER-M3 case and MPU-APPM3 
 
-/*This list needs to be a comprehensive list of all possible communicating RCM servers avalilable across the whole system (core 0 core 1, tesla, chiron)*/
-char Core_Array[][20] = {"CHIRON","TESLA","DUCATI0","DUCATI1"};
-char rcmservertable[][MAX_SERVER_NAME_LENGTH] = {"RSrv_Chiron","RSrv_Tesla","RSrv_Ducati0","RSrv_Ducati1"}; 
-static OMX_U32 heapIdArray[MAX_NUMBER_OF_HEAPS] = {1,0,0,1};
+static OMX_U8 rpcOmxInit = 0; //this flag is to make sure we run RPC_Init() once during initialization
+static OMX_U8 flag_client=0;// flag to reflect the number of users/clients
+/*Mutex to be used while updating flag_client. This mtx is currently created in 
+  ModInit*/
+TIMM_OSAL_PTR client_flag_mtx = NULL;
 
 /* ************************* EXTERNS, FUNCTION DECLARATIONS ***************************** */
+RPC_INDEX fxnExitidx, getFxnIndexFromRemote_skelIdx;
 extern Int32 ipc_finalize(Void);
 static Int32 fxnExit(UInt32 size, UInt32 *data);
 RPC_OMX_ERRORTYPE fxn_exit_caller(void);
 RPC_OMX_ERRORTYPE appRcmServerThrFxn(void);
 
-typedef struct {
-	RPC_INDEX FxnIdxArr[MAX_FUNCTION_LIST];
-}FxnList;
-
-
+static Int32 getFxnIndexFromRemote_skel(UInt32 size, UInt32 *data);
+static void getFxnIndexFromRemote_stub(void);
 
 /* ===========================================================================*/
 /**
@@ -215,40 +107,57 @@ typedef struct {
  *
  */
 /* ===========================================================================*/
-RPC_OMX_ERRORTYPE RPC_InstanceInit(OMX_STRING ServerName)
+RPC_OMX_ERRORTYPE RPC_InstanceInit(OMX_STRING cComponentName, RPC_OMX_HANDLE* phRPCCtx)
 {
 
-	OMX_U8 i;
-	OMX_S32 status;
+    OMX_U8 i;
+    OMX_S32 status = 0;
     RcmClient_Config cfgParams;
-	RcmClient_Params rcmParams;
+    RcmClient_Params rcmParams;
     OMX_BOOL bCreateClient = OMX_FALSE;
+    RPC_OMX_ERRORTYPE rpcError = RPC_OMX_ErrorNone;
+    OMX_STRING rcmServerName;
+    RPC_OMX_CONTEXT *pRPCCtx = NULL;
     
     status = mmplatform_init(2);
     if(status < 0)
     {
         TIMM_OSAL_Error("Platform init failed");
-        goto leave;
+        goto EXIT;
     }
+    
+    pRPCCtx = (RPC_OMX_CONTEXT *)TIMM_OSAL_Malloc(sizeof(RPC_OMX_CONTEXT),TIMM_OSAL_TRUE, 0, TIMMOSAL_MEM_SEGMENT_INT);
 
-    /* RCM client configuration added in Bridge release 0.9-P1*/
-/* Added New */
-    cfgParams.maxNameLen = 20;
-    cfgParams.defaultHeapIdArrayLength = 4;
+    if (pRPCCtx == NULL) {
+         DOMX_DEBUG("\n ERROR ALLOCATING RPC STUB CONTEXT STRUCTURE");
+            rpcError = RPC_OMX_ErrorInsufficientResources;
+            goto EXIT;
+    }
+    
+    *phRPCCtx = (RPC_OMX_HANDLE) pRPCCtx;
+    
     TIMM_OSAL_MutexObtain(client_flag_mtx, TIMM_OSAL_SUSPEND);
         if(flag_client == 0)
             bCreateClient = OMX_TRUE;
-        flag_client++;
-    TIMM_OSAL_MutexRelease(client_flag_mtx);
+        flag_client++;    
     
   //Create client for 1st component
   if(bCreateClient == OMX_TRUE)
   {
+  
+    /* RCM Client Instance Creation*/
+    RPC_UTIL_GetTargetServerName(cComponentName,&rcmServerName);
+    DOMX_DEBUG("\n RCM Server Name To connected to: %s",rcmServerName);
+    
+    /* RCM client configuration added in Bridge release 0.9-P1*/
+/* Added New */
+    cfgParams.maxNameLen = MAX_FUNCTION_LIST+2;
+    cfgParams.defaultHeapIdArrayLength = MAX_NUMBER_OF_HEAPS;  
 
     RcmClient_getConfig(&cfgParams);
     DOMX_DEBUG( "\nPrinting Config Parameters\n");
     DOMX_DEBUG( "\nMaxNameLen %d\nHeapIdArrayLength %d\n",cfgParams.maxNameLen,cfgParams.defaultHeapIdArrayLength);
-		 
+         
     DOMX_DEBUG( "\nRPC_InstanceInit: creating rcm instance\n");
 
     /* Added New */
@@ -257,51 +166,64 @@ RPC_OMX_ERRORTYPE RPC_InstanceInit(OMX_STRING ServerName)
     DOMX_DEBUG("\nClient setup done\n");
     if(status < 0 )
     {
-    	DOMX_DEBUG( "Client  exist.Error Code:%d\n",status);
-    	goto leave;
+        DOMX_DEBUG( "Client  exist.Error Code:%d\n",status);
+        goto EXIT;
     }
 
     RcmClient_Params_init(NULL,&rcmParams); 
     
     rcmParams.heapId = heapIdArray[LOCAL_CORE_ID];
     DOMX_DEBUG("\n Heap ID configured : %d\n",rcmParams.heapId);
-	//rcmParams.heapId = rpcHndl[LOCAL_CORE_ID].heapId;
-	
-	if(CHIRON_IPC_FLAG&&(LOCAL_CORE_ID==CORE_APPM3))
-	    rcmParams.heapId = 1; // Hardcoded as heapId 0 when running on APPM3
-		//This is done only for WHEN RUNNING ON MPU-APPM3 - "Both use HeapId 0"
-		// Work around will be fixed when Independent Heaps are available across MPU and APPM3
-		
+    //rcmParams.heapId = rpcHndl[LOCAL_CORE_ID].heapId;
+    
+    if(CHIRON_IPC_FLAG&&(LOCAL_CORE_ID==CORE_APPM3))
+        rcmParams.heapId = 1; // Hardcoded as heapId 0 when running on APPM3
+        //This is done only for WHEN RUNNING ON MPU-APPM3 - "Both use HeapId 0"
+        // Work around will be fixed when Independent Heaps are available across MPU and APPM3
+        
 
 /* Component Name based Server Name*/
-    RCM_SERVER_NAME = ServerName;
+    RCM_SERVER_NAME = rcmServerName;
 
     while (rcmHndl == NULL) {
     DOMX_DEBUG("\nCalling client create with server name = %s\n", RCM_SERVER_NAME);
               status = RcmClient_create(RCM_SERVER_NAME, &rcmParams, &rcmHndl);
     DOMX_DEBUG("\nClient create done\n");
 
-		 if (status < 0) {
-			 DOMX_DEBUG( "\nCannot Establish the connection\n");
-			 goto leave;
-		 }
-		 else{
-			 DOMX_DEBUG( "\nConnected to Server\n");
-		 }
+         if (status < 0) {
+             DOMX_DEBUG( "\nCannot Establish the connection\n");
+             goto EXIT;
+         }
+         else{
+             DOMX_DEBUG( "\nConnected to Server\n");
+         }
         
     }
-	
+    
     DOMX_DEBUG( "\nRPC_InstanceInit: calling RCM_getSymbolIndex(rpcFxns array)\n");
-	DOMX_DEBUG("\n Getting Symbols\n");
-	/* cached indices recovery*/
-	
+        status = RcmClient_getSymbolIndex(rcmHndl, "getFxnIndexFromRemote_skel", &getFxnIndexFromRemote_skelIdx);
+    
+     if(status < 0) {
+            DOMX_DEBUG("\nInvalid Symbol.Error Code:%d\n",status);
+            goto EXIT;
+        }
+    
+    /* cached indices recovery*/	
+    /*DOMX_DEBUG("\n Calling stub to cache remote function indices");
+    getFxnIndexFromRemote_stub();
+    DOMX_DEBUG("\n Returned from stub :caching Done");
+    */
+    
+    DOMX_DEBUG("\n Getting Symbols\n");
+    /* cached indices recovery*/
+    
     for (i=0;i<MAX_FUNCTION_LIST;i++) {
     
-        status = RcmClient_getSymbolIndex(rcmHndl, rpcHndl[TARGET_CORE_ID].rpcFxns[i].FxnName, &rpcHndl[TARGET_CORE_ID].rpcFxns[i].rpcFxnIdx);
+        status = RcmClient_getSymbolIndex(rcmHndl, rpcHndl[TARGET_CORE_ID].rpcFxns[i].FxnName, (UInt32*)&rpcHndl[TARGET_CORE_ID].rpcFxns[i].rpcFxnIdx);
         
         if(status < 0) {
             DOMX_DEBUG("\nInvalid Symbol.Error Code:%d\n",status);
-            goto leave;
+            goto EXIT;
             }
 
         DOMX_DEBUG("\n%d.FUNCTION INDEX OBTAINED: %d for %s",i+1,rpcHndl[TARGET_CORE_ID].rpcFxns[i].rpcFxnIdx,rpcHndl[TARGET_CORE_ID].rpcFxns[i].FxnName); 
@@ -314,21 +236,33 @@ RPC_OMX_ERRORTYPE RPC_InstanceInit(OMX_STRING ServerName)
     
      if(status < 0) {
             DOMX_DEBUG("\nInvalid Symbol.Error Code:%d\n",status);
-            goto leave;
+            goto EXIT;
             }
   }
-	
-leave:
+  
+   TIMM_OSAL_MutexRelease(client_flag_mtx);
+   
+    /* updating the RCM client handle within rpc context */
+    pRPCCtx->ClientHndl[RCM_DEFAULT_CLIENT] = rcmHndl;
+    pRPCCtx->ClientHndl[RCM_ADDITIONAL_CLIENT] = NULL;   
+   
+EXIT:
     if(status < 0)
     {
+        //first release any locked semaphore
+        TIMM_OSAL_MutexRelease(client_flag_mtx);
+        
         TIMM_OSAL_MutexObtain(client_flag_mtx, TIMM_OSAL_SUSPEND);
           flag_client--;
         TIMM_OSAL_MutexRelease(client_flag_mtx);
+        
+        pRPCCtx->ClientHndl[RCM_DEFAULT_CLIENT] = NULL;
         return RPC_OMX_ErrorUndefined;
     }
+    
     return RPC_OMX_ErrorNone;
 }
-	
+    
 /* ===========================================================================*/
 /**
  * @name RPC_InstanceDeInit() 
@@ -341,41 +275,44 @@ leave:
  */
 /* ===========================================================================*/
 
-RPC_OMX_ERRORTYPE RPC_InstanceDeInit(void)
+RPC_OMX_ERRORTYPE RPC_InstanceDeInit(RPC_OMX_HANDLE hRPCCtx)
 {
     RPC_OMX_ERRORTYPE rpcError = RPC_OMX_ErrorNone;
-	OMX_S32 status;
-
-	
+    OMX_S32 status;
+    RPC_OMX_CONTEXT *hCtx = NULL;
 
     TIMM_OSAL_MutexObtain(client_flag_mtx, TIMM_OSAL_SUSPEND);
         flag_client--;
-	
-	if(flag_client==0) {
-	
-	    status = RcmClient_delete(&rcmHndl);
-		
-		if(status < 0) {
-		    DOMX_DEBUG("\nError in RcmClient_delete. Error Code:%d\n",status);
-			rpcError = RPC_OMX_RCM_ClientFail;
-            goto leave;
-		}
-		
+    
+    if(flag_client==0) {
+    
+        status = RcmClient_delete(&rcmHndl);
+        
+        if(status < 0) {
+            DOMX_DEBUG("\nError in RcmClient_delete. Error Code:%d\n",status);
+            rpcError = RPC_OMX_RCM_ClientFail;
+            goto EXIT;
+        }
+        
         status = RcmClient_destroy ();
         if(status < 0) {
-		    DOMX_DEBUG("\nError in RcmClient_destroy. Error Code:%d\n",status);
-			rpcError = RPC_OMX_RCM_ClientFail;
-            goto leave;
-	}
+            DOMX_DEBUG("\nError in RcmClient_destroy. Error Code:%d\n",status);
+            rpcError = RPC_OMX_RCM_ClientFail;
+            goto EXIT;
+    }
         status = mmplatform_deinit();
         if(status < 0)
         {
             TIMM_OSAL_Error("Platform deinit returned error");
             rpcError = RPC_OMX_ErrorUndefined;
         }
-    }	
-leave:
+    }    
+    
+EXIT:
     TIMM_OSAL_MutexRelease(client_flag_mtx);
+    
+    TIMM_OSAL_Free(hRPCCtx);
+    
     DOMX_DEBUG("\n Leaving %s",__FUNCTION__);
     return rpcError;	
 }
@@ -394,35 +331,31 @@ leave:
 RPC_OMX_ERRORTYPE RPC_ModDeInit(void)
 {
     RPC_OMX_ERRORTYPE rpcError = RPC_OMX_ErrorNone;
-	OMX_S32 status;
-	
-	DOMX_DEBUG("\nEntered %s",__FUNCTION__);
-	
-	if(flag_server==0) {
-        if(client_flag_mtx)
-        {
-            TIMM_OSAL_MutexDelete(client_flag_mtx);
-            client_flag_mtx = NULL;
-        }
-            RcmServer_delete(&rcmSrvHndl);
-            DOMX_DEBUG("\nRCM server deleted\n");
-	
-	    status = RcmServer_destroy(); 
-		//This function checks the reference count of the RCM server(internal variable to RCM srevre module)
-		if(status < 0 ) {
-            DOMX_DEBUG( "Client does not exist.Error Code:%d\n",status);
-			rpcError = RPC_OMX_RCM_ClientFail;
-            goto leave;
-        }
-	 
-  	    flag_server = 1;
-    	}
-		
-leave:
+    OMX_S32 status;
+    
+    DOMX_DEBUG("\nEntered %s",__FUNCTION__);
+
+    if(client_flag_mtx)
+    {
+        TIMM_OSAL_MutexDelete(client_flag_mtx);
+        client_flag_mtx = NULL;
+    }
+        RcmServer_delete(&rcmSrvHndl);
+        DOMX_DEBUG("\nRCM server deleted\n");
+
+    status = RcmServer_destroy(); 
+    //This function checks the reference count of the RCM server(internal variable to RCM srevre module)
+    if(status < 0 ) {
+        DOMX_DEBUG( "Client does not exist.Error Code:%d\n",status);
+        rpcError = RPC_OMX_RCM_ClientFail;
+        goto EXIT;
+    }  	    
+        
+EXIT:
     DOMX_DEBUG("\nLeaving %s",__FUNCTION__);
     return rpcError;	
 }
-	
+    
 
 /* ===========================================================================*/
 /**
@@ -451,7 +384,7 @@ RPC_OMX_ERRORTYPE RPC_ModInit(void)
     if(bReturnStatus != TIMM_OSAL_ERR_NONE)
     {
         TIMM_OSAL_Error("Mutex create failed");
-        goto leave;
+        goto EXIT;
     }
 
     //fetching RCM server name - This needs to be fetched from the default RCM server table
@@ -462,37 +395,37 @@ RPC_OMX_ERRORTYPE RPC_ModInit(void)
     DOMX_DEBUG("\nrcmservertable[MultiProc_getId(NULL)] = %s\n", rcmservertable[MultiProc_getId(NULL)]);
     DOMX_DEBUG("\nRCM_SERVER_NAME_LOCAL = %s\n", RCM_SERVER_NAME_LOCAL);
    
-	if(CHIRON_IPC_FLAG) {
+    if(CHIRON_IPC_FLAG) {
         if(MultiProc_getId(NULL) == APPM3_PROC) {
-		    TARGET_CORE_ID = CORE_CHIRON; // This Value needs to be parsed from the Component Name
-		    LOCAL_CORE_ID = CORE_APPM3;
-	    }
+            TARGET_CORE_ID = CORE_CHIRON; // This Value needs to be parsed from the Component Name
+            LOCAL_CORE_ID = CORE_APPM3;
+        }
         else {
-		    TARGET_CORE_ID = CORE_APPM3; // This Value needs to be parsed from the Component Name	
-		    LOCAL_CORE_ID = CORE_CHIRON;
-		}
-		PACKET_SIZE = CHIRON_PACKET_SIZE;
-	}
-	else
-	{
+            TARGET_CORE_ID = CORE_APPM3; // This Value needs to be parsed from the Component Name	
+            LOCAL_CORE_ID = CORE_CHIRON;
+        }
+        PACKET_SIZE = CHIRON_PACKET_SIZE;
+    }
+    else
+    {
    
         if(MultiProc_getId(NULL) == SYSM3_PROC) {
-		    TARGET_CORE_ID = CORE_APPM3; // This Value needs to be parsed from the Component Name
-		    LOCAL_CORE_ID = CORE_SYSM3;
-	    }
+            TARGET_CORE_ID = CORE_APPM3; // This Value needs to be parsed from the Component Name
+            LOCAL_CORE_ID = CORE_SYSM3;
+        }
         else {
-		    TARGET_CORE_ID = CORE_SYSM3; // This Value needs to be parsed from the Component Name	
-		    LOCAL_CORE_ID = CORE_APPM3;
-		}
-		PACKET_SIZE = DUCATI_PACKET_SIZE;
-	}
-	
-	for (i=0;i<CORE_MAX;i++)
+            TARGET_CORE_ID = CORE_SYSM3; // This Value needs to be parsed from the Component Name	
+            LOCAL_CORE_ID = CORE_APPM3;
+        }
+        PACKET_SIZE = DUCATI_PACKET_SIZE;
+    }
+    
+    for (i=0;i<CORE_MAX;i++)
     {
     rpcHndl[i].rcmHndl[LOCAL_CORE_ID]= (RcmClient_Handle)0;
     rpcHndl[i].heapId[LOCAL_CORE_ID] = heapIdArray[LOCAL_CORE_ID];
-	
-	
+    
+    
     for(j=0;j<MAX_FUNCTION_LIST;j++)
     {
     rpcHndl[i].rpcFxns[j].rpcFxnIdx = 0;
@@ -506,23 +439,14 @@ RPC_OMX_ERRORTYPE RPC_ModInit(void)
     /* temporary, wait here for CCS connection */
     while (spin);
 
-	bReturnStatus = TIMM_OSAL_SemaphoreCreate(&rcmServerSem, 0);
-
-        if (bReturnStatus != TIMM_OSAL_ERR_NONE) {
-		DOMX_DEBUG("Error: Semaphore_create() failed\n");
-		rpcError = RPC_OMX_ErrorInsufficientResources;
-             goto leave;
-		}
-
-
     rpcError = appRcmServerThrFxn(); //calling in same context - not a different thread
 
-	if (rpcError != RPC_OMX_ErrorNone) {
-		DOMX_DEBUG("\n Error in Bringing up RCM server Thread");
-		goto leave;
-		}
-	
-leave:
+    if (rpcError != RPC_OMX_ErrorNone) {
+        DOMX_DEBUG("\n Error in Bringing up RCM server Thread");
+        goto EXIT;
+        }
+    
+EXIT:
     DOMX_DEBUG("\nLeaving %s",__FUNCTION__);
     if (rpcError != RPC_OMX_ErrorNone) 
     {
@@ -533,10 +457,10 @@ leave:
         }
     }
     return rpcError;  	
-    }
-	
-	
-	
+ }
+    
+    
+    
 /* ===========================================================================*/
 /**
  * @name appRcmServerThrFxn() 
@@ -569,8 +493,8 @@ RPC_OMX_ERRORTYPE appRcmServerThrFxn(void)
     if(status < 0 )
     {
         DOMX_DEBUG("\nServer Exit. Error Code:%d\n",status);
-		rpcError = RPC_OMX_RCM_ServerFail;
-        goto leave;
+        rpcError = RPC_OMX_RCM_ServerFail;
+        goto EXIT;
     }
     
     DOMX_DEBUG("\n calling Server params init\n");
@@ -581,12 +505,12 @@ RPC_OMX_ERRORTYPE appRcmServerThrFxn(void)
     status = RcmServer_create(RCM_SERVER_NAME_LOCAL, &rcmSrvParams, &rcmSrvHndl);
     //status = RcmServer_create("abc", &rcmSrvParams, &rcmSrvHndl);
 DOMX_DEBUG("\nServer create done\n");
-	if(status < 0)
+    if(status < 0)
         {
-		DOMX_DEBUG("\nError occured while RcmServer_Create() \n");
-		rpcError = RPC_OMX_RCM_ServerFail;
-		goto leave;
-		}
+        DOMX_DEBUG("\nError occured while RcmServer_Create() \n");
+        rpcError = RPC_OMX_RCM_ServerFail;
+        goto EXIT;
+        }
 
 
     DOMX_DEBUG("\n RCM SERVER NAME: (1 for SYS 2 for APP) = %s",RCM_SERVER_NAME_LOCAL);
@@ -594,36 +518,45 @@ DOMX_DEBUG("\nServer create done\n");
     DOMX_DEBUG("\nRcmServer Created");
 
     /* Local Function Registration starts on  RCM server */
-	
-	status = RcmServer_addSymbol(rcmSrvHndl, "fxnExit", fxnExit,&fxIndx);
-	 
-	if(status < 0 || fxIndx == 0xFFFFFFFF)
+    
+    status = RcmServer_addSymbol(rcmSrvHndl, "fxnExit", fxnExit,(UInt32*)&fxIndx);
+     
+    if(status < 0 || fxIndx == 0xFFFFFFFF)
     {
         DOMX_DEBUG("\nError occured while RcmServer_addSymbol Status:%d\n",status);
-		rpcError = RPC_OMX_RCM_ServerFail;
-        goto leave;
+        rpcError = RPC_OMX_RCM_ServerFail;
+        goto EXIT;
     }
-	
+    
+    status = RcmServer_addSymbol(rcmSrvHndl, "getFxnIndexFromRemote_skel", getFxnIndexFromRemote_skel,(UInt32*)&getFxnIndexFromRemote_skelIdx);
+    
+    if(status < 0 || getFxnIndexFromRemote_skelIdx == 0xFFFFFFFF)
+    {
+        DOMX_DEBUG("\nError occured while RcmServer_addSymbol Status:%d\n",status);
+        rpcError = RPC_OMX_RCM_ServerFail;
+        goto EXIT;
+    }
+    
      for(i=0;i<MAX_FUNCTION_LIST;i++)
     {
         status = RcmServer_addSymbol(rcmSrvHndl, rpcFxns[i], rpcSkelFxns[i].FxnPtr,&rpcHndl[LOCAL_CORE_ID].rpcFxns[i].rpcFxnIdx);
         
         if(status < 0 || rpcHndl[LOCAL_CORE_ID].rpcFxns[i].rpcFxnIdx == 0xFFFFFFFF)
-		{
+        {
         DOMX_DEBUG("\nError occured while RcmServer_addSymbol Status:%d\n",status);
-		rpcError = RPC_OMX_RCM_ServerFail;
-        goto leave;
-		}
+        rpcError = RPC_OMX_RCM_ServerFail;
+        goto EXIT;
+        }
 
-	    DOMX_DEBUG("\n %d.Function %s registered", i+1,rpcFxns[i]);
+        DOMX_DEBUG("\n %d.Function %s registered", i+1,rpcFxns[i]);
         
     }
-	
-	//Start the RCM server thread
-	RcmServer_start(rcmSrvHndl);
+    
+    //Start the RCM server thread
+    RcmServer_start(rcmSrvHndl);
     DOMX_DEBUG("\nRunning RcmServer\n");
-	
-leave:
+    
+EXIT:
       return rpcError;
 }
 /* ===========================================================================*/
@@ -668,15 +601,15 @@ RPC_OMX_ERRORTYPE fxn_exit_caller(void)
 {
     RcmClient_Message *rcmMsg = NULL;
     OMX_S32 status;
-	RPC_OMX_ERRORTYPE rpcError = RPC_OMX_ErrorNone;
+    RPC_OMX_ERRORTYPE rpcError = RPC_OMX_ErrorNone;
     
     DOMX_DEBUG("\n Entered %s",__FUNCTION__);	
     rcmMsg = RcmClient_alloc(rcmHndl, sizeof(RcmClient_Message));
 
     if (rcmMsg == NULL) {
         DOMX_DEBUG("\n Error in allocating RCM msg");
-		rpcError = RPC_OMX_ErrorInsufficientResources;
-		goto leave;
+        rpcError = RPC_OMX_ErrorInsufficientResources;
+        goto EXIT;
     }
 
     rcmMsg->fxnIdx = fxnExitidx;
@@ -684,14 +617,96 @@ RPC_OMX_ERRORTYPE fxn_exit_caller(void)
     status = RcmClient_execDpc(rcmHndl, rcmMsg); 
     
     if (status < 0) {
-	    DOMX_DEBUG( "\n Error RcmClient_execDpc failed \n");
-		rpcError = RPC_OMX_RCM_ErrorExecFail;
-        goto leave;        
+        DOMX_DEBUG( "\n Error RcmClient_execDpc failed \n");
+        rpcError = RPC_OMX_RCM_ErrorExecFail;
+        goto EXIT;        
         }	
 
-leave:
+EXIT:
     DOMX_DEBUG("\n Exitting %s",__FUNCTION__);
-	return rpcError;
+    return rpcError;
 
+}
+
+/* ===========================================================================*/
+/**
+ * @name getFxnIndexFromRemote_stub() 
+ * @brief 
+ * @param void 
+ * @return RPC_OMX_ErrorNone = Successful 
+ * @sa TBD
+ *
+ */
+/* ===========================================================================*/
+static void getFxnIndexFromRemote_stub(void)
+{
+    //RPC_INDEX FxnIdxArr[MAX_FUNCTION_LIST];
+    OMX_U32 packetSize = 0x100;
+    RPC_INDEX *FxnIdxArr;
+    RcmClient_Message *rcmMsg;
+    OMX_S16 status;
+    RPC_INDEX fxnIdx;
+    OMX_U8 i;
+    FxnList FxnIdxList;
+    
+    DOMX_DEBUG("\nENTERED %s",__FUNCTION__);
+    
+    rcmMsg = RcmClient_alloc(rcmHndl, packetSize);
+    
+    if(rcmMsg ==NULL) {
+        DOMX_DEBUG("\nError in Allocting rcm message");        
+        goto EXIT;
+    }
+    
+    rcmMsg->fxnIdx = getFxnIndexFromRemote_skelIdx;
+       FxnIdxArr = (RPC_INDEX *)(&rcmMsg->data);
+    TIMM_OSAL_Memcpy(FxnIdxArr,0,sizeof(RPC_INDEX)*MAX_FUNCTION_LIST);
+
+    status = RcmClient_exec(rcmHndl, rcmMsg);
+    
+    if (status < 0) {
+        DOMX_DEBUG( "\n Error RcmClient_exec failed \n");
+        goto EXIT;        
+        }
+        
+    for(i=0;i<MAX_FUNCTION_LIST;i++)
+    {
+    
+        DOMX_DEBUG("\n function index from remote side %x",  (OMX_U32)(*(FxnIdxArr+i)));
+        //rpcHndl[TARGET_CORE_ID].rpcFxns[i].rpcFxnIdx =  (RPC_INDEX *)(FxnIdxArr+i);
+        
+    }
+EXIT:
+    return;
+}
+
+/* ===========================================================================*/
+/**
+ * @name getFxnIndexFromRemote_skel() 
+ * @brief 
+ * @param void 
+ * @return RPC_OMX_ErrorNone = Successful 
+ * @sa TBD
+ *
+ */
+/* ===========================================================================*/
+
+static
+Int32 getFxnIndexFromRemote_skel(UInt32 size, UInt32 *data)
+{
+    Int status = 0;  /* success */
+    RPC_INDEX *FxnIdxArr;
+    OMX_U32 i;
+    
+    FxnIdxArr = (RPC_INDEX *)(data);
+    
+    DOMX_DEBUG("\nENTERED %s",__FUNCTION__);
+    
+    for(i=0;i<MAX_FUNCTION_LIST;i++)
+    //TIMM_OSAL_Memcpy(FxnIdxArr+i,rpcHndl[LOCAL_CORE_ID].rpcFxns[i].rpcFxnIdx,sizeof(RPC_INDEX));
+    TIMM_OSAL_Memcpy(FxnIdxArr+i,i,sizeof(RPC_INDEX));
+    //    (RPC_INDEX )(*(FxnIdxArr+i)) = rpcHndl[LOCAL_CORE_ID].rpcFxns[i].rpcFxnIdx;
+
+    return status;
 }
 

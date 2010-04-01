@@ -19,6 +19,8 @@
 /*==============================================================
  *! Revision History
  *! ============================
+ *! 29-Mar-2010 Abhishek Ranka : Revamped DOMX implementation
+ *!
  *! 19-August-2009 B Ravi Kiran ravi.kiran@ti.com: Initial Version
  *================================================================*/
  
@@ -33,9 +35,9 @@ extern "C" {
 /******************************************************************
  *   INCLUDE FILES
  ******************************************************************/
+/* ----- system and platform files ----------------------------*/ 
 #include <RcmClient.h>
 #include <HeapBuf.h>
-
 #include <OMX_Component.h>
 #include <OMX_Core.h>
 #include <OMX_Audio.h>
@@ -45,13 +47,30 @@ extern "C" {
 #include <OMX_TI_Index.h>
 #include <OMX_TI_Common.h>
 
+/*-------program files ----------------------------------------*/
+#include "omx_rpc.h"
+#include "omx_rpc_utils.h"
+
 /******************************************************************
  *   DEFINES - CONSTANTS
  ******************************************************************/
 /* *********************** OMX RPC DEFINES******************************************/
-#define MAX_CORENAME_LENGTH 10
-#define MAX_NUM_OF_RPC_USERS 5
+#define COMPONENT_NAME_LENGTH_MAX 128
+
+/*This defines the maximum length the processor name can take - The is based on the component
+name based Target core retireval*/
+#define MAX_CORENAME_LENGTH 20 
+
 #define MAX_SERVER_NAME_LENGTH 40
+
+#define MAX_NUM_OF_RPC_USERS 5
+
+/*This defines the maximum number of remote functions that can be registered*/
+#define MAX_FUNCTION_LIST 19
+
+/*This defines the maximum number of characters a remote function name can take. 
+This is used to define the length of maximum string length the symbol can be*/
+#define MAX_FUNCTION_NAME_LENGTH 80
 
 /* ************************* MESSAGE BUFFER DEFINES *********************************/
 #define DEFAULTBUFSIZE 1024
@@ -59,79 +78,23 @@ extern "C" {
 #define MESSAGE_BODY_LENGTH (MAX_MSG_FRAME_LENGTH - sizeof(RPC_MSG_HEADER))
 
 /* **************************PACKET SIZES-TEMPORARY FIX*****************************/
+/*Used to define the length of the Heap Id array which contains all
+ the statically registered heaps used for RCM buffers*/
+#define MAX_NUMBER_OF_HEAPS 4
+
 #define CHIRON_PACKET_SIZE 0x90
 #define DUCATI_PACKET_SIZE 0x100
 
-/* ************************* OFFSET DEFINES ******************************** */
-#define GET_PARAM_DATA_OFFSET    (sizeof(RPC_OMX_HANDLE) + sizeof(OMX_INDEXTYPE) + sizeof(OMX_U32) /*4 bytes for offset*/ )
-#define USE_BUFFER_DATA_OFFSET   (sizeof(OMX_U32)*5)
-
-/******************************************************************
- *   MACROS - ASSERTS
- ******************************************************************/
-#define RPC_assert  RPC_paramCheck
-#define RPC_require RPC_paramCheck
-#define RPC_ensure  RPC_paramCheck
-
-#define RPC_paramCheck(C,V,S)  if (!(C)) { eRPCError = V;\
-TIMM_OSAL_TraceFunction("##Error:: %s::in %s::line %d \n",S,__FUNCTION__, __LINE__); \
-goto EXIT; }
-
-/******************************************************************
- *   MACROS - COMMON MARSHALLING UTILITIES
- ******************************************************************/
-#define RPC_SETFIELDVALUE(MSGBODY, POS, VALUE, TYPE) \
-*((TYPE *) ((OMX_U32)MSGBODY+POS)) = VALUE; \
-POS+=sizeof(TYPE);
-
-#define RPC_SETFIELDOFFSET(MSGBODY, POS, OFFSET, TYPE) \
-*((TYPE *) ((OMX_U32)MSGBODY+POS)) = OFFSET; \
-POS+=sizeof(TYPE);
-
-#define RPC_SETFIELDCOPYGEN(MSGBODY, POS, PTR, SIZE) \
-TIMM_OSAL_Memcpy((OMX_U8*) ((OMX_U32)MSGBODY+POS),PTR,SIZE);
-
-#define RPC_SETFIELDCOPYTYPE(MSGBODY, POS, PSTRUCT, TYPE) \
-*((TYPE *) ((OMX_U32)MSGBODY+POS)) = *PSTRUCT;
-
-/******************************************************************
- *   MACROS - COMMON UNMARSHALLING UTILITIES
- ******************************************************************/
-#define RPC_GETFIELDVALUE(MSGBODY, POS, VALUE, TYPE) \
-VALUE = *((TYPE *) ((OMX_U32)MSGBODY+POS)); \
-POS+=sizeof(TYPE);
-
-#define RPC_GETFIELDOFFSET(MSGBODY, POS, OFFSET, TYPE) \
-OFFSET = *((TYPE *) ((OMX_U32)MSGBODY+POS)); \
-POS+=sizeof(TYPE);
-
-#define RPC_GETFIELDCOPYGEN(MSGBODY, POS, PTR, SIZE) \
-TIMM_OSAL_Memcpy(PTR,(OMX_U8*) ((OMX_U32)MSGBODY+POS),SIZE);
-
-#define RPC_GETFIELDCOPYTYPE(MSGBODY, POS, PSTRUCT, TYPE) \
-*PSTRUCT = *((TYPE *) ((OMX_U32)MSGBODY+POS));
-
-#define RPC_GETFIELDPATCHED(MSGBODY, OFFSET, PTR, TYPE) \
-PTR = (TYPE *) (MSGBODY+OFFSET);
-
-/* ************************* OMX RPC DATA TYPES *************************** */
-typedef OMX_U32 	     RPC_OMX_HANDLE;
-typedef OMX_U8  	     RPC_OMX_BYTE;
-typedef OMX_U32          RPC_INDEX;
-typedef OMX_HANDLETYPE RPC_HANDLE_TYPE;
-typedef OMX_ERRORTYPE    RPC_OMX_CMD_STATUS;
-typedef OMX_U32          RPC_OMX_SIZE;
-typedef OMX_PTR		     RPC_OMX_PTR;
-typedef OMX_U32	         RPC_OMX_ARG;
-typedef OMX_U32	         RPC_OMX_ID;
+/**NEW**/
+#define MAX_PROC 4
+#define APPM3_PROC 3
+#define SYSM3_PROC 2
+#define TESLA_PROC 1
+#define CHIRON_PROC 0
 
 /*******************************************************************************
 * Enumerated Types
 *******************************************************************************/
-/** 
-  *  @brief           CORE Identification Enum. This gets configured from
-  *                   CFG file ( each RCM will have a different value based on CORE) 
-  */
 typedef enum COREID
 {
         CORE_CHIRON = 0,
@@ -140,7 +103,6 @@ typedef enum COREID
         CORE_APPM3 = 3,
         CORE_MAX = 4
 }COREID; 
-
 
 /************************************* OMX RPC MESSAGE STRUCTURE ******************************/
 typedef struct RPC_MSG_HEADER
@@ -166,10 +128,43 @@ typedef struct rpcSkelArr {
         OMX_PTR FxnPtr;
 } rpcSkelArr;
 
+/** 
+  *  @brief           Index for Remote Function Index Array. 
+  */
+typedef enum rpc_fxn_list{
+    RPC_OMX_FXN_IDX_SET_PARAMETER = 0,
+    RPC_OMX_FXN_IDX_GET_PARAMETER = 1,
+    RPC_OMX_FXN_IDX_GET_HANDLE = 2,
+    RPC_OMX_FXN_IDX_USE_BUFFER = 3,
+    RPC_OMX_FXN_IDX_FREE_HANDLE = 4,
+    RPC_OMX_FXN_IDX_SET_CONFIG    = 5,
+    RPC_OMX_FXN_IDX_GET_CONFIG    = 6,
+    RPC_OMX_FXN_IDX_GET_STATE     = 7,
+    RPC_OMX_FXN_IDX_SEND_CMD      = 8,
+    RPC_OMX_FXN_IDX_GET_VERSION   = 9,
+    RPC_OMX_FXN_IDX_GET_EXT_INDEX = 10,
+    RPC_OMX_FXN_IDX_FILLTHISBUFFER = 11,
+    RPC_OMX_FXN_IDX_FILLBUFFERDONE = 12,
+    RPC_OMX_FXN_IDX_FREE_BUFFER = 13,
+    RPC_OMX_FXN_IDX_EMPTYTHISBUFFER = 14,
+    RPC_OMX_FXN_IDX_EMPTYBUFFERDONE = 15,
+    RPC_OMX_FXN_IDX_EVENTHANDLER = 16,
+    RPC_OMX_FXN_IDX_ALLOCATE_BUFFER = 17,
+    RPC_OMX_FXN_IDX_COMP_TUNNEL_REQUEST = 18,
+    RPC_OMX_FXN_IDX_MAX = 19
+}rpc_fxn_list;
+
+/**************************** MISC ENUM **********************/
 typedef enum ProxyType {
     ClientProxy = 0,
     TunnelProxy = 1,
 }ProxyType;
+
+typedef enum pRcmClientType{
+    RCM_DEFAULT_CLIENT = 0,
+    RCM_ADDITIONAL_CLIENT = 1,
+    RCM_MAX_CLIENT = 2        
+}pRcmClientType;
 
 typedef enum CacheType{
     Cache_SameProc = 0, // Same processor cache (Inter Ducati case)
@@ -177,35 +172,13 @@ typedef enum CacheType{
     //placeholder future types to follow
 }CacheType;
 
-/** 
-  *  @brief           Index for Remote Function Index Array. 
-  */
-typedef enum rpc_fxn_list{
-    RPC_OMX_FXN_IDX_SET_PARAMETER = 0,
-	RPC_OMX_FXN_IDX_GET_PARAMETER = 1,
-	RPC_OMX_FXN_IDX_GET_HANDLE = 2,
-	RPC_OMX_FXN_IDX_USE_BUFFER = 3,
-	RPC_OMX_FXN_IDX_FREE_HANDLE = 4,
-	RPC_OMX_FXN_IDX_SET_CONFIG    = 5,
-	RPC_OMX_FXN_IDX_GET_CONFIG    = 6,
-	RPC_OMX_FXN_IDX_GET_STATE     = 7,
-	RPC_OMX_FXN_IDX_SEND_CMD      = 8,
-	RPC_OMX_FXN_IDX_GET_VERSION   = 9,
-	RPC_OMX_FXN_IDX_GET_EXT_INDEX = 10,
-	RPC_OMX_FXN_IDX_FILLTHISBUFFER = 11,
-	RPC_OMX_FXN_IDX_FILLBUFFERDONE = 12,
-	RPC_OMX_FXN_IDX_FREE_BUFFER = 13,
-	RPC_OMX_FXN_IDX_EMPTYTHISBUFFER = 14,
-	RPC_OMX_FXN_IDX_EMPTYBUFFERDONE = 15,
-	RPC_OMX_FXN_IDX_EVENTHANDLER = 16,
-	RPC_OMX_FXN_IDX_ALLOCATE_BUFFER = 17,
-	RPC_OMX_FXN_IDX_COMP_TUNNEL_REQUEST = 18,
-	RPC_OMX_FXN_IDX_MAX = 19
-}rpc_fxn_list;
-
 /*******************************************************************************
 * STRUCTURES
 *******************************************************************************/
+typedef struct {
+    RPC_INDEX FxnIdxArr[MAX_FUNCTION_LIST];
+}FxnList;
+
 /* ********************************************* RPC LAYER HANDLE ************************************** */
 typedef struct RPC_Object
 {
@@ -216,10 +189,29 @@ OMX_U32 heapId[CORE_MAX]; //these heap IDs need to be configured during ModInit 
 //Functions to be registered and indices
 rpcFxnArr rpcFxns[RPC_OMX_FXN_IDX_MAX];
 //Number of users per transport or RCM client
-RPC_OMX_SIZE NumOfTXUsers;
-
+OMX_U32 NumOfTXUsers;
 }RPC_Object;
 
+/*New*/
+typedef struct RPC_OMX_CONTEXT
+{
+RPC_OMX_HANDLE remoteHandle; //real components handle
+RcmClient_Handle ClientHndl[RCM_MAX_CLIENT]; //This is filled in after the ClientCreate() call goes through
+OMX_U32 HeapId[2]; //This needs to be filled in before client create() - fetch this head ID from Global table
+COREID RealCore; // Target core of component - To be parsed from component name and put in
+ProxyType Tprxy; // Tunnel or Client Proxy
+CacheType CacheMode; //DMA, same processor etc
+OMX_CALLBACKTYPE *CbInfo; // should contain the updated pointers
+OMX_PTR pAppData;
+}RPC_OMX_CONTEXT;
+
+typedef struct RPC_OMX_SKEL_CONTEXT
+{
+OMX_PTR hRpcAppData;
+RcmClient_Handle ClientHndl[RCM_MAX_CLIENT];
+}RPC_OMX_SKEL_CONTEXT;
+
+/*********************TEMP-TO REMOVE*********************/
 //NOTE: Need to check if we need this. It should be defined in some OMX header.
 /* this is used for GetComponentVersion****/
 typedef struct VERSION_INFO
