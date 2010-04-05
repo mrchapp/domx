@@ -48,6 +48,7 @@ extern "C" {
 /*--------data declarations -----------------------------------*/
 #define MAX_NUM_PROXY_BUFFERS             25
 #define MAX_COMPONENT_NAME_LENGTH         128
+#define PROXY_MAXNUMOFPORTS               8
 
 /******************************************************************
  *   MACROS - ASSERTS
@@ -111,7 +112,9 @@ typedef struct PROXY_COMPONENT_PRIVATE {
     
     PROXY_EMPTYBUFFER_DONE proxyEmptyBufferDone;
     PROXY_FILLBUFFER_DONE proxyFillBufferDone;
-    PROXY_EVENTHANDLER proxyEventHandler;    
+    PROXY_EVENTHANDLER proxyEventHandler;
+    
+    OMX_U32 nNumOfLines[PROXY_MAXNUMOFPORTS];
 }PROXY_COMPONENT_PRIVATE;
 
 
