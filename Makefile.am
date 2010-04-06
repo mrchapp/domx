@@ -45,7 +45,7 @@ libOMX_TI_DUCATI1_MISC_SAMPLE_la_LIBADD   = video/omx_proxy_component/src/libsam
 if BUILD_TESTS
   SUBDIRS += test/camera test/h264dec test/h264play test/h264play2 test/h264enc test/jpegdec test/sample_proxy
 
-  bin_PROGRAMS = omx_camera_test omx_h264dec_test omx_h264play_test omx_h264play2_test omx_h264enc_test omx_jpegdec_test omx_sample_test omx_cam_pre_test omx_cam_capt_test omx_cam_vid_cap_test omx_cam_zoom_test
+  bin_PROGRAMS = omx_camera_test omx_h264dec_test omx_h264play_test omx_h264play2_test omx_h264enc_test omx_jpegdec_test omx_sample_test omx_cam_pre_test omx_cam_capt_test omx_cam_vid_cap_test omx_cam_zoom_test omx_cam_fps_test
 
   omx_camera_test_SOURCES      =
   omx_camera_test_LDFLAGS      = -no-undefined
@@ -90,4 +90,8 @@ if BUILD_TESTS
   omx_cam_zoom_test_SOURCES      =
   omx_cam_zoom_test_LDFLAGS      = -no-undefined
   omx_cam_zoom_test_LDADD        = test/camera/libsrc_zoom.la libdomx.la
+
+  omx_cam_fps_test_SOURCES      =
+  omx_cam_fps_test_LDFLAGS      = -no-undefined
+  omx_cam_fps_test_LDADD        = test/camera/libsrc_fps.la libdomx.la
 endif

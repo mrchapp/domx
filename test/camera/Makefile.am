@@ -4,7 +4,7 @@ COMMON_FLAGS = \
         -I$(top_srcdir)/test/camera/inc \
         -I$(top_srcdir)/mmplatform \
         $(OMXCORE_CFLAGS) $(MMOSAL_CFLAGS) $(SYSLINK_CFLAGS) $(MEMMGR_CFLAGS)
-noinst_LTLIBRARIES      = libsrc.la libsrc_pre.la libsrc_imgcap.la libsrc_vidcap.la libsrc_zoom.la
+noinst_LTLIBRARIES      = libsrc.la libsrc_pre.la libsrc_imgcap.la libsrc_vidcap.la libsrc_zoom.la libsrc_fps.la
 libsrc_la_SOURCES       = src/camera_il_client.c
 libsrc_la_LIBADD        = @LTLIBOBJS@ \
 	$(OMXCORE_LIBS) $(MMOSAL_LIBS) $(SYSLINK_LIBS) $(MEMMGR_LIBS)
@@ -29,3 +29,8 @@ libsrc_zoom_la_SOURCES       = src/cam_zoom_test.c src/dss_lib.c
 libsrc_zoom_la_LIBADD        = @LTLIBOBJS@ \
         $(OMXCORE_LIBS) $(MMOSAL_LIBS) $(SYSLINK_LIBS) $(MEMMGR_LIBS)
 libsrc_zoom_la_CFLAGS        = $(COMMON_FLAGS)
+
+libsrc_fps_la_SOURCES       = src/cam_fps_test.c src/dss_lib.c
+libsrc_fps_la_LIBADD        = @LTLIBOBJS@ \
+        $(OMXCORE_LIBS) $(MMOSAL_LIBS) $(SYSLINK_LIBS) $(MEMMGR_LIBS)
+libsrc_fps_la_CFLAGS        = $(COMMON_FLAGS)
