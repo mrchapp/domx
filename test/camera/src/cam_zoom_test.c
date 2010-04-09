@@ -235,7 +235,7 @@ OMX_ERRORTYPE SampleTest_EmptyBufferDone(OMX_IN OMX_HANDLETYPE hComponent,
 		return OMX_ErrorNone;
 
 	pContext = (SampleCompTestCtxt *)pAppData;
-	dprintf(0, "\n Dummy Function. This should not be printed.\n");
+	dprintf(0, "Dummy Function. This should not be printed.\n");
 	goto OMX_TEST_BAIL;
 
 OMX_TEST_BAIL:
@@ -258,7 +258,7 @@ static int omx_fillthisbuffer(int index, int PortNum)
 
 OMX_TEST_BAIL:
 	if (eError != OMX_ErrorNone)
-		dprintf(0, "\n ERROR OMX_FillThisBuffer()\n");
+		dprintf(0, "ERROR OMX_FillThisBuffer()\n");
 	return eError;
 }
 
@@ -420,7 +420,7 @@ void Camera_processfbd(void *threadsArg)
 	return;
 OMX_TEST_BAIL:
 	if (eError != OMX_ErrorNone) {
-		dprintf(0, "\n Error in FillBufferDone error = %x\n", eError);
+		dprintf(0, "ERROR in FillBufferDone error = %x\n", eError);
 		return ;
 	}
 	return ;
@@ -458,7 +458,7 @@ OMX_ERRORTYPE SampleTest_FillBufferDone(OMX_IN OMX_HANDLETYPE hComponent,
 	retval = TIMM_OSAL_WriteToPipe(pContext->FBD_pipe, &pBuffHeader,
 			sizeof(pBuffHeader), TIMM_OSAL_SUSPEND);
 	if (retval != TIMM_OSAL_ERR_NONE) {
-		dprintf(0, "\n WriteToPipe FAILED\n");
+		dprintf(0, "WriteToPipe FAILED\n");
 		TIMM_OSAL_ErrorExt(nTraceGroup, "ERROR in writing to pipe!");
 		eError = OMX_ErrorNotReady;
 		return eError;
@@ -475,7 +475,7 @@ OMX_ERRORTYPE SampleTest_FillBufferDone(OMX_IN OMX_HANDLETYPE hComponent,
 
 OMX_TEST_BAIL:
 	if (eError != OMX_ErrorNone) {
-		dprintf(0, "\n Error in FillBufferDone\n");
+		dprintf(0, "Error in FillBufferDone\n");
 		return eError;
 	}
 	return OMX_ErrorNone;
@@ -531,7 +531,7 @@ OMX_ERRORTYPE SampleTest_AllocateBuffers(OMX_PARAM_PORTDEFINITIONTYPE *pPortDef)
 
 OMX_TEST_BAIL:
 	if (eError != OMX_ErrorNone) {
-		dprintf(0, "\n ERROR from SampleTest_AllocateBuffers()\
+		dprintf(0, "ERROR from SampleTest_AllocateBuffers()\
 						eError = %x\n", eError);
 		dprintf(3, " Returning from SampleTest_AllocateBuffers()\n");
 		return eError;
@@ -565,7 +565,7 @@ OMX_ERRORTYPE SampleTest_DeInitBuffers(SampleCompTestCtxt *pContext)
 
 OMX_TEST_BAIL:
 	if (eError != OMX_ErrorNone) {
-		dprintf(0, "\n ERROR From SampleTest_DeInitBuffers() \n");
+		dprintf(0, "ERROR From SampleTest_DeInitBuffers() \n");
 		return eError;
 	}
 	return eError;
@@ -595,7 +595,7 @@ OMX_ERRORTYPE SampleTest_TransitionWait(OMX_STATETYPE eToState)
 	/* Verify that the component is still in Loaded state */
 	eError = OMX_GetState(pContext->hComp, &pContext->eState);
 	if (eError != OMX_ErrorNone)
-		dprintf(0, "\nget state from sample test\
+		dprintf(0, "get state from sample test\
 						transition wait failed\n");
 	OMX_TEST_BAIL_IF_ERROR(eError);
 	if ((eToState == OMX_StateIdle) &&
@@ -652,7 +652,7 @@ static int omx_switch_to_loaded()
 
 OMX_TEST_BAIL:
 	if (eError != OMX_ErrorNone)
-		dprintf(0, "\n ERROR from omx_switch_to_loaded()\
+		dprintf(0, "ERROR from omx_switch_to_loaded()\
 					= 0x%x \n", eError);
 	return eError;
 }
@@ -751,7 +751,7 @@ static int SetFormat(int width, int height, const char *image_fmt)
 
 OMX_TEST_BAIL:
 	if (eError != OMX_ErrorNone)
-		dprintf(0, "\n ERROR from SetFormat(), error = 0x%x\n", eError);
+		dprintf(0, "ERROR from SetFormat(), error = 0x%x\n", eError);
 	return eError;
 }
 
@@ -782,7 +782,7 @@ static int omx_comp_release()
 
 OMX_TEST_BAIL:
 	if (eError != OMX_ErrorNone)
-		dprintf(0, "\n ERROR from omx_comp_release() \n");
+		dprintf(0, "ERROR from omx_comp_release() \n");
 	return eError;
 }
 
@@ -797,7 +797,7 @@ int test_camera_preview(int width, int height, char *image_fmt)
 	int i;
 	/*open the video 1 device to render the result of the test */
 	vid1_fd = open_video1();
-	dprintf(0, "\n vid1_fd = 0%d\n", vid1_fd);
+	dprintf(0, "vid1_fd = 0%d\n", vid1_fd);
 
 	pContext = &oAppData;
 	memset(pContext, 0x0, sizeof(SampleCompTestCtxt));
@@ -897,7 +897,7 @@ int test_camera_preview(int width, int height, char *image_fmt)
 
 OMX_TEST_BAIL:
 	if (eError != OMX_ErrorNone)
-		dprintf(0, "\n ERROR test_camera_preview() function");
+		dprintf(0, "ERROR test_camera_preview() function");
 	omx_comp_release();
 	return eError;
 }
@@ -914,32 +914,32 @@ int main()
 	mmplatform_init(2);
 
 	while (!((test_case_id > 0) && (test_case_id <= 2))) {
-		dprintf(0, "\nSelect test case ID (1 : zoom in UVYV format \n");
-		dprintf(0, "\nSelect test case ID (2: zoom in NV12 format \n");
+		dprintf(0, "Select test case ID (1): Zoom in UVYV format \n");
+		dprintf(0, "Select test case ID (2): Zoom in NV12 format \n");
 		fflush(stdout);
-		printf("\n Enter the Option for zoom now: \n");
+		dprintf(0, "Enter the Option for Zoom now: ");
 		scanf("%d", &test_case_id);
 	}
-	printf("\n Test Case ID = %d\n", test_case_id);
+	dprintf(1, "Test Case ID = 0%d\n", test_case_id);
 
 	switch (test_case_id) {
 		case 1: {
-			dprintf(0, "\n zoom will be applied to resolution\
-						640x480 format UYVY\n");
+			dprintf(0, "Zoom will be applied to resolution "
+						"640x480 format UYVY\n");
 			eError = test_camera_preview(640, 480, "UYVY");
 			if (!eError)
-				dprintf(0, "\n eError From Preview\
-						test= 0x%x\n", eError);
+				dprintf(0, "eError From Preview "
+						"test= 0x%x\n", eError);
 			OMX_TEST_BAIL_IF_ERROR(eError);
 			break;
 		}
 		case 2: {
-			dprintf(0, "\n zoom will be applied to resolution\
-					640x480 format NV12\n");
+			dprintf(0, "Zoom will be applied to resolution "
+					"640x480 format NV12\n");
 			eError = test_camera_preview(640, 480, "NV12");
 			if (!eError)
-				dprintf(0, "\n eError From Preview\
-						test= 0x%x\n", eError);
+				dprintf(0, "eError From Preview "
+						"test= 0x%x\n", eError);
 			OMX_TEST_BAIL_IF_ERROR(eError);
 			break;
 		}
@@ -952,7 +952,7 @@ int main()
 
 OMX_TEST_BAIL:
 	if (eError != OMX_ErrorNone) {
-		dprintf(0, "\n ERROR from main()");
+		dprintf(0, "ERROR from main()");
 		return eError;
 	}
 	return eError;

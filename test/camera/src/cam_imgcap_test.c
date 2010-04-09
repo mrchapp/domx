@@ -259,7 +259,7 @@ OMX_ERRORTYPE SampleTest_EmptyBufferDone(OMX_IN OMX_HANDLETYPE hComponent,
 		return OMX_ErrorNone;
 
 	pContext = (SampleCompTestCtxt *)pAppData;
-	dprintf(0, "\n Dummy Function. This should not be printed.\n");
+	dprintf(0, "Dummy Function. This should not be printed.\n");
 	goto OMX_TEST_BAIL;
 
 OMX_TEST_BAIL:
@@ -282,7 +282,7 @@ static int omx_fillthisbuffer(int index, int PortNum)
 
 OMX_TEST_BAIL:
 	if (eError != OMX_ErrorNone)
-		dprintf(0, "\n ERROR OMX_FillThisBuffer()\n");
+		dprintf(0, "ERROR OMX_FillThisBuffer()\n");
 	return eError;
 }
 
@@ -467,7 +467,7 @@ OMX_ERRORTYPE SampleTest_FillBufferDone(OMX_IN OMX_HANDLETYPE hComponent,
 	retval = TIMM_OSAL_WriteToPipe(pContext->FBD_pipe, &pBuffHeader,
 			sizeof(pBuffHeader), TIMM_OSAL_SUSPEND);
 	if (retval != TIMM_OSAL_ERR_NONE) {
-		dprintf(0, "\n WriteToPipe FAILED\n");
+		dprintf(0, "WriteToPipe FAILED\n");
 		TIMM_OSAL_ErrorExt(nTraceGroup, "ERROR in writing to pipe!");
 		eError = OMX_ErrorNotReady;
 		return eError;
@@ -483,7 +483,7 @@ OMX_ERRORTYPE SampleTest_FillBufferDone(OMX_IN OMX_HANDLETYPE hComponent,
 
 OMX_TEST_BAIL:
 	if (eError != OMX_ErrorNone) {
-		dprintf(0, "\n Error in FillBufferDone\n");
+		dprintf(0, "ERROR in FillBufferDone\n");
 		return eError;
 	}
 	return OMX_ErrorNone;
@@ -559,7 +559,7 @@ OMX_ERRORTYPE SampleTest_AllocateBuffers(OMX_PARAM_PORTDEFINITIONTYPE *pPortDef)
 		MemReqDescTiler[0].stride = 0;
 		TilerAddr = MemMgr_Alloc(MemReqDescTiler, 1);
 		if (!TilerAddr)
-			dprintf(0, "\n Failed to allocate Tiler Buffers for\
+			dprintf(0, "Failed to allocate Tiler Buffers for\
 						Capture Port");
 		dprintf(3, "Tiler buffer allocated at %x\n",\
 						(unsigned int) TilerAddr);
@@ -581,7 +581,7 @@ OMX_ERRORTYPE SampleTest_AllocateBuffers(OMX_PARAM_PORTDEFINITIONTYPE *pPortDef)
 
 OMX_TEST_BAIL:
 	if (eError != OMX_ErrorNone) {
-		dprintf(0, "\n ERROR from SampleTest_AllocateBuffers()\
+		dprintf(0, "ERROR from SampleTest_AllocateBuffers()\
 						eError = %x\n", eError);
 		dprintf(3, " Returning from SampleTest_AllocateBuffers()\n");
 		return eError;
@@ -627,7 +627,7 @@ OMX_ERRORTYPE SampleTest_DeInitBuffers(SampleCompTestCtxt *pContext)
 
 OMX_TEST_BAIL:
 	if (eError != OMX_ErrorNone) {
-		dprintf(0, "\n ERROR From SampleTest_DeInitBuffers() \n");
+		dprintf(0, "ERROR From SampleTest_DeInitBuffers() \n");
 		return eError;
 	}
 	return eError;
@@ -658,7 +658,7 @@ OMX_ERRORTYPE SampleTest_TransitionWait(OMX_STATETYPE eToState)
 	/* Verify that the component is still in Loaded state */
 	eError = OMX_GetState(pContext->hComp, &pContext->eState);
 	if (eError != OMX_ErrorNone)
-		dprintf(0, "\nget state from sample test\
+		dprintf(0, "get state from sample test\
 						transition wait failed\n");
 	OMX_TEST_BAIL_IF_ERROR(eError);
 	if ((eToState == OMX_StateIdle) &&
@@ -715,7 +715,7 @@ static int omx_switch_to_loaded()
 
 OMX_TEST_BAIL:
 	if (eError != OMX_ErrorNone)
-		dprintf(0, "\n ERROR from omx_switch_to_loaded()\
+		dprintf(0, "ERROR from omx_switch_to_loaded()\
 					= 0x%x \n", eError);
 	return eError;
 }
@@ -846,7 +846,7 @@ static int SetFormat(int width, int height, const char *image_fmt)
 
 OMX_TEST_BAIL:
 	if (eError != OMX_ErrorNone)
-		dprintf(0, "\n ERROR from SetFormat(), error = 0x%x\n", eError);
+		dprintf(0, "ERROR from SetFormat(), error = 0x%x\n", eError);
 	return eError;
 }
 
@@ -877,7 +877,7 @@ static int omx_comp_release()
 
 OMX_TEST_BAIL:
 	if (eError != OMX_ErrorNone)
-		dprintf(0, "\n ERROR from omx_comp_release() \n");
+		dprintf(0, "ERROR from omx_comp_release() \n");
 	return eError;
 }
 
@@ -893,7 +893,7 @@ int test_image_capture(int width, int height, char *image_fmt)
 	struct port_param *PrevPort, *ImgPort;
 	/*open the video 1 device to render the preview before capture */
 	vid1_fd = open_video1();
-	dprintf(0, "\n vid1_fd = %d\n", vid1_fd);
+	dprintf(0, "vid1_fd = %d\n", vid1_fd);
 
 	pContext = &oAppData;
 	memset(pContext, 0x0, sizeof(SampleCompTestCtxt));
@@ -1035,7 +1035,7 @@ int test_image_capture(int width, int height, char *image_fmt)
 
 OMX_TEST_BAIL:
 	if (eError != OMX_ErrorNone)
-		dprintf(0, "\n ERROR from test_image_capture() function");
+		dprintf(0, "ERROR from test_image_capture() function");
 	dprintf(1, "release OMX component \n");
 	omx_comp_release();
 	return eError;
@@ -1049,21 +1049,21 @@ int main()
 	/* to load the images on the ducati side through CCS this call is
 	* essential
 	*/
-	dprintf(3, "\nCalling platform init\n");
+	dprintf(3, "Calling platform init\n");
 	mmplatform_init(2);
 
 	while (!((test_case_id > 0) && (test_case_id <= 14))) {
-		dprintf(0, "\nSelect test case ID (1 - 14)\
-				Image capture JPEG format \n");
+		dprintf(0, "Select test case ID (1 - 14)"
+				"Image capture JPEG format \n");
 		fflush(stdout);
-		printf("\n Enter the Option for image capture now: \n");
+		dprintf(0, "Enter the Option for image capture now: ");
 		scanf("%d", &test_case_id);
 	}
-	printf("\n Test Case ID = 0%d\n", test_case_id);
+	dprintf(1, "Test Case ID = 0%d\n", test_case_id);
 
 	switch (test_case_id) {
 		case 1: {
-			dprintf(0, "\n Resolution 176x144 format JPG\n");
+			dprintf(0, "Resolution 176x144 format JPG\n");
 			eError = test_image_capture(176, 144, "UYVY");
 			if (!eError)
 				dprintf(0, "Case 1 eError= %d\n", eError);
@@ -1072,7 +1072,7 @@ int main()
 		}
 
 		case 2: {
-			dprintf(0, "\n Resolution 320x240 format JPG\n");
+			dprintf(0, "Resolution 320x240 format JPG\n");
 			eError = test_image_capture(320, 240, "UYVY");
 			if (!eError)
 				dprintf(0, "Case 2 eError= %d\n", eError);
@@ -1081,7 +1081,7 @@ int main()
 		}
 
 		case 3: {
-			dprintf(0, "\n Resolution 768x576 format UYVY\n");
+			dprintf(0, "Resolution 768x576 format UYVY\n");
 			eError = test_image_capture(768, 576, "UYVY");
 			if (!eError)
 				dprintf(0, "Case 3 eError= %d\n", eError);
@@ -1090,7 +1090,7 @@ int main()
 		}
 
 		case 4: {
-			dprintf(0, "\n Resolution 800x600 format JPG\n");
+			dprintf(0, "Resolution 800x600 format JPG\n");
 			eError = test_image_capture(800, 600, "UYVY");
 			if (!eError)
 				dprintf(0, "Case 4 eError= %d\n", eError);
@@ -1099,7 +1099,7 @@ int main()
 		}
 
 		case 5: {
-			dprintf(0, "\n Resolution 1024x768 format JPG\n");
+			dprintf(0, "Resolution 1024x768 format JPG\n");
 			eError = test_image_capture(1024, 768, "UYVY");
 			if (!eError)
 				dprintf(0, "Case 5 eError= %d\n", eError);
@@ -1108,7 +1108,7 @@ int main()
 		}
 
 		case 6: {
-			dprintf(0, "\n Resolution 128x128 format JPG\n");
+			dprintf(0, "Resolution 128x128 format JPG\n");
 			eError = test_image_capture(128, 128, "UYVY");
 			if (!eError)
 				dprintf(0, "Case 6 eError= %d\n", eError);
@@ -1117,7 +1117,7 @@ int main()
 		}
 
 		case 7: {
-			dprintf(0, "\n Resolution 1600x1200 format JPG\n");
+			dprintf(0, "Resolution 1600x1200 format JPG\n");
 			eError = test_image_capture(1600, 1200, "UYVY");
 			if (!eError)
 				dprintf(0, "Case 7 eError= %d\n", eError);
@@ -1126,7 +1126,7 @@ int main()
 		}
 
 		case 8: {
-			dprintf(0, "\n Resolution 1280x1024 format JPG\n");
+			dprintf(0, "Resolution 1280x1024 format JPG\n");
 			eError = test_image_capture(1280, 1024, "UYVY");
 			if (!eError)
 				dprintf(0, "Case 8 eError= %d\n", eError);
@@ -1135,7 +1135,7 @@ int main()
 		}
 
 		case 9: {
-			dprintf(0, "\n Resolution 64x64 format JPG\n");
+			dprintf(0, "Resolution 64x64 format JPG\n");
 			eError = test_image_capture(64, 64, "UYVY");
 			if (!eError)
 				dprintf(0, "Case  9 eError= %d\n", eError);
@@ -1144,7 +1144,7 @@ int main()
 		}
 
 		case 10: {
-			dprintf(0, "\n Resolution 1152x768 format JPG\n");
+			dprintf(0, "Resolution 1152x768 format JPG\n");
 			eError = test_image_capture(1152, 768, "UYVY");
 			if (!eError)
 				dprintf(0, "Case 10 eError= %d\n", eError);
@@ -1153,7 +1153,7 @@ int main()
 		}
 
 		case 11: {
-			dprintf(0, "\n Resolution 1920x1080 format JPG\n");
+			dprintf(0, "Resolution 1920x1080 format JPG\n");
 			eError = test_image_capture(1920, 1080, "UYVY");
 			if (!eError)
 				dprintf(0, "Case 11 eError= %d\n", eError);
@@ -1162,7 +1162,7 @@ int main()
 		}
 
 		case 12: {
-			dprintf(0, "\n Resolution 1920x1020, format JPG\n");
+			dprintf(0, "Resolution 1920x1020, format JPG\n");
 			eError = test_image_capture(1920, 1020, "UYVY");
 			if (!eError)
 				dprintf(0, "Case 12 eError= %d\n", eError);
@@ -1171,7 +1171,7 @@ int main()
 		}
 
 		case 13: {
-			dprintf(0, "\n Resolution 1280x720, format JPG\n");
+			dprintf(0, "Resolution 1280x720, format JPG\n");
 			eError = test_image_capture(1280, 720, "UYVY");
 			if (!eError)
 				dprintf(0, "Case 13 eError= %d\n", eError);
@@ -1180,7 +1180,7 @@ int main()
 		}
 
 		case 14: {
-			dprintf(0, "\n Resolution 4032x3024, format JPG\n");
+			dprintf(0, "Resolution 4032x3024, format JPG\n");
 			eError = test_image_capture(4032, 3024, "UYVY");
 			if (!eError)
 				dprintf(0, "Case 14 eError= %d\n", eError);
@@ -1196,7 +1196,7 @@ int main()
 
 OMX_TEST_BAIL:
 	if (eError != OMX_ErrorNone) {
-		dprintf(0, "\n ERROR from main()");
+		dprintf(0, "ERROR from main()");
 		return eError;
 	}
 	return eError;

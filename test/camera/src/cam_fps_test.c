@@ -240,7 +240,7 @@ OMX_ERRORTYPE SampleTest_EmptyBufferDone(OMX_IN OMX_HANDLETYPE hComponent,
 		return OMX_ErrorNone;
 
 	pContext = (SampleCompTestCtxt *)pAppData;
-	dprintf(0, "\n Dummy Function. This should not be printed.\n");
+	dprintf(0, "Dummy Function. This should not be printed.\n");
 	goto OMX_TEST_BAIL;
 
 OMX_TEST_BAIL:
@@ -399,7 +399,7 @@ OMX_ERRORTYPE SampleTest_FillBufferDone(OMX_IN OMX_HANDLETYPE hComponent,
 	pPortParam = &(pContext->sPortParam[pBuffHeader->nOutputPortIndex]);
 	if (pBuffHeader->nOutputPortIndex !=
 			OMX_CAMERA_PORT_VIDEO_OUT_PREVIEW) {
-		dprintf(0, "\n Error in FBD Port number is not as expected\n");
+		dprintf(0, "Error in FBD Port number is not as expected\n");
 		eError = -1;
 		OMX_TEST_BAIL_IF_ERROR(eError);
 	}
@@ -416,7 +416,7 @@ OMX_ERRORTYPE SampleTest_FillBufferDone(OMX_IN OMX_HANDLETYPE hComponent,
 	retval = TIMM_OSAL_WriteToPipe(pContext->FBD_pipe, &pBuffHeader,
 			sizeof(pBuffHeader), TIMM_OSAL_SUSPEND);
 	if (retval != TIMM_OSAL_ERR_NONE) {
-		dprintf(0, "\n WriteToPipe FAILED\n");
+		dprintf(0, "WriteToPipe FAILED\n");
 		TIMM_OSAL_ErrorExt(nTraceGroup, "ERROR in writing to pipe!");
 		eError = OMX_ErrorNotReady;
 		return eError;
@@ -432,7 +432,7 @@ OMX_ERRORTYPE SampleTest_FillBufferDone(OMX_IN OMX_HANDLETYPE hComponent,
 
 OMX_TEST_BAIL:
 	if (eError != OMX_ErrorNone) {
-		dprintf(0, "\n Error in FillBufferDone\n");
+		dprintf(0, "Error in FillBufferDone\n");
 		return eError;
 	}
 	return OMX_ErrorNone;
@@ -488,7 +488,7 @@ OMX_ERRORTYPE SampleTest_AllocateBuffers(OMX_PARAM_PORTDEFINITIONTYPE *pPortDef)
 
 OMX_TEST_BAIL:
 	if (eError != OMX_ErrorNone) {
-		dprintf(0, "\n ERROR from SampleTest_AllocateBuffers()\
+		dprintf(0, "ERROR from SampleTest_AllocateBuffers()\
 						eError = %x\n", eError);
 		dprintf(3, " Returning from SampleTest_AllocateBuffers()\n");
 		return eError;
@@ -522,7 +522,7 @@ OMX_ERRORTYPE SampleTest_DeInitBuffers(SampleCompTestCtxt *pContext)
 
 OMX_TEST_BAIL:
 	if (eError != OMX_ErrorNone) {
-		dprintf(0, "\n ERROR From SampleTest_DeInitBuffers() \n");
+		dprintf(0, "ERROR From SampleTest_DeInitBuffers() \n");
 		return eError;
 	}
 	return eError;
@@ -609,7 +609,7 @@ static int omx_switch_to_loaded()
 
 OMX_TEST_BAIL:
 	if (eError != OMX_ErrorNone)
-		dprintf(0, "\n ERROR from omx_switch_to_loaded()"
+		dprintf(0, "ERROR from omx_switch_to_loaded()"
 					"= 0x%x \n", eError);
 	return eError;
 }
@@ -708,7 +708,7 @@ static int SetFormat(int width, int height, const char *image_fmt)
 
 OMX_TEST_BAIL:
 	if (eError != OMX_ErrorNone)
-		dprintf(0, "\n ERROR from SetFormat(), error = 0x%x\n", eError);
+		dprintf(0, "ERROR from SetFormat(), error = 0x%x\n", eError);
 	return eError;
 }
 
@@ -739,7 +739,7 @@ static int omx_comp_release()
 
 OMX_TEST_BAIL:
 	if (eError != OMX_ErrorNone)
-		dprintf(0, "\n ERROR from omx_comp_release() \n");
+		dprintf(0, "ERROR from omx_comp_release() \n");
 	return eError;
 }
 
@@ -755,7 +755,7 @@ int test_camera_preview(int width, int height, char *image_fmt)
 	unsigned int totaltime = 0;
 	/*open the video 1 device to render the result of the test */
 	vid1_fd = open_video1();
-	dprintf(0, "\n vid1_fd = 0%d\n", vid1_fd);
+	dprintf(0, "vid1_fd = 0%d\n", vid1_fd);
 
 	pContext = &oAppData;
 	memset(pContext, 0x0, sizeof(SampleCompTestCtxt));
@@ -849,7 +849,7 @@ int test_camera_preview(int width, int height, char *image_fmt)
 		omx_fillthisbuffer(i, OMX_CAMERA_PORT_VIDEO_OUT_PREVIEW);
 
 	TIMM_OSAL_SemaphoreObtain(pContext->hExitSem, TIMM_OSAL_SUSPEND);
-	/*dprintf(0, "\nD framedone received at framenumber, timeinusec \n");*/
+	/*dprintf(0, "framedone received at framenumber, timeinusec \n");*/
 	for (i = 0; i < framedonecount-1; ++i) {
 		totaltime += ((framedoneprofile[i+1].sec -
 			framedoneprofile[i].sec) * 1000000 +
@@ -870,7 +870,7 @@ int test_camera_preview(int width, int height, char *image_fmt)
 
 OMX_TEST_BAIL:
 	if (eError != OMX_ErrorNone)
-		dprintf(0, "\n ERROR test_camera_preview() function");
+		dprintf(0, "ERROR test_camera_preview() function");
 	omx_comp_release();
 	return eError;
 }
@@ -883,19 +883,18 @@ int main()
 	/* to load the images on the ducati side through CCS this call is
 	* essential
 	*/
-	dprintf(3, "\nCalling platform init\n");
+	dprintf(3, "Calling platform init\n");
 	mmplatform_init(2);
 
 	cam_fps = -1;
 	while (!((test_case_id > 0) && (test_case_id <= 5))) {
-		dprintf(0, "Test case number and corresponding resolutions"
-								" are:\n");
+		dprintf(0, "Enter Test case ID and FPS value: \n");
 		dprintf(0, "\t1 : 176x144 UYVY\n");
 		dprintf(0, "\t2 : 640x480 UYVY\n");
 		dprintf(0, "\t3 : 864X480 UYVY\n");
 		dprintf(0, "\t4 : 768x576 UYVY\n");
 		dprintf(0, "\t5 : 320x240 UYVY\n");
-		dprintf(0, "\nSelect select resolution(1 - 5)\n");
+		dprintf(0, "Select resolution(1 - 5): ");
 		fflush(stdout);
 		scanf("%d", &test_case_id);
 	}
@@ -905,57 +904,57 @@ int main()
 		scanf("%d", &cam_fps);
 
 	}
-	printf("\n Test Case ID = 0%d\n", test_case_id);
-	dprintf(0, "FPS desired = %d\n", cam_fps);
+	dprintf(1, "Test Case ID = 0%d\n", test_case_id);
+	dprintf(1, "FPS desired = %d\n", cam_fps);
 	cam_fps = cam_fps << 16;
 
 	switch (test_case_id) {
 		case 1: {
-			dprintf(0, "\n Going to test resolution"
+			dprintf(0, "Going to test resolution "
 			"176x144 format UYVY and fps=%d\n", cam_fps >> 16);
 			eError = test_camera_preview(176, 144, "UYVY");
 			if (!eError)
-				dprintf(0, "\n Case1 eError is 0x%x", eError);
+				dprintf(0, "Case1 eError is 0x%x", eError);
 			OMX_TEST_BAIL_IF_ERROR(eError);
 			break;
 		}
 
 		case 2: {
-			dprintf(0, "\n Going to test resolution"
+			dprintf(0, "Going to test resolution "
 			"640x480 format UYVY and fps =%d\n", cam_fps >> 16);
 			eError = test_camera_preview(640, 480, "UYVY");
 			if (!eError)
-				dprintf(0, "\n Case2 eError is 0x%x", eError);
+				dprintf(0, "Case2 eError is 0x%x", eError);
 			OMX_TEST_BAIL_IF_ERROR(eError);
 			break;
 		}
 
 		case 3: {
-			dprintf(0, "\n Going to test resolution"
+			dprintf(0, "Going to test resolution "
 			"864x480 format UYVY and fps =%d\n", cam_fps >> 16);
 			eError = test_camera_preview(864, 480, "UYVY");
 			if (!eError)
-				dprintf(0, "\n Case3 eError is 0x%x", eError);
+				dprintf(0, "Case3 eError is 0x%x", eError);
 			OMX_TEST_BAIL_IF_ERROR(eError);
 			break;
 		}
 
 		case 4: {
-			dprintf(0, "\n Going to test resolution"
+			dprintf(0, "Going to test resolution "
 			"768x576 format UYVY and fps =%d\n", cam_fps >> 16);
 			eError = test_camera_preview(768, 576, "UYVY");
 			if (!eError)
-				dprintf(0, "\n Case4 eError is 0x%x", eError);
+				dprintf(0, "Case4 eError is 0x%x", eError);
 			OMX_TEST_BAIL_IF_ERROR(eError);
 			break;
 		}
 
 		case 5: {
-			dprintf(0, "\n Going to test resolution"
+			dprintf(0, "Going to test resolution "
 			"320x240 format UYVY and fps =%d\n", cam_fps >> 16);
 			eError = test_camera_preview(320, 240, "UYVY");
 			if (!eError)
-				dprintf(0, "\n Case6 eError is 0x%x", eError);
+				dprintf(0, "Case6 eError is 0x%x", eError);
 			OMX_TEST_BAIL_IF_ERROR(eError);
 			break;
 		}
@@ -969,7 +968,7 @@ int main()
 
 OMX_TEST_BAIL:
 	if (eError != OMX_ErrorNone) {
-		dprintf(0, "\n ERROR from main()");
+		dprintf(0, "ERROR from main()");
 		return eError;
 	}
 	return eError;
