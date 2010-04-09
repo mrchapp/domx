@@ -783,7 +783,8 @@ static OMX_U32 H264DEC_FillData(H264_Client* pAppData,OMX_BUFFERHEADERTYPE *pBuf
                       sizeof(char), 
                       frameSize[frameReadCount],
                       pAppData->fIn);
-    
+	     TIMM_OSAL_TraceExt(nTraceGroup, "\n Input data filled %d at location %X \n ",nRead,pBuf->pBuffer); 
+// TIMM_OSAL_Trace("\n Input data filled %d at location %d ",nRead,pBuf->pBuffer);  
         /* Update the buffer header with buffer filled length and alloc length */
         pBuf->nFilledLen = nRead;
         pBuf->nAllocLen = maxBufferSize;
@@ -795,7 +796,7 @@ static OMX_U32 H264DEC_FillData(H264_Client* pAppData,OMX_BUFFERHEADERTYPE *pBuf
         {
             /* Udate the EOS flag in buffer header */
             //pBuf->nFlags = OMX_BUFFERFLAG_EOS;
-            printf("%s: End of File reached %d %d\n", __func__, frameReadCount, nRead);
+            TIMM_OSAL_Trace("%s: End of File reached %d %d\n", __func__, frameReadCount, nRead);
         }
         else
         {
@@ -803,7 +804,7 @@ static OMX_U32 H264DEC_FillData(H264_Client* pAppData,OMX_BUFFERHEADERTYPE *pBuf
             /* Seek back if EOS is not reached */
             fseek(pAppData->fIn, -1, SEEK_CUR);
         }
-        /*printf("Read File %d %d %x\n",frameReadCount, nRead, pBuf);*/
+        /*TIMM_OSAL_Trace("Read File %d %d %x\n",frameReadCount, nRead, pBuf);*/
         frameReadCount = (frameReadCount+1)%BITSTREAM_BUF_MAX_SIZE;
     }
     else
@@ -813,7 +814,7 @@ static OMX_U32 H264DEC_FillData(H264_Client* pAppData,OMX_BUFFERHEADERTYPE *pBuf
         nRead = 0;
         //pBuf->pBuffer = NULL;
         pBuf->nFlags = OMX_BUFFERFLAG_EOS;
-        printf("End of File reached with pBuffer: %x\n", 
+        TIMM_OSAL_Trace("End of File reached with pBuffer: %x\n", 
                (unsigned int)pBuf->pBuffer);
     }
 #endif
@@ -911,8 +912,8 @@ static OMX_ERRORTYPE H264DEC_SetParamPortDefinition(H264_Client* pAppData)
     pAppData->pOutPortDef->nPortIndex = 0x1;
     pAppData->pOutPortDef->eDir = OMX_DirOutput;
     pAppData->pOutPortDef->nBufferCountActual = num_out_buffers;
-    pAppData->pOutPortDef->nBufferCountMin = 1;
-    pAppData->pOutPortDef->nBufferSize = ((pAppData->nWidth + (2*PADX) + 127) & 0xFFFFFF80) *  ((pAppData->nHeight + (4*PADY))) * 3/2; //(65280 + 48000);//(pAppData->nWidth * pAppData->nHeight) * 5;//3 / 2; // Different if padding is included
+    //pAppData->pOutPortDef->nBufferCountMin = 1;
+    //pAppData->pOutPortDef->nBufferSize = ((pAppData->nWidth + (2*PADX) + 127) & 0xFFFFFF80) *  ((pAppData->nHeight + (4*PADY))) * 3/2; //(65280 + 48000);//(pAppData->nWidth * pAppData->nHeight) * 5;//3 / 2; // Different if padding is included
     pAppData->pOutPortDef->bEnabled = OMX_TRUE;
     pAppData->pOutPortDef->bPopulated = OMX_FALSE;
     pAppData->pOutPortDef->eDomain = OMX_PortDomainVideo;
@@ -922,8 +923,10 @@ static OMX_ERRORTYPE H264DEC_SetParamPortDefinition(H264_Client* pAppData)
     /* OMX_VIDEO_PORTDEFINITION values for output port */
     pAppData->pOutPortDef->format.video.cMIMEType = "H264";//"YUV420";
     pAppData->pOutPortDef->format.video.pNativeRender = NULL;
-    pAppData->pOutPortDef->format.video.nFrameWidth = ((pAppData->nWidth + (2*PADX) + 127) & 0xFFFFFF80);// 256; //pAppData->nWidth; //256
-    pAppData->pOutPortDef->format.video.nFrameHeight = ((pAppData->nHeight + (4*PADY))); //pAppData->nHeight; //240
+   // pAppData->pOutPortDef->format.video.nFrameWidth = ((pAppData->nWidth + (2*PADX) + 127) & 0xFFFFFF80);// 256; //pAppData->nWidth; //256
+   // pAppData->pOutPortDef->format.video.nFrameHeight = ((pAppData->nHeight + (4*PADY))); //pAppData->nHeight; //240
+	pAppData->pOutPortDef->format.video.nFrameWidth = pAppData->nWidth; // + (2*PADX) + 127) & 0xFFFFFF80);// 256; //pAppData->nWidth; //256
+    pAppData->pOutPortDef->format.video.nFrameHeight = pAppData->nHeight; // + (4*PADY))); //pAppData->nHeight; //240
     pAppData->pOutPortDef->format.video.nStride = 0;
     pAppData->pOutPortDef->format.video.nSliceHeight = 0;
     pAppData->pOutPortDef->format.video.nBitrate = 10485760;
@@ -937,6 +940,18 @@ static OMX_ERRORTYPE H264DEC_SetParamPortDefinition(H264_Client* pAppData)
         eError = OMX_ErrorBadParameter;
         goto EXIT;
     }
+
+      eError = OMX_GetParameter (pHandle, OMX_IndexParamPortDefinition, pAppData->pOutPortDef);
+    if (eError != OMX_ErrorNone) {
+        eError = OMX_ErrorBadParameter;
+        goto EXIT;
+    }
+    TIMM_OSAL_Trace("\n Width = %d", pAppData->pOutPortDef->format.video.nFrameWidth);
+    TIMM_OSAL_Trace("\n Height = %d", pAppData->pOutPortDef->format.video.nFrameHeight);
+    TIMM_OSAL_Trace("\n BufferCount Min = %d", pAppData->pOutPortDef->nBufferCountMin);
+    TIMM_OSAL_Trace("\n Buffer Size = %d", pAppData->pOutPortDef->nBufferSize); 
+
+
 
 EXIT:
     TIMM_OSAL_ExitingExt(nTraceGroup, eError);
@@ -1394,10 +1409,10 @@ void main()
     TIMM_OSAL_EnteringExt(nTraceGroup);
 
 #ifdef H264_LINUX_CLIENT
-     //#ifdef OMX_H264D_LINUX_TILERTEST
+   //  #ifdef OMX_H264D_LINUX_TILERTEST
 	MemAllocBlock *MemReqDescTiler = NULL;
 	OMX_PTR TilerAddr=NULL;
-     #ifdef OMX_H264D_LINUX_TILERTEST
+    #ifdef OMX_H264D_LINUX_TILERTEST
 		setup = 2;
      #else
 		setup = 1;
@@ -1693,7 +1708,7 @@ void main()
      * Read all the file in order to get the maximun input frame size for TILER allocation */
     fFrameDataFile = fopen(BITSTREAM_SIZE_FILE, "rb");
     if (NULL == fFrameDataFile) {
-        printf("Error in opening frame size data file %s\n", 
+        TIMM_OSAL_Trace("Error in opening frame size data file %s\n", 
                 BITSTREAM_SIZE_FILE);
         goto EXIT;
     }
@@ -1714,7 +1729,7 @@ void main()
             maxBufferSize= frameSize[frameCount];
         maxFrameCount++;
     }
-    printf("\n Max size =  %d\n", maxBufferSize);
+    TIMM_OSAL_Trace("\n Max size =  %d\n", maxBufferSize);
     frameReadCount = 0;
     /* Update InPortDef frame size */
     pAppData->pInPortDef->nBufferSize = maxBufferSize;
@@ -1851,7 +1866,7 @@ void main()
 
     for (i = 0; i < pAppData->pInPortDef->nBufferCountActual; i++) {
 #ifdef  __TASK_INPUT__
-        printf("Input buffer [%d/%d]= %x %x\n", i, pAppData->pInPortDef->nBufferCountActual, &pAppData->pInBuff[i],pAppData->pInBuff[i]);
+        TIMM_OSAL_Trace("Input buffer [%d/%d]= %x %x\n", i, pAppData->pInPortDef->nBufferCountActual, &pAppData->pInBuff[i],pAppData->pInBuff[i]);
         /* Write inside File In pipe the avaliable buffer */
         tTIMMSemStatus = TIMM_OSAL_WriteToPipe(pAppData->IpFileBuf_Pipe, &pAppData->pInBuff[i], sizeof(pAppData->pInBuff[i]), TIMM_OSAL_SUSPEND);
 #else
@@ -1860,7 +1875,7 @@ void main()
             break;
         }
         eError = pAppData->pComponent->EmptyThisBuffer(pHandle, pAppData->pInBuff[i]);
-        printf("ETB %x %d %d %d %d\n",pAppData->pInBuff[i], 
+        TIMM_OSAL_Trace("ETB %x %d %d %d %d\n",pAppData->pInBuff[i], 
                                 pAppData->pInBuff[i]->nFilledLen,
                                 pAppData->pInBuff[i]->nAllocLen,
                                 pAppData->pInBuff[i]->nOffset,
@@ -1890,7 +1905,7 @@ void main()
             }
             InputFrameCount++;
             eError = pAppData->pComponent->EmptyThisBuffer(pHandle, pBufferIn);
-            printf("ETB %d %x\n",pBufferIn->nFilledLen, pBufferIn);
+            TIMM_OSAL_Trace("ETB %d %x\n",pBufferIn->nFilledLen, pBufferIn);
     }
 #endif
     /* Send FTB to Ducati */
@@ -1900,13 +1915,13 @@ void main()
             TIMM_OSAL_ErrorExt(nTraceGroup,"Error from Fill this buffer : %s ", H264_GetDecoderErrorString(eError));
             goto EXIT;
         }
-        printf("FTB [%d]=%x\n",i,pAppData->pOutBuff[i]);
+        TIMM_OSAL_Trace("FTB [%d]=%x\n",i,pAppData->pOutBuff[i]);
     }
 
     TIMM_OSAL_TraceExt(nTraceGroup, "\n Done with ETB/FTB, calling get state \n");
     eError = OMX_GetState(pHandle, &pAppData->eState);
     TIMM_OSAL_TraceExt(nTraceGroup, "\n Returned from GetState, state = %d\n", pAppData->eState);
-    printf("\n Returned from GetState, state = %d\n", pAppData->eState);
+    TIMM_OSAL_Trace("\n Returned from GetState, state = %d\n", pAppData->eState);
 
     /* Initialize the number of encoded frames to zero */
     pAppData->nEncodedFrms = 0;
@@ -1966,18 +1981,18 @@ void main()
                 for (i=0;i<pAppData->pInPortDef->nBufferCountActual;i++){
                     if(pBufferIn == pAppData->pInBuff[i]) break;
                 }
-                if (i == pAppData->pInPortDef->nBufferCountActual) printf("Error\n");
+                if (i == pAppData->pInPortDef->nBufferCountActual) TIMM_OSAL_Trace("Error\n");
 
                 if(tTIMMSemStatus != TIMM_OSAL_ERR_NONE)
                 {
-                    printf("\nTASK INPUT OpFileBuf_Pipe read error %d %d\n", InputFrameCount, maxFrameCount);
+                    TIMM_OSAL_Trace("\nTASK INPUT OpFileBuf_Pipe read error %d %d\n", InputFrameCount, maxFrameCount);
                     break;
                 }
                 pBufferIn->nTickCount  = 0;
 #ifdef H264_LINUX_CLIENT
                 if(pBufferIn->pBuffer == NULL)
                 {
-                    printf("\nBuffer is NULL\n");
+                    TIMM_OSAL_Trace("\nBuffer is NULL\n");
                     break;
                 }
 #endif
@@ -2004,7 +2019,7 @@ void main()
                 if(tTIMMSemStatus != TIMM_OSAL_ERR_NONE)
                 {
                     TIMM_OSAL_TraceExt(nTraceGroup, "\nRead from pipe unsuccessful, going back to wait for event\n");
-                    printf("\nRead from OpBuf_Pipe unsuccessful, going back to wait for event\n");
+                    TIMM_OSAL_Trace("\nRead from OpBuf_Pipe unsuccessful, going back to wait for event\n");
                     break;
                 }
 
@@ -2013,11 +2028,11 @@ void main()
                     if(pBufferOut == pAppData->pOutBuff[i]) break;
                 }
                 if (i == pAppData->pOutPortDef->nBufferCountActual) {
-                   printf("Error\n");
+                   TIMM_OSAL_Trace("Error\n");
                 } else {
                     if (pAppData->pOutBuff[i] != NULL) {
                         if (pAppData->pOutBuff[i]->nFlags & OMX_BUFFERFLAG_EOS) {
-                           printf("EOS check %d\n", pBufferOut->nFlags);
+                           TIMM_OSAL_Trace("EOS check %d\n", pBufferOut->nFlags);
                           pBufferOut->nFlags = OMX_BUFFERFLAG_EOS;
                         }
                     }   
@@ -2026,18 +2041,18 @@ void main()
                 if (pBufferOut != NULL) {
                     if (pBufferOut->nFlags & OMX_BUFFERFLAG_EOS) {
                         eError = OMX_ErrorUndefined;
-                        printf("Out end of File\n");
+                        TIMM_OSAL_Trace("Out end of File\n");
                         goto END_OF_FILE;
                     }
                 }
 #ifdef __NO_DISPLAY__
 //                    gettimeofday(&h264d_t0, NULL);
-//                    printf("T=%d ms\n", ((h264d_t0.tv_sec&0xF)*1000+h264d_t0.tv_usec/1000));
+//                    TIMM_OSAL_Trace("T=%d ms\n", ((h264d_t0.tv_sec&0xF)*1000+h264d_t0.tv_usec/1000));
                 eError = pAppData->pComponent->FillThisBuffer(pHandle, pBufferOut);
 #else
                 pBufferOut = omx_v4l2_display_buffer(pBufferOut);
 #if 0
-                printf("T=%d %d %d %d ms\n", ((h264d_t0.tv_sec&0xF)*1000+h264d_t0.tv_usec/1000),
+                TIMM_OSAL_Trace("T=%d %d %d %d ms\n", ((h264d_t0.tv_sec&0xF)*1000+h264d_t0.tv_usec/1000),
                                               /*pBufferOut->nFlags*/pAppData->nEncodedFrms,
                                              /*((h264d_t1.tv_sec-h264d_t0.tv_sec)*1000+(h264d_t1.tv_usec-h264d_t0.tv_usec)/1000),*/
                                              ((h264d_t2.tv_sec&0xF)*1000+h264d_t2.tv_usec/1000),
@@ -2049,7 +2064,7 @@ void main()
                    fps = (h264d_t3.tv_sec - h264d_t1.tv_sec) + 0.000001 * (h264d_t3.tv_usec - h264d_t1.tv_usec);
                    fps /= 100;
                    if (fps) fps = 1 / fps;
-                   printf("%d fps = %4.2f\n", pAppData->nEncodedFrms, fps);
+                   TIMM_OSAL_Trace("%d fps = %4.2f\n", pAppData->nEncodedFrms, fps);
                    gettimeofday(&h264d_t1, NULL);
                 }
                                          
@@ -2070,7 +2085,7 @@ void main()
                         TIMM_OSAL_ErrorExt(nTraceGroup,"Error from Fill this buffer : %s ", H264_GetDecoderErrorString(eError));
                         goto EXIT;
                     }
-                    /*printf("FTB %x\n",pBufferOut);*/
+                    /*TIMM_OSAL_Trace("FTB %x\n",pBufferOut);*/
 /*                        pBufferOut = omx_v4l2_get_displayed_buffer(1);*/
                 }
 #endif
@@ -2094,7 +2109,7 @@ void main()
                 if(tTIMMSemStatus != TIMM_OSAL_ERR_NONE)
                 {
                     TIMM_OSAL_TraceExt(nTraceGroup, "\nRead from pipe unsuccessful, going back to wait for event\n");
-                    printf("\nRead from IpBuf_Pipe unsuccessful, going back to wait for event\n");
+                    TIMM_OSAL_Trace("\nRead from IpBuf_Pipe unsuccessful, going back to wait for event\n");
                     break;
                 }
 
@@ -2113,7 +2128,7 @@ void main()
                 for (i=0;i<pAppData->pInPortDef->nBufferCountActual;i++){
                     if(pBufferIn == pAppData->pInBuff[i]) break;
                 }
-                if (i == pAppData->pInPortDef->nBufferCountActual) printf("Error\n");
+                if (i == pAppData->pInPortDef->nBufferCountActual) TIMM_OSAL_Trace("Error\n");
 
                 InputFrameCount++;
 #else                
@@ -2140,7 +2155,7 @@ void main()
 #endif
 
 #ifdef  __TASK_INPUT__
-                /*printf("EBD [%d]=%x %d \n", i, pBufferIn, pBufferIn->nFilledLen);*/
+                /*TIMM_OSAL_Trace("EBD [%d]=%x %d \n", i, pBufferIn, pBufferIn->nFilledLen);*/
                 tTIMMSemStatus = TIMM_OSAL_WriteToPipe(pAppData->IpFileBuf_Pipe, &pAppData->pInBuff[i]/*&pBufferIn*/, sizeof(pBufferIn), TIMM_OSAL_SUSPEND);
                 tTIMMSemStatus = TIMM_OSAL_EventSet (myEventIn , H264_DECODER_VIDEO_INPUT_BUF_FREE, TIMM_OSAL_EVENT_OR);
 #endif
@@ -2154,7 +2169,7 @@ void main()
 
         if (pRetrievedEvents & H264_DECODER_ERROR_EVENT) {
             eError = OMX_ErrorUndefined;
-            printf("Decoder Error\n");
+            TIMM_OSAL_Trace("Decoder Error\n");
         }
 
 	    TIMM_OSAL_Trace("\n SUCCESSFULLY DECODED FRAME :  %d", pAppData->nEncodedFrms);
@@ -2164,32 +2179,32 @@ void main()
 
 END_OF_FILE:
     
-    printf("End 0001\n");
+    TIMM_OSAL_Trace("End 0001\n");
     eError = OMX_SendCommand(pHandle,OMX_CommandStateSet, OMX_StateIdle, NULL);
     if(eError != OMX_ErrorNone) {
         TIMM_OSAL_ErrorExt(nTraceGroup,"Error from SendCommand-Idle State set : %s ", H264_GetDecoderErrorString(eError));
-        printf("Error from SendCommand-Idle State set : %s ", H264_GetDecoderErrorString(eError));
+        TIMM_OSAL_Trace("Error from SendCommand-Idle State set : %s ", H264_GetDecoderErrorString(eError));
         goto EXIT;
     }
 
-    printf("End 0002\n");
+    TIMM_OSAL_Trace("End 0002\n");
     eError = H264DEC_WaitForState(pHandle, OMX_StateIdle);
     if(eError != OMX_ErrorNone) {
         TIMM_OSAL_ErrorExt(nTraceGroup,"Error %s:    WaitForState has timed out ", H264_GetDecoderErrorString(eError));
-        printf("Error %s:    WaitForState has timed out ", H264_GetDecoderErrorString(eError));
+        TIMM_OSAL_Trace("Error %s:    WaitForState has timed out ", H264_GetDecoderErrorString(eError));
         goto EXIT;
     }
 
 
-    printf("End 0003\n");
+    TIMM_OSAL_Trace("End 0003\n");
     eError = OMX_SendCommand(pHandle,OMX_CommandStateSet, OMX_StateLoaded, NULL);
     if(eError != OMX_ErrorNone) {
         TIMM_OSAL_ErrorExt(nTraceGroup,"Error from SendCommand-Loaded State set : %s ", H264_GetDecoderErrorString(eError));
-        printf("Error from SendCommand-Loaded State set : %s ", H264_GetDecoderErrorString(eError));
+        TIMM_OSAL_Trace("Error from SendCommand-Loaded State set : %s ", H264_GetDecoderErrorString(eError));
         goto EXIT;
     }
     
-    printf("End 0004\n");
+    TIMM_OSAL_Trace("End 0004\n");
     for (i = 0; i < pAppData->pInPortDef->nBufferCountActual; i++){
     #ifdef H264_LINUX_CLIENT
         #ifdef OMX_H264D_USEBUFFERENABLED
@@ -2205,12 +2220,12 @@ END_OF_FILE:
         eError = OMX_FreeBuffer(pHandle, pAppData->pInPortDef->nPortIndex,pAppData->pInBuff[i]);
         if(eError != OMX_ErrorNone) {
             TIMM_OSAL_ErrorExt(nTraceGroup,"Error in OMX_FreeBuffer : %s ", H264_GetDecoderErrorString(eError));
-            printf("Error in OMX_FreeBuffer : %s ", H264_GetDecoderErrorString(eError));
+            TIMM_OSAL_Trace("Error in OMX_FreeBuffer : %s ", H264_GetDecoderErrorString(eError));
             goto EXIT;
         }
     }
 
-    printf("End 0005\n");
+    TIMM_OSAL_Trace("End 0005\n");
     for (i = 0; i < pAppData->pOutPortDef->nBufferCountActual; i++){
     #ifdef H264_LINUX_CLIENT
         #ifdef OMX_H264D_USEBUFFERENABLED
@@ -2230,28 +2245,28 @@ END_OF_FILE:
         }
     }
 
-    printf("End 0006\n");
+    TIMM_OSAL_Trace("End 0006\n");
     eError = H264DEC_WaitForState(pHandle, OMX_StateLoaded);
     if(eError != OMX_ErrorNone) {
         TIMM_OSAL_ErrorExt(nTraceGroup,"Error %s:    WaitForState has timed out ", H264_GetDecoderErrorString(eError));
         goto EXIT;
     }    
 
-    printf("End 0007\n");
+    TIMM_OSAL_Trace("End 0007\n");
     /* UnLoad the Decoder Component */
     eError = OMX_FreeHandle(pHandle);
     if( (eError != OMX_ErrorNone)) {
         TIMM_OSAL_ErrorExt(nTraceGroup,"Error in Free Handle function : %s ", H264_GetDecoderErrorString(eError));
         goto EXIT;
     }
-printf("\nFree handle done\n");
+TIMM_OSAL_Trace("\nFree handle done\n");
     #ifdef H264_LINUX_CLIENT
         #ifdef OMX_H264D_LINUX_TILERTEST 
         	if(MemReqDescTiler)
             	TIMM_OSAL_Free(MemReqDescTiler);
         #endif
     #endif
-printf("\nDeleting semaphores\n");
+TIMM_OSAL_Trace("\nDeleting semaphores\n");
     tTIMMSemStatus = TIMM_OSAL_SemaphoreDelete(pSem_InputPort);
     if(tTIMMSemStatus != TIMM_OSAL_ERR_NONE) {
         TIMM_OSAL_ErrorExt(nTraceGroup,"Semaphore Delete failed!");
@@ -2267,12 +2282,12 @@ printf("\nDeleting semaphores\n");
         TIMM_OSAL_ErrorExt(nTraceGroup,"Semaphore Delete failed!");
         goto EXIT;
     }
-printf("\nSemaphores deleted\n");
+TIMM_OSAL_Trace("\nSemaphores deleted\n");
     /* De-Initialize OMX Core */
     eError = OMX_Deinit();
 
 EXIT:
-printf("\nExit\n");
+TIMM_OSAL_Trace("\nExit\n");
 
     /* Think about moving to end of stream case in the loop but think about memory leaks
        due to improper v4l2 termination*/
@@ -2280,7 +2295,7 @@ printf("\nExit\n");
 
     if(pAppData)
     {
-printf("\nClosing files\n");
+TIMM_OSAL_Trace("\nClosing files\n");
        if(pAppData->fIn)
            fclose(pAppData->fIn);
 
@@ -2407,19 +2422,19 @@ void H264_InputDataRead(void *threadsArg)
 
     thread_id = pthread_self();
     rc = pthread_getschedparam(thread_id, &policy, &param);
-    if (rc !=0) printf("<Thread> 1 error %d\n", rc);
-    printf("<Thread> %d %d\n", policy, param.sched_priority);
+    if (rc !=0) TIMM_OSAL_Trace("<Thread> 1 error %d\n", rc);
+    TIMM_OSAL_Trace("<Thread> %d %d\n", policy, param.sched_priority);
     param.sched_priority = 10;
     rc = pthread_setschedparam(thread_id, SCHED_RR/*policy*/, &param);
-    if (rc !=0) printf("<Thread> 2 error %d\n", rc);
+    if (rc !=0) TIMM_OSAL_Trace("<Thread> 2 error %d\n", rc);
     
     rc = pthread_getschedparam(thread_id, &policy, &param);
-    if (rc !=0) printf("<Thread> 3 error %d\n", rc);
-    printf("<Thread> %d %d %d %d\n", policy, param.sched_priority, sched_get_priority_min(policy), sched_get_priority_max(policy));
+    if (rc !=0) TIMM_OSAL_Trace("<Thread> 3 error %d\n", rc);
+    TIMM_OSAL_Trace("<Thread> %d %d %d %d\n", policy, param.sched_priority, sched_get_priority_min(policy), sched_get_priority_max(policy));
 
     pAppData = (H264_Client*)(threadsArg);
 
-  printf("Entering <Thread > : <%s %x %x %d>\n", __func__, &pAppData, pAppData, param.sched_priority);
+  TIMM_OSAL_Trace("Entering <Thread > : <%s %x %x %d>\n", __func__, &pAppData, pAppData, param.sched_priority);
   
   while ((OMX_ErrorNone == err) && 
          (dataRead != 0))
@@ -2445,13 +2460,13 @@ void H264_InputDataRead(void *threadsArg)
                                       sizeof(pBufferIn), &actualSize, TIMM_OSAL_SUSPEND );
         if(err != TIMM_OSAL_ERR_NONE)
         {
-            printf("\n<Thread>Read from IpFileBuf_Pipe unsuccessful, going back to wait for event\n");
+            TIMM_OSAL_Trace("\n<Thread>Read from IpFileBuf_Pipe unsuccessful, going back to wait for event\n");
             break;
         }
         for (dIndex=0;dIndex<pAppData->pInPortDef->nBufferCountActual;dIndex++){
             if(pBufferIn == pAppData->pInBuff[dIndex]) break;
         }
-        if (dIndex == pAppData->pInPortDef->nBufferCountActual) printf("Error\n");
+        if (dIndex == pAppData->pInPortDef->nBufferCountActual) TIMM_OSAL_Trace("Error\n");
 
         /* Read the frame Size from the frame size file */
         if (frameCount == 0) {
@@ -2467,8 +2482,9 @@ void H264_InputDataRead(void *threadsArg)
         }
         frameCount = (frameCount+1)% BITSTREAM_BUF_MAX_SIZE;
 
+
         dataRead = H264DEC_FillData (pAppData, pBufferIn);
-        /*printf("<Thread : %d r %d [%d]=%x>\n", numRemainingIn, dataRead, dIndex, pBufferIn);*/
+        /*TIMM_OSAL_Trace("<Thread : %d r %d [%d]=%x>\n", numRemainingIn, dataRead, dIndex, pBufferIn);*/
 
         /* Send back message to the PIPE for Test App */
         err = TIMM_OSAL_WriteToPipe(pAppData->OpFileBuf_Pipe, &pAppData->pInBuff[dIndex]/*&pBufferIn*/, sizeof(pBufferIn), TIMM_OSAL_SUSPEND);
@@ -2483,7 +2499,7 @@ void H264_InputDataRead(void *threadsArg)
         }
     }
   }
-  printf("Leaving <Thread : <%s> %d\n", __func__, frameCount);
+  TIMM_OSAL_Trace("Leaving <Thread : <%s> %d\n", __func__, frameCount);
   fclose(fFrameDataFile);
 }
 #endif
