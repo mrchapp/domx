@@ -1052,8 +1052,8 @@ int main()
 	dprintf(3, "Calling platform init\n");
 	mmplatform_init(2);
 
-	while (!((test_case_id > 0) && (test_case_id <= 14))) {
-		dprintf(0, "Select test case ID (1 - 14)"
+	while (!((test_case_id > 0) && (test_case_id <= 15))) {
+		dprintf(0, "Select test case ID (1 - 15)"
 				"Image capture JPEG format \n");
 		fflush(stdout);
 		dprintf(0, "Enter the Option for image capture now: ");
@@ -1184,6 +1184,15 @@ int main()
 			eError = test_image_capture(4032, 3024, "UYVY");
 			if (!eError)
 				dprintf(0, "Case 14 eError= %d\n", eError);
+			OMX_TEST_BAIL_IF_ERROR(eError);
+			break;
+		}
+
+		case 15: {
+			dprintf(0, "\n Resolution 5376x2, format JPG\n");
+			eError = test_image_capture(5376, 2, "UYVY");
+			if (!eError)
+				dprintf(0, "Case 15 eError= %d\n", eError);
 			OMX_TEST_BAIL_IF_ERROR(eError);
 			break;
 		}
