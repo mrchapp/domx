@@ -667,7 +667,6 @@ static OMX_ERRORTYPE PROXY_FreeBuffer(OMX_IN  OMX_HANDLETYPE hComponent,
     OMX_ERRORTYPE eCompReturn;
     OMX_COMPONENTTYPE * hComp =(OMX_COMPONENTTYPE *) hComponent;
     PROXY_COMPONENT_PRIVATE* pCompPrv= NULL;
-    OMX_U8 *pBufferMapped = NULL;
     RPC_OMX_ERRORTYPE eRPCError = RPC_OMX_ErrorNone;
     
     OMX_U32 count=0;
@@ -676,10 +675,8 @@ static OMX_ERRORTYPE PROXY_FreeBuffer(OMX_IN  OMX_HANDLETYPE hComponent,
     
     PROXY_assert(pBufferHdr != NULL, OMX_ErrorBadParameter, NULL);
     PROXY_assert(hComp->pComponentPrivate != NULL, OMX_ErrorBadParameter, NULL);
-    PROXY_assert(pBufferHdr->pInputPortPrivate != NULL, OMX_ErrorBadParameter, NULL);
                  
     pCompPrv=(PROXY_COMPONENT_PRIVATE*)hComp->pComponentPrivate;
-    pBufferMapped =  (OMX_U8 *)pBufferHdr->pInputPortPrivate;
     
     for(count=0;count<pCompPrv->nNumOfBuffers;count++)
     {
