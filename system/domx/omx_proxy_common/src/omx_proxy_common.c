@@ -249,9 +249,8 @@ static OMX_ERRORTYPE PROXY_EmptyThisBuffer(OMX_HANDLETYPE hComponent,
     
     DOMX_DEBUG("\n%s Entered",__FUNCTION__);
     
-    PROXY_assert((pBufferHdr != NULL) && (hComp->pComponentPrivate != NULL) &&
-                 (hComp->pComponentPrivate != NULL),
-                 OMX_ErrorBadParameter, NULL);
+    PROXY_assert(pBufferHdr != NULL, OMX_ErrorBadParameter, NULL);
+    PROXY_assert(hComp->pComponentPrivate != NULL, OMX_ErrorBadParameter, NULL);
                  
     pCompPrv=(PROXY_COMPONENT_PRIVATE*)hComp->pComponentPrivate;
     
@@ -347,9 +346,8 @@ static OMX_ERRORTYPE PROXY_FillThisBuffer(OMX_HANDLETYPE hComponent,
     
     DOMX_DEBUG("\n%s Entered",__FUNCTION__);
     
-    PROXY_assert((pBufferHdr != NULL) && (hComp->pComponentPrivate != NULL) &&
-                 (hComp->pComponentPrivate != NULL),
-                 OMX_ErrorBadParameter, NULL);
+    PROXY_assert(pBufferHdr != NULL, OMX_ErrorBadParameter, NULL);
+    PROXY_assert(hComp->pComponentPrivate != NULL, OMX_ErrorBadParameter, NULL);
                  
     pCompPrv=(PROXY_COMPONENT_PRIVATE*)hComp->pComponentPrivate;
     
@@ -676,9 +674,9 @@ static OMX_ERRORTYPE PROXY_FreeBuffer(OMX_IN  OMX_HANDLETYPE hComponent,
     OMX_U8 isMatchFound = 0;
     OMX_ERRORTYPE eError = OMX_ErrorNone;
     
-    PROXY_assert((pBufferHdr != NULL) && (hComp->pComponentPrivate != NULL) &&
-                 (pBufferHdr->pInputPortPrivate != NULL),
-                 OMX_ErrorBadParameter, NULL);
+    PROXY_assert(pBufferHdr != NULL, OMX_ErrorBadParameter, NULL);
+    PROXY_assert(hComp->pComponentPrivate != NULL, OMX_ErrorBadParameter, NULL);
+    PROXY_assert(pBufferHdr->pInputPortPrivate != NULL, OMX_ErrorBadParameter, NULL);
                  
     pCompPrv=(PROXY_COMPONENT_PRIVATE*)hComp->pComponentPrivate;
     pBufferMapped =  (OMX_U8 *)pBufferHdr->pInputPortPrivate;
@@ -1307,7 +1305,9 @@ OMX_ERRORTYPE OMX_ProxyCommonInit(OMX_HANDLETYPE hComponent)
     pCompPrv->nNumOfLines[i] = 0;
     
     eRPCError = RPC_InstanceInit(pCompPrv->cCompName,&hRemoteComp);
-    PROXY_assert((eRPCError == RPC_OMX_ErrorNone) && (hRemoteComp!= NULL),
+    PROXY_assert(eRPCError == RPC_OMX_ErrorNone,
+                 OMX_ErrorUndefined, "Error initializing RPC");
+    PROXY_assert(hRemoteComp!= NULL,
                  OMX_ErrorUndefined, "Error initializing RPC");
         
     //Send the proxy component handle for pAppData
