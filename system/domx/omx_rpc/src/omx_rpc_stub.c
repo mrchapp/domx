@@ -859,7 +859,7 @@ RPC_OMX_ERRORTYPE RPC_FillThisBuffer(RPC_OMX_HANDLE hRPCCtx, OMX_BUFFERHEADERTYP
     RPC_OMX_CONTEXT *hCtx = hRPCCtx;
     RPC_OMX_HANDLE hComp = hCtx->remoteHandle;
     
-    OMX_U8* pAuxBuf1;
+    OMX_U8* pAuxBuf1 = NULL;
         
     DOMX_DEBUG("\n Entering: %s __________ BUFFER READ-WRITE ", __FUNCTION__);
     
