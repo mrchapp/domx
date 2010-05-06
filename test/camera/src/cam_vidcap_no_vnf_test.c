@@ -847,7 +847,7 @@ int test_camera_preview(int width, int height, char *image_fmt)
 
 OMX_TEST_BAIL:
 	if (eError != OMX_ErrorNone)
-		dprintf(0, "ERROR test_camera_preview() function");
+		dprintf(0, "ERROR test_camera_preview() function\n");
 	omx_comp_release();
 	return eError;
 }
@@ -863,12 +863,12 @@ int main()
 	dprintf(3, "Calling platform init\n");
 	mmplatform_init(2);
 
-	while (!((test_case_id > 0) && (test_case_id <= 11))) {
+	while (!((test_case_id > 0) && (test_case_id <= 13))) {
 		dprintf(0, "Video_Capture_Test Case with "
 			"VNF and VSTAB Disabled and this is "
 			"equivalent to preview with Operating "
 			 "mode set to OMX_CaptureVideo\n");
-		dprintf(0, "Select test case ID(1 - 11)"
+		dprintf(0, "Select test case ID(1 - 13)"
 				": Video Capture NV12 format \n");
 		fflush(stdout);
 		dprintf(0, "Enter the Option for Preview now: ");
@@ -983,6 +983,26 @@ int main()
 			eError = test_camera_preview(720, 480, "NV12");
 			if (!eError)
 				dprintf(0, "Case11 eError is 0x%x", eError);
+			OMX_TEST_BAIL_IF_ERROR(eError);
+			break;
+		}
+
+		case 12: {
+			dprintf(0, "Going to test resolution "
+						"321x241 format NV12\n");
+			eError = test_camera_preview(321, 241, "NV12");
+			if (!eError)
+				dprintf(0, "Case12 eError is 0x%x", eError);
+			OMX_TEST_BAIL_IF_ERROR(eError);
+			break;
+		}
+
+		case 13: {
+			dprintf(0, "Going to test resolution "
+						"1920x1080 format NV12\n");
+			eError = test_camera_preview(1920, 1080, "NV12");
+			if (!eError)
+				dprintf(0, "Case13 eError is 0x%x", eError);
 			OMX_TEST_BAIL_IF_ERROR(eError);
 			break;
 		}
