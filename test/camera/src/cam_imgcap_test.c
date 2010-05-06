@@ -1035,7 +1035,7 @@ int test_image_capture(int width, int height, char *image_fmt)
 
 OMX_TEST_BAIL:
 	if (eError != OMX_ErrorNone)
-		dprintf(0, "ERROR from test_image_capture() function");
+		dprintf(0, "ERROR from test_image_capture() function\n");
 	dprintf(1, "release OMX component \n");
 	omx_comp_release();
 	return eError;
@@ -1052,8 +1052,8 @@ int main()
 	dprintf(3, "Calling platform init\n");
 	mmplatform_init(2);
 
-	while (!((test_case_id > 0) && (test_case_id <= 15))) {
-		dprintf(0, "Select test case ID (1 - 15)"
+	while (!((test_case_id > 0) && (test_case_id <= 16))) {
+		dprintf(0, "Select test case ID (1 - 16)"
 				"Image capture JPEG format \n");
 		fflush(stdout);
 		dprintf(0, "Enter the Option for image capture now: ");
@@ -1193,6 +1193,15 @@ int main()
 			eError = test_image_capture(5376, 2, "UYVY");
 			if (!eError)
 				dprintf(0, "Case 15 eError= %d\n", eError);
+			OMX_TEST_BAIL_IF_ERROR(eError);
+			break;
+		}
+
+		case 16: {
+			dprintf(0, "\n Resolution 641x481, format JPG\n");
+			eError = test_image_capture(641, 481, "UYVY");
+			if (!eError)
+				dprintf(0, "Case 16 eError= %d\n", eError);
 			OMX_TEST_BAIL_IF_ERROR(eError);
 			break;
 		}
