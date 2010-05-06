@@ -854,10 +854,10 @@ int main()
 	dprintf(3, "Calling platform init\n");
 	mmplatform_init(2);
 
-	while (!((test_case_id > 0) && (test_case_id <= 22))) {
+	while (!((test_case_id > 0) && (test_case_id <= 25))) {
 		dprintf(0, "Select test case ID(1 - 11)"
 						": Preview UVYV format \n");
-		dprintf(0, "Select test case ID(12 - 22)"
+		dprintf(0, "Select test case ID(12 - 25)"
 						": Preview NV12 format \n");
 		fflush(stdout);
 		dprintf(0, "Enter the Option for Preview now: ");
@@ -1085,6 +1085,37 @@ int main()
 			OMX_TEST_BAIL_IF_ERROR(eError);
 			break;
 		}
+
+		case 23: {
+			dprintf(0, "Going to test resolution "
+						"641x481 format NV12\n");
+			eError = test_camera_preview(641, 481, "NV12");
+			if (!eError)
+				dprintf(0, "Case23 eError is 0x%x", eError);
+			OMX_TEST_BAIL_IF_ERROR(eError);
+			break;
+		}
+
+		case 24: {
+			dprintf(0, "Going to test resolution "
+						"50x50 format NV12\n");
+			eError = test_camera_preview(50, 50, "NV12");
+			if (!eError)
+				dprintf(0, "Case24 eError is 0x%x", eError);
+			OMX_TEST_BAIL_IF_ERROR(eError);
+			break;
+		}
+
+		case 25: {
+			dprintf(0, "Going to test resolution "
+						"1920x1080 format NV12\n");
+			eError = test_camera_preview(1920, 1080, "NV12");
+			if (!eError)
+				dprintf(0, "Case25 eError is 0x%x", eError);
+			OMX_TEST_BAIL_IF_ERROR(eError);
+			break;
+		}
+
 	};
 
 
