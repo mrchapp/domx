@@ -108,7 +108,6 @@ RPC_OMX_ERRORTYPE RPC_GetHandle(RPC_OMX_HANDLE hRPCCtx, OMX_STRING cComponentNam
     
     OMX_S16 status;
     RPC_INDEX fxnIdx;
-    OMX_U8 CallingCore = 0;
     OMX_STRING CallingCorercmServerName;        
    
     DOMX_DEBUG("\nEntering: %s\n", __FUNCTION__);
@@ -117,7 +116,6 @@ RPC_OMX_ERRORTYPE RPC_GetHandle(RPC_OMX_HANDLE hRPCCtx, OMX_STRING cComponentNam
     RPC_UTIL_GetLocalServerName(cComponentName,&CallingCorercmServerName);
     DOMX_DEBUG("\n RCM Server Name Calling on Current Core: %s",CallingCorercmServerName);
     
-    CallingCore = MultiProc_getId(NULL);
     fxnIdx = rpcHndl[TARGET_CORE_ID].rpcFxns[RPC_OMX_FXN_IDX_GET_HANDLE].rpcFxnIdx;
     
     //Allocating remote command message
@@ -125,17 +123,16 @@ RPC_OMX_ERRORTYPE RPC_GetHandle(RPC_OMX_HANDLE hRPCCtx, OMX_STRING cComponentNam
     pRPCMsg = (RPC_OMX_MESSAGE*)(&pPacket->data);
     pMsgBody = &pRPCMsg->msgBody[0];
 
-    //Marshalled:[>offset(cParameterName)|>pAppData|>CallingCore|>offset(CallingCorercmServerName)|
+    //Marshalled:[>offset(cParameterName)|>pAppData|>offset(CallingCorercmServerName)|
     //>--cComponentName--|>--CallingCorercmServerName--|
     //<hComp]
     
-    dataOffset = sizeof(OMX_U32) + sizeof(OMX_PTR) + sizeof(OMX_U8) + sizeof(OMX_U32);
+    dataOffset = sizeof(OMX_U32) + sizeof(OMX_PTR) + sizeof(OMX_U32);
     RPC_SETFIELDOFFSET(pMsgBody, nPos,  dataOffset, OMX_U32);    
     //To update with RPC macros
     strcpy((char *)(pMsgBody + dataOffset),cComponentName);
     
     RPC_SETFIELDVALUE(pMsgBody, nPos, pAppData, OMX_PTR);
-    RPC_SETFIELDVALUE(pMsgBody, nPos, CallingCore, OMX_U8);
     
     dataOffset2 = dataOffset + 128; //max size of omx comp name
     RPC_SETFIELDOFFSET(pMsgBody, nPos,  dataOffset2, OMX_U32);
