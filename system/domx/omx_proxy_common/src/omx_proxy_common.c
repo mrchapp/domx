@@ -1578,7 +1578,8 @@ EXIT:
       OMX_ERRORTYPE eCompReturn;
       RPC_OMX_ERRORTYPE eRPCError = RPC_OMX_ErrorNone;
       
-      OMX_PARAM_PORTDEFINITIONTYPE portDef;      
+      OMX_PARAM_PORTDEFINITIONTYPE portDef;    
+      OMX_CONFIG_RECTTYPE sRect;
       OMX_U8 * pBuffer;
       OMX_PTR pUVBuffer;
 
@@ -1593,6 +1594,34 @@ EXIT:
         
      portDef.nPortIndex = nPortIndex;
  
+     sRect.nSize = sizeof(OMX_CONFIG_RECTTYPE);
+     sRect.nVersion.s.nVersionMajor = 0x1;
+     sRect.nVersion.s.nVersionMinor = 0x1;
+     sRect.nVersion.s.nRevision  = 0x0;
+     sRect.nVersion.s.nStep   = 0x0;
+
+     sRect.nPortIndex = nPortIndex;
+     sRect.nLeft = 0;
+     sRect.nTop = 0;
+     sRect.nHeight = 0;
+     sRect.nWidth = 0;
+
+     eRPCError = RPC_GetParameter(hRemoteComp,
+				  OMX_TI_IndexParam2DBufferAllocDimension,
+				  (OMX_PTR)&sRect, &eCompReturn);
+     if(eRPCError == RPC_OMX_ErrorNone) {
+         DOMX_DEBUG("\n PROXY_UTIL Get Parameter Successful\n", __FUNCTION__);
+         eError = eCompReturn;
+     }
+     else{
+        DOMX_DEBUG("\n%s [%d]: Warning: RPC Error",__FUNCTION__,__LINE__);
+         eError=OMX_ErrorUndefined;
+     }
+
+     if(eCompReturn == OMX_ErrorNone) {
+	*nNumOfLines = sRect.nHeight;
+     }
+     else if (eCompReturn == OMX_ErrorUnsupportedIndex) { 
      eRPCError = RPC_GetParameter(hRemoteComp,OMX_IndexParamPortDefinition,(OMX_PTR)&portDef, &eCompReturn);
 
      if(eRPCError == RPC_OMX_ErrorNone) {
@@ -1637,6 +1666,10 @@ EXIT:
             DOMX_DEBUG("\nSample component TILER SUPPORT");
             *nNumOfLines = 4;
         }
+     }
+     else {
+         DOMX_DEBUG("\n ERROR IN RECOVERING UV POINTER");
+     }
      }
      else {
          DOMX_DEBUG("\n ERROR IN RECOVERING UV POINTER");
