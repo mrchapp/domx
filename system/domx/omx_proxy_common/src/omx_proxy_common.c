@@ -66,6 +66,10 @@ static OMX_ERRORTYPE RPC_MapBuffer_Ducati(OMX_U8 *pBuf, OMX_U32 nBufLineSize,
                                           OMX_U32 nBufLines,
                                           OMX_U8 **pMappedBuf,
                                           OMX_PTR pBufToBeMapped);
+                                          
+static OMX_ERRORTYPE RPC_MapMetaData_Host(OMX_BUFFERHEADERTYPE *pBufHdr);
+static OMX_ERRORTYPE RPC_UnMapMetaData_Host(OMX_BUFFERHEADERTYPE *pBufHdr);
+
 #endif
 
 #define LINUX_PAGE_SIZE (4 * 1024)
@@ -533,8 +537,8 @@ static OMX_ERRORTYPE PROXY_AllocateBuffer(OMX_IN OMX_HANDLETYPE hComponent,
                       
         pPlatformPrivate = (OMX_TI_PLATFORMPRIVATE *)TIMM_OSAL_Malloc(sizeof(OMX_TI_PLATFORMPRIVATE),TIMM_OSAL_TRUE, 0, TIMMOSAL_MEM_SEGMENT_INT);
         if(pPlatformPrivate == NULL) {
-        TIMM_OSAL_Free(pBufferHeader);
-        PROXY_assert(0, OMX_ErrorInsufficientResources, NULL);
+            TIMM_OSAL_Free(pBufferHeader);
+            PROXY_assert(0, OMX_ErrorInsufficientResources, NULL);
         }   
         pBufferHeader->pPlatformPrivate = pPlatformPrivate;
 
@@ -558,13 +562,25 @@ static OMX_ERRORTYPE PROXY_AllocateBuffer(OMX_IN OMX_HANDLETYPE hComponent,
                   TIMM_OSAL_Free(pPlatformPrivate);
                   
                   PROXY_assert(0, OMX_ErrorUndefined,
-                  "ERROR WHILE GETTING FRAME HEIGHT");
+                  "Error while mapping buffer to chiron");
                  }
                  pBuffer = pBufferHeader->pBuffer;
-                 /*
-pBufferMapped here will contain the Y pointer (basically the unity mapped pBuffer)
-pBufferHeaderRemote is the header that contains both Y, UV pointers 
-*/
+
+              /*Map Ducati metadata buffer if present to Host and update in the same field*/
+              eError = RPC_MapMetaData_Host(pBufferHeader);
+              if(eError != OMX_ErrorNone) 
+              {
+                TIMM_OSAL_Free(pBufferHeader);
+                TIMM_OSAL_Free(pPlatformPrivate);
+
+                PROXY_assert(0, OMX_ErrorUndefined,
+                "Error while mapping metadata buffer to chiron");
+              }
+
+
+            /*pBufferMapped here will contain the Y pointer (basically the unity mapped pBuffer)
+            pBufferHeaderRemote is the header that contains both Y, UV pointers*/
+
             pCompPrv->tBufList[currentBuffer].pBufHeader = pBufferHeader;
             pCompPrv->tBufList[currentBuffer].pBufHeaderRemote= pBufHeaderRemote;
             pCompPrv->tBufList[currentBuffer].pBufferMapped = pBufferMapped;
@@ -594,6 +610,8 @@ pBufferHeaderRemote is the header that contains both Y, UV pointers
     else
     {
         eError = OMX_ErrorUndefined;
+        TIMM_OSAL_Free(pBufferHeader);
+        TIMM_OSAL_Free(pPlatformPrivate);
     }
 
 EXIT:
@@ -682,7 +700,16 @@ static OMX_ERRORTYPE PROXY_UseBuffer (OMX_IN OMX_HANDLETYPE hComponent,
         DOMX_DEBUG("\n %s Value of pBufHeaderRemote: 0x%x   LocalBufferHdr :0x%x",__FUNCTION__, pBufHeaderRemote,pBufferHeader);
         
         if(eCompReturn == OMX_ErrorNone)
-        {
+        {        
+            /*Map Ducati metadata buffer if present to Host and update in the same field*/
+            eError = RPC_MapMetaData_Host(pBufferHeader);
+            if(eError != OMX_ErrorNone) {
+                TIMM_OSAL_Free(pBufferHeader);
+                TIMM_OSAL_Free(pPlatformPrivate);
+
+                PROXY_assert(0, OMX_ErrorUndefined,
+                "Error while mapping metadata buffer to chiron");
+            }
             //Storing details of pBufferHeader/Mapped/Actual buffer address locally.
             pCompPrv->tBufList[currentBuffer].pBufHeader = pBufferHeader;
             pCompPrv->tBufList[currentBuffer].pBufHeaderRemote= pBufHeaderRemote;
@@ -765,6 +792,9 @@ static OMX_ERRORTYPE PROXY_FreeBuffer(OMX_IN  OMX_HANDLETYPE hComponent,
         DOMX_DEBUG("\n%s: Could not find the mapped address in component private buffer list",__FUNCTION__);
         return OMX_ErrorBadParameter;
     }
+    
+    /*Unmap metadata buffer on Chiron if was mapped earlier*/
+    eError = RPC_UnMapMetaData_Host(pBufferHdr);
 
     eRPCError = RPC_FreeBuffer(pCompPrv->hRemoteComp,nPortIndex,pCompPrv->tBufList[count].pBufHeaderRemote , &eCompReturn);
 
@@ -1771,4 +1801,80 @@ OMX_ERRORTYPE RPC_UnMapBuffer_Ducati(OMX_PTR pBuffer)
     
 EXIT:
     return eError;
+}
+
+/* ===========================================================================*/
+/**
+ * @name RPC_MapMetaData_Host() 
+ * @brief This utility maps metadata buffer in OMX buffer header to Chiron
+ * virtual address space (metadata buffer is TILER 1D buffer in Ducati Virtual
+ * space). It overrides the metadata buffer with Chiron address in the same 
+ * field. Metadata buffer size represents max size (alloc size) that needs to
+ * be mapped
+ * @param void 
+ * @return OMX_ErrorNone = Successful 
+ * @sa TBD
+ *
+ */
+/* ===========================================================================*/
+OMX_ERRORTYPE RPC_MapMetaData_Host(OMX_BUFFERHEADERTYPE *pBufHdr)
+{
+    OMX_PTR pMappedMetaDataBuffer = NULL;
+    OMX_U32 nMetaDataSize = 0;
+    OMX_ERRORTYPE eError = OMX_ErrorNone;
+    
+    DSPtr dsptr[2];
+    bytes_t lengths[2];
+    OMX_U32 numBlocks =0;
+    
+    if((pBufHdr->pPlatformPrivate != NULL) &&
+       (((OMX_TI_PLATFORMPRIVATE *)pBufHdr->pPlatformPrivate)->pMetaDataBuffer != NULL)) {
+      
+      pMappedMetaDataBuffer = NULL;
+      
+      nMetaDataSize = ((OMX_TI_PLATFORMPRIVATE *)pBufHdr->pPlatformPrivate)->nMetaDataSize;      
+      PROXY_assert((nMetaDataSize != 0), OMX_ErrorBadParameter,
+                    "Received ZERO metadata size from Ducati, cannot map");
+      
+      dsptr[0]= (OMX_U32) ((OMX_TI_PLATFORMPRIVATE *)pBufHdr->pPlatformPrivate)->pMetaDataBuffer;
+      numBlocks = 1;
+      lengths[0] = LINUX_PAGE_SIZE * (nMetaDataSize + (LINUX_PAGE_SIZE - 1)) / LINUX_PAGE_SIZE;
+      
+      pMappedMetaDataBuffer = tiler_assisted_phase1_D2CReMap(numBlocks,dsptr,lengths);
+      
+      PROXY_assert((pMappedMetaDataBuffer != NULL), OMX_ErrorInsufficientResources,
+                    "Mapping metadata to Chiron space failed");
+      
+      ((OMX_TI_PLATFORMPRIVATE *)pBufHdr->pPlatformPrivate)->pMetaDataBuffer = pMappedMetaDataBuffer;
+    }
+    
+EXIT:
+     return eError;
+}
+
+/* ===========================================================================*/
+/**
+ * @name RPC_UnMapMetaData_Host() 
+ * @brief This utility unmaps the previously mapped metadata on host from remote
+ * components
+ * @param void 
+ * @return OMX_ErrorNone = Successful 
+ * @sa TBD
+ *
+ */
+/* ===========================================================================*/
+OMX_ERRORTYPE RPC_UnMapMetaData_Host(OMX_BUFFERHEADERTYPE *pBufHdr)
+{
+    OMX_ERRORTYPE eError = OMX_ErrorNone;
+    OMX_S32 nReturn = 0;
+    
+    if((pBufHdr->pPlatformPrivate != NULL) &&
+       (((OMX_TI_PLATFORMPRIVATE *)pBufHdr->pPlatformPrivate)->pMetaDataBuffer != NULL)) {
+      
+      nReturn = tiler_assisted_phase1_DeMap((((OMX_TI_PLATFORMPRIVATE *)pBufHdr->pPlatformPrivate)->pMetaDataBuffer));
+      PROXY_assert((nReturn == 0), OMX_ErrorUndefined,
+                    "Metadata unmap failed");
+    }
+EXIT:
+     return eError;
 }
