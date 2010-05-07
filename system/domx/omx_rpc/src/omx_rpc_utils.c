@@ -181,7 +181,7 @@ RPC_OMX_ERRORTYPE RPC_UnMapBuffer(OMX_U32 mappedBuffer )
 
 /* ===========================================================================*/
 /**
- * @name EMPTY-STUB
+ * @name RPC_FlushBuffer
  * @brief 
  * @param
  * @return
@@ -192,7 +192,34 @@ RPC_OMX_ERRORTYPE RPC_FlushBuffer(OMX_U8 * pBuffer, OMX_U32 size )
 
 {
 	DOMX_DEBUG("\nEntering: %s", __FUNCTION__);
-	DOMX_DEBUG("\n Empty implementation ");
-	//PlaceHolder for Flushing Buffers - Cuurently no implementation here
-    return RPC_OMX_ErrorNone;
+    RPC_OMX_ERRORTYPE eError = RPC_OMX_ErrorNone;
+    OMX_S32 nStatus = 0;
+
+   	DOMX_DEBUG("\nAbout to flush %d bytes\n", size);
+ 
+	nStatus = ProcMgr_flushMemory((OMX_PTR)pBuffer, size);
+    if (nStatus < 0)
+    {
+        eError = RPC_OMX_ErrorUndefined;
+        TIMM_OSAL_Error("Cache flush failed");
+    }
+
+    return eError;
+}
+
+
+
+RPC_OMX_ERRORTYPE RPC_InvalidateBuffer(OMX_U8 * pBuffer, OMX_U32 size)
+{
+    RPC_OMX_ERRORTYPE eError = RPC_OMX_ErrorNone;
+    OMX_S32 nStatus = 0;
+    DOMX_DEBUG("\nEntering: %s", __FUNCTION__);
+    DOMX_DEBUG("\nAbout to invalidate %d bytes\n", size);
+    nStatus = ProcMgr_invalidateMemory((OMX_PTR)pBuffer, size);
+    if (nStatus < 0)
+    {
+        eError = RPC_OMX_ErrorUndefined;
+        TIMM_OSAL_Error("Cache invalidate failed");
+    }
+    return eError;
 }

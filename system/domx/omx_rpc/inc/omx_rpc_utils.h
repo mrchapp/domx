@@ -111,6 +111,7 @@ PTR = (TYPE *) (MSGBODY+OFFSET);
 RPC_OMX_ERRORTYPE RPC_UnMapBuffer(OMX_U32 mappedBuffer );
 RPC_OMX_ERRORTYPE RPC_MapBuffer(OMX_U32 mappedBuffer );
 RPC_OMX_ERRORTYPE RPC_FlushBuffer(OMX_U8 * pBuffer, OMX_U32 size );
+RPC_OMX_ERRORTYPE RPC_InvalidateBuffer(OMX_U8 * pBuffer, OMX_U32 size);
 
 RPC_OMX_ERRORTYPE RPC_UTIL_GetTargetServerName(OMX_STRING ComponentName, OMX_STRING * ServerName);
 RPC_OMX_ERRORTYPE RPC_UTIL_GetLocalServerName(OMX_STRING ComponentName, OMX_STRING * ServerName);

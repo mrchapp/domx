@@ -52,11 +52,23 @@
 
 #ifdef TILER_BUFF
 #define PortFormatIsNotYUV 0
-static OMX_ERRORTYPE RPC_PrepareBuffer_Remote(PROXY_COMPONENT_PRIVATE *pCompPrv, OMX_COMPONENTTYPE *hRemoteComp, OMX_U32 nPortIndex, OMX_U32 nSizeBytes, OMX_BUFFERHEADERTYPE *pChironBuf, OMX_BUFFERHEADERTYPE *pDucBuf);
+static OMX_ERRORTYPE RPC_PrepareBuffer_Remote(PROXY_COMPONENT_PRIVATE *pCompPrv,
+                                              OMX_COMPONENTTYPE *hRemoteComp,
+                                              OMX_U32 nPortIndex,
+                                              OMX_U32 nSizeBytes,
+                                              OMX_BUFFERHEADERTYPE *pChironBuf,
+                                              OMX_BUFFERHEADERTYPE *pDucBuf,
+                                              OMX_PTR pBufToBeMapped);
 static OMX_ERRORTYPE RPC_PrepareBuffer_Chiron(PROXY_COMPONENT_PRIVATE *pCompPrv, OMX_COMPONENTTYPE *hRemoteComp, OMX_U32 nPortIndex, OMX_U32 nSizeBytes, OMX_BUFFERHEADERTYPE *pDucBuf, OMX_BUFFERHEADERTYPE *pChironBuf);
 static OMX_ERRORTYPE RPC_UTIL_GetNumLines(OMX_COMPONENTTYPE *hComp, OMX_U32 nPortIndex, OMX_U32 * nNumOfLines);
-static OMX_ERRORTYPE RPC_MapBuffer_Ducati(OMX_U8 *pBuf, OMX_U32 nBufLineSize, OMX_U32 nBufLines, OMX_U8 **pMappedBuf);
+static OMX_ERRORTYPE RPC_UnMapBuffer_Ducati(OMX_PTR pBuffer);                                          
+static OMX_ERRORTYPE RPC_MapBuffer_Ducati(OMX_U8 *pBuf, OMX_U32 nBufLineSize,
+                                          OMX_U32 nBufLines,
+                                          OMX_U8 **pMappedBuf,
+                                          OMX_PTR pBufToBeMapped);
 #endif
+
+#define LINUX_PAGE_SIZE (4 * 1024)
 
 /* ===========================================================================*/
 /**
@@ -194,6 +206,7 @@ static OMX_ERRORTYPE PROXY_FillBufferDone(OMX_HANDLETYPE hComponent, OMX_U32 rem
     OMX_ERRORTYPE eError = OMX_ErrorNone;
     PROXY_COMPONENT_PRIVATE* pCompPrv;    
     OMX_COMPONENTTYPE *hComp = (OMX_COMPONENTTYPE *)hComponent;
+    RPC_OMX_ERRORTYPE eRPCError = RPC_OMX_ErrorNone;
     
     OMX_U16 count;
     OMX_BUFFERHEADERTYPE * pBufHdr = NULL;
@@ -215,6 +228,28 @@ static OMX_ERRORTYPE PROXY_FillBufferDone(OMX_HANDLETYPE hComponent, OMX_U32 rem
             pBufHdr->nFlags = nFlags;
             pBufHdr->pBuffer = (OMX_U8 *)pCompPrv->tBufList[count].pBufferActual;
             pBufHdr->nTimeStamp = nTimeStamp;
+
+            //Cache Invalidate in case of non tiler buffers only
+            if(pCompPrv->tBufList[count].pBufferActual != 
+                        pCompPrv->tBufList[count].pBufferToBeMapped)
+            {
+                eRPCError = RPC_InvalidateBuffer(pBufHdr->pBuffer, 
+                                                 pBufHdr->nAllocLen);
+                if(eRPCError != RPC_OMX_ErrorNone)
+                {
+                    TIMM_OSAL_Error("Invalidate Buffer failed");
+                    /*Cache operation failed - indicate a hardware error to 
+                    client via event handler*/
+                    eError = PROXY_EventHandler(hComponent,
+                                                pCompPrv->pILAppData,
+                                                OMX_EventError, 
+                                                OMX_ErrorHardware, 0, NULL);
+                    /*EventHandler is not supposed to return any error so not 
+                    handling it*/
+                    goto EXIT;
+                }
+            }
+            
             pCompPrv->tCBFunc.FillBufferDone(hComponent,pCompPrv->pILAppData,pBufHdr);
             break;
         }
@@ -246,6 +281,7 @@ static OMX_ERRORTYPE PROXY_EmptyThisBuffer(OMX_HANDLETYPE hComponent,
     OMX_U32 count=0;
     OMX_U8 isMatchFound = 0;
     OMX_U8 *pBuffer=NULL;
+    OMX_U32 pBufToBeMapped = 0;
     
     DOMX_DEBUG("\n%s Entered",__FUNCTION__);
     
@@ -283,7 +319,7 @@ static OMX_ERRORTYPE PROXY_EmptyThisBuffer(OMX_HANDLETYPE hComponent,
         /* Same pBufferHdr will get updated with remote pBuffer and pAuxBuf1 if a 2D buffer */
         eError=RPC_PrepareBuffer_Remote(pCompPrv, pCompPrv->hRemoteComp,pBufferHdr->nInputPortIndex,
                                         pBufferHdr->nAllocLen,
-                                        pBufferHdr, NULL);
+                                        pBufferHdr, NULL, &pBufToBeMapped);
     
         if(eError != OMX_ErrorNone) {            
             PROXY_assert(0, OMX_ErrorUndefined,
@@ -292,7 +328,8 @@ static OMX_ERRORTYPE PROXY_EmptyThisBuffer(OMX_HANDLETYPE hComponent,
         
         /*Now update the buffer list with new details*/
         pCompPrv->tBufList[count].pBufferMapped = (OMX_U32)(pBufferHdr->pBuffer);
-        pCompPrv->tBufList[count].pBufferActual = (OMX_U32)pBuffer;        
+        pCompPrv->tBufList[count].pBufferActual = (OMX_U32)pBuffer;
+        pCompPrv->tBufList[count].pBufferToBeMapped = pBufToBeMapped;        
     }
     else {
         /*Update pBuffer with pBufferMapped stored in input port private
@@ -300,7 +337,18 @@ static OMX_ERRORTYPE PROXY_EmptyThisBuffer(OMX_HANDLETYPE hComponent,
         pBufferHdr->pBuffer = (OMX_U8 *) pBufferHdr->pInputPortPrivate;
     }
         
-    RPC_FlushBuffer(pBuffer, pBufferHdr->nAllocLen);
+    /*Flushing non tiler buffers only for now*/
+    if(pCompPrv->tBufList[count].pBufferActual != 
+           pCompPrv->tBufList[count].pBufferToBeMapped)
+    {           
+        RPC_FlushBuffer(pBuffer, pBufferHdr->nAllocLen);
+        if(eRPCError != RPC_OMX_ErrorNone)
+        {
+            eError = OMX_ErrorUndefined;
+            TIMM_OSAL_Error("Flush Buffer failed");
+            goto EXIT;
+        }
+    }
 
     eRPCError = RPC_EmptyThisBuffer(pCompPrv->hRemoteComp, pBufferHdr, pCompPrv->tBufList[count].pBufHeaderRemote, &eCompReturn);
 
@@ -343,6 +391,7 @@ static OMX_ERRORTYPE PROXY_FillThisBuffer(OMX_HANDLETYPE hComponent,
     OMX_U32 count=0;
     OMX_U8 isMatchFound = 0;
     OMX_U8 *pBuffer=NULL;
+    OMX_U32 pBufToBeMapped = 0;
     
     DOMX_DEBUG("\n%s Entered",__FUNCTION__);
     
@@ -380,7 +429,7 @@ static OMX_ERRORTYPE PROXY_FillThisBuffer(OMX_HANDLETYPE hComponent,
         /* Same pBufferHdr will get updated with remote pBuffer and pAuxBuf1 if a 2D buffer */
         eError=RPC_PrepareBuffer_Remote(pCompPrv, pCompPrv->hRemoteComp,pBufferHdr->nOutputPortIndex,
                                         pBufferHdr->nAllocLen,
-                                        pBufferHdr, NULL);
+                                        pBufferHdr, NULL, &pBufToBeMapped);
     
         if(eError != OMX_ErrorNone) {            
             PROXY_assert(0, OMX_ErrorUndefined,
@@ -390,6 +439,7 @@ static OMX_ERRORTYPE PROXY_FillThisBuffer(OMX_HANDLETYPE hComponent,
         /*Now update the buffer list with new details*/
         pCompPrv->tBufList[count].pBufferMapped = (OMX_U32)(pBufferHdr->pBuffer);
         pCompPrv->tBufList[count].pBufferActual = (OMX_U32)pBuffer;
+        pCompPrv->tBufList[count].pBufferToBeMapped = pBufToBeMapped;
     }
     else {
         /*Update pBuffer with pBufferMapped stored in input port private
@@ -397,7 +447,8 @@ static OMX_ERRORTYPE PROXY_FillThisBuffer(OMX_HANDLETYPE hComponent,
         pBufferHdr->pBuffer = (OMX_U8 *) pBufferHdr->pInputPortPrivate;
     }
         
-    RPC_FlushBuffer(pBuffer, pBufferHdr->nAllocLen);
+    /*No nee to call flush for o/p buffer for now*/
+    //RPC_FlushBuffer(pBuffer, pBufferHdr->nAllocLen);
     
     RPC_FillThisBuffer(pCompPrv->hRemoteComp, pBufferHdr, pCompPrv->tBufList[count].pBufHeaderRemote,&eCompReturn);
 
@@ -504,6 +555,8 @@ pBufferHeaderRemote is the header that contains both Y, UV pointers
             pCompPrv->tBufList[currentBuffer].pBufHeaderRemote= pBufHeaderRemote;
             pCompPrv->tBufList[currentBuffer].pBufferMapped = pBufferMapped;
             pCompPrv->tBufList[currentBuffer].pBufferActual =  (OMX_U32)pBuffer;
+            pCompPrv->tBufList[currentBuffer].pBufferToBeMapped = 
+                                              (OMX_U32)pBuffer;
             
             //caching actual content of pInportPrivate
             pCompPrv->tBufList[currentBuffer].actualContent = (OMX_U32)pBufferHeader->pInputPortPrivate;
@@ -554,6 +607,7 @@ static OMX_ERRORTYPE PROXY_UseBuffer (OMX_IN OMX_HANDLETYPE hComponent,
     OMX_ERRORTYPE eCompReturn;
     OMX_U32 pBufferMapped;
     OMX_U32 pBufHeaderRemote;
+    OMX_U32 pBufToBeMapped = 0;
     RPC_OMX_ERRORTYPE eRPCError = RPC_OMX_ErrorNone;
     OMX_U32 currentBuffer;    
     PROXY_COMPONENT_PRIVATE* pCompPrv= NULL;
@@ -593,7 +647,9 @@ static OMX_ERRORTYPE PROXY_UseBuffer (OMX_IN OMX_HANDLETYPE hComponent,
     
     /*[NPA] With NPA, pBuffer can be NULL*/
     if(pBuffer != NULL) {
-    eError=RPC_PrepareBuffer_Remote(pCompPrv, pCompPrv->hRemoteComp,nPortIndex,nSizeBytes, pBufferHeader, NULL);
+    eError=RPC_PrepareBuffer_Remote(pCompPrv, pCompPrv->hRemoteComp, nPortIndex,
+                                    nSizeBytes, pBufferHeader, NULL,
+                                    &pBufToBeMapped);
     
         if(eError != OMX_ErrorNone) {
             TIMM_OSAL_Free(pPlatformPrivate);
@@ -620,6 +676,8 @@ static OMX_ERRORTYPE PROXY_UseBuffer (OMX_IN OMX_HANDLETYPE hComponent,
             pCompPrv->tBufList[currentBuffer].pBufferActual =  (OMX_U32)pBuffer;
             //caching actual content of pInportPrivate
             pCompPrv->tBufList[currentBuffer].actualContent = (OMX_U32)pBufferHeader->pInputPortPrivate;
+            pCompPrv->tBufList[currentBuffer].pBufferToBeMapped = 
+                                              pBufToBeMapped;
 
             //keeping track of number of Buffers
             pCompPrv->nNumOfBuffers++;
@@ -672,6 +730,7 @@ static OMX_ERRORTYPE PROXY_FreeBuffer(OMX_IN  OMX_HANDLETYPE hComponent,
     OMX_U32 count=0;
     OMX_U8 isMatchFound = 0;
     OMX_ERRORTYPE eError = OMX_ErrorNone;
+    OMX_U32 status = 0;
     
     PROXY_assert(pBufferHdr != NULL, OMX_ErrorBadParameter, NULL);
     PROXY_assert(hComp->pComponentPrivate != NULL, OMX_ErrorBadParameter, NULL);
@@ -694,6 +753,20 @@ static OMX_ERRORTYPE PROXY_FreeBuffer(OMX_IN  OMX_HANDLETYPE hComponent,
     }
 
     eRPCError = RPC_FreeBuffer(pCompPrv->hRemoteComp,nPortIndex,pCompPrv->tBufList[count].pBufHeaderRemote , &eCompReturn);
+
+    if(pCompPrv->tBufList[count].pBufferActual != 
+           pCompPrv->tBufList[count].pBufferToBeMapped)
+    {
+        /*This is a non tiler buffer - needs to be unmapped from tiler space*/
+        eError = RPC_UnMapBuffer_Ducati((OMX_PTR)(pCompPrv->tBufList[count].
+                                                  pBufferToBeMapped));
+
+        if(eError != OMX_ErrorNone)
+        {
+            TIMM_OSAL_Error("UnMap Ducati Buffer returned an error");
+            goto EXIT;
+        }
+    }
 
 /*
 TODO : Demap although not very critical
@@ -1422,7 +1495,10 @@ EXIT:
 
      
 //Takes chiron buffer buffer header and updates with ducati buffer ptr and UV ptr
-OMX_ERRORTYPE RPC_PrepareBuffer_Remote(PROXY_COMPONENT_PRIVATE *pCompPrv, OMX_COMPONENTTYPE *hRemoteComp, OMX_U32 nPortIndex, OMX_U32 nSizeBytes, OMX_BUFFERHEADERTYPE *pChironBuf, OMX_BUFFERHEADERTYPE *pDucBuf)
+OMX_ERRORTYPE RPC_PrepareBuffer_Remote(PROXY_COMPONENT_PRIVATE *pCompPrv, 
+                  OMX_COMPONENTTYPE *hRemoteComp, OMX_U32 nPortIndex, 
+                  OMX_U32 nSizeBytes, OMX_BUFFERHEADERTYPE *pChironBuf, 
+                  OMX_BUFFERHEADERTYPE *pDucBuf, OMX_PTR pBufToBeMapped)
 {
       OMX_ERRORTYPE eError = OMX_ErrorNone;
       OMX_U32 nNumOfLines = 1;
@@ -1439,7 +1515,8 @@ OMX_ERRORTYPE RPC_PrepareBuffer_Remote(PROXY_COMPONENT_PRIVATE *pCompPrv, OMX_CO
        }
       
         pChironBuf->pBuffer = NULL;
-        RPC_MapBuffer_Ducati(pBuffer, nSizeBytes, nNumOfLines, &(pChironBuf->pBuffer)); 
+        RPC_MapBuffer_Ducati(pBuffer, nSizeBytes, nNumOfLines, 
+                             &(pChironBuf->pBuffer), pBufToBeMapped); 
       }
       else {
       if(!(pCompPrv->nNumOfLines[nPortIndex])) {
@@ -1456,9 +1533,13 @@ OMX_ERRORTYPE RPC_PrepareBuffer_Remote(PROXY_COMPONENT_PRIVATE *pCompPrv, OMX_CO
       pChironBuf->pBuffer = NULL;
       ((OMX_TI_PLATFORMPRIVATE *)(pChironBuf->pPlatformPrivate))->pAuxBuf1 = NULL;
       
-      RPC_MapBuffer_Ducati(pBuffer, 4 * 1024, nNumOfLines, &(pChironBuf->pBuffer));
-      RPC_MapBuffer_Ducati((OMX_U8*) ((OMX_U32)pBuffer + nNumOfLines*4*1024), 4 * 1024, nNumOfLines/2, &((OMX_TI_PLATFORMPRIVATE *)(pChironBuf->pPlatformPrivate))->pAuxBuf1
-);
+      RPC_MapBuffer_Ducati(pBuffer, 4 * 1024, nNumOfLines, 
+                           &(pChironBuf->pBuffer), pBufToBeMapped);
+      RPC_MapBuffer_Ducati((OMX_U8*) ((OMX_U32)pBuffer + nNumOfLines*4*1024), 
+                           4 * 1024, nNumOfLines/2, &((OMX_TI_PLATFORMPRIVATE *)
+                           (pChironBuf->pPlatformPrivate))->pAuxBuf1, 
+                           pBufToBeMapped);
+      *(OMX_U32 *)pBufToBeMapped = (OMX_U32)pBuffer;
      }
      
      DOMX_DEBUG("Exited: %s\n",__FUNCTION__);
@@ -1563,37 +1644,84 @@ EXIT:
  *
  */
 /* ===========================================================================*/
-OMX_ERRORTYPE RPC_MapBuffer_Ducati(OMX_U8 *pBuf, OMX_U32 nBufLineSize, OMX_U32 nBufLines, OMX_U8 **pMappedBuf)
+OMX_ERRORTYPE RPC_MapBuffer_Ducati(OMX_U8 *pBuf, OMX_U32 nBufLineSize,
+                                   OMX_U32 nBufLines, OMX_U8 **pMappedBuf,
+                                   OMX_PTR pBufToBeMapped)
 {
     ProcMgr_MapType mapType;
     SyslinkMemUtils_MpuAddrToMap MpuAddr_list_1D;    
     MemAllocBlock block;
     OMX_U32 status;
+    OMX_U32 nDiff = 0;
+    OMX_ERRORTYPE eError = OMX_ErrorNone;
     
     DOMX_DEBUG("\n Entered %s ____ \n",__FUNCTION__);
+
+    *(OMX_U32 *)pBufToBeMapped = (OMX_U32)pBuf;
     
     if(!MemMgr_IsMapped(pBuf) && (nBufLines == 1)) {
         DOMX_DEBUG("\nBuffer is not mapped: Mapping as 1D buffer now..");
         block.pixelFormat = PIXEL_FMT_PAGE;
-        block.dim.len = nBufLineSize;
+        block.ptr    = (OMX_PTR)(((OMX_U32)pBuf / LINUX_PAGE_SIZE) * 
+                                 LINUX_PAGE_SIZE);
+        block.dim.len = (OMX_U32)((((OMX_U32)pBuf + nBufLineSize + 
+                                 LINUX_PAGE_SIZE - 1) / LINUX_PAGE_SIZE) * 
+                                 LINUX_PAGE_SIZE) - (OMX_U32)block.ptr;
         block.stride = 0;
-        block.ptr    = pBuf;
+        nDiff = (OMX_U32)pBuf - (OMX_U32)block.ptr;
         
-        *pMappedBuf = MemMgr_Map(&block, 1);
+        (*(OMX_U32 *)(pBufToBeMapped)) = (OMX_U32)(MemMgr_Map(&block, 1));
+        if(*(OMX_U32 *)pBufToBeMapped == 0)
+        {
+            TIMM_OSAL_Error("Map to TILER space failed");
+            eError = OMX_ErrorInsufficientResources;
+            goto EXIT;
+        }
+        //*pMappedBuf = MemMgr_Map(&block, 1);
     }
     
-    if(MemMgr_IsMapped(pBuf)) {
+    if(MemMgr_IsMapped((*(OMX_U32 *)pBufToBeMapped))) {
     //If Tiler 1D buffer, get corresponding ducati address and send out buffer to ducati
     //For 2D buffers, in phase1, retrive the ducati address (SSPtrs) for Y and UV buffers
     //and send out buffer to ducati
         mapType = ProcMgr_MapType_Tiler;
-        MpuAddr_list_1D.mpuAddr = (UInt32)pBuf;
+        MpuAddr_list_1D.mpuAddr = (*(OMX_U32 *)pBufToBeMapped) + nDiff;
         MpuAddr_list_1D.size = nBufLineSize * nBufLines;
         
-        status = SysLinkMemUtils_map(&MpuAddr_list_1D, 1, pMappedBuf, mapType, PROC_APPM3);
+        status = SysLinkMemUtils_map(&MpuAddr_list_1D, 1, pMappedBuf, mapType, 
+                                     PROC_APPM3);
     }
 
      DOMX_DEBUG("Exited: %s\n",__FUNCTION__);    
 EXIT:
-    return OMX_ErrorNone;
+    return eError;
+}
+
+
+
+/* ===========================================================================*/
+/**
+ * @name RPC_UnMapBuffer_Ducati() 
+ * @brief 
+ * @param 
+ * @return
+ * @sa 
+ *
+ */
+/* ===========================================================================*/
+OMX_ERRORTYPE RPC_UnMapBuffer_Ducati(OMX_PTR pBuffer)
+{
+    OMX_U32 status = 0;
+    OMX_ERRORTYPE eError = OMX_ErrorNone;
+    
+    status = MemMgr_UnMap(pBuffer);
+    if(status != 0)
+    {
+        TIMM_OSAL_Error("MemMgr_UnMap returned an error");
+        eError = OMX_ErrorUndefined;
+        goto EXIT;
+    }
+    
+EXIT:
+    return eError;
 }

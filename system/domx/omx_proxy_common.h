@@ -77,12 +77,32 @@ typedef OMX_ERRORTYPE (*PROXY_EVENTHANDLER)(OMX_HANDLETYPE hComponent, OMX_PTR p
 /*******************************************************************************
 * Structures
 *******************************************************************************/
-/* ========================================================================== */
-/**
-* PROXY_BUFFER_INFO
-*
-*/
-/* ========================================================================== */
+/*===============================================================*/
+/** PROXY_BUFFER_INFO        : This structure maintains a table of A9 and 
+ *                             Ducati side buffers and headers.
+ *
+ * @param pBufHeader         : This is a pointer to the A9 bufferheader.
+ *
+ * @param pBufHeaderRemote   : This is pointer to Ducati side bufferheader.
+ *
+ * @param pBufferMapped      : This is the Ducati side buffer.
+ *
+ * @param pBufferActual      : This is the actual buffer sent by the client.
+ *
+ * @param actualContent      : Unknown. Remove?
+ *
+ * @param pAlloc_localBuffCopy : Unknown. Remove?
+ *
+ * @param pBufferToBeMapped  : This is the pointer that will be used for 
+ *                             mapping the buffer to Ducati side. For TILER
+ *                             buffers, this and pBufferActual will  be the
+ *                             same. However for NON TILER buffers, this'll
+ *                             be an intermediate pointer. This pointer should 
+ *                             not be used for r/w or cache operations. It can
+ *                             only be used for mapping/unmapping to Ducati 
+ *                             space.
+ */
+/*===============================================================*/
 typedef struct PROXY_BUFFER_INFO{
     OMX_BUFFERHEADERTYPE* pBufHeader;
     OMX_U32 pBufHeaderRemote;
@@ -90,6 +110,7 @@ typedef struct PROXY_BUFFER_INFO{
     OMX_U32 pBufferActual;
     OMX_U32 actualContent;
     OMX_U32 pAlloc_localBuffCopy;
+    OMX_U32 pBufferToBeMapped;
 }PROXY_BUFFER_INFO;
 
 /* ========================================================================== */
