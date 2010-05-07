@@ -19,6 +19,8 @@
 /*==============================================================
  *! Revision History
  *! ============================
+ *! 30-Apr-2010 Abhishek Ranka : Fixed GetExtension issue
+ *!
  *! 29-Mar-2010 Abhishek Ranka : Revamped DOMX implementation
  *!
  *! 19-August-2009 B Ravi Kiran ravi.kiran@ti.com: Initial Version
@@ -1060,12 +1062,12 @@ RPC_OMX_ERRORTYPE RPC_GetExtensionIndex(RPC_OMX_HANDLE hRPCCtx,OMX_STRING cParam
   pRPCMsg = (RPC_OMX_MESSAGE*)(&pPacket->data);
   pMsgBody = &pRPCMsg->msgBody[0];
 
-  //Marshalled:[>hComp|>offset(cParameterName)|
-  //>--cParameterName--|<offset(IndexType)|<--pIndexType--]
+  //Marshalled:[>hComp|>offset(cParameterName)|<--pIndexType--|
+  //>--cParameterName--]
     
   RPC_SETFIELDVALUE(pMsgBody, nPos, hComp, RPC_OMX_HANDLE);
     
-  offset=sizeof(RPC_OMX_HANDLE) + sizeof(OMX_U32) + sizeof(OMX_U32);
+  offset=sizeof(RPC_OMX_HANDLE) + sizeof(OMX_U32) + sizeof(OMX_INDEXTYPE);
   RPC_SETFIELDOFFSET(pMsgBody, nPos,  offset, OMX_U32);
     
   //can assert this value at proxy
@@ -1077,9 +1079,8 @@ RPC_OMX_ERRORTYPE RPC_GetExtensionIndex(RPC_OMX_HANDLE hRPCCtx,OMX_STRING cParam
   
   *eCompReturn = pRPCMsg->msgHeader.nOMXReturn;           
 
-  if( pRPCMsg->msgHeader.nOMXReturn == OMX_ErrorNone) {
-      RPC_GETFIELDOFFSET(pMsgBody, nPos,  i_offset, OMX_U32);
-      RPC_GETFIELDCOPYTYPE(pMsgBody, i_offset, pIndexType, OMX_INDEXTYPE);
+  if( pRPCMsg->msgHeader.nOMXReturn == OMX_ErrorNone) {      
+      RPC_GETFIELDCOPYTYPE(pMsgBody, offset, pIndexType, OMX_INDEXTYPE);
   }
     
   RcmClient_free(hCtx->ClientHndl[RCM_DEFAULT_CLIENT], pPacket);
