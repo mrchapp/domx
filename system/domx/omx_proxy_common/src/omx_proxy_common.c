@@ -228,7 +228,9 @@ static OMX_ERRORTYPE PROXY_FillBufferDone(OMX_HANDLETYPE hComponent, OMX_U32 rem
             pBufHdr->nFlags = nFlags;
             pBufHdr->pBuffer = (OMX_U8 *)pCompPrv->tBufList[count].pBufferActual;
             pBufHdr->nTimeStamp = nTimeStamp;
-
+/*Invalidate call is being commented out for now since invalidate functionality
+ * is currently broken in kernel. Workaround is to call flush in FTB. */
+#if 0
             //Cache Invalidate in case of non tiler buffers only
             if(pCompPrv->tBufList[count].pBufferActual != 
                         pCompPrv->tBufList[count].pBufferToBeMapped)
@@ -249,7 +251,7 @@ static OMX_ERRORTYPE PROXY_FillBufferDone(OMX_HANDLETYPE hComponent, OMX_U32 rem
                     goto EXIT;
                 }
             }
-            
+#endif            
             pCompPrv->tCBFunc.FillBufferDone(hComponent,pCompPrv->pILAppData,pBufHdr);
             break;
         }
@@ -447,8 +449,20 @@ static OMX_ERRORTYPE PROXY_FillThisBuffer(OMX_HANDLETYPE hComponent,
         pBufferHdr->pBuffer = (OMX_U8 *) pBufferHdr->pInputPortPrivate;
     }
         
-    /*No nee to call flush for o/p buffer for now*/
-    //RPC_FlushBuffer(pBuffer, pBufferHdr->nAllocLen);
+/* Since invalidate functionality is broken, workaround is to call a cache
+ * flush here. This will be removed once a fix for invalidate is available.*/
+	/*Flushing non tiler buffers only for now*/
+    if(pCompPrv->tBufList[count].pBufferActual !=
+           pCompPrv->tBufList[count].pBufferToBeMapped)
+    {
+        RPC_FlushBuffer(pBuffer, pBufferHdr->nAllocLen);
+        if(eRPCError != RPC_OMX_ErrorNone)
+        {
+            eError = OMX_ErrorUndefined;
+            TIMM_OSAL_Error("Flush Buffer failed");
+            goto EXIT;
+        }
+    }
     
     RPC_FillThisBuffer(pCompPrv->hRemoteComp, pBufferHdr, pCompPrv->tBufList[count].pBufHeaderRemote,&eCompReturn);
 
