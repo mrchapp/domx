@@ -321,7 +321,21 @@ static OMX_ERRORTYPE PROXY_EmptyThisBuffer(OMX_HANDLETYPE hComponent,
     TBD: Even if MODIFIED is set, the pBuffer can be a pre-mapped buffer
     */
     if((pBufferHdr->nFlags)&(OMX_BUFFERHEADERFLAG_MODIFIED)){
-    
+
+       /*Unmap previously mapped buffer if applicable*/
+        if (pCompPrv->tBufList[count].pBufferActual !=
+           pCompPrv->tBufList[count].pBufferToBeMapped) {
+
+		/*This is a non tiler buffer - needs to be unmapped from tiler space*/
+		eError = RPC_UnMapBuffer_Ducati((OMX_PTR)(pCompPrv->tBufList[count].
+									pBufferToBeMapped));
+
+		if(eError != OMX_ErrorNone)
+		{
+			TIMM_OSAL_Error("UnMap Ducati Buffer returned an error");
+			goto EXIT;
+		}
+	}
         /* Same pBufferHdr will get updated with remote pBuffer and pAuxBuf1 if a 2D buffer */
         eError=RPC_PrepareBuffer_Remote(pCompPrv, pCompPrv->hRemoteComp,pBufferHdr->nInputPortIndex,
                                         pBufferHdr->nAllocLen,
@@ -431,7 +445,22 @@ static OMX_ERRORTYPE PROXY_FillThisBuffer(OMX_HANDLETYPE hComponent,
     TBD: Even if MODIFIED is set, the pBuffer can be a pre-mapped buffer
     */
     if((pBufferHdr->nFlags)&(OMX_BUFFERHEADERFLAG_MODIFIED)){
-    
+
+       /*Unmap previously mapped buffer if applicable*/
+        if(pCompPrv->tBufList[count].pBufferActual !=
+           pCompPrv->tBufList[count].pBufferToBeMapped)
+        {
+        /*This is a non tiler buffer - needs to be unmapped from tiler space*/
+            eError = RPC_UnMapBuffer_Ducati((OMX_PTR)(pCompPrv->tBufList[count].
+                                                  pBufferToBeMapped));
+
+            if(eError != OMX_ErrorNone)
+            {
+                TIMM_OSAL_Error("UnMap Ducati Buffer returned an error");
+                goto EXIT;
+            }
+        }
+
         /* Same pBufferHdr will get updated with remote pBuffer and pAuxBuf1 if a 2D buffer */
         eError=RPC_PrepareBuffer_Remote(pCompPrv, pCompPrv->hRemoteComp,pBufferHdr->nOutputPortIndex,
                                         pBufferHdr->nAllocLen,
