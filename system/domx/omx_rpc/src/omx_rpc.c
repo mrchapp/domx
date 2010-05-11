@@ -119,13 +119,6 @@ RPC_OMX_ERRORTYPE RPC_InstanceInit(OMX_STRING cComponentName, RPC_OMX_HANDLE* ph
     OMX_STRING rcmServerName;
     RPC_OMX_CONTEXT *pRPCCtx = NULL;
     
-    status = mmplatform_init(2);
-    if(status < 0)
-    {
-        TIMM_OSAL_Error("Platform init failed");
-        goto EXIT;
-    }
-    
     pRPCCtx = (RPC_OMX_CONTEXT *)TIMM_OSAL_Malloc(sizeof(RPC_OMX_CONTEXT),TIMM_OSAL_TRUE, 0, TIMMOSAL_MEM_SEGMENT_INT);
 
     if (pRPCCtx == NULL) {
@@ -144,6 +137,13 @@ RPC_OMX_ERRORTYPE RPC_InstanceInit(OMX_STRING cComponentName, RPC_OMX_HANDLE* ph
   //Create client for 1st component
   if(bCreateClient == OMX_TRUE)
   {
+	/*Calling platform init*/
+	status = mmplatform_init(2);
+	if(status < 0) {
+
+		TIMM_OSAL_Error("Platform init failed");
+		goto EXIT;
+	}
   
     /* RCM Client Instance Creation*/
     RPC_UTIL_GetTargetServerName(cComponentName,&rcmServerName);
