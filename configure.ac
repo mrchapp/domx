@@ -99,5 +99,6 @@ test/h264play2/Makefile
 test/h264enc/Makefile
 test/jpegdec/Makefile
 test/sample_proxy/Makefile
+test/mpeg4enc/Makefile
 ])
 AC_OUTPUT

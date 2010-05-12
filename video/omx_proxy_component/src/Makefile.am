@@ -6,7 +6,8 @@ noinst_LTLIBRARIES      = \
 	libmpeg4d.la \
 	libcamera.la \
 	libjpegd.la \
-	libsample.la
+	libsample.la \
+	libmpeg4e.la
 
 common_libadd = \
 	$(MMOSAL_LIBS) \
@@ -43,4 +44,9 @@ libjpegd_la_CFLAGS      = $(common_cflags)
 libsample_la_SOURCES    = omx_proxy_sample.c
 libsample_la_LIBADD     = $(common_libadd)
 libsample_la_CFLAGS     = $(common_cflags)
+
+libmpeg4e_la_SOURCES     = omx_proxy_mpeg4enc.c
+libmpeg4e_la_LIBADD      = $(common_libadd)
+libmpeg4e_la_CFLAGS      = $(common_cflags)
+
 

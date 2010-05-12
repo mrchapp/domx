@@ -12,8 +12,8 @@ lib_LTLIBRARIES = \
 	libOMX.TI.DUCATI1.VIDEO.MPEG4D.la \
 	libOMX.TI.DUCATI1.VIDEO.CAMERA.la \
 	libOMX.TI.DUCATI1.IMAGE.JPEGD.la \
-	libOMX.TI.DUCATI1.MISC.SAMPLE.la
-
+	libOMX.TI.DUCATI1.MISC.SAMPLE.la \
+	libOMX.TI.DUCATI1.VIDEO.MPEG4E.la
 
 # core DOMX:
 libdomx_la_SOURCES      =
@@ -45,12 +45,15 @@ libOMX_TI_DUCATI1_MISC_SAMPLE_la_SOURCES  =
 libOMX_TI_DUCATI1_MISC_SAMPLE_la_LDFLAGS  = -no-undefined
 libOMX_TI_DUCATI1_MISC_SAMPLE_la_LIBADD   = video/omx_proxy_component/src/libsample.la libdomx.la
 
+libOMX_TI_DUCATI1_VIDEO_MPEG4E_la_SOURCES  =
+libOMX_TI_DUCATI1_VIDEO_MPEG4E_la_LDFLAGS  = -no-undefined
+libOMX_TI_DUCATI1_VIDEO_MPEG4E_la_LIBADD   = video/omx_proxy_component/src/libmpeg4e.la libdomx.la
 
 # test apps:
 if BUILD_TESTS
-  SUBDIRS += test/camera test/h264dec test/h264play test/h264play2 test/h264enc test/jpegdec test/sample_proxy test/mpeg4dec
+  SUBDIRS += test/camera test/h264dec test/h264play test/h264play2 test/h264enc test/jpegdec test/sample_proxy test/mpeg4dec test/mpeg4enc
 
-  bin_PROGRAMS = omx_camera_test omx_h264dec_test omx_h264play_test omx_h264play2_test omx_h264enc_test omx_jpegdec_test omx_sample_test omx_cam_pre_test omx_cam_capt_test omx_cam_vid_cap_test omx_cam_zoom_test omx_cam_fps_test omx_cam_3a_test omx_cam_vid_no_vnf_test omx_mpeg4dec_test
+  bin_PROGRAMS = omx_camera_test omx_h264dec_test omx_h264play_test omx_h264play2_test omx_h264enc_test omx_jpegdec_test omx_sample_test omx_cam_pre_test omx_cam_capt_test omx_cam_vid_cap_test omx_cam_zoom_test omx_cam_fps_test omx_cam_3a_test omx_cam_vid_no_vnf_test omx_mpeg4dec_test omx_mpeg4enc_test
 
   omx_camera_test_SOURCES      =
   omx_camera_test_LDFLAGS      = -no-undefined
@@ -111,5 +114,9 @@ if BUILD_TESTS
   omx_cam_vid_no_vnf_test_SOURCES      =
   omx_cam_vid_no_vnf_test_LDFLAGS      = -no-undefined
   omx_cam_vid_no_vnf_test_LDADD        = test/camera/libsrc_no_vnf.la libdomx.la
+
+  omx_mpeg4enc_test_SOURCES     =
+  omx_mpeg4enc_test_LDFLAGS     = -no-undefined
+  omx_mpeg4enc_test_LDADD       = test/mpeg4enc/libsrc.la libdomx.la
 
 endif
