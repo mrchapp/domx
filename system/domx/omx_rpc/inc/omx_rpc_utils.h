@@ -55,9 +55,11 @@ extern "C" {
 #define RPC_require RPC_paramCheck
 #define RPC_ensure  RPC_paramCheck
 
-#define RPC_paramCheck(C,V,S)  if (!(C)) { eRPCError = V;\
-TIMM_OSAL_TraceFunction("##Error:: %s::in %s::line %d \n",S,__FUNCTION__, __LINE__); \
-goto EXIT; }
+#define RPC_paramCheck(C, V, S) do { \
+    if (!(C)) { eRPCError = V;\
+    TIMM_OSAL_TraceFunction("##Error:: %s::in %s::line %d \n",S,__FUNCTION__, __LINE__); \
+    goto EXIT; } \
+    } while(0)
 
 /* ************************* OFFSET DEFINES ******************************** */
 #define GET_PARAM_DATA_OFFSET    (sizeof(RPC_OMX_HANDLE) + sizeof(OMX_INDEXTYPE) + sizeof(OMX_U32) /*4 bytes for offset*/ )
@@ -71,13 +73,15 @@ goto EXIT; }
 /******************************************************************
  *   MACROS - COMMON MARSHALLING UTILITIES
  ******************************************************************/
-#define RPC_SETFIELDVALUE(MSGBODY, POS, VALUE, TYPE) \
-*((TYPE *) ((OMX_U32)MSGBODY+POS)) = VALUE; \
-POS+=sizeof(TYPE);
+#define RPC_SETFIELDVALUE(MSGBODY, POS, VALUE, TYPE) do { \
+    *((TYPE *) ((OMX_U32)MSGBODY+POS)) = VALUE; \
+    POS+=sizeof(TYPE); \
+    } while(0)
 
-#define RPC_SETFIELDOFFSET(MSGBODY, POS, OFFSET, TYPE) \
-*((TYPE *) ((OMX_U32)MSGBODY+POS)) = OFFSET; \
-POS+=sizeof(TYPE);
+#define RPC_SETFIELDOFFSET(MSGBODY, POS, OFFSET, TYPE) do { \
+    *((TYPE *) ((OMX_U32)MSGBODY+POS)) = OFFSET; \
+    POS+=sizeof(TYPE); \
+    } while(0)
 
 #define RPC_SETFIELDCOPYGEN(MSGBODY, POS, PTR, SIZE) \
 TIMM_OSAL_Memcpy((OMX_U8*) ((OMX_U32)MSGBODY+POS),PTR,SIZE);
@@ -88,13 +92,15 @@ TIMM_OSAL_Memcpy((OMX_U8*) ((OMX_U32)MSGBODY+POS),PTR,SIZE);
 /******************************************************************
  *   MACROS - COMMON UNMARSHALLING UTILITIES
  ******************************************************************/
-#define RPC_GETFIELDVALUE(MSGBODY, POS, VALUE, TYPE) \
-VALUE = *((TYPE *) ((OMX_U32)MSGBODY+POS)); \
-POS+=sizeof(TYPE);
+#define RPC_GETFIELDVALUE(MSGBODY, POS, VALUE, TYPE) do { \
+    VALUE = *((TYPE *) ((OMX_U32)MSGBODY+POS)); \
+    POS+=sizeof(TYPE); \
+    } while(0)
 
-#define RPC_GETFIELDOFFSET(MSGBODY, POS, OFFSET, TYPE) \
-OFFSET = *((TYPE *) ((OMX_U32)MSGBODY+POS)); \
-POS+=sizeof(TYPE);
+#define RPC_GETFIELDOFFSET(MSGBODY, POS, OFFSET, TYPE) do { \
+    OFFSET = *((TYPE *) ((OMX_U32)MSGBODY+POS)); \
+    POS+=sizeof(TYPE); \
+    } while(0)
 
 #define RPC_GETFIELDCOPYGEN(MSGBODY, POS, PTR, SIZE) \
 TIMM_OSAL_Memcpy(PTR,(OMX_U8*) ((OMX_U32)MSGBODY+POS),SIZE);

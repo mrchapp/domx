@@ -49,30 +49,33 @@ extern COREID TARGET_CORE_ID;
 /******************************************************************
  *   MACROS - LOCAL
  ******************************************************************/
-#define RPC_getPacket(HRCM, nPacketSize, pPacket) \
-pPacket = RcmClient_alloc(HRCM, nPacketSize); \
-RPC_assert(pPacket != NULL, RPC_OMX_ErrorInsufficientResources, \
-           "Error Allocating RCM Message Frame");
+#define RPC_getPacket(HRCM, nPacketSize, pPacket) do { \
+    pPacket = RcmClient_alloc(HRCM, nPacketSize); \
+    RPC_assert(pPacket != NULL, RPC_OMX_ErrorInsufficientResources, \
+           "Error Allocating RCM Message Frame"); \
+    } while(0)
 
-#define RPC_sendPacket_sync(HRCM, pPacket, fxnIdx) \
-pPacket->fxnIdx = fxnIdx; \
-status = RcmClient_exec(HRCM, pPacket); \
-if(status < 0) { \
-RcmClient_free(HRCM, pPacket); \
-pPacket = NULL; \
-RPC_assert(0, RPC_OMX_RCM_ErrorExecFail, \
+#define RPC_sendPacket_sync(HRCM, pPacket, fxnIdx) do { \
+    pPacket->fxnIdx = fxnIdx; \
+    status = RcmClient_exec(HRCM, pPacket); \
+    if(status < 0) { \
+    RcmClient_free(HRCM, pPacket); \
+    pPacket = NULL; \
+    RPC_assert(0, RPC_OMX_RCM_ErrorExecFail, \
            "RcmClient_exec failed"); \
-}
-           
-#define RPC_sendPacket_async(HRCM, pPacket, fxnIdx) \
-pPacket->fxnIdx = fxnIdx; \
-status = RcmClient_execNoReply(HRCM, pPacket); \
-if(status < 0) { \
-RcmClient_free(HRCM, pPacket); \
-pPacket = NULL; \
-RPC_assert(0, RPC_OMX_RCM_ErrorExecFail, \
+    } \
+    } while(0)
+
+#define RPC_sendPacket_async(HRCM, pPacket, fxnIdx) do { \
+    pPacket->fxnIdx = fxnIdx; \
+    status = RcmClient_execNoReply(HRCM, pPacket); \
+    if(status < 0) { \
+    RcmClient_free(HRCM, pPacket); \
+    pPacket = NULL; \
+    RPC_assert(0, RPC_OMX_RCM_ErrorExecFail, \
            "RcmClient_exec failed"); \
-}
+    } \
+    } while(0)
  
 #define RPC_freePacket(HRCM, pPacket) \
 if(pPacket!=NULL) RcmClient_free(HRCM, pPacket);

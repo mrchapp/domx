@@ -57,9 +57,11 @@ extern "C" {
 #define PROXY_require PROXY_paramCheck
 #define PROXY_ensure  PROXY_paramCheck
 
-#define PROXY_paramCheck(C,V,S)  if (!(C)) { eError = V;\
-TIMM_OSAL_TraceFunction("##Error:: %s::in %s::line %d \n",S,__FUNCTION__, __LINE__); \
-goto EXIT; }
+#define PROXY_paramCheck(C, V, S) do {\
+    if (!(C)) { eError = V;\
+    TIMM_OSAL_TraceFunction("##Error:: %s::in %s::line %d \n",S,__FUNCTION__, __LINE__);\
+    goto EXIT; }\
+    } while(0)
 
 
 typedef OMX_ERRORTYPE (*PROXY_EMPTYBUFFER_DONE)(OMX_HANDLETYPE hComponent, OMX_U32 remoteBufHdr,
