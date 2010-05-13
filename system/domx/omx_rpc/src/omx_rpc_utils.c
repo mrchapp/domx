@@ -33,6 +33,7 @@
 #include "omx_rpc_internal.h"
 #include "omx_rpc_utils.h"
 #include <MultiProc.h>
+#include <ProcMgr.h>
 
 extern char rcmservertable[MAX_PROC][MAX_SERVER_NAME_LENGTH];
 extern char Core_Array[MAX_PROC][MAX_CORENAME_LENGTH];
