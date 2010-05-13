@@ -922,7 +922,7 @@ EXIT:
  *
  */
 /* ===========================================================================*/
-static OMX_ERRORTYPE PROXY_GetParameter(OMX_IN  OMX_HANDLETYPE hComponent,
+OMX_ERRORTYPE PROXY_GetParameter(OMX_IN  OMX_HANDLETYPE hComponent,
                                         OMX_IN  OMX_INDEXTYPE nParamIndex,
                                         OMX_INOUT OMX_PTR pParamStruct)
 {

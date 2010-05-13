@@ -143,5 +143,6 @@ typedef struct PROXY_COMPONENT_PRIVATE {
 * Functions
 *******************************************************************************/
 OMX_ERRORTYPE OMX_ProxyCommonInit(OMX_HANDLETYPE hComponent);
+OMX_ERRORTYPE PROXY_GetParameter(OMX_IN  OMX_HANDLETYPE hComponent,OMX_IN  OMX_INDEXTYPE nParamIndex,OMX_INOUT OMX_PTR pParamStruct);
 
 #endif
