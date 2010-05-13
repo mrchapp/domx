@@ -152,6 +152,7 @@
 
 #define HEAPMBMEM1_BUFS             (HEAPMBMEM1_CTRL + HEAPMBMEMSIZE1_CTRL)
 #define HEAPMBMEMSIZE1_BUFS         0x3000
+int ipc_finalize();
 
 ProcMgr_Handle                  procMgrHandle = NULL;
 Char *                          remoteServerName = NULL;
