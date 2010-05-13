@@ -1526,7 +1526,8 @@ OMX_ERRORTYPE RPC_PrepareBuffer_Chiron(PROXY_COMPONENT_PRIVATE *pCompPrv, OMX_CO
       
       dsptr[0]= pBuffer;
       numBlocks = 1;
-      lengths[0] = (4 * 1024) * ((nSizeBytes + ((4 * 1024) - 1)) / (4 * 1024));
+      lengths[0] = LINUX_PAGE_SIZE * ((nSizeBytes + (LINUX_PAGE_SIZE - 1)) /
+			LINUX_PAGE_SIZE);
       }
       else {
       DOMX_DEBUG("\nTwo component buffers\n");
@@ -1544,8 +1545,8 @@ OMX_ERRORTYPE RPC_PrepareBuffer_Chiron(PROXY_COMPONENT_PRIVATE *pCompPrv, OMX_CO
       nNumOfLines = pCompPrv->nNumOfLines[nPortIndex];
       }
       
-      lengths[0]= nNumOfLines* 4 * 1024;
-      lengths[1]= nNumOfLines/2 * 4 * 1024;
+      lengths[0] = nNumOfLines * LINUX_PAGE_SIZE;
+      lengths[1] = nNumOfLines/2 * LINUX_PAGE_SIZE;
       numBlocks = 2;
      }
      
@@ -1606,10 +1607,11 @@ OMX_ERRORTYPE RPC_PrepareBuffer_Remote(PROXY_COMPONENT_PRIVATE *pCompPrv,
       pChironBuf->pBuffer = NULL;
       ((OMX_TI_PLATFORMPRIVATE *)(pChironBuf->pPlatformPrivate))->pAuxBuf1 = NULL;
       
-      RPC_MapBuffer_Ducati(pBuffer, 4 * 1024, nNumOfLines, 
+      RPC_MapBuffer_Ducati(pBuffer, LINUX_PAGE_SIZE, nNumOfLines,
                            &(pChironBuf->pBuffer), pBufToBeMapped);
-      RPC_MapBuffer_Ducati((OMX_U8*) ((OMX_U32)pBuffer + nNumOfLines*4*1024), 
-                           4 * 1024, nNumOfLines/2, &((OMX_TI_PLATFORMPRIVATE *)
+      RPC_MapBuffer_Ducati((OMX_U8 *) ((OMX_U32)pBuffer + nNumOfLines *
+                           LINUX_PAGE_SIZE), LINUX_PAGE_SIZE, nNumOfLines/2,
+                           &((OMX_TI_PLATFORMPRIVATE *)
                            (pChironBuf->pPlatformPrivate))->pAuxBuf1, 
                            pBufToBeMapped);
       *(OMX_U32 *)pBufToBeMapped = (OMX_U32)pBuffer;
