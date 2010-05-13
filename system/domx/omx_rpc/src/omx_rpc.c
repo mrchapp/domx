@@ -47,6 +47,7 @@
 #include "omx_rpc_skel.h"
 #include "omx_rpc_internal.h"
 #include "omx_rpc_utils.h"
+#include "mmplatform.h"
  
 /* **************************** MACROS DEFINES *************************** */
 #define DO_SPIN 0
@@ -704,7 +705,7 @@ Int32 getFxnIndexFromRemote_skel(UInt32 size, UInt32 *data)
     
     for(i=0;i<MAX_FUNCTION_LIST;i++)
     //TIMM_OSAL_Memcpy(FxnIdxArr+i,rpcHndl[LOCAL_CORE_ID].rpcFxns[i].rpcFxnIdx,sizeof(RPC_INDEX));
-    TIMM_OSAL_Memcpy(FxnIdxArr+i,i,sizeof(RPC_INDEX));
+	TIMM_OSAL_Memcpy((TIMM_OSAL_PTR)(FxnIdxArr+i),(TIMM_OSAL_PTR)i,sizeof(RPC_INDEX));
     //    (RPC_INDEX )(*(FxnIdxArr+i)) = rpcHndl[LOCAL_CORE_ID].rpcFxns[i].rpcFxnIdx;
 
     return status;
