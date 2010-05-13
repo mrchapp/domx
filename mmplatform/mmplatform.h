@@ -33,4 +33,7 @@ setup = 2 for ipc setup without loading the base image
 int mmplatform_init(int setup);
 
 int mmplatform_deinit();
+#ifdef __cplusplus
+}
+#endif /* __cplusplus */
 #endif 
