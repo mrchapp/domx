@@ -635,6 +635,7 @@ static OMX_ERRORTYPE PROXY_AllocateBuffer(OMX_IN OMX_HANDLETYPE hComponent,
             pCompPrv->tBufList[currentBuffer].pBufferActual =  (OMX_U32)pBuffer;
             pCompPrv->tBufList[currentBuffer].pBufferToBeMapped = 
                                               (OMX_U32)pBuffer;
+            pCompPrv->tBufList[currentBuffer].bRemoteAllocatedBuffer = OMX_TRUE;
             
             //caching actual content of pInportPrivate
             pCompPrv->tBufList[currentBuffer].actualContent = (OMX_U32)pBufferHeader->pInputPortPrivate;
@@ -767,6 +768,8 @@ static OMX_ERRORTYPE PROXY_UseBuffer (OMX_IN OMX_HANDLETYPE hComponent,
             pCompPrv->tBufList[currentBuffer].actualContent = (OMX_U32)pBufferHeader->pInputPortPrivate;
             pCompPrv->tBufList[currentBuffer].pBufferToBeMapped = 
                                               pBufToBeMapped;
+            pCompPrv->tBufList[currentBuffer].bRemoteAllocatedBuffer =
+                                              OMX_FALSE;
 
             //keeping track of number of Buffers
             pCompPrv->nNumOfBuffers++;
@@ -819,7 +822,7 @@ static OMX_ERRORTYPE PROXY_FreeBuffer(OMX_IN  OMX_HANDLETYPE hComponent,
     OMX_U32 count=0;
     OMX_U8 isMatchFound = 0;
     OMX_ERRORTYPE eError = OMX_ErrorNone;
-    OMX_U32 status = 0;
+    OMX_S32 nReturn = 0;
     
     PROXY_assert(pBufferHdr != NULL, OMX_ErrorBadParameter, NULL);
     PROXY_assert(hComp->pComponentPrivate != NULL, OMX_ErrorBadParameter, NULL);
@@ -858,6 +861,16 @@ static OMX_ERRORTYPE PROXY_FreeBuffer(OMX_IN  OMX_HANDLETYPE hComponent,
             TIMM_OSAL_Error("UnMap Ducati Buffer returned an error");
             goto EXIT;
         }
+    }
+
+    if(pCompPrv->tBufList[count].bRemoteAllocatedBuffer == OMX_TRUE)
+    {
+    /*TODO: Move this and D2C map to separate function along with buffer plugin
+    implementation*/
+        nReturn = tiler_assisted_phase1_DeMap((OMX_PTR)(pCompPrv->
+                                              tBufList[count].pBufferActual));
+        PROXY_assert((nReturn == 0), OMX_ErrorUndefined,
+                    "Buffer unmap failed");
     }
 
 /*

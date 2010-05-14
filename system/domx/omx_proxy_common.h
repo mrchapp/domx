@@ -122,6 +122,10 @@ typedef OMX_ERRORTYPE (*PROXY_EVENTHANDLER)(OMX_HANDLETYPE hComponent, OMX_PTR p
  *                             not be used for r/w or cache operations. It can
  *                             only be used for mapping/unmapping to Ducati 
  *                             space.
+ * @param bRemoteAllocatedBuffer : True if buffer is allocated by remote core
+ *                                 (as in AllocateBuffer case). This is needed
+ *                                 to maintain context since in this case the
+ *                                 buffer needs to be unmapped during FreeBuffer
  */
 /*===============================================================*/
 typedef struct PROXY_BUFFER_INFO{
@@ -132,6 +136,7 @@ typedef struct PROXY_BUFFER_INFO{
     OMX_U32 actualContent;
     OMX_U32 pAlloc_localBuffCopy;
     OMX_U32 pBufferToBeMapped;
+    OMX_BOOL bRemoteAllocatedBuffer;
 }PROXY_BUFFER_INFO;
 
 /* ========================================================================== */
