@@ -130,7 +130,7 @@ static OMX_ERRORTYPE PROXY_EventHandler(OMX_HANDLETYPE hComponent, OMX_PTR pAppD
           "Received invalid-buffer header from OMX component");
           
           /*update local buffer header*/
-          nData1 = pLocalBufHdr;
+          nData1 = (OMX_U32)pLocalBufHdr;
           break;
           
     default:
@@ -1524,15 +1524,16 @@ OMX_ERRORTYPE RPC_PrepareBuffer_Chiron(PROXY_COMPONENT_PRIVATE *pCompPrv, OMX_CO
       pCompPrv->nNumOfLines[nPortIndex] = 1;
       }
       
-      dsptr[0]= pBuffer;
+      dsptr[0] = (OMX_U32)pBuffer;
       numBlocks = 1;
       lengths[0] = LINUX_PAGE_SIZE * ((nSizeBytes + (LINUX_PAGE_SIZE - 1)) /
 			LINUX_PAGE_SIZE);
       }
       else {
       DOMX_DEBUG("\nTwo component buffers\n");
-      dsptr[0]=pBuffer;
-      dsptr[1] = ((OMX_TI_PLATFORMPRIVATE *)pDucBuf->pPlatformPrivate)->pAuxBuf1;
+      dsptr[0] = (OMX_U32)pBuffer;
+      dsptr[1] = (OMX_U32)(((OMX_TI_PLATFORMPRIVATE *)pDucBuf->pPlatformPrivate)->
+				pAuxBuf1);
       
       if(!(pCompPrv->nNumOfLines[nPortIndex])) {
       eError=RPC_UTIL_GetNumLines(hRemoteComp,nPortIndex, &nNumOfLines);
@@ -1611,8 +1612,8 @@ OMX_ERRORTYPE RPC_PrepareBuffer_Remote(PROXY_COMPONENT_PRIVATE *pCompPrv,
                            &(pChironBuf->pBuffer), pBufToBeMapped);
       RPC_MapBuffer_Ducati((OMX_U8 *) ((OMX_U32)pBuffer + nNumOfLines *
                            LINUX_PAGE_SIZE), LINUX_PAGE_SIZE, nNumOfLines/2,
-                           &((OMX_TI_PLATFORMPRIVATE *)
-                           (pChironBuf->pPlatformPrivate))->pAuxBuf1, 
+                           (OMX_U8 **)(&((OMX_TI_PLATFORMPRIVATE *)
+                           (pChironBuf->pPlatformPrivate))->pAuxBuf1),
                            pBufToBeMapped);
       *(OMX_U32 *)pBufToBeMapped = (OMX_U32)pBuffer;
      }
@@ -1788,7 +1789,7 @@ OMX_ERRORTYPE RPC_MapBuffer_Ducati(OMX_U8 *pBuf, OMX_U32 nBufLineSize,
         //*pMappedBuf = MemMgr_Map(&block, 1);
     }
     
-    if(MemMgr_IsMapped((*(OMX_U32 *)pBufToBeMapped))) {
+    if(MemMgr_IsMapped((OMX_PTR)(*(OMX_U32 *)pBufToBeMapped))) {
     //If Tiler 1D buffer, get corresponding ducati address and send out buffer to ducati
     //For 2D buffers, in phase1, retrive the ducati address (SSPtrs) for Y and UV buffers
     //and send out buffer to ducati
@@ -1796,8 +1797,8 @@ OMX_ERRORTYPE RPC_MapBuffer_Ducati(OMX_U8 *pBuf, OMX_U32 nBufLineSize,
         MpuAddr_list_1D.mpuAddr = (*(OMX_U32 *)pBufToBeMapped) + nDiff;
         MpuAddr_list_1D.size = nBufLineSize * nBufLines;
         
-        status = SysLinkMemUtils_map(&MpuAddr_list_1D, 1, pMappedBuf, mapType, 
-                                     PROC_APPM3);
+        status = SysLinkMemUtils_map(&MpuAddr_list_1D, 1, (UInt32 *)pMappedBuf,
+                                     mapType, PROC_APPM3);
     }
 
      DOMX_DEBUG("Exited: %s\n",__FUNCTION__);    

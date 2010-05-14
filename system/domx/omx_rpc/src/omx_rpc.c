@@ -202,7 +202,8 @@ RPC_OMX_ERRORTYPE RPC_InstanceInit(OMX_STRING cComponentName, RPC_OMX_HANDLE* ph
     }
     
     DOMX_DEBUG( "\nRPC_InstanceInit: calling RCM_getSymbolIndex(rpcFxns array)\n");
-        status = RcmClient_getSymbolIndex(rcmHndl, "getFxnIndexFromRemote_skel", &getFxnIndexFromRemote_skelIdx);
+    status = RcmClient_getSymbolIndex(rcmHndl, "getFxnIndexFromRemote_skel",
+                                    (UInt32 *)(&getFxnIndexFromRemote_skelIdx));
     
      if(status < 0) {
             DOMX_DEBUG("\nInvalid Symbol.Error Code:%d\n",status);
@@ -233,7 +234,8 @@ RPC_OMX_ERRORTYPE RPC_InstanceInit(OMX_STRING cComponentName, RPC_OMX_HANDLE* ph
     }
     
     DOMX_DEBUG( "\nmain: calling RCM_getSymbolIndex(fxnExit)");
-    status = RcmClient_getSymbolIndex(rcmHndl, "fxnExit", &fxnExitidx);
+    status = RcmClient_getSymbolIndex(rcmHndl, "fxnExit",
+                                      (UInt32 *)(&fxnExitidx));
     
      if(status < 0) {
             DOMX_DEBUG("\nInvalid Symbol.Error Code:%d\n",status);
@@ -540,7 +542,9 @@ DOMX_DEBUG("\nServer create done\n");
     
      for(i=0;i<MAX_FUNCTION_LIST;i++)
     {
-        status = RcmServer_addSymbol(rcmSrvHndl, rpcFxns[i], rpcSkelFxns[i].FxnPtr,&rpcHndl[LOCAL_CORE_ID].rpcFxns[i].rpcFxnIdx);
+        status = RcmServer_addSymbol(rcmSrvHndl, rpcFxns[i], rpcSkelFxns[i].
+                                     FxnPtr, (UInt32 *)(&rpcHndl
+                                     [LOCAL_CORE_ID].rpcFxns[i].rpcFxnIdx));
         
         if(status < 0 || rpcHndl[LOCAL_CORE_ID].rpcFxns[i].rpcFxnIdx == 0xFFFFFFFF)
         {
