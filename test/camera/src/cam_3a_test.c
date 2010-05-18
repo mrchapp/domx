@@ -102,6 +102,7 @@ SampleCompTestCtxt oAppData;
 OMX_CONFIG_SCENEMODETYPE scene;
 
 OMX_U32 test_case_id;
+OMX_U32 wb_mode;
 int vid1_fd;
 struct dss_buffers *buffers;
 static TIMM_OSAL_PTR CameraEvents;
@@ -398,6 +399,7 @@ OMX_ERRORTYPE SampleTest_FillBufferDone(OMX_IN OMX_HANDLETYPE hComponent,
 	TIMM_OSAL_ERRORTYPE retval;
 	eError = 0;
 	static int tmpcap;
+	static int wb_frame;
 
 	buffer_index = (int)pBuffHeader->pAppPrivate;
 	dprintf(2, " FillBufferDone Port = %d ",\
@@ -416,6 +418,7 @@ OMX_ERRORTYPE SampleTest_FillBufferDone(OMX_IN OMX_HANDLETYPE hComponent,
 	if ((pPortParam->nCapFrame++ >= FRAMES_TO_PREVIEW) &&
 					(exit_flag == 0)) {
 		TIMM_OSAL_SemaphoreRelease(pContext->hExitSem);
+		wb_frame = 0;
 		return eError;
 	}
 
@@ -432,17 +435,17 @@ OMX_ERRORTYPE SampleTest_FillBufferDone(OMX_IN OMX_HANDLETYPE hComponent,
 			OMX_IndexConfigCommonWhiteBalance, &settings);
 			OMX_TEST_BAIL_IF_ERROR(eError);
 
-			if (++ settings.eWhiteBalControl >
-					OMX_WhiteBalControlHorizon) {
-				settings.eWhiteBalControl =
-						OMX_WhiteBalControlOff;
-				exit_flag = 1;
-			}
-			dprintf(0, "About to call set_config for WB\n");
+			settings.eWhiteBalControl = wb_mode;
+			wb_frame = wb_frame + 1;
+
+			dprintf(1, "About to call set_config for WB\n");
 			eError = OMX_SetConfig(hComponent,
 				OMX_IndexConfigCommonWhiteBalance, &settings);
 			OMX_TEST_BAIL_IF_ERROR(eError);
-			dprintf(0, "AWB mode = %d ", settings.eWhiteBalControl);
+			dprintf(0, "AWB mode = %d\n",
+					settings.eWhiteBalControl);
+			if (wb_frame == 10)
+				exit_flag = 1;
 			break;
 		}
 
@@ -1040,6 +1043,24 @@ int main()
 		scanf("%d", &test_case_id);
 	}
 	dprintf(1, "Test Case ID = 0%d\n", test_case_id);
+	if (test_case_id == 16) {
+		wb_mode = 0;
+		dprintf(0, "Please enter white balance mode (0- 9):\n");
+		dprintf(0, "0:  Off.\r\n"
+				"\t1:  Auto.\r\n"
+				"\t2:  Sunlight.\r\n"
+				"\t3:  Cloudy.\r\n"
+				"\t4:  Shade.\r\n"
+				"\t5:  Tungsten.\r\n"
+				"\t6:  Fluorescent\r\n"
+				"\t7:  Incandescent.\r\n"
+				"\t8:  Flash.\r\n"
+				"\t9:  Horizon.\r\n");
+		fflush(stdout);
+		dprintf(0, "Enter the correct WB mode in the range (0-9): ");
+		scanf("%d", &wb_mode);
+	}
+
 	if (test_case_id < 16 && test_case_id >= 0)
 		scene.eSceneMode = (OMX_SCENEMODETYPE) test_case_id;
 	dprintf(0, "SCENE MODE IS = %d\n", scene.eSceneMode);
