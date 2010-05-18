@@ -102,7 +102,7 @@ SampleCompTestCtxt oAppData;
 OMX_CONFIG_SCENEMODETYPE scene;
 
 OMX_U32 test_case_id;
-OMX_U32 wb_mode;
+OMX_U32 wb_mode, af_mode;
 int vid1_fd;
 struct dss_buffers *buffers;
 static TIMM_OSAL_PTR CameraEvents;
@@ -481,22 +481,40 @@ OMX_ERRORTYPE SampleTest_FillBufferDone(OMX_IN OMX_HANDLETYPE hComponent,
 			eError = OMX_GetConfig(hComponent,
 			OMX_IndexConfigFocusControl, &settings);
 			OMX_TEST_BAIL_IF_ERROR(eError);
-
-			if (settings.eFocusControl !=
-					OMX_IMAGE_FocusControlOn) {
+			switch (af_mode) {
+			case 0:
+			/* AF On*/
 				settings.eFocusControl =
 						OMX_IMAGE_FocusControlOn;
-			} else if ((settings.eFocusControl ==
-				OMX_IMAGE_FocusControlOn)
-				&& (pPortParam->nCapFrame >
-				CAM_AF_STOP_ON_FRAME)) {
+				break;
+			case 1:
+			/* AF OFF*/
 				settings.eFocusControl =
-				OMX_IMAGE_FocusControlOff;
-				exit_flag = 1;
-			} else {
+						OMX_IMAGE_FocusControlOff;
+				break;
+
+			case 2:
+			/* AF Auto*/
+				settings.eFocusControl =
+						OMX_IMAGE_FocusControlAuto;
+				break;
+
+			case 3:
+			/* AF AutoLock*/
+				settings.eFocusControl =
+						OMX_IMAGE_FocusControlAutoLock;
+				break;
+
+			default:
+				settings.eFocusControl =
+						OMX_IMAGE_FocusControlOff;
 				break;
 			}
-			dprintf(0, "About to call set_config for AF\n");
+
+			if (pPortParam->nCapFrame > CAM_AF_STOP_ON_FRAME)
+				exit_flag = 1;
+
+			dprintf(1, "About to call set_config for AF\n");
 			eError = OMX_SetConfig(hComponent,
 			OMX_IndexConfigFocusControl, &settings);
 			OMX_TEST_BAIL_IF_ERROR(eError);
@@ -1059,6 +1077,18 @@ int main()
 		fflush(stdout);
 		dprintf(0, "Enter the correct WB mode in the range (0-9): ");
 		scanf("%d", &wb_mode);
+	}
+
+	if (test_case_id == 18) {
+		af_mode = 0;
+		dprintf(0, "Please enter AF (0 - 3):\n");
+		dprintf(0, "0:  On.\r\n"
+				"\t1:  Off.\r\n"
+				"\t2:  Auto.\r\n"
+				"\t3:  AutoLock.\r\n");
+		fflush(stdout);
+		dprintf(0, "Enter the correct AF mode in the range (0-3): ");
+		scanf("%d", &af_mode);
 	}
 
 	if (test_case_id < 16 && test_case_id >= 0)
