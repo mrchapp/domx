@@ -442,7 +442,7 @@ void Camera_processfbd(void *threadsArg)
 					dprintf(0, "ERROR ERROR in \
 							disabling capture\n");
 				else
-					dprintf(1, "disabled still capture \
+					dprintf(0, "disabled still capture \
 								success\n");
 				byteswritten = fwrite(pBuffHeader->pBuffer, 1,
 					pBuffHeader->nFilledLen,
@@ -818,6 +818,16 @@ static int SetFormat(int width, int height, const char *image_fmt)
 	OMX_TEST_BAIL_IF_ERROR(eError);
 	dprintf(3, "GetParameter successful for image port\n");
 
+	if (test_case_id == 17) {
+		/* Set HIGH SPEED MODE */
+		tCamOpMode.eCamOperatingMode =
+				OMX_CaptureImageHighSpeedTemporalBracketing;
+		dprintf(0, "\n Lets set the operating mode to be "
+		"OMX_CaptureImageHighSpeedTemporalBracketing\n");
+		eError = OMX_SetParameter(pContext->hComp,
+				OMX_IndexCameraOperatingMode, &tCamOpMode);
+		OMX_TEST_BAIL_IF_ERROR(eError);
+	}
 	portCheck.format.image.eCompressionFormat =
 				ImgPort->eCapCompressionFormat;
 	portCheck.format.video.nFrameWidth = ImgPort->nWidth;
@@ -1072,8 +1082,8 @@ int main()
 	dprintf(3, "Calling platform init\n");
 	mmplatform_init(2);
 
-	while (!((test_case_id > 0) && (test_case_id <= 16))) {
-		dprintf(0, "Select test case ID (1 - 16)"
+	while (!((test_case_id > 0) && (test_case_id <= 17))) {
+		dprintf(0, "Select test case ID (1 - 17)"
 				"Image capture JPEG format \n");
 		fflush(stdout);
 		dprintf(0, "Enter the Option for image capture now: ");
@@ -1225,6 +1235,17 @@ int main()
 			OMX_TEST_BAIL_IF_ERROR(eError);
 			break;
 		}
+
+		case 17: {
+			dprintf(0, "\n High Speed Image Capture"
+				"Resolution 640x480, format JPG\n");
+			eError = test_image_capture(640, 480, "UYVY");
+			if (!eError)
+				dprintf(0, "Case 17 eError= %d\n", eError);
+			OMX_TEST_BAIL_IF_ERROR(eError);
+			break;
+		}
+
 	};
 
 	dprintf(2, "\n Calling platform Deinit\n");
