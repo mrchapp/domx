@@ -152,7 +152,8 @@ typedef struct PROXY_COMPONENT_PRIVATE {
     RPC_OMX_HANDLE hRemoteComp; 
     
     PROXY_BUFFER_INFO tBufList[MAX_NUM_PROXY_BUFFERS];
-    OMX_U32 nNumOfBuffers;
+    OMX_U32 nTotalBuffers;
+    OMX_U32 nAllocatedBuffers;
     
     /* PROXY specific data - PROXY PRIVATE DATA */
     char *cCompName;

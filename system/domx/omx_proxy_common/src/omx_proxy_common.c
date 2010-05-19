@@ -136,7 +136,7 @@ static OMX_ERRORTYPE PROXY_EventHandler(OMX_HANDLETYPE hComponent, OMX_PTR pAppD
           "Received NULL buffer header from OMX component");
                  
           /*find local buffer header equivalent*/            
-          for(count = 0; count<pCompPrv->nNumOfBuffers;++count)
+          for(count = 0; count < pCompPrv->nTotalBuffers; ++count)
           {
             if(pCompPrv->tBufList[count].pBufHeaderRemote == nData1)
             {
@@ -145,7 +145,7 @@ static OMX_ERRORTYPE PROXY_EventHandler(OMX_HANDLETYPE hComponent, OMX_PTR pAppD
                 break;
             }
           }
-          PROXY_assert((count != pCompPrv->nNumOfBuffers), OMX_ErrorBadParameter,
+          PROXY_assert((count != pCompPrv->nTotalBuffers), OMX_ErrorBadParameter,
           "Received invalid-buffer header from OMX component");
           
           /*update local buffer header*/
@@ -191,7 +191,7 @@ static OMX_ERRORTYPE PROXY_EmptyBufferDone(OMX_HANDLETYPE hComponent, OMX_U32 re
                  
     pCompPrv = (PROXY_COMPONENT_PRIVATE *) hComp->pComponentPrivate;
     
-    for(count = 0; count<pCompPrv->nNumOfBuffers;++count)
+    for(count = 0; count < pCompPrv->nTotalBuffers; ++count)
     {
         if(pCompPrv->tBufList[count].pBufHeaderRemote == remoteBufHdr)
         {
@@ -241,7 +241,7 @@ static OMX_ERRORTYPE PROXY_FillBufferDone(OMX_HANDLETYPE hComponent, OMX_U32 rem
                  
     pCompPrv = (PROXY_COMPONENT_PRIVATE *) hComp->pComponentPrivate;                 
     
-    for(count = 0; count<pCompPrv->nNumOfBuffers;++count)
+    for(count = 0; count < pCompPrv->nTotalBuffers; ++count)
     {
         if(pCompPrv->tBufList[count].pBufHeaderRemote == remoteBufHdr)
         {
@@ -320,7 +320,7 @@ static OMX_ERRORTYPE PROXY_EmptyThisBuffer(OMX_HANDLETYPE hComponent,
     DOMX_DEBUG("\n%s:  pBufferHdr->pBuffer : 0x%x, pBufferHdr->nFilledLen : %d ",__FUNCTION__,pBufferHdr->pBuffer,pBufferHdr->nFilledLen);
     
     /*First find the index of this buffer header to retrieve remote buffer header */
-    for(count=0;count<pCompPrv->nNumOfBuffers;count++)
+    for(count=0; count < pCompPrv->nTotalBuffers; count++)
     {
         if(pCompPrv->tBufList[count].pBufHeader == pBufferHdr)
         {
@@ -444,7 +444,7 @@ static OMX_ERRORTYPE PROXY_FillThisBuffer(OMX_HANDLETYPE hComponent,
     DOMX_DEBUG("\n%s:  pBufferHdr->pBuffer : 0x%x, pBufferHdr->nFilledLen : %d ",__FUNCTION__,pBufferHdr->pBuffer,pBufferHdr->nFilledLen);
     
     /*First find the index of this buffer header to retrieve remote buffer header */
-    for(count=0;count<pCompPrv->nNumOfBuffers;count++)
+    for(count=0; count < pCompPrv->nTotalBuffers; count++)
     {
         if(pCompPrv->tBufList[count].pBufHeader == pBufferHdr)
         {
@@ -560,9 +560,10 @@ static OMX_ERRORTYPE PROXY_AllocateBuffer(OMX_IN OMX_HANDLETYPE hComponent,
         OMX_BUFFERHEADERTYPE * pBufferHeader = NULL;
         OMX_U32 pBufferMapped;
         OMX_U32 pBufHeaderRemote;
-        OMX_U32 currentBuffer;
+        OMX_U32 currentBuffer = 0, i = 0;
         OMX_U8* pBuffer;
         OMX_TI_PLATFORMPRIVATE * pPlatformPrivate;
+        OMX_BOOL bSlotFound = OMX_FALSE;
 
         DOMX_DEBUG("\n Entered %s ____ \n",__FUNCTION__);
         
@@ -570,10 +571,24 @@ static OMX_ERRORTYPE PROXY_AllocateBuffer(OMX_IN OMX_HANDLETYPE hComponent,
                       OMX_ErrorBadParameter, NULL);
                       
         pCompPrv=(PROXY_COMPONENT_PRIVATE*)hComp->pComponentPrivate;
-        
-        currentBuffer = pCompPrv->nNumOfBuffers;
-        DOMX_DEBUG("\nIn UB, no. of buffers = %d\n",pCompPrv->nNumOfBuffers);        
-        PROXY_assert((pCompPrv->nNumOfBuffers < MAX_NUM_PROXY_BUFFERS),
+
+        /*Pick up 1st empty slot*/
+        for(i = 0; i < pCompPrv->nTotalBuffers; i++)
+        {
+            if(pCompPrv->tBufList[i].pBufHeader == 0)
+            {
+                currentBuffer = i;
+                bSlotFound = OMX_TRUE;
+                break;
+            }
+        }
+        if(!bSlotFound)
+        {
+            currentBuffer = pCompPrv->nTotalBuffers;
+        }
+
+        DOMX_DEBUG("\nIn AB, no. of buffers = %d\n", pCompPrv->nTotalBuffers);
+        PROXY_assert((pCompPrv->nTotalBuffers < MAX_NUM_PROXY_BUFFERS),
                      OMX_ErrorInsufficientResources,
                      "Proxy cannot handle more than MAX buffers");
                      
@@ -644,8 +659,10 @@ static OMX_ERRORTYPE PROXY_AllocateBuffer(OMX_IN OMX_HANDLETYPE hComponent,
             pBufferHeader->pInputPortPrivate = (OMX_PTR )pBufferMapped;
 
             //keeping track of number of Buffers
-            pCompPrv->nNumOfBuffers++;
-            
+            pCompPrv->nAllocatedBuffers++;
+            if(pCompPrv->nTotalBuffers < pCompPrv->nAllocatedBuffers)
+                pCompPrv->nTotalBuffers = pCompPrv->nAllocatedBuffers;
+
             *ppBufferHdr = pBufferHeader;
         }
         else
@@ -690,20 +707,34 @@ static OMX_ERRORTYPE PROXY_UseBuffer (OMX_IN OMX_HANDLETYPE hComponent,
     OMX_U32 pBufHeaderRemote;
     OMX_U32 pBufToBeMapped = 0;
     RPC_OMX_ERRORTYPE eRPCError = RPC_OMX_ErrorNone;
-    OMX_U32 currentBuffer;    
+    OMX_U32 currentBuffer = 0, i = 0;
     PROXY_COMPONENT_PRIVATE* pCompPrv= NULL;
     OMX_TI_PLATFORMPRIVATE * pPlatformPrivate;    
     OMX_COMPONENTTYPE * hComp =(OMX_COMPONENTTYPE *) hComponent;    
+    OMX_BOOL bSlotFound = OMX_FALSE;
     
     PROXY_assert((hComp->pComponentPrivate != NULL),
                   OMX_ErrorBadParameter, NULL);
                   
     pCompPrv=(PROXY_COMPONENT_PRIVATE*)hComp->pComponentPrivate;
 
-    currentBuffer = pCompPrv->nNumOfBuffers;
-    DOMX_DEBUG("\nIn UB, no. of buffers = %d\n",pCompPrv->nNumOfBuffers);
+    /*Pick up 1st empty slot*/
+    for(i = 0; i < pCompPrv->nTotalBuffers; i++)
+    {
+        if(pCompPrv->tBufList[i].pBufHeader == 0)
+        {
+            currentBuffer = i;
+            bSlotFound = OMX_TRUE;
+            break;
+        }
+    }
+    if(!bSlotFound)
+    {
+        currentBuffer = pCompPrv->nTotalBuffers;
+    }
+    DOMX_DEBUG("\nIn UB, no. of buffers = %d\n",pCompPrv->nTotalBuffers);
     
-    PROXY_assert((pCompPrv->nNumOfBuffers < MAX_NUM_PROXY_BUFFERS),
+    PROXY_assert((pCompPrv->nTotalBuffers < MAX_NUM_PROXY_BUFFERS),
                   OMX_ErrorInsufficientResources,
                   "Proxy cannot handle more than MAX buffers");    
     
@@ -772,8 +803,11 @@ static OMX_ERRORTYPE PROXY_UseBuffer (OMX_IN OMX_HANDLETYPE hComponent,
                                               OMX_FALSE;
 
             //keeping track of number of Buffers
-            pCompPrv->nNumOfBuffers++;
-            DOMX_DEBUG("\nUpdating no. of buffer to %d\n",pCompPrv->nNumOfBuffers);
+            pCompPrv->nAllocatedBuffers++;
+            if(pCompPrv->nTotalBuffers < pCompPrv->nAllocatedBuffers)
+                pCompPrv->nTotalBuffers = pCompPrv->nAllocatedBuffers;
+
+            DOMX_DEBUG("\nUpdating no. of buffer to %d\n",pCompPrv->nTotalBuffers);
             
             //Restore back original pBuffer
             pBufferHeader->pBuffer = pBuffer;
@@ -829,7 +863,7 @@ static OMX_ERRORTYPE PROXY_FreeBuffer(OMX_IN  OMX_HANDLETYPE hComponent,
                  
     pCompPrv=(PROXY_COMPONENT_PRIVATE*)hComp->pComponentPrivate;
     
-    for(count=0;count<pCompPrv->nNumOfBuffers;count++)
+    for(count = 0; count < pCompPrv->nTotalBuffers; count++)
     {
         if(pCompPrv->tBufList[count].pBufHeader == pBufferHdr)
         {
@@ -873,6 +907,21 @@ static OMX_ERRORTYPE PROXY_FreeBuffer(OMX_IN  OMX_HANDLETYPE hComponent,
                     "Buffer unmap failed");
     }
 
+    DOMX_DEBUG("%s Cleaning up Buffer\n",__FUNCTION__);
+    if(pCompPrv->tBufList[count].pBufferMapped)
+        RPC_UnMapBuffer(pCompPrv->tBufList[count].pBufferMapped);
+
+    if(pCompPrv->tBufList[count].pBufHeader)
+    {
+        if(pCompPrv->tBufList[count].pBufHeader->pPlatformPrivate)
+            TIMM_OSAL_Free(pCompPrv->tBufList[count].
+                           pBufHeader->pPlatformPrivate);
+
+        TIMM_OSAL_Free(pCompPrv->tBufList[count].pBufHeader);
+        TIMM_OSAL_Memset(&(pCompPrv->tBufList[count]), 0,
+                         sizeof(PROXY_BUFFER_INFO));
+    }
+    pCompPrv->nAllocatedBuffers--;
 /*
 TODO : Demap although not very critical
 Unmapping
@@ -1398,24 +1447,7 @@ static OMX_ERRORTYPE PROXY_ComponentDeInit (OMX_HANDLETYPE hComponent)
     pCompPrv = (PROXY_COMPONENT_PRIVATE *) hComp->pComponentPrivate;                
 
     eRPCError = RPC_FreeHandle(pCompPrv->hRemoteComp, &eCompReturn);
-    
-    //Unmap any buffers previously mapped
-    for(count=0;count<pCompPrv->nNumOfBuffers;++count)
-    {
-        DOMX_DEBUG("%s Cleaning up Buffers\n",__FUNCTION__);
-        if(pCompPrv->tBufList[count].pBufferMapped)
-            RPC_UnMapBuffer(pCompPrv->tBufList[count].pBufferMapped);
 
-        if(pCompPrv->tBufList[count].pBufHeader){
-
-            if(pCompPrv->tBufList[count].pBufHeader->pPlatformPrivate)
-            TIMM_OSAL_Free(pCompPrv->tBufList[count].pBufHeader->pPlatformPrivate);
-
-            TIMM_OSAL_Free(pCompPrv->tBufList[count].pBufHeader);
-            pCompPrv->tBufList[count].pBufHeader = NULL;
-        }
-    }
-    
     RPC_InstanceDeInit(pCompPrv->hRemoteComp);
     
     if(pCompPrv->cCompName){
@@ -1470,7 +1502,8 @@ OMX_ERRORTYPE OMX_ProxyCommonInit(OMX_HANDLETYPE hComponent)
 
     pCompPrv = (PROXY_COMPONENT_PRIVATE*)hComp->pComponentPrivate;
     
-    pCompPrv->nNumOfBuffers = 0;    
+    pCompPrv->nTotalBuffers = 0;
+    pCompPrv->nAllocatedBuffers = 0;
     pCompPrv->proxyEmptyBufferDone = PROXY_EmptyBufferDone;
     pCompPrv->proxyFillBufferDone = PROXY_FillBufferDone;
     pCompPrv->proxyEventHandler = PROXY_EventHandler;
