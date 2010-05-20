@@ -104,8 +104,8 @@ static TIMM_OSAL_PTR myEventIn;
 #define EVENT_CAMERA_FBD 1
 #define EVENT_CAMERA_DQ 2
 
-#define	PREV_HEIGHT 240
-#define PREV_WIDTH  320
+#define	PREV_HEIGHT 480
+#define PREV_WIDTH  640
 #define PREV_FORMAT	OMX_COLOR_FormatCbYCrY
 
 /*========================================================*/
@@ -347,16 +347,6 @@ void Camera_processfbd(void *threadsArg)
 					sched_get_priority_max(policy));
 
 	pPortParam = &(pContext->sPortParam[OMX_CAMERA_PORT_IMAGE_OUT_IMAGE]);
-	/* open the output file for writing the frames */
-	sprintf(outputfilename, "/mnt/mmc/camera_bin/img_%dx%d.jpg",
-				pPortParam->nWidth, pPortParam->nHeight);
-	dprintf(0, "output filename = %s\n", outputfilename);
-
-
-	/*open the file for writing the captured image*/
-	pPortParam->pOutputFile = fopen(outputfilename, "w+");
-	if (!pPortParam->pOutputFile)
-		dprintf(0, "ERROR in opening the output file \n");
 	while (OMX_ErrorNone == err) {
 		uRequestedEvents = EVENT_CAMERA_FBD;
 
@@ -387,18 +377,15 @@ void Camera_processfbd(void *threadsArg)
 			dprintf(2, "\n ReadFromPipe successfully returned\n");
 			pPortParam =
 			&(pContext->sPortParam[pBuffHeader->nOutputPortIndex]);
+				dprintf(1, "FillBufferDone for Port = %d\n",
+					(int)pBuffHeader->nOutputPortIndex);
+				buffer_index = (int)pBuffHeader->pAppPrivate;
+				dprintf(1, " buffer_index = %d\n",
+							buffer_index);
 			if (pBuffHeader->nOutputPortIndex ==
 				OMX_CAMERA_PORT_VIDEO_OUT_PREVIEW) {
-				buffer_index = (int)pBuffHeader->pAppPrivate;
-				dprintf(2, "\n buffer_index = %d\n",
-							buffer_index);
-				dprintf(3, "FillBufferDone for Port = %d\n",
-					(int)pBuffHeader->nOutputPortIndex);
-				dprintf(2, "buffer index = %d remaing\
-				messages=%d\n", (int)pBuffHeader->pAppPrivate, \
-						numRemainingIn);
 				dprintf(2, "Filled Length is  = %d ",\
-				(int)pBuffHeader->nFilledLen);
+						(int)pBuffHeader->nFilledLen);
 
 				dprintf(3, "Preview port frame Done number =\
 					%d\n", (int)pPortParam->nCapFrame);
@@ -431,25 +418,77 @@ void Camera_processfbd(void *threadsArg)
 			if (pBuffHeader->nOutputPortIndex ==
 					OMX_CAMERA_PORT_IMAGE_OUT_IMAGE) {
 				OMX_CONFIG_BOOLEANTYPE bOMX;
-				dprintf(1, "Disable still capture now \n");
-				OMX_TEST_INIT_STRUCT_PTR(&bOMX,
-						OMX_CONFIG_BOOLEANTYPE);
-				bOMX.bEnabled = OMX_FALSE;
+				pPortParam->nCapFrame++;
+				dprintf(3, "Captured %d frames\n",
+							pPortParam->nCapFrame);
+				/* open the output file for writing the
+					frames */
+				sprintf(outputfilename,
+				"/mnt/mmc/camera_bin/img_%dx%d_%d.jpg",
+				pPortParam->nWidth, pPortParam->nHeight,
+				pPortParam->nCapFrame);
+				dprintf(3, "output filename = %s\n",
+					outputfilename);
 
-				eError = OMX_SetConfig(pContext->hComp,
-					OMX_IndexConfigCapturing, &bOMX);
-				if (eError)
-					dprintf(0, "ERROR ERROR in \
-							disabling capture\n");
-				else
-					dprintf(0, "disabled still capture \
-								success\n");
-				byteswritten = fwrite(pBuffHeader->pBuffer, 1,
-					pBuffHeader->nFilledLen,
+				/*open the file for writing the captured image*/
+				pPortParam->pOutputFile = fopen(outputfilename,
+							"w+");
+				if (!pPortParam->pOutputFile)
+					dprintf(0, "ERROR in opening the output"
+							" file \n");
+				byteswritten = fwrite((pBuffHeader->pBuffer)+
+						pBuffHeader->nOffset, 1,
+						pBuffHeader->nFilledLen,
 						pPortParam->pOutputFile);
 				dprintf(1, "bytes written as image frame\
 						= %d \n", byteswritten);
+				/* need to close the file as each frame will be
+					written in a new file */
+				fclose(pPortParam->pOutputFile);
+				dprintf(1, "test case id = %d \n",
+							test_case_id);
+				if (test_case_id == 17) {
+					if (pPortParam->nCapFrame == 6) {
+						dprintf(1, "Disable still"
+						" capture now \n");
+						OMX_TEST_INIT_STRUCT_PTR(&bOMX,
+							OMX_CONFIG_BOOLEANTYPE);
+						bOMX.bEnabled = OMX_FALSE;
+
+						eError = OMX_SetConfig(
+							pContext->hComp,
+						OMX_IndexConfigCapturing,
+						&bOMX);
+						if (eError)
+							dprintf(0, "There is an"
+							"ERROR in disabling"
+							"capture\n");
+						else
+							dprintf(1, "disabled"
+							"still capture"
+							"success\n");
+					} else
+						omx_fillthisbuffer(0,
+					OMX_CAMERA_PORT_IMAGE_OUT_IMAGE);
+				} else {
+					dprintf(1, "Disable still capture"
+							"now \n");
+					OMX_TEST_INIT_STRUCT_PTR(&bOMX,
+						OMX_CONFIG_BOOLEANTYPE);
+					bOMX.bEnabled = OMX_FALSE;
+
+					eError = OMX_SetConfig(pContext->hComp,
+					OMX_IndexConfigCapturing, &bOMX);
+					if (eError)
+						dprintf(0, "1 ERROR in"
+							"disabling capture\n");
+					else
+						dprintf(1, "disabled still"
+							"capture success\n");
+				}
+
 			}
+
 			TIMM_OSAL_GetPipeReadyMessageCount(pContext->FBD_pipe,
 				(void *) &numRemainingIn);
 			dprintf(2, " buffer index = %d remaing messages=%d\n",
@@ -572,6 +611,8 @@ OMX_ERRORTYPE SampleTest_AllocateBuffers(OMX_PARAM_PORTDEFINITIONTYPE *pPortDef)
 	OMX_TEST_BAIL_IF_ERROR(eError);
 	/* struct to hold data particular to Port */
 	sPort = &(pContext->sPortParam[pPortcap.nPortIndex]);
+	dprintf(0, "Buffer count actual for image port = %d\n",
+				pPortcap.nBufferCountActual);
 	for (i = 0; i < pPortcap.nBufferCountActual; ++i) {
 		memset((void *) MemReqDescTiler, 0, sizeof(MemAllocBlock));
 		MemReqDescTiler[0].dim.len = pPortcap.nBufferSize;
@@ -1238,8 +1279,8 @@ int main()
 
 		case 17: {
 			dprintf(0, "\n High Speed Image Capture"
-				"Resolution 640x480, format JPG\n");
-			eError = test_image_capture(640, 480, "UYVY");
+				"Resolution 1600x1200, format JPG\n");
+			eError = test_image_capture(1600, 1200, "UYVY");
 			if (!eError)
 				dprintf(0, "Case 17 eError= %d\n", eError);
 			OMX_TEST_BAIL_IF_ERROR(eError);
