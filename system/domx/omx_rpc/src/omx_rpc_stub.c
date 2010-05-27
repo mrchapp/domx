@@ -605,7 +605,34 @@ RPC_OMX_ERRORTYPE RPC_AllocateBuffer(RPC_OMX_HANDLE hRPCCtx, OMX_INOUT OMX_BUFFE
         RPC_GETFIELDOFFSET(pMsgBody, nPos, offset, OMX_U32);  
         //save platform private before overwriting
         pPlatformPrivate = (*ppBufferHdr)->pPlatformPrivate;
-        RPC_GETFIELDCOPYTYPE(pMsgBody, offset, pBufferHdr, OMX_BUFFERHEADERTYPE);
+        //RPC_GETFIELDCOPYTYPE(pMsgBody, offset, pBufferHdr, OMX_BUFFERHEADERTYPE);
+        /*Copying each field of the header separately due to padding issues in
+        the buffer header structure*/
+        RPC_GETFIELDVALUE(pMsgBody, offset, pBufferHdr->nSize, OMX_U32);
+        RPC_GETFIELDVALUE(pMsgBody, offset, pBufferHdr->nVersion,
+                          OMX_VERSIONTYPE);
+        RPC_GETFIELDVALUE(pMsgBody, offset, pBufferHdr->pBuffer, OMX_U8*);
+        RPC_GETFIELDVALUE(pMsgBody, offset, pBufferHdr->nAllocLen, OMX_U32);
+        RPC_GETFIELDVALUE(pMsgBody, offset, pBufferHdr->nFilledLen, OMX_U32);
+        RPC_GETFIELDVALUE(pMsgBody, offset, pBufferHdr->nOffset, OMX_U32);
+        RPC_GETFIELDVALUE(pMsgBody, offset, pBufferHdr->pAppPrivate, OMX_PTR);
+        RPC_GETFIELDVALUE(pMsgBody, offset, pBufferHdr->pPlatformPrivate,
+                          OMX_PTR);
+        RPC_GETFIELDVALUE(pMsgBody, offset, pBufferHdr->pInputPortPrivate,
+                          OMX_PTR);
+        RPC_GETFIELDVALUE(pMsgBody, offset, pBufferHdr->pOutputPortPrivate,
+                          OMX_PTR);
+        RPC_GETFIELDVALUE(pMsgBody, offset, pBufferHdr->hMarkTargetComponent,
+                          OMX_HANDLETYPE);
+        RPC_GETFIELDVALUE(pMsgBody, offset, pBufferHdr->pMarkData, OMX_PTR);
+        RPC_GETFIELDVALUE(pMsgBody, offset, pBufferHdr->nTickCount, OMX_U32);
+        RPC_GETFIELDVALUE(pMsgBody, offset, pBufferHdr->nTimeStamp, OMX_TICKS);
+        RPC_GETFIELDVALUE(pMsgBody, offset, pBufferHdr->nFlags, OMX_U32);
+        RPC_GETFIELDVALUE(pMsgBody, offset, pBufferHdr->nInputPortIndex,
+                          OMX_U32);
+        RPC_GETFIELDVALUE(pMsgBody, offset, pBufferHdr->nOutputPortIndex,
+                          OMX_U32);
+
         (*ppBufferHdr)->pPlatformPrivate = pPlatformPrivate;
         
         #ifdef TILER_BUFF
@@ -715,7 +742,34 @@ RPC_OMX_ERRORTYPE RPC_UseBuffer(RPC_OMX_HANDLE hRPCCtx,OMX_INOUT OMX_BUFFERHEADE
         pPlatformPrivate = (*ppBufferHdr)->pPlatformPrivate;
         
         DOMX_DEBUG("\n Copying buffer header at offset:%d\n", offset);
-        RPC_GETFIELDCOPYTYPE(pMsgBody, offset, pBufferHdr, OMX_BUFFERHEADERTYPE);
+        //RPC_GETFIELDCOPYTYPE(pMsgBody, offset, pBufferHdr, OMX_BUFFERHEADERTYPE);
+        /*Copying each field of the header separately due to padding issues in
+        the buffer header structure*/
+        RPC_GETFIELDVALUE(pMsgBody, offset, pBufferHdr->nSize, OMX_U32);
+        RPC_GETFIELDVALUE(pMsgBody, offset, pBufferHdr->nVersion,
+                          OMX_VERSIONTYPE);
+        RPC_GETFIELDVALUE(pMsgBody, offset, pBufferHdr->pBuffer, OMX_U8*);
+        RPC_GETFIELDVALUE(pMsgBody, offset, pBufferHdr->nAllocLen, OMX_U32);
+        RPC_GETFIELDVALUE(pMsgBody, offset, pBufferHdr->nFilledLen, OMX_U32);
+        RPC_GETFIELDVALUE(pMsgBody, offset, pBufferHdr->nOffset, OMX_U32);
+        RPC_GETFIELDVALUE(pMsgBody, offset, pBufferHdr->pAppPrivate, OMX_PTR);
+        RPC_GETFIELDVALUE(pMsgBody, offset, pBufferHdr->pPlatformPrivate,
+                          OMX_PTR);
+        RPC_GETFIELDVALUE(pMsgBody, offset, pBufferHdr->pInputPortPrivate,
+                          OMX_PTR);
+        RPC_GETFIELDVALUE(pMsgBody, offset, pBufferHdr->pOutputPortPrivate,
+                          OMX_PTR);
+        RPC_GETFIELDVALUE(pMsgBody, offset, pBufferHdr->hMarkTargetComponent,
+                          OMX_HANDLETYPE);
+        RPC_GETFIELDVALUE(pMsgBody, offset, pBufferHdr->pMarkData, OMX_PTR);
+        RPC_GETFIELDVALUE(pMsgBody, offset, pBufferHdr->nTickCount, OMX_U32);
+        RPC_GETFIELDVALUE(pMsgBody, offset, pBufferHdr->nTimeStamp, OMX_TICKS);
+        RPC_GETFIELDVALUE(pMsgBody, offset, pBufferHdr->nFlags, OMX_U32);
+        RPC_GETFIELDVALUE(pMsgBody, offset, pBufferHdr->nInputPortIndex,
+                          OMX_U32);
+        RPC_GETFIELDVALUE(pMsgBody, offset, pBufferHdr->nOutputPortIndex,
+                          OMX_U32);
+
         (*ppBufferHdr)->pPlatformPrivate = pPlatformPrivate;
         *pBufferMapped = mappedAddress;
         
