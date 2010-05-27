@@ -30,7 +30,6 @@
 #include <stdio.h>
 #include "omx_jpegd_test.h"
 #include <OMX_Types.h>
-#include <mmplatform.h>
 
 #define OMX_PORT_DUCATI
 
@@ -40,7 +39,6 @@
 #ifdef OMX_LINUX_TILERTEST
 /*Tiler APIs*/
 #include <memmgr.h>
-#include <mmplatform.h>
 
 #endif
 
@@ -56,8 +54,6 @@ void main()
 
 
 
-	printf("\n In JPEG DECODER MAIN and Calling platform init\n");
-        mmplatform_init(2);
         printf("\n Wait until RCM Server is created on other side. Press any key after that\n");
         getchar();
 
@@ -128,9 +124,6 @@ test_case=(test_case_start-1);
 
 	printf("\n----------------JPEG Decoder Test End-------------------------------");
 
-	printf("\nCalling platform deinit()\n");
-	mmplatform_deinit();
-	printf("\nPlatform deinitialized\n");
 
 EXIT:
     return 0;

@@ -39,7 +39,6 @@
 
 #ifdef OMX_H264E_BUF_HEAP
 #include <unistd.h>
-#include <mmplatform.h>
 #include <RcmClient.h>
 #include <HeapBuf.h>
 #include <SharedRegion.h>
@@ -48,7 +47,6 @@
 #ifdef OMX_H264E_LINUX_TILERTEST
 /*Tiler APIs*/
 #include <memmgr.h>
-#include <mmplatform.h>
 
 #endif
 
@@ -1475,17 +1473,6 @@ void OMXH264Enc_TestEntry(Int32 paramSize, void *pParam)
 #endif
 	
 #ifdef H264_LINUX_CLIENT
-	OMX_U32 setup;
-	#ifdef OMX_H264E_LINUX_TILERTEST
-		/*Only domx setup will be done by platform init since basic ipc setup has been
-		done by syslink daemon*/
-	    	setup = 2;
-	#else
-		/*Will do basic ipc setup, call proc load and aetup domx as well*/
-		setup = 1;
-	#endif
-	//Need to call mmplatform_init on linux
-	mmplatform_init(setup);
 	H264CLIENT_TRACE_PRINT("\nWait until RCM Server is created on other side. Press any key after that\n");
     	getchar();
 #endif
@@ -1779,11 +1766,6 @@ void OMXH264Enc_TestEntry(Int32 paramSize, void *pParam)
 	H264CLIENT_TRACE_PRINT("Reached the end of the programming");
 	
 	}/*End of test index loop*/
-#ifdef H264_LINUX_CLIENT	
-	H264CLIENT_TRACE_PRINT("\nCalling platform deinit()\n");
-    mmplatform_deinit();
-    H264CLIENT_TRACE_PRINT("\nPlatform deinitialized\n");
-#endif
 }
 
 OMX_ERRORTYPE OMXH264Enc_CompleteFunctionality(H264E_ILClient* pApplicationData,OMX_U32 test_index){

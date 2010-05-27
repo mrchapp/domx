@@ -69,7 +69,6 @@
    #endif
    #ifdef OMX_H264D_BUF_HEAP
       #include <unistd.h>
-      #include <mmplatform.h>
       #include <RcmClient.h>
       #include <HeapBuf.h>
       #include <SharedRegion.h>
@@ -77,7 +76,6 @@
    
    #ifdef OMX_H264D_LINUX_TILERTEST
       #include <memmgr.h>
-      #include <mmplatform.h>
    #endif
    #ifdef OMX_H264D_BUF_HEAP
       extern HeapBuf_Handle heapHandle;
@@ -1266,14 +1264,6 @@ void main()
      //#ifdef OMX_H264D_LINUX_TILERTEST
 	MemAllocBlock *MemReqDescTiler = NULL;
 	OMX_PTR TilerAddr=NULL;
-     #ifdef OMX_H264D_LINUX_TILERTEST
-		setup = 2;
-     #else
-		setup = 1;
-     #endif 
-    mmplatform_init(setup);   
-    TIMM_OSAL_Trace("\nWait until RCM Server is created on other side. Press any key after that\n");
-    sleep(3);    
 #endif
 
 #ifndef H264_LINUX_CLIENT
@@ -2096,11 +2086,6 @@ TIMM_OSAL_Trace("\nDeleting events\n");
    if(fconfigFile)
       fclose(fconfigFile);
 
-    #ifdef H264_LINUX_CLIENT
-       TIMM_OSAL_Trace("\nCalling platform deinit()\n");
-       mmplatform_deinit();
-       TIMM_OSAL_Trace("\nPlatform deinitialized\n");
-    #endif
 
    TIMM_OSAL_ExitingExt(nTraceGroup, 0);
 }

@@ -2,7 +2,6 @@
 
 COMMON_FLAGS = \
         -I$(top_srcdir)/test/camera/inc \
-        -I$(top_srcdir)/mmplatform \
         $(OMXCORE_CFLAGS) $(MMOSAL_CFLAGS) $(SYSLINK_CFLAGS) $(MEMMGR_CFLAGS)
 noinst_LTLIBRARIES      = libsrc.la libsrc_pre.la libsrc_imgcap.la libsrc_vidcap.la libsrc_zoom.la libsrc_fps.la libsrc_3a.la libsrc_no_vnf.la
 libsrc_la_SOURCES       = src/camera_il_client.c

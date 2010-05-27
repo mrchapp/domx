@@ -39,7 +39,6 @@
 
 #ifdef OMX_MPEG4E_BUF_HEAP
 #include <unistd.h>
-#include <mmplatform.h>
 #include <RcmClient.h>
 #include <HeapBuf.h>
 #include <SharedRegion.h>
@@ -48,11 +47,9 @@
 #ifdef OMX_MPEG4E_LINUX_TILERTEST
 	/*Tiler APIs*/
 	#include <memmgr.h>
-	#include <mmplatform.h>
 #else
 	/*Tiler APIs*/
 	#include <memmgr/memmgr.h>
-	#include <mmplatform.h>
 #endif
 
 #ifdef OMX_MPEG4E_BUF_HEAP
@@ -1662,11 +1659,6 @@ void OMXMPEG4Enc_TestEntry(Int32 paramSize, void *pParam)
 	MPEG4CLIENT_TRACE_PRINT("Reached the end of the programming");
 	
 	
-#ifdef MPEG4_LINUX_CLIENT	
-	MPEG4CLIENT_TRACE_PRINT("\nCalling platform deinit()\n");
-    mmplatform_deinit();
-    MPEG4CLIENT_TRACE_PRINT("\nPlatform deinitialized\n");
-#endif
 }
 
 OMX_ERRORTYPE OMXMPEG4Enc_CompleteFunctionality(MPEG4E_ILClient* pApplicationData){

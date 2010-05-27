@@ -12,6 +12,5 @@ libsrc_la_LIBADD        = @LTLIBOBJS@ \
 
 libsrc_la_CFLAGS        = \
 	-I$(top_srcdir)/test/h264enc/inc \
-	-I$(top_srcdir)/mmplatform \
 	$(OMXCORE_CFLAGS) $(MMOSAL_CFLAGS) $(SYSLINK_CFLAGS) $(MEMMGR_CFLAGS)
 

@@ -37,7 +37,6 @@
 #include <HeapBuf.h>
 #include <SharedRegion.h>
 
-#include <mmplatform.h>
 //#include <omx_rpc.h>
 //extern int ipc_setup();
 //extern void fxn_exit_caller();
@@ -989,15 +988,6 @@ void main (void )
     int while_pass=0,loc_diff=0;
     int setup;
     
-    
-#ifdef OMX_SAMPLE_TILER_TEST
-/*Only domx setup will be done by platform init since basic ipc setup has been 
-done by syslink daemon*/
-    setup = 2;
-#else
-/*Will do basic ipc setup, call proc load and aetup domx as well*/
-    setup = 1;
-#endif      
 
     pContext = &oAppData;
 
@@ -1025,11 +1015,7 @@ done by syslink daemon*/
         subStr = strtok(NULL, " ");
     }
      */
-printf("\nCalling platform init\n");  
-mmplatform_init(setup);
     
-    printf("\nWait until RCM Server is created on other side. Press any key after that\n");
-    getchar();
     
     //RPC_InstanceInit(); //brings up the client instance
     //printf("\nRCM Client Successfully initialized: RETURNED TO TEST FILE\n");
@@ -1136,6 +1122,7 @@ printf("\nInput file opened\n");
     eError = SampleTest_TransitionWait(OMX_StateExecuting, pContext);
     OMX_TEST_BAIL_IF_ERROR(eError);
   printf("\nAbout to start processing buffers\n");
+
 
     /*  process buffers   */
     while (pContext->nBufDoneCalls < OMX_TEST_BUFFERS_OF_TRAFFIC)  {
@@ -1254,9 +1241,6 @@ OMX_TEST_BAIL:
     RPC_DeInitialize(1); // 1 represensts client instance that needs to be deinit - 0 represents server instance that needs deinit
     printf("\nRPC shut down complete");
 */
-    printf("\nCalling platform deinit()\n");
-    mmplatform_deinit();
-    printf("\nPlatform deinitialized\n");
 		
 }
 #if 0

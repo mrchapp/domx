@@ -78,7 +78,6 @@
 
 	
 /* bridge related include files */
-#include <mmplatform.h>
 #include <RcmClient.h>
 
 /* camera test case include files */
@@ -129,7 +128,6 @@
 
 /*Tiler APIs*/
 #include <memmgr.h>
-#include <mmplatform.h>
 #include <tiler.h>
 #define STRIDE_8BIT (4 * 1024)
 #define STRIDE_16BIT (4 * 1024)
@@ -1307,13 +1305,11 @@ startagain:
         /* to load the images on the ducati side through CCS this call is
         * essential
         */
-        dprintf(3,"\nCalling platform init\n");
 #ifdef PROFILE
 	gettimeofday(&tp,0);
 	timearray[1].sec=tp.tv_sec;
 	timearray[1].usec=tp.tv_usec;
 #endif
-        mmplatform_init(2);
 #ifdef PROFILE
 	gettimeofday(&tp,0);
 	timearray[2].sec=tp.tv_sec;
@@ -1819,9 +1815,6 @@ startagain:
 		}
 	};
 
-	dprintf(2,"\n Calling platform Deinit\n");
-	mmplatform_deinit();
-	dprintf(2,"\n Platform deinitialized\n");
 	return 0;
 
 OMX_TEST_BAIL:

@@ -73,7 +73,6 @@
 #include <timm_osal_task.h>
 
 /* bridge related include files */
-#include <mmplatform.h>
 #include <RcmClient.h>
 
 /*Tiler APIs*/
@@ -903,8 +902,6 @@ int main()
 	/* to load the images on the ducati side through CCS this call is
 	* essential
 	*/
-	dprintf(3, "Calling platform init\n");
-	mmplatform_init(2);
 
 	cam_fps = -1;
 	while (!((test_case_id > 0) && (test_case_id <= 5))) {
@@ -981,9 +978,6 @@ int main()
 	};
 
 
-	dprintf(2, "\n Calling platform Deinit\n");
-	mmplatform_deinit();
-	dprintf(2, "\n Platform deinitialized\n");
 	return 0;
 
 OMX_TEST_BAIL:
