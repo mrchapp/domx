@@ -531,9 +531,17 @@ RPC_OMX_ERRORTYPE RPC_SendCommand(RPC_OMX_HANDLE hRPCCtx,OMX_COMMANDTYPE eCmd,OM
              sizeof(OMX_U32);
              
     RPC_SETFIELDOFFSET(pMsgBody, nPos,  offset, OMX_U32);
-    
-    if(pCmdData != NULL) {    
-        structSize = RPC_UTIL_GETSTRUCTSIZE(pCmdData);        
+
+    if(pCmdData != NULL && eCmd == OMX_CommandMarkBuffer)
+    {
+    /*The RPC_UTIL_GETSTRUCTSIZE will not work here since OMX_MARKTYPE structure
+      does not have nSize field*/
+        structSize = sizeof(OMX_MARKTYPE);
+        RPC_SETFIELDCOPYGEN(pMsgBody, offset, pCmdData, structSize);
+    }
+    else if(pCmdData != NULL)
+    {
+        structSize = RPC_UTIL_GETSTRUCTSIZE(pCmdData);
         RPC_SETFIELDCOPYGEN(pMsgBody, offset,  pCmdData, structSize);    
     }
 
@@ -897,6 +905,9 @@ RPC_OMX_ERRORTYPE RPC_EmptyThisBuffer(RPC_OMX_HANDLE hRPCCtx, OMX_BUFFERHEADERTY
     RPC_SETFIELDVALUE(pMsgBody, nPos, pBufferHdr->nOffset, OMX_U32);
     RPC_SETFIELDVALUE(pMsgBody, nPos, pBufferHdr->nFlags, OMX_U32);
     RPC_SETFIELDVALUE(pMsgBody, nPos, pBufferHdr->nTimeStamp, OMX_TICKS);
+    RPC_SETFIELDVALUE(pMsgBody, nPos, pBufferHdr->hMarkTargetComponent,
+                      OMX_HANDLETYPE);
+    RPC_SETFIELDVALUE(pMsgBody, nPos, pBufferHdr->pMarkData, OMX_PTR);
     
     DOMX_DEBUG("\n pBufferHdr = %x BufHdrRemote %x",pBufferHdr,BufHdrRemote);
     
