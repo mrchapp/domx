@@ -13,7 +13,8 @@ lib_LTLIBRARIES = \
 	libOMX.TI.DUCATI1.VIDEO.CAMERA.la \
 	libOMX.TI.DUCATI1.IMAGE.JPEGD.la \
 	libOMX.TI.DUCATI1.MISC.SAMPLE.la \
-	libOMX.TI.DUCATI1.VIDEO.MPEG4E.la
+	libOMX.TI.DUCATI1.VIDEO.MPEG4E.la \
+	libOMX.TI.DUCATI1.VIDEO.VP6D.la
 
 # core DOMX:
 libdomx_la_SOURCES      =
@@ -48,6 +49,10 @@ libOMX_TI_DUCATI1_MISC_SAMPLE_la_LIBADD   = video/omx_proxy_component/src/libsam
 libOMX_TI_DUCATI1_VIDEO_MPEG4E_la_SOURCES  =
 libOMX_TI_DUCATI1_VIDEO_MPEG4E_la_LDFLAGS  = -no-undefined
 libOMX_TI_DUCATI1_VIDEO_MPEG4E_la_LIBADD   = video/omx_proxy_component/src/libmpeg4e.la libdomx.la
+
+libOMX_TI_DUCATI1_VIDEO_VP6D_la_SOURCES  =
+libOMX_TI_DUCATI1_VIDEO_VP6D_la_LDFLAGS  = -no-undefined
+libOMX_TI_DUCATI1_VIDEO_VP6D_la_LIBADD   = video/omx_proxy_component/src/libvp6d.la libdomx.la
 
 # test apps:
 if BUILD_TESTS
