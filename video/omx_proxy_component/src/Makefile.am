@@ -8,7 +8,8 @@ noinst_LTLIBRARIES      = \
 	libjpegd.la \
 	libsample.la \
 	libmpeg4e.la \
-	libvp6d.la
+	libvp6d.la \
+	libvp7d.la
 
 common_libadd = \
 	$(MMOSAL_LIBS) \
@@ -37,6 +38,10 @@ libmpeg4d_la_CFLAGS      = $(common_cflags)
 libvp6d_la_SOURCES      = omx_proxy_vp6dec.c
 libvp6d_la_LIBADD       = $(common_libadd)
 libvp6d_la_CFLAGS       = $(common_cflags)
+
+libvp7d_la_SOURCES      = omx_proxy_vp7dec.c
+libvp7d_la_LIBADD       = $(common_libadd)
+libvp7d_la_CFLAGS       = $(common_cflags)
 
 libcamera_la_SOURCES    = omx_proxy_camera.c
 libcamera_la_LIBADD     = $(common_libadd)
