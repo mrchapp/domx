@@ -80,6 +80,10 @@
 #define SHAREDMEM1                  0xA0055000
 #define SHAREDMEMSIZE1              0x54000
 
+/*The version nos. start with 1 and keep on incrementing every time there is a
+protocol change in DOMX. This is just a marker to ensure that A9-Ducati DOMX
+versions are in sync and does not indicate anything else*/
+#define DOMX_VERSION 1
 /* ******************************* EXTERNS ********************************* */
 extern char rpcFxns[][MAX_FUNCTION_NAME_LENGTH];
 extern rpcSkelArr rpcSkelFxns[];
@@ -115,7 +119,7 @@ OMX_PTR pCreateMutex = NULL;
 ProcMgr_Handle procMgrHandle = NULL;
 
 /* ************************* EXTERNS, FUNCTION DECLARATIONS ***************************** */
-RPC_INDEX fxnExitidx, getFxnIndexFromRemote_skelIdx;
+RPC_INDEX fxnExitidx, getFxnIndexFromRemote_skelIdx, nGetDOMXVersionIdx;
 static Int32 fxnExit(UInt32 size, UInt32 *data);
 RPC_OMX_ERRORTYPE fxn_exit_caller(void);
 
@@ -610,6 +614,56 @@ Int32 getFxnIndexFromRemote_skel(UInt32 size, UInt32 *data)
 
 
 
+/* ===========================================================================*/
+/**
+ * @name _RPC_GetRemoteDOMXVersion() 
+ * @brief This function is used by DOMX to communicate with its remote
+ *        counterpart on Ducati and ensure that they are in sync. This function
+ *        does not have any OMX counterpart and is used only internally by DOMX.
+ * @param hRcmHandle  : The RCM client handle.
+ * @param nFxnIdx     : Function index of the remote function that will give the
+ *                      version
+ * @param *nVer       : The version no. returned by the remote side.
+ * @return RPC_OMX_ErrorNone = Successful 
+ * @sa TBD
+ *
+ */
+/* ===========================================================================*/
+RPC_OMX_ERRORTYPE _RPC_GetRemoteDOMXVersion(RPC_OMX_HANDLE hRcmHandle,
+                                           OMX_U32 nFxnIdx, OMX_U32 *nVer)
+{
+    RPC_OMX_ERRORTYPE eRPCError = RPC_OMX_ErrorNone;
+    RcmClient_Message *pPacket = NULL;
+    RcmClient_Handle hRcmClient = (RcmClient_Handle)hRcmHandle;
+    RPC_OMX_MESSAGE *pRPCMsg = NULL;
+    RPC_OMX_BYTE *pMsgBody = NULL;
+    OMX_U32 nPos = 0, nPacketSize = PACKET_SIZE;
+    OMX_S32 status = 0;
+
+    pPacket = RcmClient_alloc(hRcmClient, nPacketSize);
+    RPC_assert(pPacket != NULL, RPC_OMX_ErrorInsufficientResources,
+               "Error Allocating RCM Message Frame");
+    pRPCMsg = (RPC_OMX_MESSAGE*)(&pPacket->data);
+    pMsgBody = &pRPCMsg->msgBody[0];
+    pPacket->fxnIdx = nFxnIdx;
+    status = RcmClient_exec(hRcmClient, pPacket);
+    if(status < 0)
+    {
+        RcmClient_free(hRcmClient, pPacket);
+        pPacket = NULL;
+        RPC_assert(0, RPC_OMX_RCM_ErrorExecFail,
+                   "RcmClient_exec failed");
+    }
+    /*Get the DOMX version*/
+    RPC_GETFIELDVALUE(pMsgBody, nPos, *nVer, OMX_U32);
+    RcmClient_free(rcmHndl, pPacket);
+
+EXIT:
+    return eRPCError;
+}
+
+
+
 /*===============================================================*/
 /** @fn _RPC_ClientCreate : This function creates RCM Client and gets symbol
  *                          indices for all functions.
@@ -626,6 +680,7 @@ RPC_OMX_ERRORTYPE _RPC_ClientCreate(OMX_STRING cComponentName)
     OMX_S32 status = 0;
     OMX_U32 i = 0;
     OMX_BOOL bCallDestroyIfErr = OMX_FALSE;
+    OMX_U32 nVer = 0;
 
     eRPCError = RPC_UTIL_GetTargetServerName(cComponentName, &rcmServerName);
     RPC_assert(eRPCError == RPC_OMX_ErrorNone, eRPCError,
@@ -672,6 +727,18 @@ RPC_OMX_ERRORTYPE _RPC_ClientCreate(OMX_STRING cComponentName)
     RPC_assert(status >= 0, RPC_OMX_RCM_ClientFail,
                "RCM ClientCreate failed. Cannot Establish the connection");
     DOMX_DEBUG("\nClient created. Connected to Server\n");
+
+    /*Checking DOMX version*/
+    DOMX_DEBUG("Checking DOMX version");
+    status = RcmClient_getSymbolIndex(rcmHndl, "getDOMXVersion",
+                                      (UInt32 *)(&nGetDOMXVersionIdx));
+    RPC_assert(status >= 0, RPC_OMX_RCM_ClientFail,
+               "GetSymbolIndex failed");
+    eRPCError = _RPC_GetRemoteDOMXVersion(rcmHndl, nGetDOMXVersionIdx, &nVer);
+    RPC_assert(eRPCError == RPC_OMX_ErrorNone, eRPCError,
+               "Failed to get remote DOMX version");
+    RPC_assert(nVer == DOMX_VERSION, RPC_OMX_ErrorUndefined,
+         "Version mismatch detected - A9 and Ducati DOMX versions not in sync");
 
     DOMX_DEBUG("\nCalling RCM_getSymbolIndex(rpcFxns array)\n");
     status = RcmClient_getSymbolIndex(rcmHndl, "getFxnIndexFromRemote_skel",
