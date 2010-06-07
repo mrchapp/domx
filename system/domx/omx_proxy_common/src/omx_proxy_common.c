@@ -2021,7 +2021,8 @@ OMX_ERRORTYPE RPC_MapMetaData_Host(OMX_BUFFERHEADERTYPE *pBufHdr)
       
       dsptr[0]= (OMX_U32) ((OMX_TI_PLATFORMPRIVATE *)pBufHdr->pPlatformPrivate)->pMetaDataBuffer;
       numBlocks = 1;
-      lengths[0] = LINUX_PAGE_SIZE * (nMetaDataSize + (LINUX_PAGE_SIZE - 1)) / LINUX_PAGE_SIZE;
+      lengths[0] = LINUX_PAGE_SIZE * ((nMetaDataSize + (LINUX_PAGE_SIZE - 1)) /
+                                      LINUX_PAGE_SIZE);
       
       pMappedMetaDataBuffer = tiler_assisted_phase1_D2CReMap(numBlocks,dsptr,lengths);
       
