@@ -1269,9 +1269,10 @@ static OMX_ERRORTYPE PROXY_SendCommand(OMX_IN  OMX_HANDLETYPE hComponent,
   RPC_OMX_ERRORTYPE eRPCError = RPC_OMX_ErrorNone;
   PROXY_COMPONENT_PRIVATE* pCompPrv;    
   OMX_COMPONENTTYPE *hComp = (OMX_COMPONENTTYPE *)hComponent;
-    OMX_COMPONENTTYPE *pMarkComp = NULL;
-    PROXY_COMPONENT_PRIVATE *pMarkCompPrv = NULL;
-    OMX_PTR pMarkData = NULL;
+  OMX_COMPONENTTYPE *pMarkComp = NULL;
+  PROXY_COMPONENT_PRIVATE *pMarkCompPrv = NULL;
+  OMX_PTR pMarkData = NULL;
+  OMX_U32 i;
 
   PROXY_assert((hComp->pComponentPrivate != NULL),
                 OMX_ErrorBadParameter, NULL);
@@ -1303,6 +1304,26 @@ static OMX_ERRORTYPE PROXY_SendCommand(OMX_IN  OMX_HANDLETYPE hComponent,
         /*Replacing with remote component handle*/
         ((OMX_MARKTYPE *)pCmdData)->hMarkTargetComponent =
                    ((RPC_OMX_CONTEXT *)pMarkCompPrv->hRemoteComp)->remoteHandle;
+    }
+    else if((eCmd == OMX_CommandStateSet) && (nParam == (OMX_STATETYPE)OMX_StateLoaded))
+    {
+        /*Reset any component related cached values here*/
+        for(i=0; i<PROXY_MAXNUMOFPORTS;i++)
+        pCompPrv->nNumOfLines[i] = 0;
+    }
+    else if(eCmd == OMX_CommandPortDisable)
+    {
+        /*Reset any port related cached values here*/
+        if(nParam == OMX_ALL)
+        {
+          for(i=0; i<PROXY_MAXNUMOFPORTS;i++)
+          pCompPrv->nNumOfLines[i] = 0;
+        }
+        else
+        {
+          PROXY_assert(nParam <= PROXY_MAXNUMOFPORTS, OMX_ErrorBadParameter, "Invalid Port Number");
+          pCompPrv->nNumOfLines[nParam] = 0;
+        }
     }
 
   eRPCError = RPC_SendCommand(pCompPrv->hRemoteComp, eCmd, nParam, pCmdData, &eCompReturn);
