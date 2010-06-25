@@ -134,11 +134,11 @@ RPC_OMX_ERRORTYPE RPC_GetHandle(RPC_OMX_HANDLE hRPCCtx, OMX_STRING cComponentNam
     RPC_INDEX fxnIdx;
     OMX_STRING CallingCorercmServerName;        
    
-    DOMX_DEBUG("\nEntering: %s\n", __FUNCTION__);
-    DOMX_DEBUG("\nRPC_GetHandle: Recieved GetHandle request from %s\n", cComponentName);
+    DOMX_DEBUG("Entering: %s\n", __FUNCTION__);
+    DOMX_DEBUG("RPC_GetHandle: Recieved GetHandle request from %s\n", cComponentName);
 
     RPC_UTIL_GetLocalServerName(cComponentName,&CallingCorercmServerName);
-    DOMX_DEBUG("\n RCM Server Name Calling on Current Core: %s",CallingCorercmServerName);
+    DOMX_DEBUG(" RCM Server Name Calling on Current Core: %s",CallingCorercmServerName);
     
     fxnIdx = rpcHndl[TARGET_CORE_ID].rpcFxns[RPC_OMX_FXN_IDX_GET_HANDLE].rpcFxnIdx;
     
@@ -512,7 +512,7 @@ RPC_OMX_ERRORTYPE RPC_SendCommand(RPC_OMX_HANDLE hRPCCtx,OMX_COMMANDTYPE eCmd,OM
     OMX_U32 structSize=0;
     OMX_U32 offset=0;
     
-    DOMX_DEBUG("\nEntering: %s", __FUNCTION__);
+    DOMX_DEBUG("Entering: %s", __FUNCTION__);
 
     fxnIdx = rpcHndl[TARGET_CORE_ID].rpcFxns[RPC_OMX_FXN_IDX_SEND_CMD].rpcFxnIdx;
 
@@ -644,11 +644,11 @@ RPC_OMX_ERRORTYPE RPC_AllocateBuffer(RPC_OMX_HANDLE hRPCCtx, OMX_INOUT OMX_BUFFE
         (*ppBufferHdr)->pPlatformPrivate = pPlatformPrivate;
         
         #ifdef TILER_BUFF
-        DOMX_DEBUG("\n Copying plat pvt. \n");
+        DOMX_DEBUG(" Copying plat pvt. \n");
         RPC_GETFIELDOFFSET(pMsgBody, nPos, offset, OMX_U32);
         if(offset !=0) {
         RPC_GETFIELDCOPYTYPE(pMsgBody, offset, (OMX_TI_PLATFORMPRIVATE *)((*ppBufferHdr)->pPlatformPrivate), OMX_TI_PLATFORMPRIVATE);
-           DOMX_DEBUG("\nDone copying plat pvt., aux buf = 0x%x\n", ((OMX_TI_PLATFORMPRIVATE *)((*ppBufferHdr)->pPlatformPrivate))->pAuxBuf1);	
+           DOMX_DEBUG("Done copying plat pvt., aux buf = 0x%x\n", ((OMX_TI_PLATFORMPRIVATE *)((*ppBufferHdr)->pPlatformPrivate))->pAuxBuf1);	
         }
         #endif
         
@@ -711,12 +711,12 @@ RPC_OMX_ERRORTYPE RPC_UseBuffer(RPC_OMX_HANDLE hRPCCtx,OMX_INOUT OMX_BUFFERHEADE
     mappedAddress = (OMX_U32) (*ppBufferHdr)->pBuffer;
     
     #ifdef TILER_BUFF
-    DOMX_DEBUG("\n Getting aux buf\n");
+    DOMX_DEBUG(" Getting aux buf\n");
     mappedAddress2 = (OMX_U32) ((OMX_TI_PLATFORMPRIVATE *) ((*ppBufferHdr)->pPlatformPrivate))->pAuxBuf1;
     #endif
     
-    DOMX_DEBUG("\n DEBUG - MAPPING - pBuffer = %x",pBuffer);
-    DOMX_DEBUG("\n DEBUG - MAPPING - mappedAddress = %x",mappedAddress);
+    DOMX_DEBUG(" DEBUG - MAPPING - pBuffer = %x",pBuffer);
+    DOMX_DEBUG(" DEBUG - MAPPING - mappedAddress = %x",mappedAddress);
         
     //Marshalled:[>hComp|>nPortIndex|>pAppPrivate|>nSizeBytes|
     //>mappedAddress|!>mappedAddress2|<pBufHeaderRemote|
@@ -742,14 +742,14 @@ RPC_OMX_ERRORTYPE RPC_UseBuffer(RPC_OMX_HANDLE hRPCCtx,OMX_INOUT OMX_BUFFERHEADE
         
         RPC_GETFIELDVALUE(pMsgBody, nPos, *pBufHeaderRemote, OMX_U32);
         
-        DOMX_DEBUG("\n Getting offset for buffer header:\n");
+        DOMX_DEBUG(" Getting offset for buffer header:\n");
         RPC_GETFIELDOFFSET(pMsgBody, nPos, offset, OMX_U32); 
-        DOMX_DEBUG("\n Copying buffer header at offset:%d\n", offset);
+        DOMX_DEBUG(" Copying buffer header at offset:%d\n", offset);
         
         //save platform private before overwriting          
         pPlatformPrivate = (*ppBufferHdr)->pPlatformPrivate;
         
-        DOMX_DEBUG("\n Copying buffer header at offset:%d\n", offset);
+        DOMX_DEBUG(" Copying buffer header at offset:%d\n", offset);
         //RPC_GETFIELDCOPYTYPE(pMsgBody, offset, pBufferHdr, OMX_BUFFERHEADERTYPE);
         /*Copying each field of the header separately due to padding issues in
         the buffer header structure*/
@@ -782,17 +782,17 @@ RPC_OMX_ERRORTYPE RPC_UseBuffer(RPC_OMX_HANDLE hRPCCtx,OMX_INOUT OMX_BUFFERHEADE
         *pBufferMapped = mappedAddress;
         
         #ifdef TILER_BUFF
-        DOMX_DEBUG("\n Copying plat pvt. \n");
+        DOMX_DEBUG(" Copying plat pvt. \n");
         
         RPC_GETFIELDOFFSET(pMsgBody, nPos, offset, OMX_U32);
         if(offset !=0) {
         RPC_GETFIELDCOPYTYPE(pMsgBody, offset, (OMX_TI_PLATFORMPRIVATE *)((*ppBufferHdr)->pPlatformPrivate), OMX_TI_PLATFORMPRIVATE);
-        DOMX_DEBUG("\nDone copying plat pvt., aux buf = 0x%x\n", ((OMX_TI_PLATFORMPRIVATE *)((*ppBufferHdr)->pPlatformPrivate))->pAuxBuf1);	
+        DOMX_DEBUG("Done copying plat pvt., aux buf = 0x%x\n", ((OMX_TI_PLATFORMPRIVATE *)((*ppBufferHdr)->pPlatformPrivate))->pAuxBuf1);	
         }
         #endif
     }
     else {
-        DOMX_DEBUG("\n %s: OMX Error received: 0x%x",__FUNCTION__,pRPCMsg->msgHeader.nOMXReturn);
+        DOMX_DEBUG(" %s: OMX Error received: 0x%x",__FUNCTION__,pRPCMsg->msgHeader.nOMXReturn);
         *pBufferMapped = 0;
     }
 
@@ -880,7 +880,7 @@ RPC_OMX_ERRORTYPE RPC_EmptyThisBuffer(RPC_OMX_HANDLE hRPCCtx, OMX_BUFFERHEADERTY
     
     OMX_U8* pAuxBuf1=NULL;
     
-    DOMX_DEBUG("\n Entering: %s __________ BUFFER READ-WRITE ", __FUNCTION__);
+    DOMX_DEBUG(" Entering: %s __________ BUFFER READ-WRITE ", __FUNCTION__);
     
     fxnIdx = rpcHndl[TARGET_CORE_ID].rpcFxns[RPC_OMX_FXN_IDX_EMPTYTHISBUFFER].rpcFxnIdx;
         
@@ -909,7 +909,7 @@ RPC_OMX_ERRORTYPE RPC_EmptyThisBuffer(RPC_OMX_HANDLE hRPCCtx, OMX_BUFFERHEADERTY
                       OMX_HANDLETYPE);
     RPC_SETFIELDVALUE(pMsgBody, nPos, pBufferHdr->pMarkData, OMX_PTR);
     
-    DOMX_DEBUG("\n pBufferHdr = %x BufHdrRemote %x",pBufferHdr,BufHdrRemote);
+    DOMX_DEBUG(" pBufferHdr = %x BufHdrRemote %x",pBufferHdr,BufHdrRemote);
     
     RPC_sendPacket_async(hCtx->ClientHndl[RCM_DEFAULT_CLIENT], pPacket, fxnIdx);
     
@@ -947,7 +947,7 @@ RPC_OMX_ERRORTYPE RPC_FillThisBuffer(RPC_OMX_HANDLE hRPCCtx, OMX_BUFFERHEADERTYP
     
     OMX_U8* pAuxBuf1 = NULL;
         
-    DOMX_DEBUG("\n Entering: %s __________ BUFFER READ-WRITE ", __FUNCTION__);
+    DOMX_DEBUG(" Entering: %s __________ BUFFER READ-WRITE ", __FUNCTION__);
     
     fxnIdx = rpcHndl[TARGET_CORE_ID].rpcFxns[RPC_OMX_FXN_IDX_FILLTHISBUFFER].rpcFxnIdx;
     
@@ -972,7 +972,7 @@ RPC_OMX_ERRORTYPE RPC_FillThisBuffer(RPC_OMX_HANDLE hRPCCtx, OMX_BUFFERHEADERTYP
     RPC_SETFIELDVALUE(pMsgBody, nPos, pBufferHdr->nOffset, OMX_U32);
     RPC_SETFIELDVALUE(pMsgBody, nPos, pBufferHdr->nFlags, OMX_U32);
           
-    DOMX_DEBUG("\n pBufferHdr = %x BufHdrRemote %x",pBufferHdr,BufHdrRemote);
+    DOMX_DEBUG(" pBufferHdr = %x BufHdrRemote %x",pBufferHdr,BufHdrRemote);
     
     RPC_sendPacket_async(hCtx->ClientHndl[RCM_DEFAULT_CLIENT], pPacket, fxnIdx);
     

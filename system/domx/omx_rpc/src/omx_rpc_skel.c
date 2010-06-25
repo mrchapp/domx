@@ -96,7 +96,7 @@ RPC_OMX_ERRORTYPE RPC_SKEL_EmptyBufferDone(UInt32 size, UInt32 *data)
     
     pMsgBody = &recdMsg->msgBody[0];
 
-    DOMX_DEBUG("\n%s:  Entered Function\n",__FUNCTION__);
+    DOMX_DEBUG("%s:  Entered Function\n",__FUNCTION__);
     
     //Marshalled:[>hComp|>bufferHdr|>nFilledLen|>nOffset|>nFlags]
     
@@ -149,7 +149,7 @@ RPC_OMX_ERRORTYPE RPC_SKEL_FillBufferDone(UInt32 size, UInt32 *data)
     
     pMsgBody = &recdMsg->msgBody[0];
 
-    DOMX_DEBUG("\n%s:  Entered Function\n",__FUNCTION__);
+    DOMX_DEBUG("%s:  Entered Function\n",__FUNCTION__);
     
     //Marshalled:[>hComp|>bufferHdr|>nFilledLen|>nOffset|>nFlags|>nTimeStamp]
     
@@ -216,9 +216,9 @@ RPC_OMX_ERRORTYPE RPC_SKEL_EventHandler(UInt32 size, UInt32 *data)
     RPC_GETFIELDVALUE(pMsgBody, nPos, nData2, OMX_U32);
     RPC_GETFIELDVALUE(pMsgBody, nPos, pEventData, OMX_PTR);
 
-    DOMX_DEBUG("\n\n**__**Got eventhandler from Remote Core succesffuly - values are : **__**");
-    DOMX_DEBUG("\nhComp :0x%x,eEvent: 0x%x,nData1: 0x%x,nData2: 0x%x,pEventData: 0x%x",hComp,eEvent,nData1,nData2,pEventData);
-    DOMX_DEBUG("\nJust Before Entering Proxy Event handler call");
+    DOMX_DEBUG("\n**__**Got eventhandler from Remote Core succesffuly - values are : **__**");
+    DOMX_DEBUG("hComp :0x%x,eEvent: 0x%x,nData1: 0x%x,nData2: 0x%x,pEventData: 0x%x",hComp,eEvent,nData1,nData2,pEventData);
+    DOMX_DEBUG("Just Before Entering Proxy Event handler call");
 
     tRPCError = pCompPrv->proxyEventHandler(hComp, pCompPrv->pILAppData, eEvent, nData1, nData2, pEventData);
     

@@ -68,7 +68,7 @@ OMX_ERRORTYPE OMX_ComponentInit(OMX_HANDLETYPE hComponent)
 	PROXY_COMPONENT_PRIVATE *pComponentPrivate;
 	pHandle = (OMX_COMPONENTTYPE *)hComponent;
 
-	DOMX_DEBUG("\n_____________________INSIDE JPEG DECODER PROXY "
+	DOMX_DEBUG("_____________________INSIDE JPEG DECODER PROXY "
 			"WRAPPER__________________________\n");
 	pHandle->pComponentPrivate = (PROXY_COMPONENT_PRIVATE *)
 	TIMM_OSAL_Malloc(sizeof(PROXY_COMPONENT_PRIVATE), TIMM_OSAL_TRUE,
@@ -77,7 +77,7 @@ OMX_ERRORTYPE OMX_ComponentInit(OMX_HANDLETYPE hComponent)
 	pComponentPrivate =
 		(PROXY_COMPONENT_PRIVATE *)pHandle->pComponentPrivate;
 	if (pHandle->pComponentPrivate == NULL) {
-		DOMX_DEBUG("\n ERROR IN ALLOCATING PROXY COMPONENT"
+		DOMX_DEBUG(" ERROR IN ALLOCATING PROXY COMPONENT"
 						" PRIVATE STRUCTURE");
 		eError = OMX_ErrorInsufficientResources;
 		goto EXIT;
