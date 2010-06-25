@@ -74,8 +74,8 @@ RPC_OMX_ERRORTYPE RPC_UTIL_GetTargetServerName(OMX_STRING ComponentName, OMX_STR
     OMX_STRING str;
     char Core[MAX_CORENAME_LENGTH];
     
-    DOMX_DEBUG(" ENTERED Fucntion %s",__FUNCTION__);
-    DOMX_DEBUG(" CAlling Component Name %s", ComponentName);
+    DOMX_ENTER("");
+    DOMX_DEBUG(" Calling Component Name %s", ComponentName);
     
     while(*ComponentName != '\0')
     {
@@ -110,7 +110,7 @@ RPC_OMX_ERRORTYPE RPC_UTIL_GetTargetServerName(OMX_STRING ComponentName, OMX_STR
        	
 	   	if(strcmp(Core,Core_Array[i])==0) {
 			servertable_idx = i;
-			DOMX_DEBUG(" %s: Recovered Srever table index = %d",__FUNCTION__,i);
+			DOMX_DEBUG("Recovered Server table index = %d",i);
 			break;
 	   		}
        	}
@@ -176,7 +176,7 @@ RPC_OMX_ERRORTYPE RPC_GetTargetClient(OMX_STRING Default_RcmServer, OMX_STRING s
 /* ===========================================================================*/
 RPC_OMX_ERRORTYPE RPC_MapBuffer(OMX_U32 mappedBuffer )
 {
-    DOMX_DEBUG("Entering: %s", __FUNCTION__);
+    DOMX_ENTER("");
     DOMX_DEBUG("Empty implementation ");
     //PlaceHolder for Mapping Buffers - Cuurently no implementation here
 	return RPC_OMX_ErrorNone;
@@ -193,7 +193,7 @@ RPC_OMX_ERRORTYPE RPC_MapBuffer(OMX_U32 mappedBuffer )
 /* ===========================================================================*/
 RPC_OMX_ERRORTYPE RPC_UnMapBuffer(OMX_U32 mappedBuffer )
 {
-    DOMX_DEBUG("Entering: %s", __FUNCTION__);
+    DOMX_ENTER("");
     DOMX_DEBUG("Empty implementation ");
     //PlaceHolder for UnMapping Buffers - Cuurently no implementation here
 	return RPC_OMX_ErrorNone;
@@ -211,11 +211,11 @@ RPC_OMX_ERRORTYPE RPC_UnMapBuffer(OMX_U32 mappedBuffer )
 RPC_OMX_ERRORTYPE RPC_FlushBuffer(OMX_U8 * pBuffer, OMX_U32 size )
 
 {
-	DOMX_DEBUG("Entering: %s", __FUNCTION__);
+	DOMX_ENTER("");
     RPC_OMX_ERRORTYPE eError = RPC_OMX_ErrorNone;
     OMX_S32 nStatus = 0;
 
-   	DOMX_DEBUG("About to flush %d bytes\n", size);
+   	DOMX_DEBUG("About to flush %d bytes", size);
  
 	nStatus = ProcMgr_flushMemory((OMX_PTR)pBuffer, size);
     if (nStatus < 0)
@@ -233,8 +233,8 @@ RPC_OMX_ERRORTYPE RPC_InvalidateBuffer(OMX_U8 * pBuffer, OMX_U32 size)
 {
     RPC_OMX_ERRORTYPE eError = RPC_OMX_ErrorNone;
     OMX_S32 nStatus = 0;
-    DOMX_DEBUG("Entering: %s", __FUNCTION__);
-    DOMX_DEBUG("About to invalidate %d bytes\n", size);
+    DOMX_ENTER("");
+    DOMX_DEBUG("About to invalidate %d bytes", size);
     nStatus = ProcMgr_invalidateMemory((OMX_PTR)pBuffer, size);
     if (nStatus < 0)
     {
