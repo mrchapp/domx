@@ -616,7 +616,8 @@ static OMX_ERRORTYPE PROXY_AllocateBuffer(OMX_IN OMX_HANDLETYPE hComponent,
 
         PROXY_assert((hComp->pComponentPrivate != NULL),
                       OMX_ErrorBadParameter, NULL);
-                      
+        PROXY_assert(ppBufferHdr != NULL, OMX_ErrorBadParameter,
+                     "Pointer to buffer header is NULL");
         pCompPrv=(PROXY_COMPONENT_PRIVATE*)hComp->pComponentPrivate;
 
         DOMX_ENTER("hComponent=%p, pCompPrv=%p, nPortIndex=%p, pAppPrivate=%p, nSizeBytes=%d",
@@ -766,7 +767,8 @@ static OMX_ERRORTYPE PROXY_UseBuffer (OMX_IN OMX_HANDLETYPE hComponent,
     
     PROXY_assert((hComp->pComponentPrivate != NULL),
                   OMX_ErrorBadParameter, NULL);
-                  
+    PROXY_assert(ppBufferHdr != NULL, OMX_ErrorBadParameter,
+                 "Pointer to buffer header is NULL");
     pCompPrv=(PROXY_COMPONENT_PRIVATE*)hComp->pComponentPrivate;
 
     DOMX_ENTER("hComponent=%p, pCompPrv=%p, nPortIndex=%p, pAppPrivate=%p, nSizeBytes=%d, pBuffer=%p",
