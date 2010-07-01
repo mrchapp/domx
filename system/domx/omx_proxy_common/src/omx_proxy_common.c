@@ -1950,8 +1950,8 @@ OMX_ERRORTYPE RPC_MapBuffer_Ducati(OMX_U8 *pBuf, OMX_U32 nBufLineSize,
                                    OMX_PTR pBufToBeMapped)
 {
     ProcMgr_MapType mapType;
-    SyslinkMemUtils_MpuAddrToMap MpuAddr_list_1D;    
-    MemAllocBlock block;
+    SyslinkMemUtils_MpuAddrToMap MpuAddr_list_1D = {0};
+    MemAllocBlock block = {0};
     OMX_U32 status;
     OMX_U32 nDiff = 0;
     OMX_ERRORTYPE eError = OMX_ErrorNone;
