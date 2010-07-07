@@ -1408,7 +1408,9 @@ static OMX_ERRORTYPE PROXY_GetExtensionIndex(OMX_IN  OMX_HANDLETYPE hComponent,
   
   PROXY_assert((hComp->pComponentPrivate != NULL),
                 OMX_ErrorBadParameter, NULL);
-                 
+  PROXY_assert(cParameterName != NULL, OMX_ErrorBadParameter, NULL);
+  PROXY_assert(pIndexType != NULL, OMX_ErrorBadParameter, NULL);
+
   pCompPrv = (PROXY_COMPONENT_PRIVATE *) hComp->pComponentPrivate;
   
   DOMX_ENTER("hComponent=%p, pCompPrv=%p, cParameterName=%s", hComponent, pCompPrv, cParameterName);
