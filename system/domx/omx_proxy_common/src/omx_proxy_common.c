@@ -1525,6 +1525,25 @@ EXIT:
     return eError;
 }
 
+
+/* ===========================================================================*/
+/**
+ * @name PROXY_UseEGLImage()
+ * @brief : This returns error not implemented by default as no component
+ *          implements this. In case there is a requiremet, support for this
+ *          can be added later.
+ *
+ */
+/* ===========================================================================*/
+static OMX_ERRORTYPE PROXY_UseEGLImage (OMX_HANDLETYPE hComponent,
+                                        OMX_BUFFERHEADERTYPE** ppBufferHdr,
+                                        OMX_U32 nPortIndex,
+                                        OMX_PTR pAppPrivate, void* pBuffer)
+{
+    return OMX_ErrorNotImplemented;
+}
+
+
 /* ===========================================================================*/
 /**
  * @name PROXY_ComponentDeInit() 
@@ -1661,6 +1680,7 @@ OMX_ERRORTYPE OMX_ProxyCommonInit(OMX_HANDLETYPE hComponent)
     hComp->ComponentRoleEnum = PROXY_ComponentRoleEnum;    
     hComp->AllocateBuffer = PROXY_AllocateBuffer;
     hComp->ComponentTunnelRequest = PROXY_ComponentTunnelRequest;
+    hComp->UseEGLImage = PROXY_UseEGLImage;
     
     pCompPrv->hRemoteComp = hRemoteComp;
         
