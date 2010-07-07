@@ -1356,7 +1356,11 @@ static OMX_ERRORTYPE PROXY_GetComponentVersion(OMX_IN  OMX_HANDLETYPE hComponent
   
   PROXY_assert((hComp->pComponentPrivate != NULL),
                 OMX_ErrorBadParameter, NULL);
-                 
+  PROXY_assert(pComponentName != NULL, OMX_ErrorBadParameter, NULL);
+  PROXY_assert(pComponentVersion != NULL, OMX_ErrorBadParameter, NULL);
+  PROXY_assert(pSpecVersion != NULL, OMX_ErrorBadParameter, NULL);
+  PROXY_assert(pComponentUUID != NULL, OMX_ErrorBadParameter, NULL);
+
   pCompPrv = (PROXY_COMPONENT_PRIVATE *) hComp->pComponentPrivate;
 
   eRPCError = RPC_GetComponentVersion(pCompPrv->hRemoteComp,
