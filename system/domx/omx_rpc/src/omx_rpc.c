@@ -59,7 +59,7 @@
 #include <MultiProc.h>
 #include <RcmClient.h>
 #include <RcmServer.h>
-#include <SysMgr.h>
+#include <IpcUsr.h>
 #include <ProcMgr.h>
 
 /*-------program files ----------------------------------------*/
@@ -73,17 +73,12 @@
 
 /*For ipc setup*/
 #define SYSM3_PROC_NAME             "SysM3"
-    /*Shared Memory Area for MPU - SysM3 */
-#define SHAREDMEM                   0xA0000000
-#define SHAREDMEMSIZE               0x54000
-    /*Shared Memory Area for MPU - AppM3 */
-#define SHAREDMEM1                  0xA0055000
-#define SHAREDMEMSIZE1              0x54000
+#define APPM3_PROC_NAME             "AppM3"
 
 /*The version nos. start with 1 and keep on incrementing every time there is a
 protocol change in DOMX. This is just a marker to ensure that A9-Ducati DOMX
 versions are in sync and does not indicate anything else*/
-#define DOMX_VERSION 1
+#define DOMX_VERSION 2
 /* ******************************* EXTERNS ********************************* */
 extern char rpcFxns[][MAX_FUNCTION_NAME_LENGTH];
 extern rpcSkelArr rpcSkelFxns[];
@@ -117,9 +112,10 @@ OMX_PTR pCreateMutex = NULL;
 
 /*Used in ipc setup/destroy*/
 ProcMgr_Handle procMgrHandle = NULL;
+ProcMgr_Handle procMgrHandle1 = NULL;
 
 /* ************************* EXTERNS, FUNCTION DECLARATIONS ***************************** */
-RPC_INDEX fxnExitidx, getFxnIndexFromRemote_skelIdx, nGetDOMXVersionIdx;
+RPC_INDEX fxnExitidx, getFxnIndexFromRemote_skelIdx;
 static Int32 fxnExit(UInt32 size, UInt32 *data);
 RPC_OMX_ERRORTYPE fxn_exit_caller(void);
 
@@ -286,11 +282,37 @@ RPC_OMX_ERRORTYPE RPC_ModDeInit(void)
 {
     RPC_OMX_ERRORTYPE eRPCError = RPC_OMX_ErrorNone;
     OMX_S32 status = 0;
+    OMX_U32 i = 0;
     
     DOMX_ENTER("");
 
     if(rcmSrvHndl)
     {
+        status = RcmServer_removeSymbol(rcmSrvHndl, "fxnExit");
+        if(status < 0)
+        {
+            DOMX_ERROR("RCM Server remove symbol failed, status = %d", status);
+            eRPCError = RPC_OMX_RCM_ServerFail;
+        }
+
+        status = RcmServer_removeSymbol(rcmSrvHndl,
+                                        "getFxnIndexFromRemote_skel");
+        if(status < 0)
+        {
+            DOMX_ERROR("RCM Server remove symbol failed, status = %d", status);
+            eRPCError = RPC_OMX_RCM_ServerFail;
+        }
+
+        for(i = 0; i < MAX_FUNCTION_LIST; i++)
+        {
+            status = RcmServer_removeSymbol(rcmSrvHndl, rpcFxns[i]);
+            if(status < 0)
+            {
+            DOMX_ERROR("RCM Server remove symbol failed, status = %d", status);
+                eRPCError = RPC_OMX_RCM_ServerFail;
+            }
+        }
+
         status = RcmServer_delete(&rcmSrvHndl);
         if(status < 0)
         {
@@ -300,12 +322,7 @@ RPC_OMX_ERRORTYPE RPC_ModDeInit(void)
         rcmSrvHndl = NULL;
     }
 
-    status = RcmServer_destroy(); 
-    if(status < 0 ) 
-    {
-        TIMM_OSAL_Error("RCM Server destroy failed, status = %d", status);
-        eRPCError = RPC_OMX_RCM_ServerFail;
-    }
+    RcmServer_exit();
 
     DOMX_EXIT("");
     return eRPCError;
@@ -328,7 +345,6 @@ RPC_OMX_ERRORTYPE RPC_ModInit(void)
                       eTmpError = RPC_OMX_ErrorNone;
     OMX_U32 i = 0, j = 0, fxIndx = 0;
     OMX_S32 status = 0;
-    RcmServer_Config cfgParams;
     RcmServer_Params rcmSrvParams;
     OMX_BOOL bCallDestroyIfErr = OMX_FALSE;
 
@@ -391,26 +407,11 @@ RPC_OMX_ERRORTYPE RPC_ModInit(void)
     }
 
 //RCM Server config    
-/*
-    cfgParams.maxTables = 8;
-    cfgParams.maxNameLen = 20;
-*/    
-    status = RcmServer_getConfig(&cfgParams);
-    RPC_assert(status >= 0, RPC_OMX_RCM_ServerFail, 
-               "Server_getConfig failed");
-    DOMX_DEBUG("Config Parameters:");
-    DOMX_DEBUG("MaxNameLen = %d\nMaxTables = %d",
-               cfgParams.maxNameLen, cfgParams.maxTables);
-
-    //Create an rcm server instance
-    DOMX_DEBUG("Calling Server setup");
-    status = RcmServer_setup(&cfgParams);
-    RPC_assert(status >= 0, RPC_OMX_RCM_ServerFail, 
-               "Server_setup failed");
+    RcmServer_init();
     bCallDestroyIfErr = OMX_TRUE;
 
     DOMX_DEBUG("Calling Server params init");
-    status = RcmServer_Params_init(NULL, &rcmSrvParams);
+    status = RcmServer_Params_init(&rcmSrvParams);
     RPC_assert(status >= 0, RPC_OMX_RCM_ServerFail, 
                "Server_setup failed");
 
@@ -444,8 +445,7 @@ RPC_OMX_ERRORTYPE RPC_ModInit(void)
     }
 
     //Start the RCM server thread
-    status = RcmServer_start(rcmSrvHndl);
-    RPC_assert(status >= 0, RPC_OMX_RCM_ServerFail, "Server_start failed");
+    RcmServer_start(rcmSrvHndl);
     DOMX_DEBUG("Running RcmServer");
 
 EXIT:
@@ -504,13 +504,15 @@ Int32 fxnExit(UInt32 size, UInt32 *data)
 RPC_OMX_ERRORTYPE fxn_exit_caller(void)
 {
     RcmClient_Message *rcmMsg = NULL;
+    RcmClient_Message *rcmRetMsg = NULL;
     OMX_S32 status;
     RPC_OMX_ERRORTYPE rpcError = RPC_OMX_ErrorNone;
     
     DOMX_ENTER("");
-    rcmMsg = RcmClient_alloc(rcmHndl, sizeof(RcmClient_Message));
+    status = RcmClient_alloc(rcmHndl, sizeof(RcmClient_Message), &rcmMsg);
 
-    if (rcmMsg == NULL) {
+    if (status < 0)
+    {
         DOMX_DEBUG(" Error in allocating RCM msg");
         rpcError = RPC_OMX_ErrorInsufficientResources;
         goto EXIT;
@@ -518,7 +520,7 @@ RPC_OMX_ERRORTYPE fxn_exit_caller(void)
 
     rcmMsg->fxnIdx = fxnExitidx;
     //Sending Terminate messsage to remote processor
-    status = RcmClient_execDpc(rcmHndl, rcmMsg); 
+    status = RcmClient_execDpc(rcmHndl, rcmMsg, &rcmRetMsg);
     
     if (status < 0) {
         DOMX_DEBUG( " Error RcmClient_execDpc failed ");
@@ -549,14 +551,16 @@ static void getFxnIndexFromRemote_stub(void)
     OMX_U32 packetSize = 0x100;
     RPC_INDEX *FxnIdxArr;
     RcmClient_Message *rcmMsg;
+    RcmClient_Message *rcmRetMsg = NULL;
     OMX_S16 status;
     OMX_U8 i;
     
     DOMX_ENTER("");
     
-    rcmMsg = RcmClient_alloc(rcmHndl, packetSize);
+    status = RcmClient_alloc(rcmHndl, packetSize, &rcmMsg);
     
-    if(rcmMsg ==NULL) {
+    if (status < 0)
+    {
         DOMX_DEBUG("Error in Allocting rcm message");        
         goto EXIT;
     }
@@ -565,7 +569,8 @@ static void getFxnIndexFromRemote_stub(void)
        FxnIdxArr = (RPC_INDEX *)(&rcmMsg->data);
     TIMM_OSAL_Memcpy(FxnIdxArr,0,sizeof(RPC_INDEX)*MAX_FUNCTION_LIST);
 
-    status = RcmClient_exec(rcmHndl, rcmMsg);
+    status = RcmClient_exec(rcmHndl, rcmMsg, &rcmRetMsg);
+    FxnIdxArr = (RPC_INDEX *)(&rcmRetMsg->data);
     
     if (status < 0) {
         DOMX_DEBUG( " Error RcmClient_exec failed ");
@@ -636,19 +641,20 @@ RPC_OMX_ERRORTYPE _RPC_GetRemoteDOMXVersion(RPC_OMX_HANDLE hRcmHandle,
 {
     RPC_OMX_ERRORTYPE eRPCError = RPC_OMX_ErrorNone;
     RcmClient_Message *pPacket = NULL;
+    RcmClient_Message *pRetPacket = NULL;
     RcmClient_Handle hRcmClient = (RcmClient_Handle)hRcmHandle;
     RPC_OMX_MESSAGE *pRPCMsg = NULL;
     RPC_OMX_BYTE *pMsgBody = NULL;
     OMX_U32 nPos = 0, nPacketSize = PACKET_SIZE;
     OMX_S32 status = 0;
 
-    pPacket = RcmClient_alloc(hRcmClient, nPacketSize);
-    RPC_assert(pPacket != NULL, RPC_OMX_ErrorInsufficientResources,
+    status = RcmClient_alloc(hRcmClient, nPacketSize, &pPacket);
+    RPC_assert(status >= 0, RPC_OMX_ErrorInsufficientResources,
                "Error Allocating RCM Message Frame");
     pRPCMsg = (RPC_OMX_MESSAGE*)(&pPacket->data);
     pMsgBody = &pRPCMsg->msgBody[0];
     pPacket->fxnIdx = nFxnIdx;
-    status = RcmClient_exec(hRcmClient, pPacket);
+    status = RcmClient_exec(hRcmClient, pPacket, &pRetPacket);
     if(status < 0)
     {
         RcmClient_free(hRcmClient, pPacket);
@@ -656,9 +662,12 @@ RPC_OMX_ERRORTYPE _RPC_GetRemoteDOMXVersion(RPC_OMX_HANDLE hRcmHandle,
         RPC_assert(0, RPC_OMX_RCM_ErrorExecFail,
                    "RcmClient_exec failed");
     }
+    pRPCMsg = (RPC_OMX_MESSAGE*)(&pRetPacket->data);
+    pMsgBody = &pRPCMsg->msgBody[0];
+
     /*Get the DOMX version*/
     RPC_GETFIELDVALUE(pMsgBody, nPos, *nVer, OMX_U32);
-    RcmClient_free(rcmHndl, pPacket);
+    RcmClient_free(rcmHndl, pRetPacket);
 
 EXIT:
     return eRPCError;
@@ -676,13 +685,13 @@ RPC_OMX_ERRORTYPE _RPC_ClientCreate(OMX_STRING cComponentName)
 {
     RPC_OMX_ERRORTYPE eRPCError = RPC_OMX_ErrorNone,
                       eTmpError = RPC_OMX_ErrorNone;
-    RcmClient_Config cfgParams;
     RcmClient_Params rcmParams;
     OMX_STRING rcmServerName = NULL;
     OMX_S32 status = 0;
     OMX_U32 i = 0;
     OMX_BOOL bCallDestroyIfErr = OMX_FALSE;
     OMX_U32 nVer = 0;
+    OMX_U32 nGetDOMXVersionIdx = 0;
 
     eRPCError = RPC_UTIL_GetTargetServerName(cComponentName, &rcmServerName);
     RPC_assert(eRPCError == RPC_OMX_ErrorNone, eRPCError,
@@ -690,23 +699,10 @@ RPC_OMX_ERRORTYPE _RPC_ClientCreate(OMX_STRING cComponentName)
     DOMX_DEBUG(" RCM Server Name To connected to: %s", rcmServerName);
     
     /* RCM client configuration*/
-    /*
-    cfgParams.maxNameLen = MAX_FUNCTION_LIST+2;
-    cfgParams.defaultHeapIdArrayLength = MAX_NUMBER_OF_HEAPS;
-    */
-
-    status = RcmClient_getConfig(&cfgParams);
-    RPC_assert(status >= 0, RPC_OMX_RCM_ClientFail, "Client_getConfig failed");
-    DOMX_DEBUG("Config Parameters:");
-    DOMX_DEBUG("MaxNameLen = %d\nHeapIdArrayLength = %d",
-               cfgParams.maxNameLen, cfgParams.defaultHeapIdArrayLength);
-
-    DOMX_DEBUG( "Calling RCM Setup");
-    status = RcmClient_setup(&cfgParams);
-    RPC_assert(status >= 0, RPC_OMX_RCM_ClientFail, "Client_setup failed");
+    RcmClient_init();
     bCallDestroyIfErr = OMX_TRUE;
 
-    status = RcmClient_Params_init(NULL, &rcmParams); 
+    status = RcmClient_Params_init(&rcmParams);
     RPC_assert(status >= 0, RPC_OMX_RCM_ClientFail, 
                "Client_Params_init failed");
     rcmParams.heapId = heapIdArray[LOCAL_CORE_ID];
@@ -741,13 +737,6 @@ RPC_OMX_ERRORTYPE _RPC_ClientCreate(OMX_STRING cComponentName)
                "Failed to get remote DOMX version");
     RPC_assert(nVer == DOMX_VERSION, RPC_OMX_ErrorUndefined,
          "Version mismatch detected - A9 and Ducati DOMX versions not in sync");
-
-    DOMX_DEBUG("Calling RCM_getSymbolIndex(rpcFxns array)");
-    status = RcmClient_getSymbolIndex(rcmHndl, "getFxnIndexFromRemote_skel",
-                                    (UInt32 *)(&getFxnIndexFromRemote_skelIdx));
-    
-    RPC_assert(status >= 0, RPC_OMX_RCM_ClientFail,
-               "GetSymbolIndex failed");
 
     DOMX_DEBUG("Getting Symbols");
     for(i = 0; i < MAX_FUNCTION_LIST; i++)
@@ -805,13 +794,7 @@ RPC_OMX_ERRORTYPE _RPC_ClientDestroy()
         rcmHndl = NULL;
     }
 
-    status = RcmClient_destroy();
-    if(status < 0)
-    {
-        TIMM_OSAL_Error("Error in RcmClient_destroy. Error Code: %d",
-                        status);
-        eRPCError = RPC_OMX_RCM_ClientFail;
-    }
+    RcmClient_exit();
 
     return eRPCError;
 }
@@ -827,59 +810,46 @@ RPC_OMX_ERRORTYPE _RPC_IpcSetup()
 {
     RPC_OMX_ERRORTYPE eRPCError = RPC_OMX_ErrorNone,
                       eTmpError = RPC_OMX_ErrorNone;
-    OMX_U16 procId = 0;
-    OMX_U32 shAddrBase = 0, shAddrBase1 = 0;
-    SysMgr_Config config;
+    OMX_U16 procId = 0, remoteId = 0;
+    Ipc_Config config;
     OMX_S32 status = 0;
     OMX_BOOL bCallDestroyIfErr = OMX_FALSE;
+    ProcMgr_AttachParams attachParams;
 
     DOMX_DEBUG("Setup IPC components");
 
-    SysMgr_getConfig(&config);
-    status = SysMgr_setup(&config);
+    Ipc_getConfig(&config);
+    status = Ipc_setup(&config);
     RPC_assert(status >= 0, RPC_OMX_ErrorHardware, 
                "SysMgr Setup failed");
     bCallDestroyIfErr = OMX_TRUE;
 
     procId = MultiProc_getId(SYSM3_PROC_NAME);
+    remoteId = MultiProc_getId(APPM3_PROC_NAME);
 
-        /* Open a handle to the ProcMgr instance. */
+    /*Call open for SysM3*/
     status = ProcMgr_open(&procMgrHandle,
                           procId);
     RPC_assert(status >= 0, RPC_OMX_ErrorHardware, 
-               "ProcMgr open failed");
+               "ProcMgr open failed for SysM3");
     DOMX_DEBUG("ProcMgr_open Status [0x%x]", status);
-    /* Get the address of the shared region in kernel space. */
-    status = ProcMgr_translateAddr(procMgrHandle,
-                                    (OMX_PTR)&shAddrBase,
-                                    ProcMgr_AddrType_MasterUsrVirt,
-                                    (OMX_PTR)SHAREDMEM,
-                                    ProcMgr_AddrType_SlaveVirt);
+    ProcMgr_getAttachParams (NULL, &attachParams);
+    status = ProcMgr_attach (procMgrHandle, &attachParams);
     RPC_assert(status >= 0, RPC_OMX_ErrorHardware,
-               "Error in ProcMgr_translateAddr");
-    DOMX_DEBUG("Virt address of shared address base #1: 0x%x", shAddrBase);
+               "Error in ProcMgr_attach");
+    DOMX_DEBUG("ProcMgr_attach status: [0x%x]\n", status);
 
-    /* Get the address of the shared region in kernel space. */
-    status = ProcMgr_translateAddr(procMgrHandle,
-                                    (OMX_PTR)&shAddrBase1,
-                                    ProcMgr_AddrType_MasterUsrVirt,
-                                    (OMX_PTR)SHAREDMEM1,
-                                    ProcMgr_AddrType_SlaveVirt);
+    /*Call open for AppM3*/
+    status = ProcMgr_open(&procMgrHandle1,
+                          remoteId);
     RPC_assert(status >= 0, RPC_OMX_ErrorHardware,
-               "Error in ProcMgr_translateAddr");
-    DOMX_DEBUG("Virt address of shared address base #2: 0x%x", shAddrBase1);
-
-    /* Add the region to SharedRegion module. */
-    status = SharedRegion_add(0, (OMX_PTR)shAddrBase, SHAREDMEMSIZE);
+               "ProcMgr open failed for appM3");
+    DOMX_DEBUG("ProcMgr_open Status [0x%x]\n", status);
+    ProcMgr_getAttachParams (NULL, &attachParams);
+    status = ProcMgr_attach (procMgrHandle1, &attachParams);
     RPC_assert(status >= 0, RPC_OMX_ErrorHardware,
-               "Error in SharedRegion_add");
-    DOMX_DEBUG("SharedRegion_add 0x%x", status);
-
-    /* Add the region to SharedRegion module. */
-    status = SharedRegion_add(1, (OMX_PTR)shAddrBase1, SHAREDMEMSIZE1);
-    RPC_assert(status >= 0, RPC_OMX_ErrorHardware,
-               "Error in SharedRegion_add1");
-    DOMX_DEBUG("SharedRegion_add1 0x%x", status);
+               "Error in ProcMgr_attach");
+    DOMX_DEBUG("ProcMgr_attach status: [0x%x]\n", status);
 
 EXIT:
     if(eRPCError != RPC_OMX_ErrorNone && bCallDestroyIfErr)
@@ -906,8 +876,31 @@ RPC_OMX_ERRORTYPE _RPC_IpcDestroy()
     RPC_OMX_ERRORTYPE eRPCError = RPC_OMX_ErrorNone;
     OMX_S32 status = 0;
 
+    if(procMgrHandle1)
+    {
+        status =  ProcMgr_detach (procMgrHandle1);
+        if(status < 0)
+        {
+            eRPCError = RPC_OMX_ErrorHardware;
+            TIMM_OSAL_Error("\nError in ProcMgr_detach 0x%x\n", status);
+        }
+        status = ProcMgr_close(&procMgrHandle1);
+        procMgrHandle1 = NULL;
+        if(status < 0)
+        {
+            eRPCError = RPC_OMX_ErrorHardware;
+            TIMM_OSAL_Error("\nError in ProcMgr_close 0x%x\n", status);
+        }
+    }
+
     if(procMgrHandle)
     {
+        status =  ProcMgr_detach (procMgrHandle);
+        if(status < 0)
+        {
+            eRPCError = RPC_OMX_ErrorHardware;
+            TIMM_OSAL_Error("\nError in ProcMgr_detach 0x%x\n", status);
+        }
         status = ProcMgr_close(&procMgrHandle);
         procMgrHandle = NULL;
         if(status < 0) 
@@ -917,12 +910,12 @@ RPC_OMX_ERRORTYPE _RPC_IpcDestroy()
         }
     }
 
-    DOMX_DEBUG("Closing sysmgr");
-    status = SysMgr_destroy();
+    DOMX_DEBUG("Closing IPC");
+    status = Ipc_destroy();
     if (status < 0) 
     {
         eRPCError = RPC_OMX_ErrorHardware;
-        TIMM_OSAL_Error("Error in SysMgr_destroy 0x%x", status);
+        DOMX_ERROR("Error in Ipc_destroy 0x%x", status);
     }
 
     return eRPCError;
