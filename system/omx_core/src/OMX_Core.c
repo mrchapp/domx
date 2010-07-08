@@ -41,7 +41,7 @@
 /** size for the array of allocated components.  Sets the maximum 
  * number of components that can be allocated at once */
 #define MAXCOMP (50)
-#define MAXNAMESIZE (130)
+#define MAXNAMESIZE (128)
 #define EMPTY_STRING "\0"
 
 /** Determine the number of elements in an array */
