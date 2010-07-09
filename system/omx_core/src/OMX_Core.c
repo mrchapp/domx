@@ -428,6 +428,11 @@ OMX_API OMX_ERRORTYPE OMX_APIENTRY OMX_ComponentNameEnum(
 {
     OMX_ERRORTYPE eError = OMX_ErrorNone;
 
+    if(cComponentName == NULL)
+    {
+        eError = OMX_ErrorBadParameter;
+        goto EXIT;
+    }
     if (nIndex >=  tableCount)
     {
         eError = OMX_ErrorNoMore;
@@ -436,7 +441,7 @@ OMX_API OMX_ERRORTYPE OMX_APIENTRY OMX_ComponentNameEnum(
     {
         strcpy(cComponentName, componentTable[nIndex].name);
     }
-    
+EXIT:
     return eError;
 }
 
