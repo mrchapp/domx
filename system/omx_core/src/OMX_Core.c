@@ -478,6 +478,16 @@ OMX_API OMX_ERRORTYPE OMX_GetRolesOfComponent (
         eError = OMX_ErrorBadParameter;
         goto EXIT;       
     }
+    if(pNumRoles == NULL)
+    {
+        eError = OMX_ErrorBadParameter;
+        goto EXIT;
+    }
+    if(strlen(cComponentName) >= MAXNAMESIZE)
+    {
+        eError = OMX_ErrorInvalidComponentName;
+        goto EXIT;
+    }
 
 
     while(!bFound && i < tableCount)
