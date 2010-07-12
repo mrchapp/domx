@@ -550,6 +550,11 @@ OMX_API OMX_ERRORTYPE OMX_GetComponentsOfRole (
        eError = OMX_ErrorBadParameter;
        goto EXIT;
     }
+    if(pNumComps == NULL)
+    {
+        eError = OMX_ErrorBadParameter;
+        goto EXIT;
+    }
 
    /* This implies that the componentTable is not filled */
     if (componentTable[i].pRoleArray[j] == NULL)
