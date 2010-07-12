@@ -1928,7 +1928,8 @@ EXIT:
            //}
         }
         else if(portDef.eDomain==OMX_PortDomainImage) {
-            DOMX_DEBUG("Image DOMAIN TILER SUPPORT");
+            DOMX_DEBUG("Image DOMAIN TILER SUPPORT for NV12 format only");
+            *nNumOfLines = portDef.format.image.nFrameHeight;
         }
         else if(portDef.eDomain==OMX_PortDomainAudio) {
             DOMX_DEBUG("Audio DOMAIN TILER SUPPORT");
