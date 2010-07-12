@@ -575,7 +575,8 @@ OMX_API OMX_ERRORTYPE OMX_GetComponentsOfRole (
                     with the proper size for that number of roles */
                 if (compNames != NULL)
                 {
-                    compNames[k] = (OMX_U8*)componentTable[i].name;
+                    strncpy((OMX_STRING)(compNames[k]),
+                            (OMX_U8*)componentTable[i].name, MAXNAMESIZE);
                 }
                 k++;
             }
