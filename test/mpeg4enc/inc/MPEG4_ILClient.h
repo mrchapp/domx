@@ -63,18 +63,18 @@
 #endif
 
 #ifdef MPEG4_LINUX_CLIENT
-	#define MPEG4CLIENT_TRACE_PRINT(ARGS,...)  TIMM_OSAL_Trace(ARGS,##__VA_ARGS__)
-	#define MPEG4CLIENT_ENTER_PRINT()	         TIMM_OSAL_Entering()
-	#define MPEG4CLIENT_EXIT_PRINT(ARG)           TIMM_OSAL_Exiting(ARG)
+	#define MPEG4CLIENT_TRACE_PRINT(ARGS,...)  TIMM_OSAL_Debug(ARGS,##__VA_ARGS__)
+	#define MPEG4CLIENT_ENTER_PRINT()	         TIMM_OSAL_Entering("")
+	#define MPEG4CLIENT_EXIT_PRINT(ARG)           TIMM_OSAL_Exiting("")
 	#define MPEG4CLIENT_ERROR_PRINT(ARGS,...)  TIMM_OSAL_Error(ARGS,##__VA_ARGS__ )
 	#define MPEG4CLIENT_INFO_PRINT(ARGS,...)     TIMM_OSAL_Info(ARGS,##__VA_ARGS__ )
 #else
 	static TIMM_OSAL_TRACEGRP TraceGrp;
-	#define MPEG4CLIENT_TRACE_PRINT(ARGS,...)   TIMM_OSAL_TraceExt(TraceGrp,ARGS,##__VA_ARGS__)
-	#define MPEG4CLIENT_ENTER_PRINT()               TIMM_OSAL_EnteringExt(TraceGrp)
-	#define MPEG4CLIENT_EXIT_PRINT(ARG)            TIMM_OSAL_ExitingExt(TraceGrp,ARG)
-	#define MPEG4CLIENT_ERROR_PRINT(ARGS,...)   TIMM_OSAL_ErrorExt(TraceGrp,ARGS,##__VA_ARGS__ )
-	#define MPEG4CLIENT_INFO_PRINT(ARGS,...)     TIMM_OSAL_InfoExt(TraceGrp,ARGS,##__VA_ARGS__ )
+	#define MPEG4CLIENT_TRACE_PRINT(ARGS,...)   TIMM_OSAL_Debug(ARGS,##__VA_ARGS__)
+	#define MPEG4CLIENT_ENTER_PRINT()               TIMM_OSAL_Entering("")
+	#define MPEG4CLIENT_EXIT_PRINT(ARG)            TIMM_OSAL_ExitingExt("")
+	#define MPEG4CLIENT_ERROR_PRINT(ARGS,...)   TIMM_OSAL_Error(ARGS,##__VA_ARGS__ )
+	#define MPEG4CLIENT_INFO_PRINT(ARGS,...)     TIMM_OSAL_Info(ARGS,##__VA_ARGS__ )
 #endif
 
 

@@ -59,7 +59,7 @@ void main()
 
 
 	TraceGrp = TIMM_OSAL_TRACEGRP_SYSTEM;
-	TIMM_OSAL_TraceExt(TIMM_OSAL_TRACEGRP_OMXIMGDEC,"tracegroup=%x",TraceGrp);
+	TIMM_OSAL_DebugExt(TIMM_OSAL_TRACEGRP_OMXIMGDEC,"tracegroup=%x",TraceGrp);
 
 
 	TIMM_OSAL_InfoExt(TIMM_OSAL_TRACEGRP_OMXIMGDEC," Select test case start ID (1-51):");
@@ -93,7 +93,6 @@ void main()
 	if (jpegdec_prev == 1)
 		TIMM_OSAL_InfoExt(TIMM_OSAL_TRACEGRP_OMXIMGDEC," Preview On Display selected.\n");
 
-	TIMM_OSAL_EnteringExt(TIMM_OSAL_TRACEGRP_OMXIMGDEC);
 	TIMM_OSAL_InfoExt(TIMM_OSAL_TRACEGRP_OMXIMGDEC," JPEG Decoder Test case begin");
 	printf("\n----------------JPEG Decoder Test Start-------------------------------");
 

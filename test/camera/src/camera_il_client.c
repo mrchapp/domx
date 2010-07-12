@@ -641,7 +641,7 @@ int SendbufferToDss(int index)
 		dprintf(0, "setting up DQ event \n");
 	eError = TIMM_OSAL_EventSet (myEventIn , EVENT_CAMERA_DQ, TIMM_OSAL_EVENT_OR);
 	if(eError != OMX_ErrorNone) {
-	    TIMM_OSAL_ErrorExt(nTraceGroup,"Error from fill Buffer done : ");
+	    TIMM_OSAL_Error("Error from fill Buffer done : ");
 	}
 	}
 #endif 
@@ -681,13 +681,13 @@ OMX_ERRORTYPE SampleTest_FillBufferDone(OMX_IN OMX_HANDLETYPE hComponent,
 									TIMM_OSAL_SUSPEND); 
 	if (retval != TIMM_OSAL_ERR_NONE) {
 		dprintf(0,"\n D FAILED FAILED FAILED FAILED\n");
-		TIMM_OSAL_ErrorExt(nTraceGroup,"Error in writing to pipe!");
+		TIMM_OSAL_Error("Error in writing to pipe!");
 		eError = OMX_ErrorNotReady;
 		return eError;
 	}
 	eError = TIMM_OSAL_EventSet (myEventIn , EVENT_CAMERA_FBD, TIMM_OSAL_EVENT_OR);
 	if(eError != OMX_ErrorNone) {
-	    TIMM_OSAL_ErrorExt(nTraceGroup,"Error from fill Buffer done : ");
+	    TIMM_OSAL_Error("Error from fill Buffer done : ");
 	}
 		
     
@@ -1900,7 +1900,7 @@ void Camera_dqBuff(void *threadsArg)
 	err = TIMM_OSAL_EventRetrieve (myEventIn, uRequestedEvents, TIMM_OSAL_EVENT_OR_CONSUME, &pRetrievedEvents, TIMM_OSAL_SUSPEND);
 	if (TIMM_OSAL_ERR_NONE != err) {
 		dprintf(0,"error = %d pRetrievedEvents\n", err,&pRetrievedEvents);
-		TIMM_OSAL_ErrorExt(nTraceGroup,"Error in Retrieving event!");
+		TIMM_OSAL_Error("Error in Retrieving event!");
 		err = OMX_ErrorUndefined;
 	}
 	dprintf(0, "DQ event received\n");
@@ -1978,7 +1978,7 @@ void Camera_processfbd(void *threadsArg)
 		err = TIMM_OSAL_EventRetrieve (myEventIn, uRequestedEvents, TIMM_OSAL_EVENT_OR_CONSUME, &pRetrievedEvents, TIMM_OSAL_SUSPEND);
 		if (TIMM_OSAL_ERR_NONE != err) {
 			dprintf(0,"error = %d pRetrievedEvents\n", err,&pRetrievedEvents);
-			TIMM_OSAL_ErrorExt(nTraceGroup,"Error in Retrieving event!");
+			TIMM_OSAL_Error("Error in Retrieving event!");
 			err = OMX_ErrorUndefined;
 		}
 		
@@ -2227,14 +2227,14 @@ int test_camera_preview( int width, int height, char *image_fmt)
 	retval = TIMM_OSAL_CreatePipe(&(pContext->FBD_pipe),sizeof(OMX_BUFFERHEADERTYPE*) *DEFAULT_BUFF_CNT ,
                                         sizeof(OMX_BUFFERHEADERTYPE*), OMX_TRUE );
 	if (retval != 0) {
-		TIMM_OSAL_ErrorExt(nTraceGroup,"Error: TIMM_OSAL_CreatePipe failed to open");
+		TIMM_OSAL_Error("Error: TIMM_OSAL_CreatePipe failed to open");
 		eError = OMX_ErrorContentPipeCreationFailed;
 	}
 	
     /* Create input data read thread */
       eError = TIMM_OSAL_EventCreate (&myEventIn);
       if (TIMM_OSAL_ERR_NONE != eError) {
-          TIMM_OSAL_ErrorExt(nTraceGroup, "Error in creating event!");
+          TIMM_OSAL_Error( "Error in creating event!");
           eError = OMX_ErrorInsufficientResources;
       }
 	retval = TIMM_OSAL_CreateTask(

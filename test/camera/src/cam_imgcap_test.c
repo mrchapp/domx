@@ -356,8 +356,7 @@ void Camera_processfbd(void *threadsArg)
 		if (TIMM_OSAL_ERR_NONE != err) {
 			dprintf(0, "error = %d pRetrievedEvents\n", err,\
 						&pRetrievedEvents);
-			TIMM_OSAL_ErrorExt(nTraceGroup, "Error in\
-						Retrieving event!");
+			TIMM_OSAL_Error("Error in Retrieving event!");
 			err = OMX_ErrorUndefined;
 		}
 
@@ -526,15 +525,14 @@ OMX_ERRORTYPE SampleTest_FillBufferDone(OMX_IN OMX_HANDLETYPE hComponent,
 			sizeof(pBuffHeader), TIMM_OSAL_SUSPEND);
 	if (retval != TIMM_OSAL_ERR_NONE) {
 		dprintf(0, "WriteToPipe FAILED\n");
-		TIMM_OSAL_ErrorExt(nTraceGroup, "ERROR in writing to pipe!");
+		TIMM_OSAL_Error("ERROR in writing to pipe!");
 		eError = OMX_ErrorNotReady;
 		return eError;
 	}
 	eError = TIMM_OSAL_EventSet(myEventIn , EVENT_CAMERA_FBD,
 							TIMM_OSAL_EVENT_OR);
 	if (eError != OMX_ErrorNone)
-		TIMM_OSAL_ErrorExt(nTraceGroup, "Error from\
-				fill Buffer done : ");
+		TIMM_OSAL_Error("Error from fill Buffer done : ");
 	dprintf(2, "Writing to pipe is successful\n");
 	dprintf(2, "\n FBD Done \n");
 	return OMX_ErrorNone;

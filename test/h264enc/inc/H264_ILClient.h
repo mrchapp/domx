@@ -56,14 +56,14 @@
 #include <OMX_TI_Common.h> 
 
 #ifdef H264_LINUX_CLIENT
-	#define H264CLIENT_TRACE_PRINT(ARGS,...)  TIMM_OSAL_Trace(ARGS,##__VA_ARGS__)
-	#define H264CLIENT_ENTER_PRINT()	         TIMM_OSAL_Entering()
-	#define H264CLIENT_EXIT_PRINT(ARG)           TIMM_OSAL_Exiting(ARG)
+	#define H264CLIENT_TRACE_PRINT(ARGS,...)  TIMM_OSAL_Debug(ARGS,##__VA_ARGS__)
+	#define H264CLIENT_ENTER_PRINT()	         TIMM_OSAL_Entering("")
+	#define H264CLIENT_EXIT_PRINT(ARG)           TIMM_OSAL_Exiting("")
 	#define H264CLIENT_ERROR_PRINT(ARGS,...)  TIMM_OSAL_Error(ARGS,##__VA_ARGS__ )
 	#define H264CLIENT_INFO_PRINT(ARGS,...)     TIMM_OSAL_Info(ARGS,##__VA_ARGS__ )
 #else
 	static TIMM_OSAL_TRACEGRP TraceGrp;
-	#define H264CLIENT_TRACE_PRINT(ARGS,...)   TIMM_OSAL_TraceExt(TraceGrp,ARGS,##__VA_ARGS__)
+	#define H264CLIENT_TRACE_PRINT(ARGS,...)   TIMM_OSAL_DebugExt(TraceGrp,ARGS,##__VA_ARGS__)
 	#define H264CLIENT_ENTER_PRINT()               TIMM_OSAL_EnteringExt(TraceGrp)
 	#define H264CLIENT_EXIT_PRINT(ARG)            TIMM_OSAL_ExitingExt(TraceGrp,ARG)
 	#define H264CLIENT_ERROR_PRINT(ARGS,...)   TIMM_OSAL_ErrorExt(TraceGrp,ARGS,##__VA_ARGS__ )

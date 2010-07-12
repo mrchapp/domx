@@ -97,7 +97,7 @@ void main()
 	tTIMMSemStatus = TIMM_OSAL_EventCreate (&MPEG4vd_Test_Events);	
     if (TIMM_OSAL_ERR_NONE != tTIMMSemStatus) 
 	{
-	//	TIMM_OSAL_ErrorExt(nTraceGroup, "Error in creating event!");
+	//	TIMM_OSAL_Error("Error in creating event!");
 		eError = OMX_ErrorInsufficientResources;
 		goto EXIT;
     }	
@@ -105,14 +105,14 @@ void main()
 	tTIMMSemStatus = TIMM_OSAL_EventCreate (&MPEG4VD_CmdEvent);
 	if (TIMM_OSAL_ERR_NONE != tTIMMSemStatus) 
 	{
-        TIMM_OSAL_Trace("Error in creating event!\n");
+        TIMM_OSAL_Debug("Error in creating event!\n");
         eError = OMX_ErrorInsufficientResources;
         goto EXIT;
 	}
 	
 	pAppData = (MPEG4_Client*)TIMM_OSAL_Malloc(sizeof(MPEG4_Client), TIMM_OSAL_TRUE, 0, TIMMOSAL_MEM_SEGMENT_EXT);
     if (!pAppData) {
-        //  TIMM_OSAL_ErrorExt(nTraceGroup,"Error allocating pAppData!");
+        //  TIMM_OSAL_Error("Error allocating pAppData!");
           eError = OMX_ErrorInsufficientResources;
           goto EXIT;
     }
@@ -121,12 +121,12 @@ void main()
 	eError = MPEG4DEC_AllocateResources(pAppData); // Allocate memory for the structure fields present in the pAppData(MPEG4_Client)
     if (eError != OMX_ErrorNone) 
 	{
-    //    TIMM_OSAL_ErrorExt(nTraceGroup,"Error allocating resources in main!");
+    //    TIMM_OSAL_Error("Error allocating resources in main!");
         eError = OMX_ErrorInsufficientResources;
         goto EXIT;
     }
 
-	TIMM_OSAL_Trace("\nInput the test case number to be executed : ");
+	TIMM_OSAL_Debug("\nInput the test case number to be executed : ");
 	scanf("%d",&Test_case_number);
 	
 	switch(Test_case_number)
@@ -172,7 +172,7 @@ void main()
 	
 	if(pAppData->fIn == NULL)
 	{
-		TIMM_OSAL_Trace("\nCouldnt open i/p file!!!\n");
+		TIMM_OSAL_Debug("\nCouldnt open i/p file!!!\n");
 			goto EXIT;
 	}
 	
@@ -180,12 +180,12 @@ void main()
 	
 	if(pAppData->fOut == NULL)
 	{
-		TIMM_OSAL_Trace("\nCouldnt open o/p file!!!\n");
+		TIMM_OSAL_Debug("\nCouldnt open o/p file!!!\n");
 			goto EXIT;
 	}
 	
 	
-	TIMM_OSAL_Trace("\nExecuting test case : %d",Test_case_number);
+	TIMM_OSAL_Debug("\nExecuting test case : %d",Test_case_number);
 	
     pAppData->eState = OMX_StateInvalid;
     pAppData->pCb = &AppCallbacks;
@@ -196,7 +196,7 @@ void main()
     /* Load the MPEG4Decoder Component */
     eError = OMX_GetHandle(&pHandle,(OMX_STRING)"OMX.TI.DUCATI1.VIDEO.MPEG4D",pAppData, pAppData->pCb);
     if( (eError != OMX_ErrorNone) || (pHandle == NULL) ) {
-        //TIMM_OSAL_ErrorExt(nTraceGroup,"Error in Get Handle function : %s ", MPEG4_GetDecoderErrorString(eError));
+        //TIMM_OSAL_Error("Error in Get Handle function : %s ", MPEG4_GetDecoderErrorString(eError));
         goto EXIT;
     }
 	
@@ -225,18 +225,18 @@ void main()
 	eError = OMX_SetParameter(pHandle,OMX_IndexParamPortDefinition,(OMX_PTR) &tPortDefs);
 	if (eError !=OMX_ErrorNone)
 	{
-		TIMM_OSAL_Trace("\nerror in SetParam\n");
+		TIMM_OSAL_Debug("\nerror in SetParam\n");
 		goto EXIT;
 	}
 	
 	eError = OMX_GetParameter(pHandle,OMX_TI_IndexParam2DBufferAllocDimension,(OMX_PTR) &tParamStruct);
 	if (eError !=OMX_ErrorNone)
 	{
-		TIMM_OSAL_Trace("\nerror in GetParam\n");
+		TIMM_OSAL_Debug("\nerror in GetParam\n");
 		goto EXIT;
 	}
 	
-	TIMM_OSAL_Trace("\ntParamStruct.nWidth = %d,tParamStruct.nHeight = %d\n",tParamStruct.nWidth,tParamStruct.nHeight);
+	TIMM_OSAL_Debug("\ntParamStruct.nWidth = %d,tParamStruct.nHeight = %d\n",tParamStruct.nWidth,tParamStruct.nHeight);
 	
 	Out_buf_size = tParamStruct.nWidth * tParamStruct.nHeight * 1.5;
 	
@@ -253,10 +253,10 @@ void main()
 	/* OMX_SendCommand expecting OMX_StateIdle */
     eError = OMX_SendCommand(pHandle, OMX_CommandStateSet, OMX_StateIdle, NULL);
     if(eError != OMX_ErrorNone) {
-     //TIMM_OSAL_ErrorExt(nTraceGroup,"Error in SendCommand()-OMX_StateIdle State set : %s ", MPEG4_GetDecoderErrorString(eError));
+     //TIMM_OSAL_Error("Error in SendCommand()-OMX_StateIdle State set : %s ", MPEG4_GetDecoderErrorString(eError));
      goto EXIT;
     }
-    TIMM_OSAL_Trace("\nCame back from send command without error\n");
+    TIMM_OSAL_Debug("\nCame back from send command without error\n");
 	
 	/* Allocate I/O Buffers */
     for (i = 0; i < NUM_OF_IN_BUFFERS; i++) 
@@ -272,21 +272,21 @@ void main()
 	/* Wait for initialization to complete.. Wait for Idle stete of component  */
     eError = MPEG4DEC_WaitForState(pHandle, OMX_StateIdle);
     if(eError != OMX_ErrorNone) {
-    //    TIMM_OSAL_ErrorExt(nTraceGroup,"Error %s:    WaitForState has timed out ", MPEG4_GetDecoderErrorString(eError));
+    //    TIMM_OSAL_Error("Error %s:    WaitForState has timed out ", MPEG4_GetDecoderErrorString(eError));
         goto EXIT;
     }
 
     eError = OMX_SendCommand(pHandle,OMX_CommandStateSet, OMX_StateExecuting, NULL);
     if(eError != OMX_ErrorNone)
     {
-    //   TIMM_OSAL_ErrorExt(nTraceGroup,"Error from SendCommand-Executing State set :%s ", MPEG4_GetDecoderErrorString(eError));
+    //   TIMM_OSAL_Error("Error from SendCommand-Executing State set :%s ", MPEG4_GetDecoderErrorString(eError));
         goto EXIT;
     }
 
     eError = MPEG4DEC_WaitForState(pHandle, OMX_StateExecuting);
     if(eError != OMX_ErrorNone)
     {
-     //   TIMM_OSAL_ErrorExt(nTraceGroup,"Error %s:    WaitForState has timed out ", MPEG4_GetDecoderErrorString(eError));
+     //   TIMM_OSAL_Error("Error %s:    WaitForState has timed out ", MPEG4_GetDecoderErrorString(eError));
         goto EXIT;
     }
 
@@ -301,7 +301,7 @@ void main()
 		eError = OMX_EmptyThisBuffer(pHandle, pAppData->pInBuff[i]);		 
 		if(eError != OMX_ErrorNone) 
 		{
-        //    TIMM_OSAL_ErrorExt(nTraceGroup,"Error from Empty this buffer : %s ", MPEG4_GetDecoderErrorString(eError));
+        //    TIMM_OSAL_Error("Error from Empty this buffer : %s ", MPEG4_GetDecoderErrorString(eError));
             goto EXIT;
 		}
 	}
@@ -311,7 +311,7 @@ void main()
 		eError = OMX_FillThisBuffer(pHandle, pAppData->pOutBuff[i]);
 		if(eError != OMX_ErrorNone) 
 		{
-		//    TIMM_OSAL_ErrorExt(nTraceGroup,"Error from Fill this buffer : %s ", MPEG4_GetDecoderErrorString(eError));
+		//    TIMM_OSAL_Error("Error from Fill this buffer : %s ", MPEG4_GetDecoderErrorString(eError));
 			goto EXIT;
 		}
 	}
@@ -327,11 +327,11 @@ void main()
 		eError = MPEG4DEC_WaitForState(pHandle, OMX_StatePause);
 		if(eError != OMX_ErrorNone) 
 		{
-		    TIMM_OSAL_Trace("\n Test case 140 failed.\n");
+		    TIMM_OSAL_Debug("\n Test case 140 failed.\n");
 			goto EXIT;
 		}
 		else if (eError == OMX_ErrorNone)
-			TIMM_OSAL_Trace("\n Test case 140 successful.\n");
+			TIMM_OSAL_Debug("\n Test case 140 successful.\n");
     }
 	if(Test_case_number ==141 || Test_case_number ==143 || Test_case_number ==144)
 	{
@@ -344,11 +344,11 @@ void main()
 		eError = MPEG4DEC_WaitForState(pHandle, OMX_StateExecuting);
 		if(eError != OMX_ErrorNone) 
 		{
-		    TIMM_OSAL_Trace("\n Test case 141 failed.\n");
+		    TIMM_OSAL_Debug("\n Test case 141 failed.\n");
 			goto EXIT;
 		}
 		else if (eError == OMX_ErrorNone)
-			TIMM_OSAL_Trace("\n Test case 141 successful.\n");
+			TIMM_OSAL_Debug("\n Test case 141 successful.\n");
 	}
 	if(Test_case_number ==144)
 	{
@@ -361,11 +361,11 @@ void main()
 		eError = MPEG4DEC_WaitForState(pHandle, OMX_StatePause);
 		if(eError != OMX_ErrorNone) 
 		{
-		    TIMM_OSAL_Trace("\n Test case 144 failed.\n");
+		    TIMM_OSAL_Debug("\n Test case 144 failed.\n");
 			goto EXIT;
 		}
 		else if (eError == OMX_ErrorNone)
-			TIMM_OSAL_Trace("\n Test case 144 successful.\n");
+			TIMM_OSAL_Debug("\n Test case 144 successful.\n");
     }
 	if(Test_case_number ==142 || Test_case_number ==143 || Test_case_number ==144)
 	{
@@ -378,32 +378,32 @@ void main()
 		eError = MPEG4DEC_WaitForState(pHandle, OMX_StateIdle);
 		if(eError != OMX_ErrorNone) 
 		{
-			TIMM_OSAL_Trace("\n Test case %d failed.\n",Test_case_number);
+			TIMM_OSAL_Debug("\n Test case %d failed.\n",Test_case_number);
 			goto EXIT;
 		}
 		else if (eError == OMX_ErrorNone)
-			TIMM_OSAL_Trace("\n Test case %d successful.\n",Test_case_number);
+			TIMM_OSAL_Debug("\n Test case %d successful.\n",Test_case_number);
 	}	
 		
 	eError = OMX_GetState(pHandle, &pAppData->eState);
 	
-	TIMM_OSAL_Trace("\nReturned from Get State\n");
+	TIMM_OSAL_Debug("\nReturned from Get State\n");
 		
 	while(pAppData->eState == OMX_StateExecuting)
 	{
 		uRequestedEvents = (MPEG4_DEC_EMPTY_BUFFER_DONE | MPEG4_DEC_FILL_BUFFER_DONE | MPEG4_DECODER_ERROR_EVENT | MPEG4_DECODER_END_OF_STREAM);
 		tTIMMSemStatus = TIMM_OSAL_EventRetrieve (MPEG4vd_Test_Events, uRequestedEvents, TIMM_OSAL_EVENT_OR_CONSUME, &pRetrievedEvents, TIMM_OSAL_SUSPEND);
         if (TIMM_OSAL_ERR_NONE != tTIMMSemStatus) {
-        //    TIMM_OSAL_ErrorExt(nTraceGroup,"Error in creating event!");
+        //    TIMM_OSAL_Error("Error in creating event!");
             eError = OMX_ErrorUndefined;
             goto EXIT;
         }
 		
 		if(pRetrievedEvents & MPEG4_DECODER_END_OF_STREAM)
 		{
-			TIMM_OSAL_Trace("\nEOS recieved\n");
+			TIMM_OSAL_Debug("\nEOS recieved\n");
 			if(Test_case_number == 137)
-				TIMM_OSAL_Trace("\n Test case 137 successful\n");
+				TIMM_OSAL_Debug("\n Test case 137 successful\n");
 		
 			break;
 		}	
@@ -411,26 +411,26 @@ void main()
 	    if (pRetrievedEvents & MPEG4_DEC_EMPTY_BUFFER_DONE) 
 		{
 			TIMM_OSAL_GetPipeReadyMessageCount (pAppData->IpBuf_Pipe, &buff_remaining);
-			TIMM_OSAL_Trace("\nbuff_remaining %d\n",buff_remaining);
+			TIMM_OSAL_Debug("\nbuff_remaining %d\n",buff_remaining);
             while (buff_remaining && Eos_sent == 0)
 			{
                 /*read from the pipe*/
-				TIMM_OSAL_Trace("\nBefore reading from pipe\n");
+				TIMM_OSAL_Debug("\nBefore reading from pipe\n");
                 TIMM_OSAL_ReadFromPipe (pAppData->IpBuf_Pipe, &pBufferIn, sizeof(pBufferIn), &actualSize, TIMM_OSAL_NO_SUSPEND );
-				TIMM_OSAL_Trace("\ni/p buffer dequeued\n");
+				TIMM_OSAL_Debug("\ni/p buffer dequeued\n");
 				if(pBufferIn == TIMM_OSAL_NULL)
 				{
 					break;
-				//	TIMM_OSAL_TraceExt(nTraceGroup, "\n Null received from pipe");
+				//	TIMM_OSAL_Debug("\n Null received from pipe");
 				}
 				else
 				{
-				//	TIMM_OSAL_TraceExt(nTraceGroup, "\n Header received from pipe = 0x%x", pBufferIn);
+				//	TIMM_OSAL_Debug("\n Header received from pipe = 0x%x", pBufferIn);
 				}
 				
 					if(pBufferIn->nFilledLen > 3)
 					{
-						TIMM_OSAL_Trace("\nFilledLen from component is %d\n",pBufferIn->nFilledLen);
+						TIMM_OSAL_Debug("\nFilledLen from component is %d\n",pBufferIn->nFilledLen);
 						pBufferIn->nOffset = (pBufferIn->nAllocLen - pBufferIn->nFilledLen);
 					}
 					else
@@ -440,14 +440,14 @@ void main()
 						pBufferIn->nFlags |= OMX_BUFFERFLAG_EOS;
 						Eos_sent = 1;
 						if(Test_case_number == 137)
-							TIMM_OSAL_Trace("\n EOS given in an empty i/p frame\n");
+							TIMM_OSAL_Debug("\n EOS given in an empty i/p frame\n");
 							
 					}
 				
 				eError = OMX_EmptyThisBuffer(pHandle, pBufferIn);
 				if(eError != OMX_ErrorNone) 
 				{
-                //    TIMM_OSAL_ErrorExt(nTraceGroup,"Error from Empty this buffer : %s ", MPEG4_GetDecoderErrorString(eError));
+                //    TIMM_OSAL_Error("Error from Empty this buffer : %s ", MPEG4_GetDecoderErrorString(eError));
                     goto EXIT;
                 }
                 TIMM_OSAL_GetPipeReadyMessageCount (pAppData->IpBuf_Pipe, &buff_remaining);
@@ -463,10 +463,10 @@ void main()
                 eError = OMX_FillThisBuffer(pHandle, pBufferOut);			
                 if(eError != OMX_ErrorNone) 
 				{
-                //    TIMM_OSAL_ErrorExt(nTraceGroup,"Error from Fill this buffer : %s ", MPEG4_GetDecoderErrorString(eError));
+                //    TIMM_OSAL_Error("Error from Fill this buffer : %s ", MPEG4_GetDecoderErrorString(eError));
                     goto EXIT;
                 }
-				TIMM_OSAL_Trace("\nSent another output buffer\n");
+				TIMM_OSAL_Debug("\nSent another output buffer\n");
                 TIMM_OSAL_GetPipeReadyMessageCount (pAppData->OpBuf_Pipe, &buff_remaining);
             } while (buff_remaining);
         }
@@ -477,7 +477,7 @@ void main()
         }
 
         eError = OMX_GetState(pHandle, &pAppData->eState);
-		TIMM_OSAL_Trace("\nReturned from Get State\n");
+		TIMM_OSAL_Debug("\nReturned from Get State\n");
     }
 	
 	SKIPDECODE:
@@ -487,13 +487,13 @@ void main()
 	
 		eError = OMX_SendCommand(pHandle,OMX_CommandStateSet, OMX_StateIdle, NULL);
 		if(eError != OMX_ErrorNone) {
-		//    TIMM_OSAL_ErrorExt(nTraceGroup,"Error from SendCommand-Idle State set : %s ", MPEG4_GetDecoderErrorString(eError));
+		//    TIMM_OSAL_Error("Error from SendCommand-Idle State set : %s ", MPEG4_GetDecoderErrorString(eError));
         goto EXIT;
 		}
 
 		eError = MPEG4DEC_WaitForState(pHandle, OMX_StateIdle);
 		if(eError != OMX_ErrorNone) {
-		//   TIMM_OSAL_ErrorExt(nTraceGroup,"Error %s:    WaitForState has timed out ", MPEG4_GetDecoderErrorString(eError));
+		//   TIMM_OSAL_Error("Error %s:    WaitForState has timed out ", MPEG4_GetDecoderErrorString(eError));
 			goto EXIT;
 		}
 	}
@@ -501,7 +501,7 @@ void main()
 
     eError = OMX_SendCommand(pHandle,OMX_CommandStateSet, OMX_StateLoaded, NULL);
     if(eError != OMX_ErrorNone) {
-    //   TIMM_OSAL_ErrorExt(nTraceGroup,"Error from SendCommand-Loaded State set : %s ", MPEG4_GetDecoderErrorString(eError));
+    //   TIMM_OSAL_Error("Error from SendCommand-Loaded State set : %s ", MPEG4_GetDecoderErrorString(eError));
         goto EXIT;
     }
 	
@@ -517,7 +517,7 @@ void main()
 	
     eError = MPEG4DEC_WaitForState(pHandle, OMX_StateLoaded);
     if(eError != OMX_ErrorNone) {
-    //   TIMM_OSAL_ErrorExt(nTraceGroup,"Error %s:    WaitForState has timed out ", MPEG4_GetDecoderErrorString(eError));
+    //   TIMM_OSAL_Error("Error %s:    WaitForState has timed out ", MPEG4_GetDecoderErrorString(eError));
         goto EXIT;
     }
 	
@@ -525,13 +525,13 @@ void main()
     eError = OMX_FreeHandle(pHandle);
     if( (eError != OMX_ErrorNone)) 
 	{
-    //    TIMM_OSAL_ErrorExt(nTraceGroup,"Error in Free Handle function : %s ", MPEG4_GetDecoderErrorString(eError));
+    //    TIMM_OSAL_Error("Error in Free Handle function : %s ", MPEG4_GetDecoderErrorString(eError));
         goto EXIT;
     }
 	
 	eError = OMX_Deinit();
 	
-	TIMM_OSAL_Trace("\n Test case successful\n");
+	TIMM_OSAL_Debug("\n Test case successful\n");
 	
 	EXIT:
 		if(pAppData)
@@ -548,7 +548,7 @@ void main()
     if (TIMM_OSAL_ERR_NONE != tTIMMSemStatus) 
 	{
 	//           TBD
-    //    TIMM_OSAL_ErrorExt(nTraceGroup,"Error in deleting event!");         
+    //    TIMM_OSAL_Error("Error in deleting event!");
     //   eError = OMX_ErrorInsufficientResources;
     //   goto EXIT;
     }
@@ -557,7 +557,7 @@ void main()
 	if (TIMM_OSAL_ERR_NONE != tTIMMSemStatus) 
 	{
 	// 		TBD
-    //    TIMM_OSAL_Trace("Error in creating event!\n");
+    //    TIMM_OSAL_Debug("Error in creating event!\n");
     //    eError = OMX_ErrorInsufficientResources;
     //    goto EXIT;
     }
@@ -588,7 +588,7 @@ OMX_ERRORTYPE MPEG4DEC_AllocateResources(MPEG4_Client* pAppData)
                                         sizeof(OMX_BUFFERHEADERTYPE*), OMX_TRUE );
     if (retval != 0)
     {
-     //   TIMM_OSAL_ErrorExt(nTraceGroup,"Error: TIMM_OSAL_CreatePipe failed to open");
+     //   TIMM_OSAL_Error("Error: TIMM_OSAL_CreatePipe failed to open");
         eError = OMX_ErrorContentPipeCreationFailed;
         goto EXIT;
     }
@@ -596,7 +596,7 @@ OMX_ERRORTYPE MPEG4DEC_AllocateResources(MPEG4_Client* pAppData)
     retval = TIMM_OSAL_CreatePipe(&(pAppData->OpBuf_Pipe),sizeof(OMX_BUFFERHEADERTYPE*) * NUM_OF_OUT_BUFFERS, sizeof(OMX_BUFFERHEADERTYPE*), OMX_TRUE );
     if (retval != 0)
     {
-     //   TIMM_OSAL_ErrorExt(nTraceGroup,"Error: TIMM_OSAL_CreatePipe failed to open");
+     //   TIMM_OSAL_Error("Error: TIMM_OSAL_CreatePipe failed to open");
         eError = OMX_ErrorContentPipeCreationFailed;
         goto EXIT;
     }
@@ -604,7 +604,6 @@ OMX_ERRORTYPE MPEG4DEC_AllocateResources(MPEG4_Client* pAppData)
 
 
 EXIT:
-    TIMM_OSAL_ExitingExt(nTraceGroup, eError);
     return eError;
 }
 
@@ -627,7 +626,7 @@ void MPEG4DEC_FreeResources(MPEG4_Client* pAppData)
 	if(pAppData->pBuffer1D)
         TIMM_OSAL_Free(pAppData->pBuffer1D);
 
-    //TIMM_OSAL_ExitingExt(nTraceGroup, 0);
+    //TIMM_OSAL_Exiting(0);
     return;
 }
 
@@ -643,7 +642,7 @@ OMX_ERRORTYPE MPEG4DEC_EventHandler(OMX_HANDLETYPE hComponent,OMX_PTR ptrAppData
 	    	retval = TIMM_OSAL_EventSet (MPEG4VD_CmdEvent, MPEG4_STATETRANSITION_COMPLETE, TIMM_OSAL_EVENT_OR);
 			if (retval != TIMM_OSAL_ERR_NONE) 
 			{
-            //    TIMM_OSAL_Trace("\nError in setting the event!\n");
+            //    TIMM_OSAL_Debug("\nError in setting the event!\n");
                 eError = OMX_ErrorNotReady;
                 return eError;
             }
@@ -653,7 +652,7 @@ OMX_ERRORTYPE MPEG4DEC_EventHandler(OMX_HANDLETYPE hComponent,OMX_PTR ptrAppData
 			retval = TIMM_OSAL_EventSet (MPEG4VD_CmdEvent, MPEG4_DECODER_ERROR_EVENT, TIMM_OSAL_EVENT_OR);
 			if (retval != TIMM_OSAL_ERR_NONE) 
 			{
-                TIMM_OSAL_Trace("\nError in setting the event!\n");
+                TIMM_OSAL_Debug("\nError in setting the event!\n");
                 eError = OMX_ErrorNotReady;
                 return eError;
             }
@@ -673,7 +672,7 @@ OMX_ERRORTYPE MPEG4DEC_EventHandler(OMX_HANDLETYPE hComponent,OMX_PTR ptrAppData
 				retval = TIMM_OSAL_EventSet (MPEG4vd_Test_Events, MPEG4_DECODER_END_OF_STREAM, TIMM_OSAL_EVENT_OR);
 				if (retval != TIMM_OSAL_ERR_NONE) 
 				{
-				//	TIMM_OSAL_ErrorExt(nTraceGroup,"Error in setting the event!");
+				//	TIMM_OSAL_Error("Error in setting the event!");
 					eError = OMX_ErrorNotReady;
 					return eError;
 				}
@@ -697,7 +696,7 @@ OMX_ERRORTYPE MPEG4DEC_EventHandler(OMX_HANDLETYPE hComponent,OMX_PTR ptrAppData
 
     } // end of switch
 
-	//TIMM_OSAL_ExitingExt(nTraceGroup, eError);
+	//TIMM_OSAL_Exiting(eError);
     return eError;
 }
 
@@ -710,7 +709,7 @@ OMX_ERRORTYPE MPEG4DEC_EmptyBufferDone(OMX_HANDLETYPE hComponent, OMX_PTR ptrApp
     retval = TIMM_OSAL_WriteToPipe(pAppData->IpBuf_Pipe, &pBuffHeader, sizeof(pBuffHeader),  TIMM_OSAL_SUSPEND);
     if (retval != TIMM_OSAL_ERR_NONE) 
 	{
-    //    TIMM_OSAL_ErrorExt(nTraceGroup,"Error writing to Input buffer i/p Pipe!");
+    //    TIMM_OSAL_Error("Error writing to Input buffer i/p Pipe!");
         eError = OMX_ErrorNotReady;
         return eError;
     }
@@ -718,12 +717,12 @@ OMX_ERRORTYPE MPEG4DEC_EmptyBufferDone(OMX_HANDLETYPE hComponent, OMX_PTR ptrApp
     retval = TIMM_OSAL_EventSet (MPEG4vd_Test_Events, MPEG4_DEC_EMPTY_BUFFER_DONE, TIMM_OSAL_EVENT_OR);
     if (retval != TIMM_OSAL_ERR_NONE) 
 	{
-    //    TIMM_OSAL_ErrorExt(nTraceGroup,"Error in setting the event!");
+    //    TIMM_OSAL_Error("Error in setting the event!");
         eError = OMX_ErrorNotReady;
         return eError;
     }
-	TIMM_OSAL_Trace("\nExiting Empty Buffer Done\n");
-    //TIMM_OSAL_ExitingExt(nTraceGroup, eError);
+	TIMM_OSAL_Debug("\nExiting Empty Buffer Done\n");
+    //TIMM_OSAL_Exiting(eError);
     return eError;
 }
 
@@ -743,12 +742,12 @@ OMX_ERRORTYPE MPEG4DEC_FillBufferDone (OMX_HANDLETYPE hComponent, OMX_PTR ptrApp
 	tParamStruct.nPortIndex = 1;
 	
 	if(Test_case_number == 139 && pBuffHeader->nFlags & OMX_BUFFERFLAG_EOS )
-		TIMM_OSAL_Trace("\n Last picture processed.\nTest case 139 successful\n");
+		TIMM_OSAL_Debug("\n Last picture processed.\nTest case 139 successful\n");
 	
 	eError = OMX_GetParameter(hComponent,OMX_TI_IndexParam2DBufferAllocDimension,(OMX_PTR) &tParamStruct);
 	if (eError !=OMX_ErrorNone)
 	{
-		TIMM_OSAL_Trace("\nerror in getparam\n");
+		TIMM_OSAL_Debug("\nerror in getparam\n");
 	}
 	
 	nWidth2D = tParamStruct.nWidth;
@@ -764,7 +763,7 @@ OMX_ERRORTYPE MPEG4DEC_FillBufferDone (OMX_HANDLETYPE hComponent, OMX_PTR ptrApp
 			nWrite = fwrite(pAppData->pBuffer1D, sizeof(OMX_U8), nSize1D*1.5, pAppData->fOut);
 			if (nWrite != nSize1D*1.5)
 			{
-				TIMM_OSAL_Trace("\nError in writing to file\n");
+				TIMM_OSAL_Debug("\nError in writing to file\n");
 			}
 	}
 	
@@ -773,7 +772,7 @@ OMX_ERRORTYPE MPEG4DEC_FillBufferDone (OMX_HANDLETYPE hComponent, OMX_PTR ptrApp
     retval = TIMM_OSAL_WriteToPipe(pAppData->OpBuf_Pipe, &pBuffHeader, sizeof(pBuffHeader), TIMM_OSAL_SUSPEND); //timeout - TIMM_OSAL_SUSPEND ??
     if (retval != TIMM_OSAL_ERR_NONE) 
 	{
-     //   TIMM_OSAL_ErrorExt(nTraceGroup,"Error writing to Output buffer Pipe!");
+     //   TIMM_OSAL_Error("Error writing to Output buffer Pipe!");
         eError = OMX_ErrorNotReady;
         return eError;
     }
@@ -781,13 +780,13 @@ OMX_ERRORTYPE MPEG4DEC_FillBufferDone (OMX_HANDLETYPE hComponent, OMX_PTR ptrApp
     retval = TIMM_OSAL_EventSet (MPEG4vd_Test_Events, MPEG4_DEC_FILL_BUFFER_DONE, TIMM_OSAL_EVENT_OR);
     if (retval != TIMM_OSAL_ERR_NONE) 
 	{
-     //   TIMM_OSAL_ErrorExt(nTraceGroup,"Error in setting the o/p event!");
+     //   TIMM_OSAL_Error("Error in setting the o/p event!");
         eError = OMX_ErrorNotReady;
         return eError;
     }
     
 
-    //TIMM_OSAL_ExitingExt(nTraceGroup, eError);
+    //TIMM_OSAL_Exiting(eError);
     return eError;
 }
 
@@ -797,15 +796,13 @@ OMX_ERRORTYPE MPEG4DEC_WaitForState(OMX_HANDLETYPE* pHandle, OMX_STATETYPE Desir
      TIMM_OSAL_U32 uRequestedEvents, pRetrievedEvents;
      TIMM_OSAL_ERRORTYPE retval;
 
-     TIMM_OSAL_EnteringExt(nTraceGroup);
-	
 	/* Wait for an event */
 	uRequestedEvents = (MPEG4_STATETRANSITION_COMPLETE | MPEG4_DECODER_ERROR_EVENT);
 	retval = TIMM_OSAL_EventRetrieve (MPEG4VD_CmdEvent, uRequestedEvents, TIMM_OSAL_EVENT_OR_CONSUME, &pRetrievedEvents, TIMM_OSAL_SUSPEND);
 	
 	if (TIMM_OSAL_ERR_NONE != retval) 
 	{
-          TIMM_OSAL_Trace("\nError in EventRetrieve !\n");
+          TIMM_OSAL_Debug("\nError in EventRetrieve !\n");
           eError = OMX_ErrorInsufficientResources;
           goto EXIT;
     }
@@ -816,7 +813,6 @@ OMX_ERRORTYPE MPEG4DEC_WaitForState(OMX_HANDLETYPE* pHandle, OMX_STATETYPE Desir
 	}
 
 	EXIT:
-		TIMM_OSAL_ExitingExt(nTraceGroup, eError);
 		return eError;
 }
 
@@ -824,8 +820,6 @@ OMX_U32 MPEG4DEC_FillData(MPEG4_Client* pAppData,OMX_BUFFERHEADERTYPE *pBuf)
 {
     OMX_U32 nRead = 0;
     OMX_U32 framesizetoread = 0;
-
-    TIMM_OSAL_EnteringExt(nTraceGroup);
 
     if(!feof(pAppData->fIn))
     {
@@ -845,7 +839,7 @@ OMX_U32 MPEG4DEC_FillData(MPEG4_Client* pAppData,OMX_BUFFERHEADERTYPE *pBuf)
         pBuf->pBuffer = NULL;
     }
 
-    //TIMM_OSAL_ExitingExt(nTraceGroup, nRead);
+    //TIMM_OSAL_Exiting(nRead);
     return nRead;
 }
 
@@ -855,8 +849,6 @@ OMX_ERRORTYPE MPEG4DEC_SetParamPortDefinition(MPEG4_Client* pAppData)
     OMX_ERRORTYPE eError = OMX_ErrorUndefined;
     OMX_HANDLETYPE pHandle = pAppData->pHandle;
     //OMX_PORT_PARAM_TYPE portInit;
-
-    TIMM_OSAL_EnteringExt(nTraceGroup);
 
     if(!pHandle)
 	{
@@ -882,7 +874,6 @@ OMX_ERRORTYPE MPEG4DEC_SetParamPortDefinition(MPEG4_Client* pAppData)
     pAppData->pOutPortDef->nBufferSize = Out_buf_size;
 
 	EXIT:
-		TIMM_OSAL_ExitingExt(nTraceGroup, eError);
 		return eError;
 }
 
@@ -898,10 +889,10 @@ static OMX_ERRORTYPE OMXMPEG4_Util_Memcpy_2Dto1D(OMX_PTR pDst1D, OMX_PTR pSrc2D,
 	pInBuffer = (OMX_U8 *)pSrc2D;
 	pOutBuffer = (OMX_U8 *)pDst1D;
     //The lower limit is copied. If nSize1D < H*W then 1Dsize is copied else H*W is copied
-	TIMM_OSAL_Trace("\nStarting the 2D to 1D memcpy\n");
+	TIMM_OSAL_Debug("\nStarting the 2D to 1D memcpy\n");
     for(i = 0; i < nHeight2D; i++)
     {
-	    //TIMM_OSAL_Trace("\nCopying row %d\n", i);
+	    //TIMM_OSAL_Debug("\nCopying row %d\n", i);
         if(nSizeLeft >= nWidth2D)
         {
             retval=TIMM_OSAL_Memcpy(pOutBuffer, pInBuffer, nWidth2D);
@@ -913,7 +904,7 @@ static OMX_ERRORTYPE OMXMPEG4_Util_Memcpy_2Dto1D(OMX_PTR pDst1D, OMX_PTR pSrc2D,
 		//GOTO_EXIT_IF((retval != TIMM_OSAL_ERR_NONE),OMX_ErrorUndefined);
             break;
         }
-		//TIMM_OSAL_Trace("\nCopied row %d, updating pointers\n", i);
+		//TIMM_OSAL_Debug("\nCopied row %d, updating pointers\n", i);
         nSizeLeft -= nWidth2D;
         pInBuffer = (OMX_U8 *)((TIMM_OSAL_U32)pInBuffer + nStride2D);
         pOutBuffer = (OMX_U8 *)((TIMM_OSAL_U32)pOutBuffer + nWidth2D);
@@ -921,10 +912,10 @@ static OMX_ERRORTYPE OMXMPEG4_Util_Memcpy_2Dto1D(OMX_PTR pDst1D, OMX_PTR pSrc2D,
 	
 	nSizeLeft = nSize1D/2;
     //The lower limit is copied. If nSize1D < H*W then 1Dsize is copied else H*W is copied
-	TIMM_OSAL_Trace("\nStarting the 2D to 1D memcpy\n");
+	TIMM_OSAL_Debug("\nStarting the 2D to 1D memcpy\n");
     for(i = 0; i < nHeight2D/2; i++)
     {
-	    //TIMM_OSAL_Trace("\nCopying row %d\n", i);
+	    //TIMM_OSAL_Debug("\nCopying row %d\n", i);
         if(nSizeLeft >= nWidth2D)
         {
             retval=TIMM_OSAL_Memcpy(pOutBuffer, pInBuffer, nWidth2D);
@@ -936,15 +927,14 @@ static OMX_ERRORTYPE OMXMPEG4_Util_Memcpy_2Dto1D(OMX_PTR pDst1D, OMX_PTR pSrc2D,
 		//GOTO_EXIT_IF((retval != TIMM_OSAL_ERR_NONE),OMX_ErrorUndefined);
             break;
         }
-		//TIMM_OSAL_Trace("\nCopied row %d, updating pointers\n", i);
+		//TIMM_OSAL_Debug("\nCopied row %d, updating pointers\n", i);
         nSizeLeft -= nWidth2D;
         pInBuffer = (OMX_U8 *)((TIMM_OSAL_U32)pInBuffer + nStride2D);
         pOutBuffer = (OMX_U8 *)((TIMM_OSAL_U32)pOutBuffer + nWidth2D);
     }
-    TIMM_OSAL_Trace("\nDone copying\n");
+    TIMM_OSAL_Debug("\nDone copying\n");
 	
 	EXIT:
-		TIMM_OSAL_Exiting(eError);
 		return eError;
 
 }
