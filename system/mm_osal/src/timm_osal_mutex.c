@@ -34,8 +34,6 @@
 
 #include <errno.h>
 
-#define __USE_XOPEN2K /* required for pthread_mutex_timedlock */
-
 #include <pthread.h>
 #include <sys/time.h>
 

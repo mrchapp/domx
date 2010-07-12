@@ -43,8 +43,6 @@
 
 
 
-static TIMM_OSAL_BOOL bOSALInitialized = TIMM_OSAL_FALSE;
-
 static TIMM_OSAL_U32 gMallocCounter = 0;
 
 /******************************************************************************
@@ -159,7 +157,6 @@ TIMM_OSAL_ERRORTYPE TIMM_OSAL_Memset (TIMM_OSAL_PTR pBuffer, TIMM_OSAL_U8 uValue
     memset((void*)pBuffer,(int)uValue,(size_t)uSize);
 	bReturnStatus = TIMM_OSAL_ERR_NONE;
 
-EXIT:
     return bReturnStatus;
 }
 
@@ -199,7 +196,7 @@ TIMM_OSAL_ERRORTYPE TIMM_OSAL_Memcpy (TIMM_OSAL_PTR pBufDst, TIMM_OSAL_PTR pBufS
 
     memcpy(pBufDst, pBufSrc, uSize);
 	bReturnStatus = TIMM_OSAL_ERR_NONE;
-EXIT:
+
     return bReturnStatus;
 }
 /* ========================================================================== */

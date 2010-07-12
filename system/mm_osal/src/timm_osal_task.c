@@ -92,7 +92,6 @@ TIMM_OSAL_ERRORTYPE TIMM_OSAL_CreateTask (TIMM_OSAL_PTR *pTask,
 	struct sched_param sched;
     size_t stackSize;
     *pTask = TIMM_OSAL_NULL;
-    unsigned int temp = (unsigned int)pFunc;
 
 
 	/*Task structure allocation*/

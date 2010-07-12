@@ -85,9 +85,9 @@ OMX_ERRORTYPE OMX_ComponentInit(OMX_HANDLETYPE hComponent)
 		goto EXIT;
 	}
 	pComponentPrivate->cCompName =
-		(OMX_U8 *)TIMM_OSAL_Malloc(
-		MAX_COMPONENT_NAME_LENGTH*sizeof(OMX_U8), TIMM_OSAL_TRUE, 0,
-		TIMMOSAL_MEM_SEGMENT_INT);
+			TIMM_OSAL_Malloc(
+					MAX_COMPONENT_NAME_LENGTH*sizeof(OMX_U8), TIMM_OSAL_TRUE, 0,
+					TIMMOSAL_MEM_SEGMENT_INT);
 
 	if (pComponentPrivate->cCompName == NULL) {
 		DOMX_DEBUG(" ERROR IN ALLOCATING PROXY " \

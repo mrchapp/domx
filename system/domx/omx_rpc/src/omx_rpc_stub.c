@@ -123,7 +123,6 @@ RPC_OMX_ERRORTYPE RPC_GetHandle(RPC_OMX_HANDLE hRPCCtx, OMX_STRING cComponentNam
     OMX_U32 dataOffset = 0;
     OMX_U32 dataOffset2 = 0;
     OMX_U32 offset=0;
-    OMX_PTR * testVal;
     OMX_U32 nPacketSize = PACKET_SIZE;
     RcmClient_Message * pPacket=NULL;
     OMX_U32 nPos = 0;
@@ -1131,7 +1130,6 @@ RPC_OMX_ERRORTYPE RPC_GetExtensionIndex(RPC_OMX_HANDLE hRPCCtx,OMX_STRING cParam
   RPC_OMX_MESSAGE* pRPCMsg=NULL;
   RPC_OMX_BYTE * pMsgBody=NULL;
   OMX_U32  offset = 0;  
-  OMX_U32 i_offset;
   OMX_U32 nPos = 0;
   RPC_OMX_CONTEXT *hCtx = hRPCCtx;
   RPC_OMX_HANDLE hComp = hCtx->remoteHandle;
@@ -1159,7 +1157,7 @@ RPC_OMX_ERRORTYPE RPC_GetExtensionIndex(RPC_OMX_HANDLE hRPCCtx,OMX_STRING cParam
     
   //can assert this value at proxy
   if(strlen(cParameterName) <= 128) {
-    strcpy((pMsgBody+offset), cParameterName);
+    strcpy((OMX_STRING)(pMsgBody+offset), cParameterName);
   }
     
   RPC_sendPacket_sync(hCtx->ClientHndl[RCM_DEFAULT_CLIENT], pPacket, fxnIdx);

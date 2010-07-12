@@ -114,14 +114,14 @@ static OMX_ERRORTYPE PROXY_EventHandler(OMX_HANDLETYPE hComponent, OMX_PTR pAppD
   OMX_U16 count;
   OMX_BUFFERHEADERTYPE * pLocalBufHdr = NULL;
   OMX_PTR pTmpData = NULL;
+
+  pCompPrv = (PROXY_COMPONENT_PRIVATE *) hComp->pComponentPrivate;
     
   PROXY_assert((hComp->pComponentPrivate != NULL),
                 OMX_ErrorBadParameter, NULL);
 
   DOMX_ENTER("hComponent=%p, pCompPrv=%p, eEvent=%p, nData1=%p, nData2=%p, pEventData=%p",
                hComponent, pCompPrv, eEvent, nData1, nData2, pEventData);
-                 
-  pCompPrv = (PROXY_COMPONENT_PRIVATE *) hComp->pComponentPrivate;    
                
   switch(eEvent)
   {
@@ -247,7 +247,6 @@ static OMX_ERRORTYPE PROXY_FillBufferDone(OMX_HANDLETYPE hComponent, OMX_U32 rem
     OMX_ERRORTYPE eError = OMX_ErrorNone;
     PROXY_COMPONENT_PRIVATE* pCompPrv;    
     OMX_COMPONENTTYPE *hComp = (OMX_COMPONENTTYPE *)hComponent;
-    RPC_OMX_ERRORTYPE eRPCError = RPC_OMX_ErrorNone;
     
     OMX_U16 count;
     OMX_BUFFERHEADERTYPE * pBufHdr = NULL;
@@ -1476,7 +1475,6 @@ static OMX_ERRORTYPE PROXY_ComponentRoleEnum(OMX_IN OMX_HANDLETYPE hComponent,
   DOMX_ENTER("hComponent=%p", hComponent);
   DOMX_DEBUG(" EMPTY IMPLEMENTATION ");	
 
-EXIT:
     DOMX_EXIT("eError: %d", eError);
     return eError;
 }
@@ -1503,7 +1501,6 @@ static OMX_ERRORTYPE PROXY_ComponentTunnelRequest(OMX_IN  OMX_HANDLETYPE hCompon
   DOMX_ENTER("hComponent=%p", hComponent);
   DOMX_DEBUG(" EMPTY IMPLEMENTATION ");	
 
-EXIT:
     DOMX_EXIT("eError: %d", eError);
     return eError;
 }
@@ -1581,8 +1578,6 @@ static OMX_ERRORTYPE PROXY_ComponentDeInit (OMX_HANDLETYPE hComponent)
     RPC_OMX_ERRORTYPE eRPCError = RPC_OMX_ErrorNone;
     PROXY_COMPONENT_PRIVATE* pCompPrv;
     OMX_COMPONENTTYPE *hComp = (OMX_COMPONENTTYPE *)hComponent;
-    
-    OMX_U32 count;
     
     PROXY_assert((hComp->pComponentPrivate != NULL),
                 OMX_ErrorBadParameter, NULL);
@@ -1722,7 +1717,7 @@ OMX_ERRORTYPE RPC_PrepareBuffer_Chiron(PROXY_COMPONENT_PRIVATE *pCompPrv, OMX_CO
       OMX_U8 *pBuffer;
       
       DSPtr dsptr[2];
-      bytes_t lengths[2],uvPtr;
+      bytes_t lengths[2];
       OMX_U32 i = 0;
       OMX_U32 numBlocks =0;
       
@@ -1855,8 +1850,6 @@ EXIT:
       
       OMX_PARAM_PORTDEFINITIONTYPE portDef;    
       OMX_CONFIG_RECTTYPE sRect;
-      OMX_U8 * pBuffer;
-      OMX_PTR pUVBuffer;
 
       DOMX_ENTER("");
 
@@ -1952,7 +1945,6 @@ EXIT:
      }
      
      DOMX_DEBUG("Port Number: %d :: NumOfLines %d",nPortIndex,*nNumOfLines);
-EXIT:
      DOMX_EXIT("eError: %d", eError);
      return eError;
 }

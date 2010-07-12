@@ -27,8 +27,6 @@
 
 #include <stdio.h>
 
-#define __USE_XOPEN2K /* required for sem_timedwait */
-
 #include <semaphore.h>
 #include <sys/time.h>
 

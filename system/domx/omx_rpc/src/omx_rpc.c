@@ -124,7 +124,9 @@ static Int32 fxnExit(UInt32 size, UInt32 *data);
 RPC_OMX_ERRORTYPE fxn_exit_caller(void);
 
 static Int32 getFxnIndexFromRemote_skel(UInt32 size, UInt32 *data);
+#if 0 /* unused */
 static void getFxnIndexFromRemote_stub(void);
+#endif
 
 RPC_OMX_ERRORTYPE _RPC_IpcSetup();
 RPC_OMX_ERRORTYPE _RPC_IpcDestroy();
@@ -530,6 +532,7 @@ EXIT:
 
 }
 
+#if 0 /* unused */
 /* ===========================================================================*/
 /**
  * @name getFxnIndexFromRemote_stub() 
@@ -547,9 +550,7 @@ static void getFxnIndexFromRemote_stub(void)
     RPC_INDEX *FxnIdxArr;
     RcmClient_Message *rcmMsg;
     OMX_S16 status;
-    RPC_INDEX fxnIdx;
     OMX_U8 i;
-    FxnList FxnIdxList;
     
     DOMX_ENTER("");
     
@@ -581,6 +582,7 @@ static void getFxnIndexFromRemote_stub(void)
 EXIT:
     return;
 }
+#endif
 
 /* ===========================================================================*/
 /**

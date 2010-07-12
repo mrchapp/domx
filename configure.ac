@@ -84,6 +84,11 @@ AC_SUBST(OMXCORE_LIBS, ["\$(top_builddir)/system/omx_core/libOMX_Core.la -ldl"])
 AC_SUBST(MMOSAL_CFLAGS,  [-I\$\(top_srcdir\)/system/mm_osal/inc])
 AC_SUBST(MMOSAL_LIBS, [\$\(top_builddir\)/system/mm_osal/libmmosal.la])
 
+dnl more strict compiler warning/error flags.. all the subdirectories, at
+dnl least outside of test, should add these to their CFLAGS
+AC_SUBST(WARN_CFLAGS, ["-Werror -Wall -fno-strict-aliasing"])
+
+
 AC_CONFIG_FILES([
 Makefile
 system/omx_core/Makefile

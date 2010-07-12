@@ -112,7 +112,6 @@ RPC_OMX_ERRORTYPE RPC_SKEL_EmptyBufferDone(UInt32 size, UInt32 *data)
 
     tRPCError = pCompPrv->proxyEmptyBufferDone(hComp,bufferHdr,nfilledLen,nOffset,nFlags);
 
-EXIT:    
     DOMX_EXIT("");
     return tRPCError;
 }
@@ -169,7 +168,6 @@ RPC_OMX_ERRORTYPE RPC_SKEL_FillBufferDone(UInt32 size, UInt32 *data)
                                               nOffset, nFlags, nTimeStamp,
                                               hMarkTargetComponent, pMarkData);
             
-EXIT:    
     DOMX_EXIT("");
     return tRPCError;
 }
@@ -222,7 +220,6 @@ RPC_OMX_ERRORTYPE RPC_SKEL_EventHandler(UInt32 size, UInt32 *data)
 
     tRPCError = pCompPrv->proxyEventHandler(hComp, pCompPrv->pILAppData, eEvent, nData1, nData2, pEventData);
     
-EXIT:
     DOMX_EXIT("");
     return tRPCError;
     
