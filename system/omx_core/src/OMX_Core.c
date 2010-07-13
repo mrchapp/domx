@@ -68,6 +68,7 @@ char *tComponentName[MAXCOMP][2] = {
     {"OMX.TI.DUCATI1.VIDEO.H264D", "video_decoder.avc"},
     {"OMX.TI.DUCATI1.VIDEO.H264E", "video_encoder.avc"},
     {"OMX.TI.DUCATI1.VIDEO.MPEG4D", "video_decoder.mpeg4"},
+    {"OMX.TI.DUCATI1.VIDEO.MPEG4E", "video_encoder.mpeg4"},
     {"OMX.TI.DUCATI1.VIDEO.VP6D", "video_decoder.vp6"},
     {"OMX.TI.DUCATI1.VIDEO.VP7D", "video_decoder.vp7"},
     {"OMX.TI.DUCATI1.IMAGE.JPEGD", "jpeg_decoder.jpeg"},
