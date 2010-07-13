@@ -25,21 +25,6 @@
 #include <OMX_Core.h>
 #include <OMX_Component.h>
 #include "timm_osal_interfaces.h"
-//#include "thc.h"
-
-
-
-
-//#include <platform.h>
-//#include "../../../system/domx/omx_rpc/inc/omx_rpc_internal.h"
-
-#include <RcmClient.h>
-#include <HeapBuf.h>
-#include <SharedRegion.h>
-
-//#include <omx_rpc.h>
-//extern int ipc_setup();
-//extern void fxn_exit_caller();
 
 //#define BUF_HEAP
 
