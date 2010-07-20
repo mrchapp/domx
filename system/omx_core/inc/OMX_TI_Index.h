@@ -166,30 +166,6 @@ typedef enum OMX_TI_INDEXTYPE {
 
 
 
-typedef enum OMX_TI_ERRORTYPE
-{
-    /* Vendor specific area for storing indices */
-    
-    /*Control attribute is pending - Dio_Dequeue will not work until attribute 
-    is retreived*/
-    OMX_TI_WarningAttributePending = (OMX_S32)((OMX_ERRORTYPE)OMX_ErrorVendorStartUnused + 1),
-    /*Attribute buffer size is insufficient - reallocate the attribute buffer*/
-    OMX_TI_WarningInsufficientAttributeSize,
-    /*EOS buffer has been received*/
-    OMX_TI_WarningEosReceived
-}OMX_TI_ERRORTYPE;
-
-
-
-typedef enum OMX_TI_EVENTTYPE
-{
-    /* Vendor specific area for storing custom extended events */
-    /*Reference count for the buffer has changed. In the callback, nData1 will
-      be pBufferHeader, nData2 will be present count*/
-    OMX_TI_EventBufferRefCount = (OMX_S32)((OMX_EVENTTYPE)OMX_EventVendorStartUnused + 1)
-}OMX_TI_EVENTTYPE;
-
-
 /*******************************************************************
  * PRIVATE DECLARATIONS: defined here, used only here
  *******************************************************************/

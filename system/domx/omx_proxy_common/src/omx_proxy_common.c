@@ -55,6 +55,7 @@
 #include "timm_osal_memory.h"
 #include "OMX_TI_Common.h"
 #include "OMX_TI_Index.h"
+#include "OMX_TI_Core.h"
 /*-------program files ----------------------------------------*/
 #include "omx_proxy_common.h"
 #include "omx_rpc.h"
