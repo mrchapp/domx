@@ -75,7 +75,11 @@ typedef enum OMX_TI_ERRORTYPE
     /*Attribute buffer size is insufficient - reallocate the attribute buffer*/
     OMX_TI_WarningInsufficientAttributeSize,
     /*EOS buffer has been received*/
-    OMX_TI_WarningEosReceived
+    OMX_TI_WarningEosReceived,
+    /*Port enable is called on an already enabled port*/
+    OMX_TI_ErrorPortIsAlreadyEnabled,
+    /*Port disable is called on an already disabled port*/
+    OMX_TI_ErrorPortIsAlreadyDisabled
 } OMX_TI_ERRORTYPE;
 
 
