@@ -38,7 +38,10 @@
 #include "OMX_Core.h"
 #include "OMX_ComponentRegistry.h"
 
+#include "timm_osal_types.h"
+#include "timm_osal_error.h"
 #include "timm_osal_trace.h"
+#include "timm_osal_mutex.h"
 
 /** size for the array of allocated components.  Sets the maximum 
  * number of components that can be allocated at once */
@@ -58,6 +61,7 @@ static void* pComponents[COUNTOF(pModules)] = {0};
 /* count for call OMX_Init() */
 int count = 0;
 pthread_mutex_t mutex;
+TIMM_OSAL_PTR pCoreInitMutex = NULL;
 
 int tableCount = 0;
 ComponentTable componentTable[MAX_TABLE_SIZE];
@@ -107,6 +111,11 @@ char *tComponentName[MAXCOMP][2] = {
 OMX_ERRORTYPE OMX_Init()
 {
     OMX_ERRORTYPE eError = OMX_ErrorNone;
+    TIMM_OSAL_ERRORTYPE eOsalError = TIMM_OSAL_ERR_NONE;
+
+    eOsalError = TIMM_OSAL_MutexObtain(pCoreInitMutex, TIMM_OSAL_SUSPEND);
+    CORE_assert(eOsalError == TIMM_OSAL_ERR_NONE,
+                OMX_ErrorInsufficientResources, "Mutex lock failed");
 
     count++;
 
@@ -116,6 +125,10 @@ OMX_ERRORTYPE OMX_Init()
         eError = OMX_BuildComponentTable();
     }
 
+    eOsalError = TIMM_OSAL_MutexRelease(pCoreInitMutex);
+    CORE_assert(eOsalError == TIMM_OSAL_ERR_NONE,
+                OMX_ErrorInsufficientResources, "Mutex release failed");
+EXIT:
     return eError;
 }
 /******************************Public*Routine******************************\
@@ -162,6 +175,8 @@ OMX_ERRORTYPE OMX_GetHandle( OMX_HANDLETYPE* pHandle, OMX_STRING cComponentName,
     CORE_require(NULL != cComponentName, OMX_ErrorBadParameter, NULL);
     CORE_require(NULL != pHandle, OMX_ErrorBadParameter, NULL);
     CORE_require(NULL != pCallBacks, OMX_ErrorBadParameter, NULL);
+    CORE_require(count > 0, OMX_ErrorUndefined,
+                "OMX_GetHandle called without calling OMX_Init first");
 
     /* Verify that the name is not too long and could cause a crash.  Notice
      * that the comparison is a greater than or equals.  This is to make
@@ -278,6 +293,8 @@ OMX_ERRORTYPE OMX_FreeHandle (OMX_HANDLETYPE hComponent)
     }
 
     CORE_require(pHandle != NULL, OMX_ErrorBadParameter, NULL);
+    CORE_require(count > 0, OMX_ErrorUndefined,
+                "OMX_FreeHandle called without calling OMX_Init first");
 
     /* Locate the component handle in the array of handles */
     for(i=0; i< COUNTOF(pModules); i++) {
@@ -323,7 +340,18 @@ EXIT:
 \**************************************************************************/
 OMX_ERRORTYPE OMX_Deinit()
 {
+    OMX_ERRORTYPE eError = OMX_ErrorNone;
+    TIMM_OSAL_ERRORTYPE eOsalError = TIMM_OSAL_ERR_NONE;
 
+    eOsalError = TIMM_OSAL_MutexObtain(pCoreInitMutex, TIMM_OSAL_SUSPEND);
+    if(eOsalError != TIMM_OSAL_ERR_NONE)
+    {
+        TIMM_OSAL_Error("Mutex lock failed");
+    }
+    /*Returning error none because of OMX spec limitation on error codes that
+    can be returned by OMX_Deinit*/
+    CORE_assert(count > 0, OMX_ErrorNone,
+                "OMX_Deinit being called without a corresponding OMX_Init");
     count--;
 
     if(pthread_mutex_lock(&mutex) != 0)
@@ -342,7 +370,13 @@ OMX_ERRORTYPE OMX_Deinit()
             TIMM_OSAL_Error("Core: Error in Mutex unlock");
     }            
 
-    return OMX_ErrorNone;
+EXIT:
+    eOsalError = TIMM_OSAL_MutexRelease(pCoreInitMutex);
+    if(eOsalError != TIMM_OSAL_ERR_NONE)
+    {
+        TIMM_OSAL_Error("Mutex release failed");
+    }
+    return eError;
 }
 
 /*************************************************************************
@@ -423,6 +457,8 @@ OMX_API OMX_ERRORTYPE OMX_APIENTRY OMX_ComponentNameEnum(
     OMX_ERRORTYPE eError = OMX_ErrorNone;
 
     CORE_require(cComponentName != NULL, OMX_ErrorBadParameter, NULL);
+    CORE_require(count > 0, OMX_ErrorUndefined,
+                "OMX_GetHandle called without calling OMX_Init first");
 
     if (nIndex >=  tableCount)
     {
@@ -468,6 +504,8 @@ OMX_API OMX_ERRORTYPE OMX_GetRolesOfComponent (
     CORE_require(pNumRoles != NULL, OMX_ErrorBadParameter, NULL);
     CORE_require(strlen(cComponentName) < MAXNAMESIZE,
                 OMX_ErrorInvalidComponentName, NULL);
+    CORE_require(count > 0, OMX_ErrorUndefined,
+                "OMX_GetHandle called without calling OMX_Init first");
 
     while(!bFound && i < tableCount)
     {
@@ -526,6 +564,8 @@ OMX_API OMX_ERRORTYPE OMX_GetComponentsOfRole (
 
     CORE_require(role != NULL, OMX_ErrorBadParameter, NULL);
     CORE_require(pNumComps != NULL, OMX_ErrorBadParameter, NULL);
+    CORE_require(count > 0, OMX_ErrorUndefined,
+                "OMX_GetHandle called without calling OMX_Init first");
 
    /* This implies that the componentTable is not filled */
     CORE_assert(componentTable[i].pRoleArray[j] != NULL, OMX_ErrorBadParameter,
@@ -747,4 +787,42 @@ OMX_ERRORTYPE ComponentTable_FillBufferDone(
         OMX_OUT OMX_BUFFERHEADERTYPE* pBuffer)
 {
     return OMX_ErrorNotImplemented;
+}
+
+
+
+/*===============================================================*/
+/** @fn Core_Setup : This function is called when the the OMX Core library is
+ *                  loaded. It creates a mutex, which is used during OMX_Init()
+ */
+/*===============================================================*/
+void __attribute__ ((constructor)) Core_Setup(void)
+{
+    TIMM_OSAL_ERRORTYPE eError = TIMM_OSAL_ERR_NONE;
+
+    eError = TIMM_OSAL_MutexCreate(&pCoreInitMutex);
+    if(eError != TIMM_OSAL_ERR_NONE)
+    {
+        TIMM_OSAL_Error("Creation of default mutex failed");
+    }
+}
+
+
+
+/*===============================================================*/
+/** @fn Core_Destroy : This function is called when the the OMX Core library is
+ *                    unloaded. It destroys the mutex which was created by
+ *                    Core_Setup().
+ *
+ */
+/*===============================================================*/
+void __attribute__ ((destructor)) Core_Destroy(void)
+{
+    TIMM_OSAL_ERRORTYPE eError = TIMM_OSAL_ERR_NONE;
+
+    eError = TIMM_OSAL_MutexDelete(pCoreInitMutex);
+    if(eError != TIMM_OSAL_ERR_NONE)
+    {
+        TIMM_OSAL_Error("Destruction of default mutex failed");
+    }
 }
