@@ -65,6 +65,10 @@ extern "C" {
  * PUBLIC DECLARATIONS Defined here, used elsewhere
  ****************************************************************/
 /*--------data declarations -----------------------------------*/
+/*OMX versions supported by DOMX*/
+#define OMX_VER_MAJOR 0x1
+#define OMX_VER_MINOR 0x1
+
 #define MAX_NUM_PROXY_BUFFERS             25
 #define MAX_COMPONENT_NAME_LENGTH         128
 #define PROXY_MAXNUMOFPORTS               8
@@ -82,6 +86,16 @@ extern "C" {
     DOMX_ERROR(" - returning error: " #V);\
     if(S) DOMX_ERROR(" - %s", S);\
     goto EXIT; }\
+    } while(0)
+
+#define PROXY_CHK_VERSION(_pStruct_, _sName_) do { \
+    PROXY_require((((_sName_ *)_pStruct_)->nSize == sizeof(_sName_)), \
+                  OMX_ErrorBadParameter, "Incorrect nSize"); \
+    PROXY_require(((((_sName_ *)_pStruct_)->nVersion.s.nVersionMajor == \
+                  OMX_VER_MAJOR) && \
+                  (((_sName_ *)_pStruct_)->nVersion.s.nVersionMinor == \
+                  OMX_VER_MINOR)), \
+                  OMX_ErrorVersionMismatch, NULL); \
     } while(0)
 
 

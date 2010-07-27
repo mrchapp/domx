@@ -341,6 +341,7 @@ static OMX_ERRORTYPE PROXY_EmptyThisBuffer(OMX_HANDLETYPE hComponent,
     
     PROXY_assert(pBufferHdr != NULL, OMX_ErrorBadParameter, NULL);
     PROXY_assert(hComp->pComponentPrivate != NULL, OMX_ErrorBadParameter, NULL);
+    PROXY_CHK_VERSION(pBufferHdr, OMX_BUFFERHEADERTYPE);
                  
     pCompPrv=(PROXY_COMPONENT_PRIVATE*)hComp->pComponentPrivate;
     
@@ -484,6 +485,7 @@ static OMX_ERRORTYPE PROXY_FillThisBuffer(OMX_HANDLETYPE hComponent,
     
     PROXY_assert(pBufferHdr != NULL, OMX_ErrorBadParameter, NULL);
     PROXY_assert(hComp->pComponentPrivate != NULL, OMX_ErrorBadParameter, NULL);
+    PROXY_CHK_VERSION(pBufferHdr, OMX_BUFFERHEADERTYPE);
                  
     pCompPrv=(PROXY_COMPONENT_PRIVATE*)hComp->pComponentPrivate;
     
@@ -916,6 +918,7 @@ static OMX_ERRORTYPE PROXY_FreeBuffer(OMX_IN  OMX_HANDLETYPE hComponent,
     
     PROXY_assert(pBufferHdr != NULL, OMX_ErrorBadParameter, NULL);
     PROXY_assert(hComp->pComponentPrivate != NULL, OMX_ErrorBadParameter, NULL);
+    PROXY_CHK_VERSION(pBufferHdr, OMX_BUFFERHEADERTYPE);
                  
     pCompPrv=(PROXY_COMPONENT_PRIVATE*)hComp->pComponentPrivate;
     
