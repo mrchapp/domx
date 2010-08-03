@@ -35,10 +35,10 @@ H264E_TestCaseParams H264_TestCaseTable[1]= {
 	0,/*slicegrpmap*/
 	OMX_VIDEO_SLICEMODE_AVCDefault,/*slice mode*/
 	OMX_Video_ControlRateDisable,/*rate cntrl*/
-	OMX_Video_Transform_Block_Size_4x4,/*transform block size*/ 
+	OMX_Video_Transform_Block_Size_4x4,/*transform block size*/
 	OMX_Video_Enc_User_Defined ,/*Encoder preset*/
 	OMX_Video_RC_User_Defined ,/*RC Preset*/
-	OMX_Video_BitStreamFormatByte,/*Bit Stream Select*/ 
+	OMX_Video_BitStreamFormatByte,/*Bit Stream Select*/
 	1 ,/*max interframe interval*/
 	0,/*bit enable_advanced*/
 	0 ,/*bit enable_dynamic*/

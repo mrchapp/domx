@@ -31,7 +31,7 @@
 		/*Enable the corresponding flags*/
 		/*HeapBuf & Shared Region Defines*/
 		#define OMX_H264E_SRCHANGES
-		#define OMX_H264E_BUF_HEAP		
+		#define OMX_H264E_BUF_HEAP
 	#endif
 	#define OMX_H264E_NONTILERTEST
 
@@ -103,7 +103,7 @@ static OMX_U32 H264ClientStopFrameNum;
 static OMX_U8 DynamicSettingsCount=0;
 static OMX_U8 DynamicSettingsArray[9];
 static OMX_U8 DynFrameCountArray_Index[9]={0,0,0,0,0,0,0,0,0};
-static OMX_U8 PauseFrameNum[NUMTIMESTOPAUSE]={5};	
+static OMX_U8 PauseFrameNum[NUMTIMESTOPAUSE]={5};
 
 #ifdef TIMESTAMPSPRINT
 static OMX_S64 TimeStampsArray[20]={0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
@@ -181,27 +181,27 @@ static OMX_ERRORTYPE H264ENC_FreeResources(H264E_ILClient* pAppData)
 	OMX_PARAM_PORTDEFINITIONTYPE tPortDef;
 	OMX_PORT_PARAM_TYPE tPortParams;
 	OMX_U32 i,j;
-	
+
 	GOTO_EXIT_IF(!pAppData,OMX_ErrorBadParameter);
 
 	H264CLIENT_ENTER_PRINT();
-	
+
 	pHandle = pAppData->pHandle;
 	/*Initialize the structure*/
 	OMX_TEST_INIT_STRUCT_PTR(&tPortDef,OMX_PARAM_PORTDEFINITIONTYPE);
 	OMX_TEST_INIT_STRUCT_PTR(&tPortParams,OMX_PORT_PARAM_TYPE);
-		
+
 	eError = OMX_GetParameter(pHandle, OMX_IndexParamVideoInit, &tPortParams);
 	GOTO_EXIT_IF((eError != OMX_ErrorNone),eError);
 	for(i=0; i < tPortParams.nPorts ; i++){
-		
+
 		tPortDef.nPortIndex = i;
 		eError = OMX_GetParameter(pHandle, OMX_IndexParamPortDefinition, &tPortDef);
 		GOTO_EXIT_IF((eError != OMX_ErrorNone),eError);
 		if(i==H264_APP_INPUTPORT){
 			for (j = 0; j < tPortDef.nBufferCountActual; j++){
 				if(!pAppData->H264_TestCaseParams->bInAllocatebuffer)
-            			{       
+            			{
 #ifdef OMX_H264E_BUF_HEAP
 				HeapBuf_free(heapHandle, pAppData->pInBuff[j]->pBuffer, pAppData->pInBuff[j]->nAllocLen);
 #elif defined (OMX_H264E_LINUX_TILERTEST)
@@ -218,7 +218,7 @@ static OMX_ERRORTYPE H264ENC_FreeResources(H264E_ILClient* pAppData)
 		}else if(i==H264_APP_OUTPUTPORT){
 			for (j = 0; j < tPortDef.nBufferCountActual; j++){
 				if(!pAppData->H264_TestCaseParams->bInAllocatebuffer)
-				{                  
+				{
 #ifdef OMX_H264E_BUF_HEAP
 				HeapBuf_free(heapHandle, pAppData->pOutBuff[j]->pBuffer, pAppData->pOutBuff[j]->nAllocLen);
 #elif defined (OMX_H264E_LINUX_TILERTEST)
@@ -232,7 +232,7 @@ static OMX_ERRORTYPE H264ENC_FreeResources(H264E_ILClient* pAppData)
 				eError = OMX_FreeBuffer(pAppData->pHandle, tPortDef.nPortIndex, pAppData->pOutBuff[j]);
 				GOTO_EXIT_IF((eError != OMX_ErrorNone), eError);
 			}
-		}	
+		}
 	}
 
 	if(pAppData->IpBuf_Pipe){
@@ -264,7 +264,7 @@ static OMX_ERRORTYPE H264ENC_AllocateResources(H264E_ILClient* pAppData)
 	OMX_ERRORTYPE eError = OMX_ErrorNone;
 	OMX_PARAM_PORTDEFINITIONTYPE tPortDef;
 	OMX_PORT_PARAM_TYPE tPortParams;
-	OMX_U8 *pTmpBuffer; /*Used with Use Buffer calls*/	
+	OMX_U8 *pTmpBuffer; /*Used with Use Buffer calls*/
 	OMX_U32 i,j;
 
 #ifdef OMX_H264E_LINUX_TILERTEST
@@ -273,7 +273,7 @@ static OMX_ERRORTYPE H264ENC_AllocateResources(H264E_ILClient* pAppData)
 #endif
 	H264CLIENT_ENTER_PRINT();
 	GOTO_EXIT_IF(!pAppData,OMX_ErrorBadParameter);
-	
+
 	pHandle = pAppData->pHandle;
 #ifdef OMX_H264E_LINUX_TILERTEST
 	MemReqDescTiler=(MemAllocBlock*)TIMM_OSAL_Malloc((sizeof(MemAllocBlock) * 2), TIMM_OSAL_TRUE, 0 ,TIMMOSAL_MEM_SEGMENT_EXT);
@@ -289,27 +289,27 @@ static OMX_ERRORTYPE H264ENC_AllocateResources(H264E_ILClient* pAppData)
 	tPortDef.nPortIndex = i;
 	eError = OMX_GetParameter(pHandle, OMX_IndexParamPortDefinition, &tPortDef);
 	GOTO_EXIT_IF((eError != OMX_ErrorNone),eError);
-		if(tPortDef.nPortIndex==H264_APP_INPUTPORT){			
+		if(tPortDef.nPortIndex==H264_APP_INPUTPORT){
 			pAppData->pInBuff = TIMM_OSAL_Malloc((sizeof(OMX_BUFFERHEADERTYPE*) * tPortDef.nBufferCountActual), TIMM_OSAL_TRUE, 0 ,TIMMOSAL_MEM_SEGMENT_EXT);
 			GOTO_EXIT_IF((pAppData->pInBuff == TIMM_OSAL_NULL),OMX_ErrorInsufficientResources);
 			/* Create a pipes for Input Buffers.. used to queue data from the callback. */
 			H264CLIENT_TRACE_PRINT("\nCreating i/p pipe\n");
     			retval = TIMM_OSAL_CreatePipe(&(pAppData->IpBuf_Pipe),sizeof(OMX_BUFFERHEADERTYPE*) * tPortDef.nBufferCountActual,
     									sizeof(OMX_BUFFERHEADERTYPE*), OMX_TRUE );
-			GOTO_EXIT_IF((retval != TIMM_OSAL_ERR_NONE),OMX_ErrorInsufficientResources);	
-			
-			/*allocate/Use buffer calls for input*/	
+			GOTO_EXIT_IF((retval != TIMM_OSAL_ERR_NONE),OMX_ErrorInsufficientResources);
+
+			/*allocate/Use buffer calls for input*/
 			for (j = 0; j < tPortDef.nBufferCountActual; j++)
 			{
 				if(pAppData->H264_TestCaseParams->bInAllocatebuffer){
 					/*Min Buffer requirements depends on the Amount of Stride.....here No padding so Width==Stride */
 					eError = OMX_AllocateBuffer(pAppData->pHandle, &(pAppData->pInBuff[j]), tPortDef.nPortIndex, pAppData, ((pAppData->H264_TestCaseParams->width*pAppData->H264_TestCaseParams->height*3/2)));
-					GOTO_EXIT_IF((eError != OMX_ErrorNone), eError);	
-				
+					GOTO_EXIT_IF((eError != OMX_ErrorNone), eError);
+
 					retval = TIMM_OSAL_WriteToPipe(pAppData->IpBuf_Pipe, &(pAppData->pInBuff[j]), sizeof(pAppData->pInBuff[j]), TIMM_OSAL_SUSPEND);
 					GOTO_EXIT_IF((retval != TIMM_OSAL_ERR_NONE),OMX_ErrorInsufficientResources);
 				}else{
-					/*USE Buffer calls*/                     
+					/*USE Buffer calls*/
 #ifdef OMX_H264E_BUF_HEAP
 					pTmpBuffer = HeapBuf_alloc(heapHandle, (pAppData->H264_TestCaseParams->width*pAppData->H264_TestCaseParams->height*3/2),0);
 
@@ -348,24 +348,24 @@ static OMX_ERRORTYPE H264ENC_AllocateResources(H264E_ILClient* pAppData)
 					pAppData->pInBuff[j]->pBuffer = SharedRegion_getPtr(pAppData->pInBuff[j]->pBuffer);
 					H264CLIENT_TRACE_PRINT("\npBuffer after UB = %x\n",pAppData->pInBuff[j]->pBuffer);
 #endif
-					H264CLIENT_TRACE_PRINT("\nWriting to i/p pipe\n");	
-					
+					H264CLIENT_TRACE_PRINT("\nWriting to i/p pipe\n");
+
 					retval = TIMM_OSAL_WriteToPipe(pAppData->IpBuf_Pipe, &(pAppData->pInBuff[j]), sizeof(pAppData->pInBuff[j]), TIMM_OSAL_SUSPEND);
 					GOTO_EXIT_IF((retval != TIMM_OSAL_ERR_NONE),OMX_ErrorInsufficientResources);
-					
-				}				
-				
+
+				}
+
 			}
-		
+
             H264CLIENT_TRACE_PRINT("\nSetting i/p ready event\n");
 			retval = TIMM_OSAL_EventSet (H264VE_Events, H264_INPUT_READY, TIMM_OSAL_EVENT_OR);
 			GOTO_EXIT_IF((retval != TIMM_OSAL_ERR_NONE), OMX_ErrorBadParameter);
             H264CLIENT_TRACE_PRINT("\ni/p ready event set\n");
 		}else if(tPortDef.nPortIndex==H264_APP_OUTPUTPORT){
-			
+
 			pAppData->pOutBuff = TIMM_OSAL_Malloc((sizeof(OMX_BUFFERHEADERTYPE*) * tPortDef.nBufferCountActual), TIMM_OSAL_TRUE, 0 ,TIMMOSAL_MEM_SEGMENT_EXT);
 			GOTO_EXIT_IF((pAppData->pOutBuff == TIMM_OSAL_NULL),OMX_ErrorInsufficientResources);
-			/* Create a pipes for Output Buffers.. used to queue data from the callback. */	
+			/* Create a pipes for Output Buffers.. used to queue data from the callback. */
 			H264CLIENT_TRACE_PRINT("\nCreating o/p pipe\n");
 			retval = TIMM_OSAL_CreatePipe(&(pAppData->OpBuf_Pipe),sizeof(OMX_BUFFERHEADERTYPE*) * tPortDef.nBufferCountActual,
 													sizeof(OMX_BUFFERHEADERTYPE*), OMX_TRUE );
@@ -376,11 +376,11 @@ static OMX_ERRORTYPE H264ENC_AllocateResources(H264E_ILClient* pAppData)
 				if(pAppData->H264_TestCaseParams->bOutAllocatebuffer){
 					/*Min Buffer requirements depends on the Amount of Stride.....here No padding so Width==Stride */
 					eError = OMX_AllocateBuffer(pAppData->pHandle, &(pAppData->pOutBuff[j]), tPortDef.nPortIndex, pAppData, (pAppData->H264_TestCaseParams->width*pAppData->H264_TestCaseParams->height));
-					GOTO_EXIT_IF((eError != OMX_ErrorNone), eError);	
+					GOTO_EXIT_IF((eError != OMX_ErrorNone), eError);
 					/*the output buffer nfillelen initially is zero*/
 					pAppData->pOutBuff[j]->nFilledLen=0;
 					retval=TIMM_OSAL_WriteToPipe(pAppData->OpBuf_Pipe, &(pAppData->pOutBuff[j]), sizeof(pAppData->pOutBuff[j]), TIMM_OSAL_SUSPEND);
-					GOTO_EXIT_IF((retval != TIMM_OSAL_ERR_NONE),OMX_ErrorInsufficientResources);		
+					GOTO_EXIT_IF((retval != TIMM_OSAL_ERR_NONE),OMX_ErrorInsufficientResources);
 				}else{
 					/*USE Buffer calls*/
 #ifdef OMX_H264E_BUF_HEAP
@@ -415,20 +415,20 @@ static OMX_ERRORTYPE H264ENC_AllocateResources(H264E_ILClient* pAppData)
 					H264CLIENT_TRACE_PRINT("\npBuffer after UB = %x\n",pAppData->pOutBuff[j]->pBuffer);
 #endif
 
-					H264CLIENT_TRACE_PRINT("\nWriting to o/p pipe\n");	
+					H264CLIENT_TRACE_PRINT("\nWriting to o/p pipe\n");
 					retval = TIMM_OSAL_WriteToPipe(pAppData->OpBuf_Pipe, &(pAppData->pOutBuff[j]), sizeof(pAppData->pOutBuff[j]), TIMM_OSAL_SUSPEND);
 					GOTO_EXIT_IF((retval != TIMM_OSAL_ERR_NONE),OMX_ErrorInsufficientResources);
-				}	
-				
+				}
+
 			}
-		
+
             H264CLIENT_TRACE_PRINT("\nSetting o/p ready event\n");
 			retval = TIMM_OSAL_EventSet (H264VE_Events, H264_OUTPUT_READY, TIMM_OSAL_EVENT_OR);
 			GOTO_EXIT_IF((retval != TIMM_OSAL_ERR_NONE), OMX_ErrorBadParameter);
             H264CLIENT_TRACE_PRINT("\no/p ready event set\n");
 		}else{
 			H264CLIENT_TRACE_PRINT("Port index Assigned is Neither Input Nor Output");
-			eError=OMX_ErrorBadPortIndex;			
+			eError=OMX_ErrorBadPortIndex;
 			GOTO_EXIT_IF((eError != OMX_ErrorNone),eError);
 		}
 	}
@@ -520,7 +520,7 @@ OMX_ERRORTYPE H264ENC_FillData(H264E_ILClient* pAppData,OMX_BUFFERHEADERTYPE *pB
 	OMX_U32 nRead = 0;
 	OMX_U32 framesizetoread = 0;
 	OMX_ERRORTYPE eError = OMX_ErrorNone;
-#ifdef OMX_H264E_TILERTEST	
+#ifdef OMX_H264E_TILERTEST
     	OMX_U8 *pTmpBuffer = NULL,*pActualPtr=NULL;
 	OMX_U32 size1D = 0;
 #endif
@@ -529,7 +529,7 @@ OMX_ERRORTYPE H264ENC_FillData(H264E_ILClient* pAppData,OMX_BUFFERHEADERTYPE *pB
 #endif
 
 	H264CLIENT_ENTER_PRINT();
-	
+
 	framesizetoread = pAppData->H264_TestCaseParams->width * pAppData->H264_TestCaseParams->height * 3  / 2;
 
 	/*Tiler Interface code*/
@@ -538,13 +538,13 @@ OMX_ERRORTYPE H264ENC_FillData(H264E_ILClient* pAppData,OMX_BUFFERHEADERTYPE *pB
        if(pTmpBuffer == NULL){
 	   	eError=OMX_ErrorInsufficientResources;
 	   	GOTO_EXIT_IF((eError != OMX_ErrorNone),eError);
-       }      
+       }
 	 pActualPtr=pTmpBuffer;
 	 size1D=framesizetoread;
 	 if((!feof(pAppData->fIn))&&((nRead = fread(pTmpBuffer,sizeof(OMX_U8),framesizetoread, pAppData->fIn))!=0)&&((H264ClientStopFrameNum-1)>nFramesRead)){
-		nFramesRead++; 
+		nFramesRead++;
 		H264CLIENT_TRACE_PRINT( "number of bytes read from %d frame=%d",nFramesRead,nRead);
-		eError= OMXH264_Util_Memcpy_1Dto2D(pBuf->pBuffer, pTmpBuffer, size1D, pAppData->H264_TestCaseParams->height, pAppData->H264_TestCaseParams->width, STRIDE_8BIT); 
+		eError= OMXH264_Util_Memcpy_1Dto2D(pBuf->pBuffer, pTmpBuffer, size1D, pAppData->H264_TestCaseParams->height, pAppData->H264_TestCaseParams->width, STRIDE_8BIT);
 		GOTO_EXIT_IF((eError != OMX_ErrorNone),eError);
 		if(nRead < (pAppData->H264_TestCaseParams->height * pAppData->H264_TestCaseParams->width))
 			/*frame data< the required so need not send for processing send an EOS flag with no data */
@@ -560,45 +560,45 @@ OMX_ERRORTYPE H264ENC_FillData(H264E_ILClient* pAppData,OMX_BUFFERHEADERTYPE *pB
 		   size1D-=(pAppData->H264_TestCaseParams->height * pAppData->H264_TestCaseParams->width);
 		}
 		#ifdef OMX_H264E_DUCATIAPPM3_TILERTEST
-		eError= OMXH264_Util_Memcpy_1Dto2D(((OMX_TI_PLATFORMPRIVATE *)pBuf->pPlatformPrivate)->pAuxBuf1, pTmpBuffer, size1D, 
-		           								(pAppData->H264_TestCaseParams->height/2), pAppData->H264_TestCaseParams->width, STRIDE_16BIT); 
+		eError= OMXH264_Util_Memcpy_1Dto2D(((OMX_TI_PLATFORMPRIVATE *)pBuf->pPlatformPrivate)->pAuxBuf1, pTmpBuffer, size1D,
+		           								(pAppData->H264_TestCaseParams->height/2), pAppData->H264_TestCaseParams->width, STRIDE_16BIT);
 		GOTO_EXIT_IF((eError != OMX_ErrorNone),eError);
 		#endif
 		#ifdef OMX_H264E_LINUX_TILERTEST
 		Addoffset=(pAppData->H264_TestCaseParams->height * STRIDE_8BIT);
-		eError= OMXH264_Util_Memcpy_1Dto2D((pBuf->pBuffer+Addoffset), pTmpBuffer, size1D, 
-		           								(pAppData->H264_TestCaseParams->height/2), pAppData->H264_TestCaseParams->width, STRIDE_16BIT); 
+		eError= OMXH264_Util_Memcpy_1Dto2D((pBuf->pBuffer+Addoffset), pTmpBuffer, size1D,
+		           								(pAppData->H264_TestCaseParams->height/2), pAppData->H264_TestCaseParams->width, STRIDE_16BIT);
 		GOTO_EXIT_IF((eError != OMX_ErrorNone),eError);
 		#endif
-		
+
 	}
-	else{	
+	else{
 			/*Incase of Full Record update the StopFrame nUmber to limit the ETB & FTB calls*/
 			if(H264ClientStopFrameNum==MAXFRAMESTOREADFROMFILE){
 				/*Incase of Full Record update the StopFrame nUmber to limit the ETB & FTB calls*/
 				H264ClientStopFrameNum=nFramesRead;
 			}
-			nFramesRead++; 
+			nFramesRead++;
 			pBuf->nFlags = OMX_BUFFERFLAG_EOS;
 			H264CLIENT_TRACE_PRINT("end of file reached and EOS flag has been set");
 	}
-    
+
 #endif
 
 #ifdef OMX_H264E_NONTILERTEST
-  /**********************Original Code*************************************************/	
+  /**********************Original Code*************************************************/
 	if((!feof(pAppData->fIn))&&((nRead = fread(pBuf->pBuffer,sizeof(OMX_U8),framesizetoread, pAppData->fIn))!=0)&&((H264ClientStopFrameNum-1)>nFramesRead)){
-			
+
 			H264CLIENT_TRACE_PRINT( "number of bytes read from %d frame=%d",nFramesRead,nRead);
-			nFramesRead++; 
-		
+			nFramesRead++;
+
 	}
-	else{	
+	else{
 			/*incase of partial record update the EOS*/
 			if(H264ClientStopFrameNum==MAXFRAMESTOREADFROMFILE){
 				/*Incase of Full Record update the StopFrame nUmber to limit the ETB & FTB calls*/
 				H264ClientStopFrameNum=nFramesRead;
-				
+
 			}
 			nFramesRead++;
 			pBuf->nFlags = OMX_BUFFERFLAG_EOS;
@@ -613,11 +613,11 @@ EXIT:
 #ifdef OMX_H264E_TILERTEST
 	if(pActualPtr != NULL){
 	   	TIMM_OSAL_Free(pActualPtr);
-       }   
+       }
 #endif
 H264CLIENT_EXIT_PRINT(eError);
 return eError;
-	
+
 }
 
 OMX_ERRORTYPE H264ENC_SetAdvancedParams(H264E_ILClient* pAppData,OMX_U32 test_index){
@@ -626,16 +626,16 @@ OMX_ERRORTYPE H264ENC_SetAdvancedParams(H264E_ILClient* pAppData,OMX_U32 test_in
     	OMX_U8 AdvancedSettingsCount=0;
     	OMX_U8 AdancedSettingsArray[6];
     	OMX_U8 i;
-	OMX_VIDEO_PARAM_AVCNALUCONTROLTYPE tNALUSettings;	
+	OMX_VIDEO_PARAM_AVCNALUCONTROLTYPE tNALUSettings;
 	OMX_VIDEO_PARAM_MEBLOCKSIZETYPE tMEBlockSize;
 	OMX_VIDEO_PARAM_INTRAREFRESHTYPE tIntrarefresh;
 	OMX_VIDEO_PARAM_VUIINFOTYPE tVUISettings;
 	OMX_VIDEO_PARAM_INTRAPREDTYPE tIntraPred;
 	OMX_VIDEO_PARAM_AVCADVANCEDFMOTYPE tAdvancedFMO;
-	OMX_VIDEO_PARAM_DATASYNCMODETYPE tVidDataMode;	
+	OMX_VIDEO_PARAM_DATASYNCMODETYPE tVidDataMode;
 
 	H264CLIENT_ENTER_PRINT();
-	
+
     	if(!pAppData){
 		eError = OMX_ErrorBadParameter;
 		goto EXIT;
@@ -647,26 +647,26 @@ OMX_ERRORTYPE H264ENC_SetAdvancedParams(H264E_ILClient* pAppData,OMX_U32 test_in
     	GOTO_EXIT_IF((eError != OMX_ErrorNone),eError);
 	for(i=0;i<AdvancedSettingsCount;i++){
 		switch(AdancedSettingsArray[i]){
-			case 0:				
+			case 0:
 					OMX_TEST_INIT_STRUCT_PTR(&tNALUSettings,OMX_VIDEO_PARAM_AVCNALUCONTROLTYPE);
 					/*Set the Port*/
 					tNALUSettings.nPortIndex=H264_APP_OUTPUTPORT;
 					eError = OMX_GetParameter(pHandle, (OMX_INDEXTYPE)OMX_TI_IndexParamVideoNALUsettings, &tNALUSettings);
 					GOTO_EXIT_IF((eError != OMX_ErrorNone),eError);
 
-					tNALUSettings.nStartofSequence= H264_TestCaseAdvTable[test_index].NALU.nStartofSequence;     
+					tNALUSettings.nStartofSequence= H264_TestCaseAdvTable[test_index].NALU.nStartofSequence;
 				  	tNALUSettings.nEndofSequence= H264_TestCaseAdvTable[test_index].NALU.nEndofSequence;
 					tNALUSettings.nIDR=H264_TestCaseAdvTable[test_index].NALU.nIDR;
 					tNALUSettings.nIntraPicture=H264_TestCaseAdvTable[test_index].NALU.nIntraPicture;
 					tNALUSettings.nNonIntraPicture=H264_TestCaseAdvTable[test_index].NALU.nNonIntraPicture;
-					
+
 					eError = OMX_SetParameter(pHandle, (OMX_INDEXTYPE)OMX_TI_IndexParamVideoNALUsettings, &tNALUSettings);
-					GOTO_EXIT_IF((eError != OMX_ErrorNone),eError); 
-				
+					GOTO_EXIT_IF((eError != OMX_ErrorNone),eError);
+
 			break;
 			case 1:
 				/*set param to OMX_TI_VIDEO_PARAM_FMO_ADVANCEDSETTINGS*/
-				if(pAppData->H264_TestCaseParams->bFMO==OMX_TRUE){					
+				if(pAppData->H264_TestCaseParams->bFMO==OMX_TRUE){
 					OMX_TEST_INIT_STRUCT_PTR(&tAdvancedFMO,OMX_VIDEO_PARAM_AVCADVANCEDFMOTYPE);
 					/*Set the Port*/
 					tAdvancedFMO.nPortIndex=H264_APP_OUTPUTPORT;
@@ -674,16 +674,16 @@ OMX_ERRORTYPE H264ENC_SetAdvancedParams(H264E_ILClient* pAppData,OMX_U32 test_in
 					GOTO_EXIT_IF((eError != OMX_ErrorNone),eError);
 
 					tAdvancedFMO.nNumSliceGroups= H264_TestCaseAdvTable[test_index].FMO.nNumSliceGroups;
-					tAdvancedFMO.nSliceGroupMapType= H264_TestCaseAdvTable[test_index].FMO.nSliceGroupMapType;   
-					tAdvancedFMO.nSliceGroupChangeRate= H264_TestCaseAdvTable[test_index].FMO.nSliceGroupChangeRate;   
-					tAdvancedFMO.nSliceGroupChangeCycle= H264_TestCaseAdvTable[test_index].FMO.nSliceGroupChangeCycle; 
+					tAdvancedFMO.nSliceGroupMapType= H264_TestCaseAdvTable[test_index].FMO.nSliceGroupMapType;
+					tAdvancedFMO.nSliceGroupChangeRate= H264_TestCaseAdvTable[test_index].FMO.nSliceGroupChangeRate;
+					tAdvancedFMO.nSliceGroupChangeCycle= H264_TestCaseAdvTable[test_index].FMO.nSliceGroupChangeCycle;
 					for(i=0;i<H264ENC_MAXNUMSLCGPS;i++){
-						tAdvancedFMO.nSliceGroupParams[i]= H264_TestCaseAdvTable[test_index].FMO.nSliceGroupParams[i];  
-					}										
+						tAdvancedFMO.nSliceGroupParams[i]= H264_TestCaseAdvTable[test_index].FMO.nSliceGroupParams[i];
+					}
 					eError = OMX_SetParameter(pHandle, (OMX_INDEXTYPE)OMX_TI_IndexParamVideoAdvancedFMO, &tAdvancedFMO);
-					GOTO_EXIT_IF((eError != OMX_ErrorNone),eError); 
+					GOTO_EXIT_IF((eError != OMX_ErrorNone),eError);
 				}else{
-						H264CLIENT_ERROR_PRINT( "Set the FMO flag to TRUE to take these settings into effect");	
+						H264CLIENT_ERROR_PRINT( "Set the FMO flag to TRUE to take these settings into effect");
 				}
 			break;
 			case 2:
@@ -693,12 +693,12 @@ OMX_ERRORTYPE H264ENC_SetAdvancedParams(H264E_ILClient* pAppData,OMX_U32 test_in
 				tMEBlockSize.nPortIndex=H264_APP_OUTPUTPORT;
 				eError = OMX_GetParameter(pHandle, (OMX_INDEXTYPE)OMX_TI_IndexParamVideoMEBlockSize, &tMEBlockSize);
 				GOTO_EXIT_IF((eError != OMX_ErrorNone),eError);
-				
-				tMEBlockSize.eMinBlockSizeP= H264_TestCaseAdvTable[test_index].MEBlock.eMinBlockSizeP;     
-			  	tMEBlockSize.eMinBlockSizeB= H264_TestCaseAdvTable[test_index].MEBlock.eMinBlockSizeB;			
-				
+
+				tMEBlockSize.eMinBlockSizeP= H264_TestCaseAdvTable[test_index].MEBlock.eMinBlockSizeP;
+			  	tMEBlockSize.eMinBlockSizeB= H264_TestCaseAdvTable[test_index].MEBlock.eMinBlockSizeB;
+
 				eError = OMX_SetParameter(pHandle, (OMX_INDEXTYPE)OMX_TI_IndexParamVideoMEBlockSize, &tMEBlockSize);
-				GOTO_EXIT_IF((eError != OMX_ErrorNone),eError); 
+				GOTO_EXIT_IF((eError != OMX_ErrorNone),eError);
 			break;
 			case 3:
 				/*set param to OMX_VIDEO_PARAM_INTRAREFRESHTYPE*/
@@ -707,7 +707,7 @@ OMX_ERRORTYPE H264ENC_SetAdvancedParams(H264E_ILClient* pAppData,OMX_U32 test_in
 				tIntrarefresh.nPortIndex=H264_APP_OUTPUTPORT;
 				eError = OMX_GetParameter(pHandle, OMX_IndexParamVideoIntraRefresh, &tIntrarefresh);
 				GOTO_EXIT_IF((eError != OMX_ErrorNone),eError);
-				
+
 				tIntrarefresh.eRefreshMode= H264_TestCaseAdvTable[test_index].IntraRefresh.eRefreshMode;
 				if(tIntrarefresh.eRefreshMode==OMX_VIDEO_IntraRefreshBoth){
 					tIntrarefresh.nAirRef=H264_TestCaseAdvTable[test_index].IntraRefresh.nRate;
@@ -715,12 +715,12 @@ OMX_ERRORTYPE H264ENC_SetAdvancedParams(H264E_ILClient* pAppData,OMX_U32 test_in
 				else if(tIntrarefresh.eRefreshMode==OMX_VIDEO_IntraRefreshCyclic){
 					tIntrarefresh.nCirMBs=H264_TestCaseAdvTable[test_index].IntraRefresh.nRate;
 				}else if(tIntrarefresh.eRefreshMode==OMX_VIDEO_IntraRefreshAdaptive){
-					tIntrarefresh.nAirMBs=H264_TestCaseAdvTable[test_index].IntraRefresh.nRate;					
+					tIntrarefresh.nAirMBs=H264_TestCaseAdvTable[test_index].IntraRefresh.nRate;
 				}else{
-					H264CLIENT_ERROR_PRINT( "Unsupported settings");	
+					H264CLIENT_ERROR_PRINT( "Unsupported settings");
 				}
 			  	eError = OMX_SetParameter(pHandle, OMX_IndexParamVideoIntraRefresh, &tIntrarefresh);
-				GOTO_EXIT_IF((eError != OMX_ErrorNone),eError); 
+				GOTO_EXIT_IF((eError != OMX_ErrorNone),eError);
 			break;
 			case 4:
 				/*set param to OMX_VIDEO_PARAM_VUIINFOTYPE*/
@@ -729,13 +729,13 @@ OMX_ERRORTYPE H264ENC_SetAdvancedParams(H264E_ILClient* pAppData,OMX_U32 test_in
 				tVUISettings.nPortIndex=H264_APP_OUTPUTPORT;
 				eError = OMX_GetParameter(pHandle, (OMX_INDEXTYPE)OMX_TI_IndexParamVideoVUIsettings, &tVUISettings);
 				GOTO_EXIT_IF((eError != OMX_ErrorNone),eError);
-				
-				tVUISettings.bAspectRatioPresent= H264_TestCaseAdvTable[test_index].VUI.bAspectRatioPresent;     
+
+				tVUISettings.bAspectRatioPresent= H264_TestCaseAdvTable[test_index].VUI.bAspectRatioPresent;
 			  	tVUISettings.bFullRange= H264_TestCaseAdvTable[test_index].VUI.bFullRange;
 				tVUISettings.ePixelAspectRatio= H264_TestCaseAdvTable[test_index].VUI.eAspectRatio;
-				
+
 				eError = OMX_SetParameter(pHandle, (OMX_INDEXTYPE)OMX_TI_IndexParamVideoVUIsettings, &tVUISettings);
-				GOTO_EXIT_IF((eError != OMX_ErrorNone),eError); 
+				GOTO_EXIT_IF((eError != OMX_ErrorNone),eError);
 			break;
 			case 5:
 				/*set param to OMX_TI_VIDEO_PARAM_INTRAPRED*/
@@ -744,21 +744,21 @@ OMX_ERRORTYPE H264ENC_SetAdvancedParams(H264E_ILClient* pAppData,OMX_U32 test_in
 				tIntraPred.nPortIndex=H264_APP_OUTPUTPORT;
 				eError = OMX_GetParameter(pHandle, (OMX_INDEXTYPE)OMX_TI_IndexParamVideoIntraPredictionSettings, &tIntraPred);
 				GOTO_EXIT_IF((eError != OMX_ErrorNone),eError);
-				
-				tIntraPred.nLumaIntra16x16Enable= H264_TestCaseAdvTable[test_index].IntraPred.nLumaIntra16x16Enable;     
+
+				tIntraPred.nLumaIntra16x16Enable= H264_TestCaseAdvTable[test_index].IntraPred.nLumaIntra16x16Enable;
 			  	tIntraPred.nLumaIntra8x8Enable= H264_TestCaseAdvTable[test_index].IntraPred.nLumaIntra8x8Enable;
 				tIntraPred.nLumaIntra4x4Enable= H264_TestCaseAdvTable[test_index].IntraPred.nLumaIntra4x4Enable;
 				tIntraPred.nChromaIntra8x8Enable= H264_TestCaseAdvTable[test_index].IntraPred.nChromaIntra8x8Enable;
 				tIntraPred.eChromaComponentEnable= H264_TestCaseAdvTable[test_index].IntraPred.eChromaComponentEnable;
-				
+
 				eError = OMX_SetParameter(pHandle, (OMX_INDEXTYPE)OMX_TI_IndexParamVideoIntraPredictionSettings, &tIntraPred);
-				GOTO_EXIT_IF((eError != OMX_ErrorNone),eError); 
+				GOTO_EXIT_IF((eError != OMX_ErrorNone),eError);
 			break;
 			case 6:
 				/*set param to OMX_VIDEO_PARAM_DATASYNCMODETYPE*/
 				/*Initialize the structure*/
 				OMX_TEST_INIT_STRUCT_PTR(&tVidDataMode,OMX_VIDEO_PARAM_DATASYNCMODETYPE);
-				/*DATA SYNC MODE Settings*/	
+				/*DATA SYNC MODE Settings*/
 				/*Set the Port*/
 				tIntraPred.nPortIndex=H264_APP_INPUTPORT;
 				eError = OMX_GetParameter(pHandle, (OMX_INDEXTYPE)OMX_TI_IndexParamVideoDataSyncMode, &tVidDataMode);
@@ -777,13 +777,13 @@ OMX_ERRORTYPE H264ENC_SetAdvancedParams(H264E_ILClient* pAppData,OMX_U32 test_in
 				GOTO_EXIT_IF((eError != OMX_ErrorNone),eError);
 			break;
 			default:
-				H264CLIENT_ERROR_PRINT( "Invalid inputs");	
+				H264CLIENT_ERROR_PRINT( "Invalid inputs");
 		}
 	}
 
  EXIT:
  	H264CLIENT_EXIT_PRINT(eError);
-    	return eError;   	
+    	return eError;
 }
 
 OMX_ERRORTYPE H264E_Populate_BitFieldSettings(OMX_U32 BitFields,OMX_U8* Count,OMX_U8* Array){
@@ -800,18 +800,18 @@ OMX_ERRORTYPE H264E_Populate_BitFieldSettings(OMX_U32 BitFields,OMX_U8* Count,OM
 		if(i==0){
 			break;
 		}
-		
-	 }	
+
+	 }
 	for(i=0,j=0;i<8;i++){
 		if(Temp[i]){
 			Array[j++]=i;
-			LCount++;			
-		}		
+			LCount++;
+		}
 	}
 	*Count=LCount;
 	H264CLIENT_EXIT_PRINT(eError);
 	return eError;
-	
+
 }
 OMX_ERRORTYPE H264E_Update_DynamicSettingsArray(OMX_U8 RemCount,OMX_U32* RemoveArray){
 	OMX_ERRORTYPE eError = OMX_ErrorNone;
@@ -820,7 +820,7 @@ OMX_ERRORTYPE H264E_Update_DynamicSettingsArray(OMX_U8 RemCount,OMX_U32* RemoveA
 	OMX_BOOL bFound=OMX_FALSE;
 
 	H264CLIENT_ENTER_PRINT();
-	
+
 	for(i=0;i<DynamicSettingsCount;i++){/*the elements in the dynamic array list are always in ascending order */
 		for(j=LRemcount;j<RemCount;j++){/*the elements in the remove list are also in ascending order */
 			if(RemoveArray[j]==DynamicSettingsArray[i]){
@@ -831,7 +831,7 @@ OMX_ERRORTYPE H264E_Update_DynamicSettingsArray(OMX_U8 RemCount,OMX_U32* RemoveA
 		if(!bFound){
 			LocalDynArray[LCount]=DynamicSettingsArray[i];
 			LocalDynArray_Index[LCount]=DynFrameCountArray_Index[i];
-			LCount++;		
+			LCount++;
 		}else{
 			bFound=OMX_FALSE;
 			LRemcount++;
@@ -871,11 +871,11 @@ OMX_ERRORTYPE H264ENC_SetParamsFromInitialDynamicParams(H264E_ILClient* pAppData
 	OMX_PORT_PARAM_TYPE tPortParams;
 	OMX_PARAM_PORTDEFINITIONTYPE tPortDef;
 
-	H264CLIENT_ENTER_PRINT();	
-	
+	H264CLIENT_ENTER_PRINT();
+
 	OMX_TEST_INIT_STRUCT_PTR(&tAVCParams,OMX_VIDEO_PARAM_AVCTYPE);
-	OMX_TEST_INIT_STRUCT_PTR(&tVidEncBitRate,OMX_VIDEO_PARAM_BITRATETYPE);	
-	OMX_TEST_INIT_STRUCT_PTR(&tVideoParams,OMX_VIDEO_PARAM_PORTFORMATTYPE);	
+	OMX_TEST_INIT_STRUCT_PTR(&tVidEncBitRate,OMX_VIDEO_PARAM_BITRATETYPE);
+	OMX_TEST_INIT_STRUCT_PTR(&tVideoParams,OMX_VIDEO_PARAM_PORTFORMATTYPE);
 	OMX_TEST_INIT_STRUCT_PTR(&tPortParams,OMX_PORT_PARAM_TYPE);
 	OMX_TEST_INIT_STRUCT_PTR(&tPortDef,OMX_PARAM_PORTDEFINITIONTYPE);
 
@@ -888,7 +888,7 @@ OMX_ERRORTYPE H264ENC_SetParamsFromInitialDynamicParams(H264E_ILClient* pAppData
 	eError= H264E_Populate_BitFieldSettings(pAppData->H264_TestCaseParams->nBitEnableDynamic,&DynamicSettingsCount,DynamicSettingsArray);
     	GOTO_EXIT_IF((eError != OMX_ErrorNone),eError);
 
-	
+
     	for(i=0;i<DynamicSettingsCount;i++){
 		switch(DynamicSettingsArray[i]){
 			case 0:
@@ -897,20 +897,20 @@ OMX_ERRORTYPE H264ENC_SetParamsFromInitialDynamicParams(H264E_ILClient* pAppData
 					bFramerate=OMX_TRUE;
 					LFrameRate=H264_TestCaseDynTable[test_index].DynFrameRate.nFramerate[DynFrameCountArray_Index[i]];
 					DynFrameCountArray_Index[i]++;
-					
+
 				}
 				/*check to remove from the DynamicSettingsArray list*/
 				if(H264_TestCaseDynTable[test_index].DynFrameRate.nFrameNumber[DynFrameCountArray_Index[i]]==-1){
 					nRemoveList[RemoveIndex++]=DynamicSettingsArray[i];
 				}
-								
+
 			break;
 			case 1:
 				/*Bitrate*/
 				if(H264_TestCaseDynTable[test_index].DynBitRate.nFrameNumber[DynFrameCountArray_Index[i]]==0){
 					bBitrate=OMX_TRUE;
 					LBitRate=H264_TestCaseDynTable[test_index].DynBitRate.nBitrate[DynFrameCountArray_Index[i]];
-					DynFrameCountArray_Index[i]++;					
+					DynFrameCountArray_Index[i]++;
 				}
 				/*check to remove from the DynamicSettingsArray list*/
 				if(H264_TestCaseDynTable[test_index].DynBitRate.nFrameNumber[DynFrameCountArray_Index[i]]==-1){
@@ -919,8 +919,8 @@ OMX_ERRORTYPE H264ENC_SetParamsFromInitialDynamicParams(H264E_ILClient* pAppData
 			break;
 			case 2:
 				/*set config to OMX_TI_VIDEO_CONFIG_ME_SEARCHRANGE*/
-				
-				if(H264_TestCaseDynTable[test_index].DynMESearchRange.nFrameNumber[DynFrameCountArray_Index[i]]==0){					
+
+				if(H264_TestCaseDynTable[test_index].DynMESearchRange.nFrameNumber[DynFrameCountArray_Index[i]]==0){
 
 					OMX_TEST_INIT_STRUCT_PTR(&tMESearchrange,OMX_VIDEO_CONFIG_MESEARCHRANGETYPE);
 					tMESearchrange.nPortIndex=H264_APP_OUTPUTPORT;
@@ -935,9 +935,9 @@ OMX_ERRORTYPE H264ENC_SetParamsFromInitialDynamicParams(H264E_ILClient* pAppData
 
 					eError = OMX_SetConfig(pHandle, (OMX_INDEXTYPE)OMX_TI_IndexConfigVideoMESearchRange, &tMESearchrange);
 					GOTO_EXIT_IF((eError != OMX_ErrorNone),eError);
-					
+
 					DynFrameCountArray_Index[i]++;
-					
+
 				}
 				/*check to remove from the DynamicSettingsArray list*/
 				if(H264_TestCaseDynTable[test_index].DynMESearchRange.nFrameNumber[DynFrameCountArray_Index[i]]==-1){
@@ -946,7 +946,7 @@ OMX_ERRORTYPE H264ENC_SetParamsFromInitialDynamicParams(H264E_ILClient* pAppData
 			break;
 			case 3:
 				/*set config to OMX_CONFIG_INTRAREFRESHVOPTYPE*/
-				if(H264_TestCaseDynTable[test_index].DynForceFrame.nFrameNumber[DynFrameCountArray_Index[i]]==0){					
+				if(H264_TestCaseDynTable[test_index].DynForceFrame.nFrameNumber[DynFrameCountArray_Index[i]]==0){
 
 					OMX_TEST_INIT_STRUCT_PTR(&tForceFrame,OMX_CONFIG_INTRAREFRESHVOPTYPE);
 					tForceFrame.nPortIndex=H264_APP_OUTPUTPORT;
@@ -957,9 +957,9 @@ OMX_ERRORTYPE H264ENC_SetParamsFromInitialDynamicParams(H264E_ILClient* pAppData
 
 					eError = OMX_SetConfig(pHandle, OMX_IndexConfigVideoIntraVOPRefresh, &tForceFrame);
 					GOTO_EXIT_IF((eError != OMX_ErrorNone),eError);
-					
+
 					DynFrameCountArray_Index[i]++;
-					
+
 				}
 				/*check to remove from the DynamicSettingsArray list*/
 				if(H264_TestCaseDynTable[test_index].DynForceFrame.nFrameNumber[DynFrameCountArray_Index[i]]==-1){
@@ -968,7 +968,7 @@ OMX_ERRORTYPE H264ENC_SetParamsFromInitialDynamicParams(H264E_ILClient* pAppData
 			break;
 			case 4:
 				/*set config to OMX_TI_VIDEO_CONFIG_QPSETTINGS*/
-				if(H264_TestCaseDynTable[test_index].DynQpSettings.nFrameNumber[DynFrameCountArray_Index[i]]==0){					
+				if(H264_TestCaseDynTable[test_index].DynQpSettings.nFrameNumber[DynFrameCountArray_Index[i]]==0){
 
 					OMX_TEST_INIT_STRUCT_PTR(&tQPSettings,OMX_VIDEO_CONFIG_QPSETTINGSTYPE);
 					tQPSettings.nPortIndex=H264_APP_OUTPUTPORT;
@@ -987,9 +987,9 @@ OMX_ERRORTYPE H264ENC_SetParamsFromInitialDynamicParams(H264E_ILClient* pAppData
 
 					eError = OMX_SetConfig(pHandle, OMX_TI_IndexConfigVideoQPSettings, &tQPSettings);
 					GOTO_EXIT_IF((eError != OMX_ErrorNone),eError);
-					
+
 					DynFrameCountArray_Index[i]++;
-					
+
 				}
 				/*check to remove from the DynamicSettingsArray list*/
 				if(H264_TestCaseDynTable[test_index].DynQpSettings.nFrameNumber[DynFrameCountArray_Index[i]]==-1){
@@ -997,12 +997,12 @@ OMX_ERRORTYPE H264ENC_SetParamsFromInitialDynamicParams(H264E_ILClient* pAppData
 				}
 			break;
 			case 5:
-				/*set config to OMX_VIDEO_CONFIG_AVCINTRAPERIOD*/				
-				if(H264_TestCaseDynTable[test_index].DynIntraFrmaeInterval.nFrameNumber[DynFrameCountArray_Index[i]]==0){					
+				/*set config to OMX_VIDEO_CONFIG_AVCINTRAPERIOD*/
+				if(H264_TestCaseDynTable[test_index].DynIntraFrmaeInterval.nFrameNumber[DynFrameCountArray_Index[i]]==0){
 					bIntraperiod=OMX_TRUE;
-					LIntraPeriod=H264_TestCaseDynTable[test_index].DynIntraFrmaeInterval.nIntraFrameInterval[DynFrameCountArray_Index[i]];					
+					LIntraPeriod=H264_TestCaseDynTable[test_index].DynIntraFrmaeInterval.nIntraFrameInterval[DynFrameCountArray_Index[i]];
 					DynFrameCountArray_Index[i]++;
-					
+
 				}
 				/*check to remove from the DynamicSettingsArray list*/
 				if(H264_TestCaseDynTable[test_index].DynIntraFrmaeInterval.nFrameNumber[DynFrameCountArray_Index[i]]==-1){
@@ -1011,7 +1011,7 @@ OMX_ERRORTYPE H264ENC_SetParamsFromInitialDynamicParams(H264E_ILClient* pAppData
 			break;
 			case 6:
 			/*set config to OMX_IndexConfigVideoNalSize*/
-				if(H264_TestCaseDynTable[test_index].DynNALSize.nFrameNumber[DynFrameCountArray_Index[i]]==0){					
+				if(H264_TestCaseDynTable[test_index].DynNALSize.nFrameNumber[DynFrameCountArray_Index[i]]==0){
 					/*Set Port Index*/
 					OMX_TEST_INIT_STRUCT_PTR(&tNALUSize,OMX_VIDEO_CONFIG_NALSIZE);
 					tNALUSize.nPortIndex=H264_APP_OUTPUTPORT;
@@ -1019,12 +1019,12 @@ OMX_ERRORTYPE H264ENC_SetParamsFromInitialDynamicParams(H264E_ILClient* pAppData
 					GOTO_EXIT_IF((eError != OMX_ErrorNone),eError);
 
 					tNALUSize.nNaluBytes=H264_TestCaseDynTable[test_index].DynNALSize.nNaluSize[DynFrameCountArray_Index[i]];
-										
+
 					eError = OMX_SetConfig(pHandle, OMX_IndexConfigVideoNalSize, &(tNALUSize));
 					GOTO_EXIT_IF((eError != OMX_ErrorNone),eError);
-					
+
 					DynFrameCountArray_Index[i]++;
-					
+
 				}
 				/*check to remove from the DynamicSettingsArray list*/
 				if(H264_TestCaseDynTable[test_index].DynNALSize.nFrameNumber[DynFrameCountArray_Index[i]]==-1){
@@ -1033,7 +1033,7 @@ OMX_ERRORTYPE H264ENC_SetParamsFromInitialDynamicParams(H264E_ILClient* pAppData
 			break;
 			case 7:
 				/*set config to OMX_TI_VIDEO_CONFIG_SLICECODING*/
-				if(H264_TestCaseDynTable[test_index].DynSliceSettings.nFrameNumber[DynFrameCountArray_Index[i]]==0){					
+				if(H264_TestCaseDynTable[test_index].DynSliceSettings.nFrameNumber[DynFrameCountArray_Index[i]]==0){
 
 					OMX_TEST_INIT_STRUCT_PTR(&tSliceCodingparams,OMX_VIDEO_CONFIG_SLICECODINGTYPE);
 					tSliceCodingparams.nPortIndex=H264_APP_OUTPUTPORT;
@@ -1042,22 +1042,22 @@ OMX_ERRORTYPE H264ENC_SetParamsFromInitialDynamicParams(H264E_ILClient* pAppData
 
 					tSliceCodingparams.eSliceMode=H264_TestCaseDynTable[test_index].DynSliceSettings.eSliceMode[DynFrameCountArray_Index[i]];
 					tSliceCodingparams.nSlicesize=H264_TestCaseDynTable[test_index].DynSliceSettings.nSlicesize[DynFrameCountArray_Index[i]];
-					
+
 					eError = OMX_SetConfig(pHandle, (OMX_INDEXTYPE)OMX_TI_IndexConfigSliceSettings, &tSliceCodingparams);
 					GOTO_EXIT_IF((eError != OMX_ErrorNone),eError);
-					
+
 					DynFrameCountArray_Index[i]++;
-					
+
 				}
 				/*check to remove from the DynamicSettingsArray list*/
 				if(H264_TestCaseDynTable[test_index].DynSliceSettings.nFrameNumber[DynFrameCountArray_Index[i]]==-1){
 					nRemoveList[RemoveIndex++]=DynamicSettingsArray[i];
 				}
-				
+
 			break;
 			case 8:
 				/*set config to OMX_TI_VIDEO_CONFIG_PIXELINFO*/
-				if(H264_TestCaseDynTable[test_index].DynPixelInfo.nFrameNumber[DynFrameCountArray_Index[i]]==0){					
+				if(H264_TestCaseDynTable[test_index].DynPixelInfo.nFrameNumber[DynFrameCountArray_Index[i]]==0){
 
 					OMX_TEST_INIT_STRUCT_PTR(&tPixelInfo,OMX_VIDEO_CONFIG_PIXELINFOTYPE);
 					tPixelInfo.nPortIndex=H264_APP_OUTPUTPORT;
@@ -1066,20 +1066,20 @@ OMX_ERRORTYPE H264ENC_SetParamsFromInitialDynamicParams(H264E_ILClient* pAppData
 
 					tPixelInfo.nWidth=H264_TestCaseDynTable[test_index].DynPixelInfo.nWidth[DynFrameCountArray_Index[i]];
 					tPixelInfo.nHeight=H264_TestCaseDynTable[test_index].DynPixelInfo.nHeight[DynFrameCountArray_Index[i]];
-					
+
 					eError = OMX_SetConfig(pHandle, (OMX_INDEXTYPE)OMX_TI_IndexConfigVideoPixelInfo, &tPixelInfo);
 					GOTO_EXIT_IF((eError != OMX_ErrorNone),eError);
-					
+
 					DynFrameCountArray_Index[i]++;
-					
+
 				}
 				/*check to remove from the DynamicSettingsArray list*/
 				if(H264_TestCaseDynTable[test_index].DynPixelInfo.nFrameNumber[DynFrameCountArray_Index[i]]==-1){
 					nRemoveList[RemoveIndex++]=DynamicSettingsArray[i];
 				}
-			break;			
+			break;
 			default:
-				H264CLIENT_ERROR_PRINT( "Invalid inputs");	
+				H264CLIENT_ERROR_PRINT( "Invalid inputs");
 		}
 	}
 
@@ -1096,7 +1096,7 @@ OMX_ERRORTYPE H264ENC_SetParamsFromInitialDynamicParams(H264E_ILClient* pAppData
 		GOTO_EXIT_IF((eError != OMX_ErrorNone),eError);
 
 		if(tPortDef.eDir == OMX_DirInput){
-			
+
 			/*set the actual number of buffers required*/
 			if(pAppData->H264_TestCaseParams->TestCaseId==6){
 				tPortDef.nBufferCountActual=H264_INPUT_BUFFERCOUNTACTUAL;/*currently hard coded & can be taken from test parameters*/
@@ -1109,16 +1109,16 @@ OMX_ERRORTYPE H264ENC_SetParamsFromInitialDynamicParams(H264E_ILClient* pAppData
 					GOTO_EXIT_IF((eError != OMX_ErrorNone),eError);
 				}
 			}
-			
+
 			/*set the video format settings*/
 			tPortDef.format.video.nFrameWidth = pAppData->H264_TestCaseParams->width;
 			tPortDef.format.video.nStride = pAppData->H264_TestCaseParams->width;
 			tPortDef.format.video.nFrameHeight = pAppData->H264_TestCaseParams->height;
 			tPortDef.format.video.eColorFormat = pAppData->H264_TestCaseParams->inputChromaFormat;
-			
+
 			/*settings for OMX_IndexParamVideoPortFormat*/
 			tVideoParams.eColorFormat = pAppData->H264_TestCaseParams->inputChromaFormat;
-			
+
 		}
 		if(tPortDef.eDir == OMX_DirOutput){
 			/*set the actual number of buffers required*/
@@ -1139,16 +1139,16 @@ OMX_ERRORTYPE H264ENC_SetParamsFromInitialDynamicParams(H264E_ILClient* pAppData
 						tPortDef.nBufferCountActual=pAppData->H264_TestCaseParams->nNumOutputBuf;
 					}else{
 						eError= OMX_ErrorUnsupportedSetting;
-						GOTO_EXIT_IF((eError != OMX_ErrorNone),eError);						
+						GOTO_EXIT_IF((eError != OMX_ErrorNone),eError);
 					}
 				}
-				
+
 			}
 			/*settings for OMX_IndexParamPortDefinition*/
 			tPortDef.format.video.nFrameWidth = pAppData->H264_TestCaseParams->width;
 			tPortDef.format.video.nStride = pAppData->H264_TestCaseParams->width;
-			tPortDef.format.video.nFrameHeight = pAppData->H264_TestCaseParams->height;			
-			tPortDef.format.video.eCompressionFormat = OMX_VIDEO_CodingAVC;			
+			tPortDef.format.video.nFrameHeight = pAppData->H264_TestCaseParams->height;
+			tPortDef.format.video.eCompressionFormat = OMX_VIDEO_CodingAVC;
 			if(bFramerate){
 				tPortDef.format.video.xFramerate =(LFrameRate << 16);
 				tVideoParams.xFramerate=(LFrameRate << 16);
@@ -1157,7 +1157,7 @@ OMX_ERRORTYPE H264ENC_SetParamsFromInitialDynamicParams(H264E_ILClient* pAppData
 				tPortDef.format.video.nBitrate=LBitRate;
 			}
 			/*settings for OMX_IndexParamVideoPortFormat*/
-			tVideoParams.eCompressionFormat = OMX_VIDEO_CodingAVC;			
+			tVideoParams.eCompressionFormat = OMX_VIDEO_CodingAVC;
 		}
 
 		eError = OMX_SetParameter(pHandle, OMX_IndexParamPortDefinition, &tPortDef);
@@ -1166,7 +1166,7 @@ OMX_ERRORTYPE H264ENC_SetParamsFromInitialDynamicParams(H264E_ILClient* pAppData
 		eError = OMX_SetParameter(pHandle, OMX_IndexParamVideoPortFormat, &tVideoParams);
 		GOTO_EXIT_IF((eError != OMX_ErrorNone),eError);
 
-		/*AVC Settings*/	
+		/*AVC Settings*/
 		tAVCParams.nPortIndex=OMX_DirOutput;
 		eError = OMX_GetParameter(pHandle, OMX_IndexParamVideoAvc, &tAVCParams);
 		GOTO_EXIT_IF((eError != OMX_ErrorNone),eError);
@@ -1181,7 +1181,7 @@ OMX_ERRORTYPE H264ENC_SetParamsFromInitialDynamicParams(H264E_ILClient* pAppData
 		tAVCParams.bconstIpred=pAppData->H264_TestCaseParams->bConstIntraPred;
 		tAVCParams.eLoopFilterMode=pAppData->H264_TestCaseParams->bLoopFilter;
 		eError = OMX_SetParameter(pHandle, OMX_IndexParamVideoAvc, &tAVCParams);
-		GOTO_EXIT_IF((eError != OMX_ErrorNone),eError);    	
+		GOTO_EXIT_IF((eError != OMX_ErrorNone),eError);
 	}
 
 	tVidEncBitRate.nPortIndex=OMX_DirOutput;
@@ -1194,16 +1194,16 @@ OMX_ERRORTYPE H264ENC_SetParamsFromInitialDynamicParams(H264E_ILClient* pAppData
 	eError = OMX_SetParameter(pHandle, OMX_IndexParamVideoBitrate, &tVidEncBitRate);
 	GOTO_EXIT_IF((eError != OMX_ErrorNone),eError);
 
-	
+
 	/*Update the DynamicSettingsArray*/
 	eError = H264E_Update_DynamicSettingsArray(RemoveIndex,nRemoveList);
 	GOTO_EXIT_IF((eError != OMX_ErrorNone),eError);
 
-	
+
 EXIT:
 	H264CLIENT_EXIT_PRINT(eError);
 	return eError;
-	
+
 }
 
 
@@ -1219,7 +1219,7 @@ static OMX_ERRORTYPE H264ENC_SetAllParams(H264E_ILClient* pAppData,OMX_U32 test_
 	OMX_VIDEO_PARAM_FRAMEDATACONTENTTYPE tInputImageFormat;
 	OMX_VIDEO_PARAM_TRANSFORM_BLOCKSIZETYPE tTransformBlockSize;
 	OMX_VIDEO_PARAM_AVCSLICEFMO tAVCFMO;
-	
+
 	OMX_U32 i;
 
 	H264CLIENT_ENTER_PRINT();
@@ -1233,17 +1233,17 @@ static OMX_ERRORTYPE H264ENC_SetAllParams(H264E_ILClient* pAppData,OMX_U32 test_
 	/*Profile Level settings*/
 	OMX_TEST_INIT_STRUCT_PTR(&tProfileLevel,OMX_VIDEO_PARAM_PROFILELEVELTYPE);
 	tProfileLevel.nPortIndex=H264_APP_OUTPUTPORT;
-	
+
 	eError = OMX_GetParameter(pHandle, OMX_IndexParamVideoProfileLevelCurrent, &tProfileLevel);
 	GOTO_EXIT_IF((eError != OMX_ErrorNone),eError);
 
-	tProfileLevel.eProfile= pAppData->H264_TestCaseParams->profile;     
+	tProfileLevel.eProfile= pAppData->H264_TestCaseParams->profile;
   	tProfileLevel.eLevel= pAppData->H264_TestCaseParams->level;
-	
+
 	eError = OMX_SetParameter(pHandle, OMX_IndexParamVideoProfileLevelCurrent, &tProfileLevel);
 	GOTO_EXIT_IF((eError != OMX_ErrorNone),eError);
-	
-	/*BitStream Format settings*/	
+
+	/*BitStream Format settings*/
 	OMX_TEST_INIT_STRUCT_PTR(&tBitStreamFormat,OMX_VIDEO_PARAM_AVCBITSTREAMFORMATTYPE);
 	tBitStreamFormat.nPortIndex=H264_APP_OUTPUTPORT;
 	eError = OMX_GetParameter(pHandle, (OMX_INDEXTYPE)OMX_TI_IndexParamVideoBitStreamFormatSelect, &tBitStreamFormat);
@@ -1251,16 +1251,16 @@ static OMX_ERRORTYPE H264ENC_SetAllParams(H264E_ILClient* pAppData,OMX_U32 test_
 	tBitStreamFormat.eStreamFormat=pAppData->H264_TestCaseParams->BitStreamFormat;
 	eError = OMX_SetParameter(pHandle, (OMX_INDEXTYPE)OMX_TI_IndexParamVideoBitStreamFormatSelect, &tBitStreamFormat);
 	GOTO_EXIT_IF((eError != OMX_ErrorNone),eError);
-	
-	/*Encoder Preset settings*/	
+
+	/*Encoder Preset settings*/
 	OMX_TEST_INIT_STRUCT_PTR(&tEncoderPreset,OMX_VIDEO_PARAM_ENCODER_PRESETTYPE);
 	tEncoderPreset.nPortIndex=H264_APP_OUTPUTPORT;
 	eError = OMX_GetParameter(pHandle, (OMX_INDEXTYPE)OMX_TI_IndexParamVideoEncoderPreset, &tEncoderPreset);
 	GOTO_EXIT_IF((eError != OMX_ErrorNone),eError);
 
-	tEncoderPreset.eEncodingModePreset=pAppData->H264_TestCaseParams->EncodingPreset;	
+	tEncoderPreset.eEncodingModePreset=pAppData->H264_TestCaseParams->EncodingPreset;
 	tEncoderPreset.eRateControlPreset=pAppData->H264_TestCaseParams->RateCntrlPreset;
-	
+
 	eError = OMX_SetParameter(pHandle, (OMX_INDEXTYPE)OMX_TI_IndexParamVideoEncoderPreset, &tEncoderPreset);
 	GOTO_EXIT_IF((eError != OMX_ErrorNone),eError);
 
@@ -1271,8 +1271,8 @@ static OMX_ERRORTYPE H264ENC_SetAllParams(H264E_ILClient* pAppData,OMX_U32 test_
 	GOTO_EXIT_IF((eError != OMX_ErrorNone),eError);
 	tInputImageFormat.eContentType=pAppData->H264_TestCaseParams->InputContentType;
 	if(tInputImageFormat.eContentType!=OMX_Video_Progressive){
-		tInputImageFormat.eInterlaceCodingType=pAppData->H264_TestCaseParams->InterlaceCodingType; 
-	}	
+		tInputImageFormat.eInterlaceCodingType=pAppData->H264_TestCaseParams->InterlaceCodingType;
+	}
 	eError = OMX_SetParameter(pHandle, (OMX_INDEXTYPE)OMX_TI_IndexParamVideoFrameDataContentSettings, &tInputImageFormat);
 	GOTO_EXIT_IF((eError != OMX_ErrorNone),eError);
 
@@ -1281,14 +1281,14 @@ static OMX_ERRORTYPE H264ENC_SetAllParams(H264E_ILClient* pAppData,OMX_U32 test_
 	tTransformBlockSize.nPortIndex=H264_APP_OUTPUTPORT;
 	eError = OMX_GetParameter(pHandle, (OMX_INDEXTYPE)OMX_TI_IndexParamVideoTransformBlockSize, &tTransformBlockSize);
 	GOTO_EXIT_IF((eError != OMX_ErrorNone),eError);
-	
+
 	tTransformBlockSize.eTransformBlocksize=pAppData->H264_TestCaseParams->TransformBlockSize;
-	
+
 	eError = OMX_SetParameter(pHandle, (OMX_INDEXTYPE)OMX_TI_IndexParamVideoTransformBlockSize, &tTransformBlockSize);
 	GOTO_EXIT_IF((eError != OMX_ErrorNone),eError);
 
 	if((pAppData->H264_TestCaseParams->bFMO)&&((pAppData->H264_TestCaseParams->nBitEnableAdvanced>>1)==0)){
-		/*Basic FMO  settings*/	
+		/*Basic FMO  settings*/
 		OMX_TEST_INIT_STRUCT_PTR(&tAVCFMO,OMX_VIDEO_PARAM_AVCSLICEFMO);
 		tAVCFMO.nPortIndex=H264_APP_OUTPUTPORT;
 		eError = OMX_GetParameter(pHandle, OMX_IndexParamVideoSliceFMO, &tAVCFMO);
@@ -1297,18 +1297,18 @@ static OMX_ERRORTYPE H264ENC_SetAllParams(H264E_ILClient* pAppData,OMX_U32 test_
 		tAVCFMO.nNumSliceGroups =  pAppData->H264_TestCaseParams->nNumSliceGroups;
 		tAVCFMO.nSliceGroupMapType = pAppData->H264_TestCaseParams->nSliceGroupMapType;
 		tAVCFMO.eSliceMode = pAppData->H264_TestCaseParams->eSliceMode;
-			
+
 		eError = OMX_SetParameter(pHandle, OMX_IndexParamVideoSliceFMO, &tAVCFMO);
 		GOTO_EXIT_IF((eError != OMX_ErrorNone),eError);
-	}	
-	
+	}
+
 	/*Set the Advanced Setting if any*/
 	eError =  H264ENC_SetAdvancedParams(pAppData,test_index);
 	GOTO_EXIT_IF((eError != OMX_ErrorNone),eError);
 
 	/*Settings from Initial DynamicParams*/
 	eError =H264ENC_SetParamsFromInitialDynamicParams(pAppData,test_index);
-	GOTO_EXIT_IF((eError != OMX_ErrorNone),eError);	
+	GOTO_EXIT_IF((eError != OMX_ErrorNone),eError);
 
 EXIT:
 	H264CLIENT_EXIT_PRINT(eError);
@@ -1323,7 +1323,7 @@ static OMX_ERRORTYPE H264ENC_WaitForState(H264E_ILClient* pAppData)
 	TIMM_OSAL_U32 uRequestedEvents, pRetrievedEvents, numRemaining;
 
 	H264CLIENT_ENTER_PRINT();
-	
+
 	/* Wait for an event */
 	uRequestedEvents = (H264_STATETRANSITION_COMPLETE|H264_ERROR_EVENT);
 	retval = TIMM_OSAL_EventRetrieve (H264VE_CmdEvent, uRequestedEvents,
@@ -1334,7 +1334,7 @@ static OMX_ERRORTYPE H264ENC_WaitForState(H264E_ILClient* pAppData)
 	}else{
 		/*transition Complete*/
 		eError=OMX_ErrorNone;
-	}	
+	}
 
 EXIT:
 	H264CLIENT_EXIT_PRINT(eError);
@@ -1372,7 +1372,7 @@ OMX_ERRORTYPE H264ENC_EventHandler(OMX_HANDLETYPE hComponent,OMX_PTR ptrAppData,
 			if (nData2 == OMX_BUFFERFLAG_EOS){
 				retval = TIMM_OSAL_EventSet (H264VE_Events, H264_EOS_EVENT, TIMM_OSAL_EVENT_OR);
 				GOTO_EXIT_IF((retval != TIMM_OSAL_ERR_NONE), OMX_ErrorBadParameter);
-			}				
+			}
 			H264CLIENT_TRACE_PRINT( "Event: EOS has reached the client");
 			break;
 
@@ -1413,15 +1413,15 @@ OMX_ERRORTYPE H264ENC_FillBufferDone (OMX_HANDLETYPE hComponent, OMX_PTR ptrAppD
 	pBuffer->pBuffer = SharedRegion_getPtr(pBuffer->pBuffer);
 	H264CLIENT_TRACE_PRINT("\npBuffer after FBD = %x\n",pBuffer->pBuffer);
 #endif
-	
-	H264CLIENT_TRACE_PRINT( "Write the buffer to the Output pipe");	
+
+	H264CLIENT_TRACE_PRINT( "Write the buffer to the Output pipe");
    	retval = TIMM_OSAL_WriteToPipe(pAppData->OpBuf_Pipe, &pBuffer, sizeof(pBuffer), TIMM_OSAL_SUSPEND);
 	GOTO_EXIT_IF((retval != TIMM_OSAL_ERR_NONE), OMX_ErrorBadParameter);
-	H264CLIENT_TRACE_PRINT( "Set the Output Ready event");	
+	H264CLIENT_TRACE_PRINT( "Set the Output Ready event");
 	retval = TIMM_OSAL_EventSet (H264VE_Events, H264_OUTPUT_READY, TIMM_OSAL_EVENT_OR);
 	GOTO_EXIT_IF((retval != TIMM_OSAL_ERR_NONE), OMX_ErrorBadParameter);
 
-	
+
 EXIT:
 	H264CLIENT_EXIT_PRINT(eError);
 	return eError;
@@ -1434,20 +1434,20 @@ OMX_ERRORTYPE H264ENC_EmptyBufferDone(OMX_HANDLETYPE hComponent, OMX_PTR ptrAppD
     	OMX_ERRORTYPE eError = OMX_ErrorNone;
 	TIMM_OSAL_ERRORTYPE retval = TIMM_OSAL_ERR_UNKNOWN;
 	H264CLIENT_ENTER_PRINT();
-	
+
 #ifdef OMX_H264E_SRCHANGES
 	H264CLIENT_TRACE_PRINT("\npBuffer SR after EBD = %x\n",pBuffer->pBuffer);
 	pBuffer->pBuffer = SharedRegion_getPtr(pBuffer->pBuffer);
 	H264CLIENT_TRACE_PRINT("\npBuffer after EBD = %x\n",pBuffer->pBuffer);
 #endif
-	H264CLIENT_TRACE_PRINT( "Write the buffer to the Input pipe");	
+	H264CLIENT_TRACE_PRINT( "Write the buffer to the Input pipe");
 	retval = TIMM_OSAL_WriteToPipe(pAppData->IpBuf_Pipe, &pBuffer, sizeof(pBuffer),  TIMM_OSAL_SUSPEND);
 	GOTO_EXIT_IF((retval != TIMM_OSAL_ERR_NONE), OMX_ErrorBadParameter);
-	H264CLIENT_TRACE_PRINT( "Set the Input Ready event");	
+	H264CLIENT_TRACE_PRINT( "Set the Input Ready event");
 	retval = TIMM_OSAL_EventSet (H264VE_Events, H264_INPUT_READY, TIMM_OSAL_EVENT_OR);
 	GOTO_EXIT_IF((retval != TIMM_OSAL_ERR_NONE), OMX_ErrorBadParameter);
 
-	
+
 EXIT:
 	H264CLIENT_EXIT_PRINT(eError);
 	return eError;
@@ -1471,7 +1471,7 @@ void OMXH264Enc_TestEntry(Int32 paramSize, void *pParam)
 #ifndef H264_LINUX_CLIENT
     	Memory_Stats stats;
 #endif
-	
+
 #ifdef H264_LINUX_CLIENT
 	H264CLIENT_TRACE_PRINT("\nWait until RCM Server is created on other side. Press any key after that\n");
     	getchar();
@@ -1485,13 +1485,13 @@ void OMXH264Enc_TestEntry(Int32 paramSize, void *pParam)
 	H264CLIENT_TRACE_PRINT( "tracegroup=%x",TraceGrp);
 #endif
 
-	eError = OMX_Init();	
+	eError = OMX_Init();
 	GOTO_EXIT_IF((eError != OMX_ErrorNone), eError);
 
 	for(test_index=0;test_index<1;test_index++)
 	{
 		H264CLIENT_TRACE_PRINT( "Running Testcasenumber=%d",test_index);
-		
+
 		pAppData.H264_TestCaseParams = &H264_TestCaseTable[test_index];
     	#ifdef TIMESTAMPSPRINT/*will be removed later*/
 			/*print the received timestamps information*/
@@ -1506,13 +1506,13 @@ void OMXH264Enc_TestEntry(Int32 paramSize, void *pParam)
 			case 0:
 				/*call to Total functionality*/
 			H264CLIENT_TRACE_PRINT( "Running TestCaseId=%d",pAppData.H264_TestCaseParams->TestCaseId);
-               		 #if 0				
+               		 #if 0
 			      Memory_getStats(NULL, &stats);
-			      H264CLIENT_INFO_PRINT("Total size = %d", stats.totalSize); 
-			      H264CLIENT_INFO_PRINT("Total free size = %d", stats.totalFreeSize); 
-			      H264CLIENT_INFO_PRINT("Largest Free size = %d", stats.largestFreeSize); 
+			      H264CLIENT_INFO_PRINT("Total size = %d", stats.totalSize);
+			      H264CLIENT_INFO_PRINT("Total free size = %d", stats.totalFreeSize);
+			      H264CLIENT_INFO_PRINT("Largest Free size = %d", stats.largestFreeSize);
 				#endif
-				
+
 				mem_count_start = TIMM_OSAL_GetMemCounter();
 				#ifndef H264_LINUX_CLIENT
 				mem_size_start = TIMM_OSAL_GetMemUsage();
@@ -1522,7 +1522,7 @@ void OMXH264Enc_TestEntry(Int32 paramSize, void *pParam)
 				#ifndef H264_LINUX_CLIENT
 				H264CLIENT_INFO_PRINT( "before Test case Start: Value from GetMemUsage = %d", mem_size_start);
 				#endif
-				
+
 				eError=OMXH264Enc_CompleteFunctionality(&pAppData,test_index);
 
 				mem_count_end = TIMM_OSAL_GetMemCounter();
@@ -1537,14 +1537,14 @@ void OMXH264Enc_TestEntry(Int32 paramSize, void *pParam)
 					H264CLIENT_ERROR_PRINT("Memory leak detected. Bytes lost = %d", (mem_size_end - mem_size_start));
 				}
 				#endif
-				
-			
+
+
 			break;
 			case 1:
 			H264CLIENT_TRACE_PRINT( "Running TestCaseId=%d",pAppData.H264_TestCaseParams->TestCaseId);
 
 				/*call to gethandle & Freehandle: Simple Test*/
-				for(i=0;i<GETHANDLE_FREEHANDLE_LOOPCOUNT;i++){                		
+				for(i=0;i<GETHANDLE_FREEHANDLE_LOOPCOUNT;i++){
 					mem_count_start = TIMM_OSAL_GetMemCounter();
 					#ifndef H264_LINUX_CLIENT
 					mem_size_start = TIMM_OSAL_GetMemUsage();
@@ -1569,13 +1569,13 @@ void OMXH264Enc_TestEntry(Int32 paramSize, void *pParam)
 					}
 					#endif
 				}
-                
+
 			break;
 
 			case 2:
 				/*call to gethandle, Loaded->Idle, Idle->Loaded & Freehandle: Simple Test: ports being Disabled*/
 			H264CLIENT_TRACE_PRINT( "Running TestCaseId=%d",pAppData.H264_TestCaseParams->TestCaseId);
-            			
+
 				mem_count_start = TIMM_OSAL_GetMemCounter();
 				#ifndef H264_LINUX_CLIENT
 				mem_size_start = TIMM_OSAL_GetMemUsage();
@@ -1585,7 +1585,7 @@ void OMXH264Enc_TestEntry(Int32 paramSize, void *pParam)
 				#ifndef H264_LINUX_CLIENT
 				H264CLIENT_INFO_PRINT( "before Test case Start: Value from GetMemUsage = %d", mem_size_start);
 				#endif
-				
+
 				 eError=OMXH264Enc_LoadedToIdlePortDisable(&pAppData);
 
 				mem_count_end = TIMM_OSAL_GetMemCounter();
@@ -1600,12 +1600,12 @@ void OMXH264Enc_TestEntry(Int32 paramSize, void *pParam)
 					H264CLIENT_ERROR_PRINT("Memory leak detected. Bytes lost = %d", (mem_size_end - mem_size_start));
 				}
 				#endif
-                
+
 			break;
 			case 3:
 				/*call to gethandle, Loaded->Idle, Idle->Loaded & Freehandle: Simple Test: ports being allocated with the required num of buffers*/
 			H264CLIENT_TRACE_PRINT( "Running TestCaseId=%d",pAppData.H264_TestCaseParams->TestCaseId);
-                		
+
 				mem_count_start = TIMM_OSAL_GetMemCounter();
 				#ifndef H264_LINUX_CLIENT
 				mem_size_start = TIMM_OSAL_GetMemUsage();
@@ -1629,12 +1629,12 @@ void OMXH264Enc_TestEntry(Int32 paramSize, void *pParam)
 					H264CLIENT_ERROR_PRINT("Memory leak detected. Bytes lost = %d", (mem_size_end - mem_size_start));
 				}
 				#endif
-                
+
 			break;
 			case 4:
 			H264CLIENT_TRACE_PRINT( "Running TestCaseId=%d",pAppData.H264_TestCaseParams->TestCaseId);
 
-				/*Unaligned Buffers : client allocates the buffers (use buffer) 
+				/*Unaligned Buffers : client allocates the buffers (use buffer)
 				call to gethandle, Loaded->Idle, Idle->Loaded & Freehandle: Simple Test: ports being allocated with the required num of buffers*/
 				mem_count_start = TIMM_OSAL_GetMemCounter();
 				#ifndef H264_LINUX_CLIENT
@@ -1664,7 +1664,7 @@ void OMXH264Enc_TestEntry(Int32 paramSize, void *pParam)
 				/*less than the min size requirements : client allocates the buffers (use buffer)/component allocate (allocate buffer)
 				call to gethandle, Loaded->Idle, Idle->Loaded & Freehandle: Simple Test: ports being allocated with the required num of buffers*/
 			H264CLIENT_TRACE_PRINT( "Running TestCaseId=%d",pAppData.H264_TestCaseParams->TestCaseId);
-				
+
 				mem_count_start = TIMM_OSAL_GetMemCounter();
 				#ifndef H264_LINUX_CLIENT
 				mem_size_start = TIMM_OSAL_GetMemUsage();
@@ -1674,7 +1674,7 @@ void OMXH264Enc_TestEntry(Int32 paramSize, void *pParam)
 				#ifndef H264_LINUX_CLIENT
 				H264CLIENT_INFO_PRINT( "before Test case Start: Value from GetMemUsage = %d", mem_size_start);
 				#endif
-				
+
 				 eError=OMXH264Enc_SizeLessthanMinBufferRequirements(&pAppData);
 
 				mem_count_end = TIMM_OSAL_GetMemCounter();
@@ -1704,7 +1704,7 @@ void OMXH264Enc_TestEntry(Int32 paramSize, void *pParam)
 				#ifndef H264_LINUX_CLIENT
 				H264CLIENT_INFO_PRINT( "before Test case Start: Value from GetMemUsage = %d", mem_size_start);
 				#endif
-				
+
 				eError=OMXH264Enc_CompleteFunctionality(&pAppData,test_index);
 
 				mem_count_end = TIMM_OSAL_GetMemCounter();
@@ -1724,7 +1724,7 @@ void OMXH264Enc_TestEntry(Int32 paramSize, void *pParam)
 				/* Different Number of input & output buffers Not satisfying the min buffers requirements
 				 call to gethandle, Loaded->Idle, Idle->Loaded & Freehandle: Simple Test: ports being allocated with less num of buffers*/
 			H264CLIENT_TRACE_PRINT( "Running TestCaseId=%d",pAppData.H264_TestCaseParams->TestCaseId);
-				
+
 				mem_count_start = TIMM_OSAL_GetMemCounter();
 				#ifndef H264_LINUX_CLIENT
 				mem_size_start = TIMM_OSAL_GetMemUsage();
@@ -1734,7 +1734,7 @@ void OMXH264Enc_TestEntry(Int32 paramSize, void *pParam)
 				#ifndef H264_LINUX_CLIENT
 				H264CLIENT_INFO_PRINT( "before Test case Start: Value from GetMemUsage = %d", mem_size_start);
 				#endif
-				
+
 				 eError=OMXH264Enc_LessthanMinBufferRequirementsNum(&pAppData);
 
 				mem_count_end = TIMM_OSAL_GetMemCounter();
@@ -1757,14 +1757,14 @@ void OMXH264Enc_TestEntry(Int32 paramSize, void *pParam)
 
 				H264CLIENT_TRACE_PRINT( "Not Implemented");
 				//printf("\nNot Implemented\n");
-						
+
 		}
 		OutputFilesize=0;
 		nFramesRead=0;
 		//TIMM_OSAL_EndMemDebug();
 	EXIT:
 	H264CLIENT_TRACE_PRINT("Reached the end of the programming");
-	
+
 	}/*End of test index loop*/
 }
 
@@ -1778,12 +1778,12 @@ OMX_ERRORTYPE OMXH264Enc_CompleteFunctionality(H264E_ILClient* pApplicationData,
 	H264CLIENT_ENTER_PRINT();
 	/*Get the AppData*/
 	pAppData=pApplicationData;
-	
+
 	/*initialize the call back functions before the get handle function*/
 	appCallbacks.EventHandler 		= H264ENC_EventHandler;
 	appCallbacks.EmptyBufferDone 	= H264ENC_EmptyBufferDone;
 	appCallbacks.FillBufferDone 		= H264ENC_FillBufferDone;
-	
+
 	/*create event*/
 	retval = TIMM_OSAL_EventCreate (&H264VE_Events);
 	GOTO_EXIT_IF((retval != TIMM_OSAL_ERR_NONE), OMX_ErrorInsufficientResources);
@@ -1795,7 +1795,7 @@ OMX_ERRORTYPE OMXH264Enc_CompleteFunctionality(H264E_ILClient* pApplicationData,
 	GOTO_EXIT_IF((eError != OMX_ErrorNone), eError);
 
 	H264CLIENT_TRACE_PRINT( "Got the Component Handle =%x",pHandle);
-	
+
 	pAppData->pHandle = pHandle;
 	/* Open the input file for data to be rendered.  */
 	pAppData->fIn = fopen(pAppData->H264_TestCaseParams->InFile, "rb");
@@ -1811,7 +1811,7 @@ OMX_ERRORTYPE OMXH264Enc_CompleteFunctionality(H264E_ILClient* pApplicationData,
 		OMXH264Enc_Client_ErrorHandling(pAppData,1,eError);
 		goto EXIT;
 	}
-	
+
        H264CLIENT_TRACE_PRINT( "call to goto Loaded -> Idle state");
 	/* OMX_SendCommand expecting OMX_StateIdle */
 	eError = OMX_SendCommand(pHandle, OMX_CommandStateSet, OMX_StateIdle, NULL);
@@ -1827,7 +1827,7 @@ OMX_ERRORTYPE OMXH264Enc_CompleteFunctionality(H264E_ILClient* pApplicationData,
 	/* Wait for initialization to complete.. Wait for Idle state of component  */
 	eError = H264ENC_WaitForState(pAppData);
 	GOTO_EXIT_IF((eError != OMX_ErrorNone), eError);
-	
+
 	H264CLIENT_TRACE_PRINT( "call to goto Idle -> executing state");
 	eError = OMX_SendCommand(pHandle,OMX_CommandStateSet, OMX_StateExecuting, NULL);
 	GOTO_EXIT_IF((eError != OMX_ErrorNone), eError);
@@ -1839,7 +1839,7 @@ OMX_ERRORTYPE OMXH264Enc_CompleteFunctionality(H264E_ILClient* pApplicationData,
 	H264CLIENT_TRACE_PRINT( "Trasition to executing state is completed");
 
 	/*Executing Loop*/
-	eError =OMXH264Enc_InExecuting(pAppData,test_index);	
+	eError =OMXH264Enc_InExecuting(pAppData,test_index);
 	GOTO_EXIT_IF((eError != OMX_ErrorNone), eError);
 
 	/*Command to goto Idle*/
@@ -1867,27 +1867,27 @@ OMX_ERRORTYPE OMXH264Enc_CompleteFunctionality(H264E_ILClient* pApplicationData,
 		fclose(pAppData->fIn);
 	if(pAppData->fOut)
 		fclose(pAppData->fOut);
-	
+
 	/* UnLoad the Encoder Component */
 	H264CLIENT_TRACE_PRINT( "call to FreeHandle()");
 	eError = OMX_FreeHandle(pHandle);
 	GOTO_EXIT_IF((eError != OMX_ErrorNone), eError);
-	
 
-	
+
+
 	EXIT:
 		/* De-Initialize OMX Core */
-		H264CLIENT_TRACE_PRINT( "call OMX Deinit");		
+		H264CLIENT_TRACE_PRINT( "call OMX Deinit");
 		eError = OMX_Deinit();
-		
+
 		/*Delete the Events*/
 		TIMM_OSAL_EventDelete(H264VE_Events);
        	TIMM_OSAL_EventDelete(H264VE_CmdEvent);
-		
+
 		if(eError != OMX_ErrorNone){
 			H264CLIENT_ERROR_PRINT( "%s",H264_GetErrorString(eError));
-		}		
-		
+		}
+
 		H264CLIENT_EXIT_PRINT(eError);
 	return eError;
 
@@ -1902,15 +1902,15 @@ OMX_ERRORTYPE OMXH264Enc_InExecuting(H264E_ILClient* pApplicationData,OMX_U32 te
 	OMX_BUFFERHEADERTYPE* pBufferIn = NULL;
 	OMX_BUFFERHEADERTYPE* pBufferOut = NULL;
 	OMX_U32 actualSize,fwritesize,fflushstatus;
-	TIMM_OSAL_ERRORTYPE retval = TIMM_OSAL_ERR_UNKNOWN;	
+	TIMM_OSAL_ERRORTYPE retval = TIMM_OSAL_ERR_UNKNOWN;
 	TIMM_OSAL_U32 uRequestedEvents, pRetrievedEvents, numRemaining;
 	OMX_U8 FrameNumToProcess=1,PauseFrameNumIndex=0,i;//,nCountFTB=1;
 	OMX_H264E_DynamicConfigs OMXConfigStructures;
-	
+
 
 	H264CLIENT_ENTER_PRINT();
 	/*Initialize the ConfigStructures*/
-	
+
 	OMX_TEST_INIT_STRUCT_PTR(&(OMXConfigStructures.tFrameRate),OMX_CONFIG_FRAMERATETYPE);
 	OMX_TEST_INIT_STRUCT_PTR(&(OMXConfigStructures.tBitRate),OMX_VIDEO_CONFIG_BITRATETYPE);
 	OMX_TEST_INIT_STRUCT_PTR(&(OMXConfigStructures.tMESearchrange),OMX_VIDEO_CONFIG_MESEARCHRANGETYPE);
@@ -1929,74 +1929,74 @@ OMX_ERRORTYPE OMXH264Enc_InExecuting(H264E_ILClient* pApplicationData,OMX_U32 te
 	pAppData=pApplicationData;
 	/*Populate the Handle*/
 	pHandle = pAppData->pHandle;
-	
+
      	/*Check: partial or full record & in case of partial record check for stop frame number */
 	if(pAppData->H264_TestCaseParams->TestType==PARTIAL_RECORD){
 		H264ClientStopFrameNum=pAppData->H264_TestCaseParams->StopFrameNum;
-		H264CLIENT_TRACE_PRINT( "StopFrame in Partial record case=%d",H264ClientStopFrameNum);	
+		H264CLIENT_TRACE_PRINT( "StopFrame in Partial record case=%d",H264ClientStopFrameNum);
 	}else if(pAppData->H264_TestCaseParams->TestType==FULL_RECORD){
 		/*go ahead with processing until it reaches EOS..update the "H264ClientStopFrameNum" with sufficiently big value: used in case of FULL RECORD*/
-		H264ClientStopFrameNum=MAXFRAMESTOREADFROMFILE;		
+		H264ClientStopFrameNum=MAXFRAMESTOREADFROMFILE;
 	}else{
 		eError = OMX_ErrorBadParameter;
-		H264CLIENT_ERROR_PRINT( "Invalid parameter:TestType ");	
+		H264CLIENT_ERROR_PRINT( "Invalid parameter:TestType ");
 		goto EXIT;
 	}
 	while ((eError == OMX_ErrorNone) && ((pAppData->eState == OMX_StateExecuting) || (pAppData->eState == OMX_StatePause)) ) {
-		
+
 		/* Wait for an event (input/output/error) */
         H264CLIENT_TRACE_PRINT("\nWait for an event (input/output/error)\n");
 		uRequestedEvents = (H264_INPUT_READY | H264_OUTPUT_READY | H264_ERROR_EVENT|H264_EOS_EVENT);
 		retval = TIMM_OSAL_EventRetrieve (H264VE_Events, uRequestedEvents,
 				TIMM_OSAL_EVENT_OR_CONSUME, &pRetrievedEvents, TIMM_OSAL_SUSPEND);
-        H264CLIENT_TRACE_PRINT("\nEvent recd. = %d\n", pRetrievedEvents);                
+        H264CLIENT_TRACE_PRINT("\nEvent recd. = %d\n", pRetrievedEvents);
 		GOTO_EXIT_IF((retval != TIMM_OSAL_ERR_NONE), OMX_ErrorInsufficientResources);
-		
+
 		/*Check for Error Event & Exit upon receiving the Error*/
 		GOTO_EXIT_IF((pRetrievedEvents & H264_ERROR_EVENT), pAppData->eAppError);
 
 		/*Check for OUTPUT READY Event*/
 		numRemaining = 0;
 		if (pRetrievedEvents & H264_OUTPUT_READY) {
-			H264CLIENT_TRACE_PRINT( "in Output Ready Event");	
+			H264CLIENT_TRACE_PRINT( "in Output Ready Event");
 			retval = TIMM_OSAL_GetPipeReadyMessageCount (pAppData->OpBuf_Pipe, &numRemaining);
 			GOTO_EXIT_IF((retval != TIMM_OSAL_ERR_NONE), OMX_ErrorBadParameter);
 			H264CLIENT_TRACE_PRINT( "Output Msg count=%d",numRemaining);
 			while (numRemaining) {
 				/*read from the pipe*/
-				H264CLIENT_TRACE_PRINT( "Read Buffer from the Output Pipe to give the Next FTB call");	
+				H264CLIENT_TRACE_PRINT( "Read Buffer from the Output Pipe to give the Next FTB call");
 				retval = TIMM_OSAL_ReadFromPipe(pAppData->OpBuf_Pipe, &pBufferOut, sizeof(pBufferOut), &actualSize, TIMM_OSAL_SUSPEND );
 				GOTO_EXIT_IF((retval != TIMM_OSAL_ERR_NONE), OMX_ErrorNotReady);
 				if(pBufferOut->nFilledLen){
-					H264CLIENT_TRACE_PRINT( "Write the data into output file before it is given for the next FTB call");	
+					H264CLIENT_TRACE_PRINT( "Write the data into output file before it is given for the next FTB call");
 					fwritesize=fwrite((pBufferOut->pBuffer+(pBufferOut->nOffset)), sizeof(OMX_U8), pBufferOut->nFilledLen, pAppData->fOut);
 					fflushstatus=fflush(pAppData->fOut);
 					if(fflushstatus!=0)
-						H264CLIENT_ERROR_PRINT( "While fflush operation");					
+						H264CLIENT_ERROR_PRINT( "While fflush operation");
 					OutputFilesize+=pBufferOut->nFilledLen;
 				}
-				
-				H264CLIENT_TRACE_PRINT( "timestamp received is=%ld  ",pBufferOut->nTimeStamp);		
-				H264CLIENT_TRACE_PRINT( "filledlen=%d  fwritesize=%d, OutputFilesize=%d",pBufferOut->nFilledLen,fwritesize,OutputFilesize);	
-				H264CLIENT_TRACE_PRINT( "update the nFilledLen & nOffset");	
+
+				H264CLIENT_TRACE_PRINT( "timestamp received is=%ld  ",pBufferOut->nTimeStamp);
+				H264CLIENT_TRACE_PRINT( "filledlen=%d  fwritesize=%d, OutputFilesize=%d",pBufferOut->nFilledLen,fwritesize,OutputFilesize);
+				H264CLIENT_TRACE_PRINT( "update the nFilledLen & nOffset");
 				pBufferOut->nFilledLen = 0;
 				pBufferOut->nOffset=0;
-				H264CLIENT_TRACE_PRINT( "Before the FTB call");	
+				H264CLIENT_TRACE_PRINT( "Before the FTB call");
 #ifdef OMX_H264E_SRCHANGES
 					pBufferOut->pBuffer = (char *)SharedRegion_getSRPtr(pBufferOut->pBuffer, 2);
 #endif
-					
-				eError = OMX_FillThisBuffer(pHandle, pBufferOut);				
+
+				eError = OMX_FillThisBuffer(pHandle, pBufferOut);
 				GOTO_EXIT_IF((eError != OMX_ErrorNone), eError);
 #ifdef OMX_H264E_SRCHANGES
 					pBufferOut->pBuffer = SharedRegion_getPtr(pBufferOut->pBuffer);
 #endif
-			
+
 				retval = TIMM_OSAL_GetPipeReadyMessageCount (pAppData->OpBuf_Pipe, &numRemaining);
 				GOTO_EXIT_IF((retval != TIMM_OSAL_ERR_NONE), OMX_ErrorBadParameter);
 				H264CLIENT_TRACE_PRINT( "Output Msg count=%d",numRemaining);
-				
-			} 
+
+			}
 		}
 
 		/*Check for EOS Event*/
@@ -2004,22 +2004,22 @@ OMX_ERRORTYPE OMXH264Enc_InExecuting(H264E_ILClient* pApplicationData,OMX_U32 te
 			#ifdef TIMESTAMPSPRINT/*to check the prder of output timestamp information....will be removed later*/
 				/*print the received timestamps information*/
 				for(i=0;i<H264ClientStopFrameNum;i++){
-					H264CLIENT_TRACE_PRINT( "TimeStamp[%d]=%ld",i,TimeStampsArray[i]);	
+					H264CLIENT_TRACE_PRINT( "TimeStamp[%d]=%ld",i,TimeStampsArray[i]);
 				}
 			#endif
 			eError=OMX_ErrorNone;
 			goto EXIT;
-			
+
 		}
-		
-		
+
+
 		/*Check for Input Ready Event*/
 		numRemaining = 0;
 		if ((pRetrievedEvents & H264_INPUT_READY)) {
-					
+
 			/*continue with the ETB calls only if H264ClientStopFrameNum!=FrameNumToProcess*/
 			if((H264ClientStopFrameNum>=FrameNumToProcess)){
-				H264CLIENT_TRACE_PRINT( "In Input Ready event");			
+				H264CLIENT_TRACE_PRINT( "In Input Ready event");
 				retval = TIMM_OSAL_GetPipeReadyMessageCount (pAppData->IpBuf_Pipe, &numRemaining);
 				GOTO_EXIT_IF((retval != TIMM_OSAL_ERR_NONE), OMX_ErrorBadParameter);
 				H264CLIENT_TRACE_PRINT( "Input Msg count=%d",numRemaining);
@@ -2029,7 +2029,7 @@ OMX_ERRORTYPE OMXH264Enc_InExecuting(H264E_ILClient* pApplicationData,OMX_U32 te
 					retval = TIMM_OSAL_ReadFromPipe (pAppData->IpBuf_Pipe, &pBufferIn,
 							sizeof(pBufferIn), &actualSize, TIMM_OSAL_SUSPEND );
 					GOTO_EXIT_IF((retval != TIMM_OSAL_ERR_NONE), OMX_ErrorNotReady);
-					H264CLIENT_TRACE_PRINT( "Read Data from the Input File");		
+					H264CLIENT_TRACE_PRINT( "Read Data from the Input File");
 					eError=H264ENC_FillData(pAppData,pBufferIn);
 					GOTO_EXIT_IF((eError != OMX_ErrorNone), eError);
 					H264CLIENT_TRACE_PRINT( "Call to ETB");
@@ -2049,23 +2049,23 @@ OMX_ERRORTYPE OMXH264Enc_InExecuting(H264E_ILClient* pApplicationData,OMX_U32 te
 
 					/*Send command to Pause*/
 					if((PauseFrameNum[PauseFrameNumIndex]==FrameNumToProcess)&&(PauseFrameNumIndex<NUMTIMESTOPAUSE)){
-						H264CLIENT_TRACE_PRINT( "command to go Exectuing -> Pause state");		
+						H264CLIENT_TRACE_PRINT( "command to go Exectuing -> Pause state");
 						eError = OMX_SendCommand(pHandle,OMX_CommandStateSet, OMX_StatePause, NULL);
 						GOTO_EXIT_IF((eError != OMX_ErrorNone), eError);
 
 						eError = H264ENC_WaitForState(pHandle);
 						GOTO_EXIT_IF((eError != OMX_ErrorNone), eError);
 						PauseFrameNumIndex++;
-						H264CLIENT_TRACE_PRINT( "Component is in Paused state");		
+						H264CLIENT_TRACE_PRINT( "Component is in Paused state");
 					}
-					
+
 					/*Call to Dynamic Settings*/
 					H264CLIENT_TRACE_PRINT( "Configure the RunTime Settings");
 					eError = OMXH264Enc_ConfigureRunTimeSettings(pAppData,&OMXConfigStructures, test_index,FrameNumToProcess);
 					GOTO_EXIT_IF((eError != OMX_ErrorNone), eError);
-					
+
 					/*Increase the frame count that has been sent for processing*/
-					FrameNumToProcess++;				
+					FrameNumToProcess++;
 
 					retval = TIMM_OSAL_GetPipeReadyMessageCount (pAppData->IpBuf_Pipe, &numRemaining);
 					GOTO_EXIT_IF((retval != TIMM_OSAL_ERR_NONE), OMX_ErrorBadParameter);
@@ -2080,26 +2080,26 @@ OMX_ERRORTYPE OMXH264Enc_InExecuting(H264E_ILClient* pApplicationData,OMX_U32 te
 		/*instead of sleep......to send the executing State command*/
 		while((pAppData->eState==OMX_StatePause)&&(TempCount<10) ){
 			TempCount++;
-		}		
+		}
 		if(TempCount==10){
-			H264CLIENT_TRACE_PRINT( "command to go Pause -> Executing state");	
+			H264CLIENT_TRACE_PRINT( "command to go Pause -> Executing state");
 			eError = OMX_SendCommand(pHandle,OMX_CommandStateSet, OMX_StateExecuting, NULL);
 			GOTO_EXIT_IF((eError != OMX_ErrorNone), eError);
 			eError = H264ENC_WaitForState(pHandle);
 			GOTO_EXIT_IF((eError != OMX_ErrorNone), eError);
 			TempCount=0;
-			
+
 		}
 
 		/*get the Component State*/
 		eError = OMX_GetState(pHandle, &(pAppData->eState));
 		H264CLIENT_TRACE_PRINT( "Component Current State=%d",pAppData->eState);
-		
+
 	}
 EXIT:
 	H264CLIENT_EXIT_PRINT(eError);
 	return eError;
-	
+
 }
 
 OMX_ERRORTYPE OMXH264Enc_ConfigureRunTimeSettings(H264E_ILClient * pApplicationData,OMX_H264E_DynamicConfigs* H264EConfigStructures,OMX_U32 test_index,OMX_U32 FrameNumber){
@@ -2110,12 +2110,12 @@ OMX_ERRORTYPE OMXH264Enc_ConfigureRunTimeSettings(H264E_ILClient * pApplicationD
 
 
 	H264CLIENT_ENTER_PRINT();
-		
+
     	if(!pApplicationData){
 		eError = OMX_ErrorBadParameter;
 		goto EXIT;
 	}
-	pHandle = pApplicationData->pHandle;			
+	pHandle = pApplicationData->pHandle;
 
 	for(i=0;i<DynamicSettingsCount;i++){
 		switch(DynamicSettingsArray[i]){
@@ -2123,14 +2123,14 @@ OMX_ERRORTYPE OMXH264Enc_ConfigureRunTimeSettings(H264E_ILClient * pApplicationD
 				/*set config to OMX_CONFIG_FRAMERATETYPE */
 				if(H264_TestCaseDynTable[test_index].DynFrameRate.nFrameNumber[DynFrameCountArray_Index[i]]==FrameNumber){
 					/*Set Port Index*/
-					H264EConfigStructures->tFrameRate.nPortIndex=H264_APP_OUTPUTPORT;					
+					H264EConfigStructures->tFrameRate.nPortIndex=H264_APP_OUTPUTPORT;
 					eError = OMX_GetConfig(pHandle, OMX_IndexConfigVideoFramerate, &(H264EConfigStructures->tFrameRate));
 					GOTO_EXIT_IF((eError != OMX_ErrorNone),eError);
 					H264EConfigStructures->tFrameRate.xEncodeFramerate=((H264_TestCaseDynTable[test_index].DynFrameRate.nFramerate[DynFrameCountArray_Index[i]]) << 16);
 
 					eError = OMX_SetConfig(pHandle, OMX_IndexConfigVideoFramerate, &(H264EConfigStructures->tFrameRate));
 					GOTO_EXIT_IF((eError != OMX_ErrorNone),eError);
-					
+
 					DynFrameCountArray_Index[i]++;
 					/*check to remove from the DynamicSettingsArray list*/
 					if(H264_TestCaseDynTable[test_index].DynFrameRate.nFrameNumber[DynFrameCountArray_Index[i]]==-1){
@@ -2145,12 +2145,12 @@ OMX_ERRORTYPE OMXH264Enc_ConfigureRunTimeSettings(H264E_ILClient * pApplicationD
 					H264EConfigStructures->tBitRate.nPortIndex=H264_APP_OUTPUTPORT;
 					eError = OMX_GetConfig(pHandle, OMX_IndexConfigVideoBitrate, &(H264EConfigStructures->tBitRate));
 					GOTO_EXIT_IF((eError != OMX_ErrorNone),eError);
-					
+
 					H264EConfigStructures->tBitRate.nEncodeBitrate=H264_TestCaseDynTable[test_index].DynBitRate.nBitrate[DynFrameCountArray_Index[i]];
 
 					eError = OMX_SetConfig(pHandle, OMX_IndexConfigVideoBitrate, &(H264EConfigStructures->tBitRate));
 					GOTO_EXIT_IF((eError != OMX_ErrorNone),eError);
-					
+
 					DynFrameCountArray_Index[i]++;
 					/*check to remove from the DynamicSettingsArray list*/
 					if(H264_TestCaseDynTable[test_index].DynBitRate.nFrameNumber[DynFrameCountArray_Index[i]]==-1){
@@ -2165,7 +2165,7 @@ OMX_ERRORTYPE OMXH264Enc_ConfigureRunTimeSettings(H264E_ILClient * pApplicationD
 					H264EConfigStructures->tMESearchrange.nPortIndex=H264_APP_OUTPUTPORT;
 					eError = OMX_GetConfig(pHandle, OMX_TI_IndexConfigVideoMESearchRange, &(H264EConfigStructures->tMESearchrange));
 					GOTO_EXIT_IF((eError != OMX_ErrorNone),eError);
-					
+
 					H264EConfigStructures->tMESearchrange.eMVAccuracy=H264_TestCaseDynTable[test_index].DynMESearchRange.nMVAccuracy[DynFrameCountArray_Index[i]];
 					H264EConfigStructures->tMESearchrange.nHorSearchRangeP=H264_TestCaseDynTable[test_index].DynMESearchRange.nHorSearchRangeP[DynFrameCountArray_Index[i]];
 					H264EConfigStructures->tMESearchrange.nVerSearchRangeP=H264_TestCaseDynTable[test_index].DynMESearchRange.nVerSearchRangeP[DynFrameCountArray_Index[i]];
@@ -2174,7 +2174,7 @@ OMX_ERRORTYPE OMXH264Enc_ConfigureRunTimeSettings(H264E_ILClient * pApplicationD
 
 					eError = OMX_SetConfig(pHandle, OMX_TI_IndexConfigVideoMESearchRange, &(H264EConfigStructures->tMESearchrange));
 					GOTO_EXIT_IF((eError != OMX_ErrorNone),eError);
-					
+
 					DynFrameCountArray_Index[i]++;
 					/*check to remove from the DynamicSettingsArray list*/
 					if(H264_TestCaseDynTable[test_index].DynMESearchRange.nFrameNumber[DynFrameCountArray_Index[i]]==-1){
@@ -2184,7 +2184,7 @@ OMX_ERRORTYPE OMXH264Enc_ConfigureRunTimeSettings(H264E_ILClient * pApplicationD
 			break;
 			case 3:
 				/*set config to OMX_CONFIG_INTRAREFRESHVOPTYPE*/
-				if(H264_TestCaseDynTable[test_index].DynForceFrame.nFrameNumber[DynFrameCountArray_Index[i]]==FrameNumber){					
+				if(H264_TestCaseDynTable[test_index].DynForceFrame.nFrameNumber[DynFrameCountArray_Index[i]]==FrameNumber){
 					/*Set Port Index*/
 					H264EConfigStructures->tForceframe.nPortIndex=H264_APP_OUTPUTPORT;
 					eError = OMX_GetConfig(pHandle, OMX_IndexConfigVideoIntraVOPRefresh, &(H264EConfigStructures->tForceframe));
@@ -2194,7 +2194,7 @@ OMX_ERRORTYPE OMXH264Enc_ConfigureRunTimeSettings(H264E_ILClient * pApplicationD
 
 					eError = OMX_SetConfig(pHandle, OMX_IndexConfigVideoIntraVOPRefresh, &(H264EConfigStructures->tForceframe));
 					GOTO_EXIT_IF((eError != OMX_ErrorNone),eError);
-					
+
 					DynFrameCountArray_Index[i]++;
 					/*check to remove from the DynamicSettingsArray list*/
 					if(H264_TestCaseDynTable[test_index].DynForceFrame.nFrameNumber[DynFrameCountArray_Index[i]]==-1){
@@ -2204,7 +2204,7 @@ OMX_ERRORTYPE OMXH264Enc_ConfigureRunTimeSettings(H264E_ILClient * pApplicationD
 			break;
 			case 4:
 				/*set config to OMX_TI_VIDEO_CONFIG_QPSETTINGS*/
-				if(H264_TestCaseDynTable[test_index].DynQpSettings.nFrameNumber[DynFrameCountArray_Index[i]]==FrameNumber){					
+				if(H264_TestCaseDynTable[test_index].DynQpSettings.nFrameNumber[DynFrameCountArray_Index[i]]==FrameNumber){
 					/*Set Port Index*/
 					H264EConfigStructures->tQPSettings.nPortIndex=H264_APP_OUTPUTPORT;
 					eError = OMX_GetConfig(pHandle, OMX_TI_IndexConfigVideoQPSettings, &(H264EConfigStructures->tQPSettings));
@@ -2222,7 +2222,7 @@ OMX_ERRORTYPE OMXH264Enc_ConfigureRunTimeSettings(H264E_ILClient * pApplicationD
 
 					eError = OMX_SetConfig(pHandle, OMX_TI_IndexConfigVideoQPSettings, &(H264EConfigStructures->tQPSettings));
 					GOTO_EXIT_IF((eError != OMX_ErrorNone),eError);
-					
+
 					DynFrameCountArray_Index[i]++;
 					/*check to remove from the DynamicSettingsArray list*/
 					if(H264_TestCaseDynTable[test_index].DynQpSettings.nFrameNumber[DynFrameCountArray_Index[i]]==-1){
@@ -2232,14 +2232,14 @@ OMX_ERRORTYPE OMXH264Enc_ConfigureRunTimeSettings(H264E_ILClient * pApplicationD
 			break;
 			case 5:
 				/*set config to OMX_VIDEO_CONFIG_AVCINTRAPERIOD*/
-				if(H264_TestCaseDynTable[test_index].DynIntraFrmaeInterval.nFrameNumber[DynFrameCountArray_Index[i]]==FrameNumber){					
+				if(H264_TestCaseDynTable[test_index].DynIntraFrmaeInterval.nFrameNumber[DynFrameCountArray_Index[i]]==FrameNumber){
 					/*Set Port Index*/
 					H264EConfigStructures->tAVCIntraPeriod.nPortIndex=H264_APP_OUTPUTPORT;
 					eError = OMX_GetConfig(pHandle, OMX_IndexConfigVideoAVCIntraPeriod, &(H264EConfigStructures->tAVCIntraPeriod));
 					GOTO_EXIT_IF((eError != OMX_ErrorNone),eError);
 
 					H264EConfigStructures->tAVCIntraPeriod.nIDRPeriod=H264_TestCaseDynTable[test_index].DynIntraFrmaeInterval.nIntraFrameInterval[DynFrameCountArray_Index[i]];
-					
+
 					eError = OMX_SetConfig(pHandle, OMX_IndexConfigVideoAVCIntraPeriod, &(H264EConfigStructures->tAVCIntraPeriod));
 					GOTO_EXIT_IF((eError != OMX_ErrorNone),eError);
 					DynFrameCountArray_Index[i]++;
@@ -2247,32 +2247,32 @@ OMX_ERRORTYPE OMXH264Enc_ConfigureRunTimeSettings(H264E_ILClient * pApplicationD
 					if(H264_TestCaseDynTable[test_index].DynIntraFrmaeInterval.nFrameNumber[DynFrameCountArray_Index[i]]==-1){
 						nRemoveList[RemoveIndex++]=DynamicSettingsArray[i];
 					}
-				}				
+				}
 			break;
 			case 6:
 				/*set config to OMX_IndexConfigVideoNalSize*/
-				if(H264_TestCaseDynTable[test_index].DynNALSize.nFrameNumber[DynFrameCountArray_Index[i]]==FrameNumber){					
+				if(H264_TestCaseDynTable[test_index].DynNALSize.nFrameNumber[DynFrameCountArray_Index[i]]==FrameNumber){
 					/*Set Port Index*/
 					H264EConfigStructures->tNALUSize.nPortIndex=H264_APP_OUTPUTPORT;
 					eError = OMX_GetConfig(pHandle, OMX_IndexConfigVideoNalSize, &(H264EConfigStructures->tNALUSize));
 					GOTO_EXIT_IF((eError != OMX_ErrorNone),eError);
 
 					H264EConfigStructures->tNALUSize.nNaluBytes=H264_TestCaseDynTable[test_index].DynNALSize.nNaluSize[DynFrameCountArray_Index[i]];
-										
+
 					eError = OMX_SetConfig(pHandle, OMX_IndexConfigVideoNalSize, &(H264EConfigStructures->tNALUSize));
 					GOTO_EXIT_IF((eError != OMX_ErrorNone),eError);
-					
+
 					DynFrameCountArray_Index[i]++;
 					/*check to remove from the DynamicSettingsArray list*/
 					if(H264_TestCaseDynTable[test_index].DynNALSize.nFrameNumber[DynFrameCountArray_Index[i]]==-1){
 						nRemoveList[RemoveIndex++]=DynamicSettingsArray[i];
 					}
 				}
-				
+
 			break;
 			case 7:
 				/*set config to OMX_TI_VIDEO_CONFIG_SLICECODING*/
-				if(H264_TestCaseDynTable[test_index].DynSliceSettings.nFrameNumber[DynFrameCountArray_Index[i]]==FrameNumber){					
+				if(H264_TestCaseDynTable[test_index].DynSliceSettings.nFrameNumber[DynFrameCountArray_Index[i]]==FrameNumber){
 					/*Set Port Index*/
 					H264EConfigStructures->tSliceSettings.nPortIndex=H264_APP_OUTPUTPORT;
 					eError = OMX_GetConfig(pHandle, OMX_TI_IndexConfigSliceSettings, &(H264EConfigStructures->tSliceSettings));
@@ -2280,21 +2280,21 @@ OMX_ERRORTYPE OMXH264Enc_ConfigureRunTimeSettings(H264E_ILClient * pApplicationD
 
 					H264EConfigStructures->tSliceSettings.eSliceMode=H264_TestCaseDynTable[test_index].DynSliceSettings.eSliceMode[DynFrameCountArray_Index[i]];
 					H264EConfigStructures->tSliceSettings.nSlicesize=H264_TestCaseDynTable[test_index].DynSliceSettings.nSlicesize[DynFrameCountArray_Index[i]];
-					
+
 					eError = OMX_SetConfig(pHandle, OMX_TI_IndexConfigSliceSettings, &(H264EConfigStructures->tSliceSettings));
 					GOTO_EXIT_IF((eError != OMX_ErrorNone),eError);
-					
+
 					DynFrameCountArray_Index[i]++;
 					/*check to remove from the DynamicSettingsArray list*/
 					if(H264_TestCaseDynTable[test_index].DynSliceSettings.nFrameNumber[DynFrameCountArray_Index[i]]==-1){
 						nRemoveList[RemoveIndex++]=DynamicSettingsArray[i];
 					}
 				}
-				
+
 			break;
 			case 8:
 				/*set config to OMX_TI_VIDEO_CONFIG_PIXELINFO*/
-				if(H264_TestCaseDynTable[test_index].DynPixelInfo.nFrameNumber[DynFrameCountArray_Index[i]]==FrameNumber){					
+				if(H264_TestCaseDynTable[test_index].DynPixelInfo.nFrameNumber[DynFrameCountArray_Index[i]]==FrameNumber){
 
 					/*Set Port Index*/
 					H264EConfigStructures->tPixelInfo.nPortIndex=H264_APP_OUTPUTPORT;
@@ -2303,10 +2303,10 @@ OMX_ERRORTYPE OMXH264Enc_ConfigureRunTimeSettings(H264E_ILClient * pApplicationD
 
 					H264EConfigStructures->tPixelInfo.nWidth=H264_TestCaseDynTable[test_index].DynPixelInfo.nWidth[DynFrameCountArray_Index[i]];
 					H264EConfigStructures->tPixelInfo.nHeight=H264_TestCaseDynTable[test_index].DynPixelInfo.nHeight[DynFrameCountArray_Index[i]];
-					
+
 					eError = OMX_SetConfig(pHandle, OMX_TI_IndexConfigVideoPixelInfo, &(H264EConfigStructures->tPixelInfo));
 					GOTO_EXIT_IF((eError != OMX_ErrorNone),eError);
-					
+
 					DynFrameCountArray_Index[i]++;
 					/*check to remove from the DynamicSettingsArray list*/
 					if(H264_TestCaseDynTable[test_index].DynPixelInfo.nFrameNumber[DynFrameCountArray_Index[i]]==-1){
@@ -2314,11 +2314,11 @@ OMX_ERRORTYPE OMXH264Enc_ConfigureRunTimeSettings(H264E_ILClient * pApplicationD
 					}
 				}
 			break;
-			default:		
+			default:
 			break;
 		}
 	}
-	
+
 	/*Update the DynamicSettingsArray*/
 		eError= H264E_Update_DynamicSettingsArray(RemoveIndex,nRemoveList);
 
@@ -2419,22 +2419,22 @@ return eError;
 OMX_ERRORTYPE OMXH264Enc_DynamicPortConfiguration(H264E_ILClient * pApplicationData,OMX_U32 nPortIndex){
 	OMX_ERRORTYPE eError = OMX_ErrorNone;
 	H264E_ILClient *pAppData;
-	
+
 	H264CLIENT_ENTER_PRINT();
-	
+
 	/*validate the Input Prameters*/
 	if(pApplicationData==NULL){
 		eError=OMX_ErrorBadParameter;
-		goto EXIT;		
+		goto EXIT;
 	}
 	pAppData=pApplicationData;
 
 	/*validate the Port Index*/
 	if(nPortIndex>H264_APP_OUTPUTPORT){
 		eError=OMX_ErrorBadPortIndex;
-		goto EXIT;		
+		goto EXIT;
 	}
-	
+
 	/*call OMX_Sendcommand with cmd as Port Disable */
 	eError = OMX_SendCommand(pAppData->pHandle,OMX_CommandPortDisable,nPortIndex, NULL);
 	GOTO_EXIT_IF((eError != OMX_ErrorNone),eError);
@@ -2453,20 +2453,20 @@ EXIT:
 void OMXH264Enc_Client_ErrorHandling(H264E_ILClient * pApplicationData,OMX_U32 nErrorIndex,OMX_ERRORTYPE eGenError){
 	OMX_ERRORTYPE eError = OMX_ErrorNone;
 	H264E_ILClient *pAppData;
-	
+
 	H264CLIENT_ENTER_PRINT();
-	
+
 	/*validate the Input Prameters*/
 	if(pApplicationData==NULL){
 		eError=OMX_ErrorBadParameter;
-		goto EXIT;		
+		goto EXIT;
 	}
 	pAppData=pApplicationData;
 	switch(nErrorIndex){
 		case 1:
 			/*Error During Set Params or Error During state Transition Loaded->Idle*/
 			eError = OMX_FreeHandle(pAppData->pHandle);
-			H264CLIENT_ERROR_PRINT("%s  During FreeHandle",H264_GetErrorString(eGenError));						
+			H264CLIENT_ERROR_PRINT("%s  During FreeHandle",H264_GetErrorString(eGenError));
 		break;
 		case 2:
 			/*TODO: Error During Allocate Buffers*/
@@ -2504,14 +2504,14 @@ EXIT:
 H264CLIENT_EXIT_PRINT(eError);
 
 }
-	
+
 
 OMX_ERRORTYPE OMXH264Enc_GetHandle_FreeHandle(H264E_ILClient* pApplicationData){
 	H264E_ILClient *pAppData;
 	OMX_HANDLETYPE pHandle = NULL;
 	OMX_ERRORTYPE eError = OMX_ErrorNone;
 	OMX_CALLBACKTYPE appCallbacks;
-	
+
 	H264CLIENT_ENTER_PRINT();
 	/*Get the AppData*/
 	pAppData=pApplicationData;
@@ -2525,7 +2525,7 @@ OMX_ERRORTYPE OMXH264Enc_GetHandle_FreeHandle(H264E_ILClient* pApplicationData){
 	GOTO_EXIT_IF((eError != OMX_ErrorNone), eError);
 	/* Load the H264ENCoder Component */
 	eError = OMX_GetHandle(&pHandle,(OMX_STRING)"OMX.TI.DUCATI1.VIDEO.H264E",pAppData, &appCallbacks);
-	GOTO_EXIT_IF((eError != OMX_ErrorNone), eError);	
+	GOTO_EXIT_IF((eError != OMX_ErrorNone), eError);
 
 	pAppData->pHandle = pHandle;
 
@@ -2535,28 +2535,28 @@ OMX_ERRORTYPE OMXH264Enc_GetHandle_FreeHandle(H264E_ILClient* pApplicationData){
 	H264CLIENT_TRACE_PRINT( "call to FreeHandle()");
 	eError = OMX_FreeHandle(pHandle);
 	GOTO_EXIT_IF((eError != OMX_ErrorNone), eError);
-		
-	
-		
+
+
+
 EXIT:
 	/* De-Initialize OMX Core */
-	H264CLIENT_TRACE_PRINT( "call OMX Deinit");		
+	H264CLIENT_TRACE_PRINT( "call OMX Deinit");
 	eError = OMX_Deinit();
-	
+
 	if(eError != OMX_ErrorNone){
 		H264CLIENT_ERROR_PRINT( "%s",H264_GetErrorString(eError));
-	}		
-	
+	}
+
 	H264CLIENT_EXIT_PRINT(eError);
 	return eError;
 
-        
-	
+
+
 
 }
 
 OMX_ERRORTYPE OMXH264Enc_LoadedToIdlePortDisable(H264E_ILClient* pApplicationData){
-	
+
 	H264E_ILClient *pAppData;
 	OMX_HANDLETYPE pHandle = NULL;
 	OMX_ERRORTYPE eError = OMX_ErrorNone;
@@ -2567,7 +2567,7 @@ OMX_ERRORTYPE OMXH264Enc_LoadedToIdlePortDisable(H264E_ILClient* pApplicationDat
 	/*Get the AppData*/
 	pAppData=pApplicationData;
 
-	
+
 	/*create event*/
 	retval = TIMM_OSAL_EventCreate (&H264VE_Events);
 	GOTO_EXIT_IF((retval != TIMM_OSAL_ERR_NONE), OMX_ErrorInsufficientResources);
@@ -2583,20 +2583,20 @@ OMX_ERRORTYPE OMXH264Enc_LoadedToIdlePortDisable(H264E_ILClient* pApplicationDat
 	GOTO_EXIT_IF((eError != OMX_ErrorNone), eError);
 	/* Load the H264ENCoder Component */
 	eError = OMX_GetHandle(&pHandle,(OMX_STRING)"OMX.TI.DUCATI1.VIDEO.H264E",pAppData, &appCallbacks);
-	GOTO_EXIT_IF((eError != OMX_ErrorNone), eError);	
+	GOTO_EXIT_IF((eError != OMX_ErrorNone), eError);
 
 	pAppData->pHandle = pHandle;
 	H264CLIENT_TRACE_PRINT( "Got the Component Handle =%x",pHandle);
-	
+
 	/*call OMX_Sendcommand with cmd as Port Disable */
 	eError = OMX_SendCommand(pAppData->pHandle,OMX_CommandPortDisable,OMX_ALL, NULL);
 	GOTO_EXIT_IF((eError != OMX_ErrorNone),eError);
-	
+
 	/* Wait for initialization to complete.. Wait for Idle state of component  */
 	eError = H264ENC_WaitForState(pAppData);
 	GOTO_EXIT_IF((eError != OMX_ErrorNone), eError);
-	
-	
+
+
 	H264CLIENT_TRACE_PRINT( "call to goto Loaded -> Idle state");
 	/* OMX_SendCommand expecting OMX_StateIdle */
 	eError = OMX_SendCommand(pHandle, OMX_CommandStateSet, OMX_StateIdle, NULL);
@@ -2613,35 +2613,35 @@ OMX_ERRORTYPE OMXH264Enc_LoadedToIdlePortDisable(H264E_ILClient* pApplicationDat
 	eError = H264ENC_WaitForState(pAppData);
 	GOTO_EXIT_IF((eError != OMX_ErrorNone), eError);
 
-	
+
 
 	/* UnLoad the Encoder Component */
 	H264CLIENT_TRACE_PRINT( "call to FreeHandle()");
 	eError = OMX_FreeHandle(pHandle);
 	GOTO_EXIT_IF((eError != OMX_ErrorNone), eError);
-		
-	
-		
+
+
+
 EXIT:
 	/* De-Initialize OMX Core */
-	H264CLIENT_TRACE_PRINT( "call OMX Deinit");		
+	H264CLIENT_TRACE_PRINT( "call OMX Deinit");
 	eError = OMX_Deinit();
 
 	/*Delete the Events*/
 	TIMM_OSAL_EventDelete(H264VE_Events);
    	TIMM_OSAL_EventDelete(H264VE_CmdEvent);
-	
+
 	if(eError != OMX_ErrorNone){
 		H264CLIENT_ERROR_PRINT( "%s",H264_GetErrorString(eError));
-	}		
-	
+	}
+
 	H264CLIENT_EXIT_PRINT(eError);
 	return eError;
-	
+
 }
 
 OMX_ERRORTYPE OMXH264Enc_LoadedToIdlePortEnable(H264E_ILClient* pApplicationData){
-	
+
 	H264E_ILClient *pAppData;
 	OMX_HANDLETYPE pHandle = NULL;
 	OMX_ERRORTYPE eError = OMX_ErrorNone;
@@ -2667,7 +2667,7 @@ OMX_ERRORTYPE OMXH264Enc_LoadedToIdlePortEnable(H264E_ILClient* pApplicationData
 	GOTO_EXIT_IF((eError != OMX_ErrorNone), eError);
 	/* Load the H264ENCoder Component */
 	eError = OMX_GetHandle(&pHandle,(OMX_STRING)"OMX.TI.DUCATI1.VIDEO.H264E",pAppData, &appCallbacks);
-	GOTO_EXIT_IF((eError != OMX_ErrorNone), eError);	
+	GOTO_EXIT_IF((eError != OMX_ErrorNone), eError);
 
 	pAppData->pHandle = pHandle;
 
@@ -2679,11 +2679,11 @@ OMX_ERRORTYPE OMXH264Enc_LoadedToIdlePortEnable(H264E_ILClient* pApplicationData
 /*for the allocate resorces call fill the height & width*/
 	pAppData->H264_TestCaseParams->width=176;
 	pAppData->H264_TestCaseParams->height=144;
-	
+
 	H264CLIENT_TRACE_PRINT( "Allocate the resources for the state trasition to Idle to complete");
 	eError = H264ENC_AllocateResources(pAppData);
 	GOTO_EXIT_IF((eError != OMX_ErrorNone),eError);
-	
+
 	/* Wait for initialization to complete.. Wait for Idle state of component  */
 	eError = H264ENC_WaitForState(pAppData);
 	GOTO_EXIT_IF((eError != OMX_ErrorNone), eError);
@@ -2695,7 +2695,7 @@ OMX_ERRORTYPE OMXH264Enc_LoadedToIdlePortEnable(H264E_ILClient* pApplicationData
 	H264CLIENT_TRACE_PRINT( "Free up the Component Resources");
 	eError = H264ENC_FreeResources(pAppData);
 	GOTO_EXIT_IF((eError != OMX_ErrorNone), eError);
-	
+
 	/* Wait for initialization to complete.. Wait for Idle state of component  */
 	eError = H264ENC_WaitForState(pAppData);
 	GOTO_EXIT_IF((eError != OMX_ErrorNone), eError);
@@ -2707,27 +2707,27 @@ OMX_ERRORTYPE OMXH264Enc_LoadedToIdlePortEnable(H264E_ILClient* pApplicationData
 	H264CLIENT_TRACE_PRINT( "call to FreeHandle()");
 	eError = OMX_FreeHandle(pHandle);
 	GOTO_EXIT_IF((eError != OMX_ErrorNone), eError);
-		
-	
-		
+
+
+
 EXIT:
 	/* De-Initialize OMX Core */
-	H264CLIENT_TRACE_PRINT( "call OMX Deinit");		
+	H264CLIENT_TRACE_PRINT( "call OMX Deinit");
 	eError = OMX_Deinit();
-	
+
 	/*Delete the Events*/
 	TIMM_OSAL_EventDelete(H264VE_Events);
    	TIMM_OSAL_EventDelete(H264VE_CmdEvent);
-	
+
 	if(eError != OMX_ErrorNone){
 		H264CLIENT_ERROR_PRINT( "%s",H264_GetErrorString(eError));
-	}		
-	
+	}
+
 	H264CLIENT_EXIT_PRINT(eError);
 	return eError;
-	
+
 }
-       
+
 OMX_ERRORTYPE OMXH264Enc_UnalignedBuffers(H264E_ILClient* pApplicationData){
 	H264E_ILClient *pAppData;
 	OMX_HANDLETYPE pHandle = NULL;
@@ -2735,14 +2735,14 @@ OMX_ERRORTYPE OMXH264Enc_UnalignedBuffers(H264E_ILClient* pApplicationData){
 	OMX_CALLBACKTYPE appCallbacks;
 	OMX_PARAM_PORTDEFINITIONTYPE tPortDef;
 	OMX_PORT_PARAM_TYPE tPortParams;
-	OMX_U8 *pTmpBuffer; /*Used with Use Buffer calls*/	
+	OMX_U8 *pTmpBuffer; /*Used with Use Buffer calls*/
 	OMX_U32 i,j;
 	TIMM_OSAL_ERRORTYPE retval = TIMM_OSAL_ERR_UNKNOWN;
 
 	/*Initialize the structure*/
 	OMX_TEST_INIT_STRUCT_PTR(&tPortDef,OMX_PARAM_PORTDEFINITIONTYPE);
 	OMX_TEST_INIT_STRUCT_PTR(&tPortParams,OMX_PORT_PARAM_TYPE);
-	
+
 
 	H264CLIENT_ENTER_PRINT();
 	/*Get the AppData*/
@@ -2762,7 +2762,7 @@ OMX_ERRORTYPE OMXH264Enc_UnalignedBuffers(H264E_ILClient* pApplicationData){
 	GOTO_EXIT_IF((eError != OMX_ErrorNone), eError);
 	/* Load the H264ENCoder Component */
 	eError = OMX_GetHandle(&pHandle,(OMX_STRING)"OMX.TI.DUCATI1.VIDEO.H264E",pAppData, &appCallbacks);
-	GOTO_EXIT_IF((eError != OMX_ErrorNone), eError);	
+	GOTO_EXIT_IF((eError != OMX_ErrorNone), eError);
 
 	pAppData->pHandle = pHandle;
 
@@ -2770,13 +2770,13 @@ OMX_ERRORTYPE OMXH264Enc_UnalignedBuffers(H264E_ILClient* pApplicationData){
 	/* OMX_SendCommand expecting OMX_StateIdle */
 	eError = OMX_SendCommand(pHandle, OMX_CommandStateSet, OMX_StateIdle, NULL);
 	GOTO_EXIT_IF((eError != OMX_ErrorNone), eError);
-	
+
 /*Allocate Buffers*/
 /*update the height & width*/
 	pAppData->H264_TestCaseParams->width=176;
 	pAppData->H264_TestCaseParams->height=144;
 
-	
+
 	H264CLIENT_TRACE_PRINT( "Allocate the resources for the state trasition to Idle to complete");
 	eError = OMX_GetParameter(pHandle, OMX_IndexParamVideoInit, &tPortParams);
 	GOTO_EXIT_IF((eError != OMX_ErrorNone),eError);
@@ -2790,27 +2790,27 @@ OMX_ERRORTYPE OMXH264Enc_UnalignedBuffers(H264E_ILClient* pApplicationData){
 			GOTO_EXIT_IF((pAppData->pInBuff == TIMM_OSAL_NULL),OMX_ErrorInsufficientResources);
 			/*USE Buffer calls*/
 			for (j = 0; j < tPortDef.nBufferCountActual; j++){
-				
-				pTmpBuffer= TIMM_OSAL_Malloc(((pAppData->H264_TestCaseParams->width*pAppData->H264_TestCaseParams->height*3/2)), TIMM_OSAL_TRUE, 0 ,TIMMOSAL_MEM_SEGMENT_EXT);		
+
+				pTmpBuffer= TIMM_OSAL_Malloc(((pAppData->H264_TestCaseParams->width*pAppData->H264_TestCaseParams->height*3/2)), TIMM_OSAL_TRUE, 0 ,TIMMOSAL_MEM_SEGMENT_EXT);
 				GOTO_EXIT_IF((pTmpBuffer== TIMM_OSAL_NULL),OMX_ErrorInsufficientResources);
 				//pTmpBuffer = (((OMX_U8)pTmpBuffer + 11) & (~11));
 				pTmpBuffer =0x14;
 				eError = OMX_UseBuffer(pAppData->pHandle, &(pAppData->pInBuff[j]), tPortDef.nPortIndex, pAppData, ((pAppData->H264_TestCaseParams->width*pAppData->H264_TestCaseParams->height*3/2)),pTmpBuffer);
-				GOTO_EXIT_IF((eError != OMX_ErrorNone), eError);				
+				GOTO_EXIT_IF((eError != OMX_ErrorNone), eError);
 			}
 
 		}else if(tPortDef.nPortIndex==H264_APP_OUTPUTPORT){
 			pAppData->pOutBuff = TIMM_OSAL_Malloc((sizeof(OMX_BUFFERHEADERTYPE*) * tPortDef.nBufferCountActual), TIMM_OSAL_TRUE, 0 ,TIMMOSAL_MEM_SEGMENT_EXT);
 			GOTO_EXIT_IF((pAppData->pOutBuff == TIMM_OSAL_NULL),OMX_ErrorInsufficientResources);
-			
+
 			for (j= 0; j < tPortDef.nBufferCountActual; j++)
 			{
-				/*USE Buffer calls*/ 			
-				pTmpBuffer= TIMM_OSAL_Malloc(((pAppData->H264_TestCaseParams->width*pAppData->H264_TestCaseParams->height)), TIMM_OSAL_TRUE, 0 ,TIMMOSAL_MEM_SEGMENT_EXT);								   
-				GOTO_EXIT_IF((pTmpBuffer== TIMM_OSAL_NULL),OMX_ErrorInsufficientResources);			
+				/*USE Buffer calls*/
+				pTmpBuffer= TIMM_OSAL_Malloc(((pAppData->H264_TestCaseParams->width*pAppData->H264_TestCaseParams->height)), TIMM_OSAL_TRUE, 0 ,TIMMOSAL_MEM_SEGMENT_EXT);
+				GOTO_EXIT_IF((pTmpBuffer== TIMM_OSAL_NULL),OMX_ErrorInsufficientResources);
 				eError = OMX_UseBuffer(pAppData->pHandle, &(pAppData->pOutBuff[j]), tPortDef.nPortIndex, pAppData, ((pAppData->H264_TestCaseParams->width*pAppData->H264_TestCaseParams->height)),pTmpBuffer);
 				GOTO_EXIT_IF((eError != OMX_ErrorNone), eError);
-					
+
 			}
 		}
 
@@ -2820,20 +2820,20 @@ OMX_ERRORTYPE OMXH264Enc_UnalignedBuffers(H264E_ILClient* pApplicationData){
 	/* Wait for initialization to complete.. Wait for Idle state of component  */
 	eError = H264ENC_WaitForState(pAppData);
 	GOTO_EXIT_IF((eError != OMX_ErrorNone), eError);
-	
+
 	H264CLIENT_TRACE_PRINT( "call to goto Idle -> Loaded state");
 	eError = OMX_SendCommand(pHandle,OMX_CommandStateSet, OMX_StateLoaded, NULL);
 	GOTO_EXIT_IF((eError != OMX_ErrorNone), eError);
 /*Free Buffers*/
-	for(i=0; i < tPortParams.nPorts ; i++){			
+	for(i=0; i < tPortParams.nPorts ; i++){
 		tPortDef.nPortIndex = i;
 		eError = OMX_GetParameter(pHandle, OMX_IndexParamPortDefinition, &tPortDef);
 		GOTO_EXIT_IF((eError != OMX_ErrorNone),eError);
 		if(i==H264_APP_INPUTPORT){
 			for (j = 0; j < tPortDef.nBufferCountActual; j++){
 				if(!pAppData->H264_TestCaseParams->bInAllocatebuffer)
-				{		
-					TIMM_OSAL_Free(pAppData->pInBuff[j]->pBuffer);				
+				{
+					TIMM_OSAL_Free(pAppData->pInBuff[j]->pBuffer);
 				}
 				eError = OMX_FreeBuffer(pAppData->pHandle, tPortDef.nPortIndex, pAppData->pInBuff[j]);
 				GOTO_EXIT_IF((eError != OMX_ErrorNone), eError);
@@ -2841,16 +2841,16 @@ OMX_ERRORTYPE OMXH264Enc_UnalignedBuffers(H264E_ILClient* pApplicationData){
 		}else if(i==H264_APP_OUTPUTPORT){
 			for (j = 0; j < tPortDef.nBufferCountActual; j++){
 				if(!pAppData->H264_TestCaseParams->bInAllocatebuffer)
-				{				   
-					TIMM_OSAL_Free(pAppData->pOutBuff[j]->pBuffer); 	   
+				{
+					TIMM_OSAL_Free(pAppData->pOutBuff[j]->pBuffer);
 				}
 
 				eError = OMX_FreeBuffer(pAppData->pHandle, tPortDef.nPortIndex, pAppData->pOutBuff[j]);
 				GOTO_EXIT_IF((eError != OMX_ErrorNone), eError);
 			}
-		}	
+		}
 	}
-	
+
 	/* Wait for initialization to complete.. Wait for Idle state of component  */
 	eError = H264ENC_WaitForState(pAppData);
 	GOTO_EXIT_IF((eError != OMX_ErrorNone), eError);
@@ -2862,22 +2862,22 @@ OMX_ERRORTYPE OMXH264Enc_UnalignedBuffers(H264E_ILClient* pApplicationData){
 	H264CLIENT_TRACE_PRINT( "call to FreeHandle()");
 	eError = OMX_FreeHandle(pHandle);
 	GOTO_EXIT_IF((eError != OMX_ErrorNone), eError);
-		
-	
-		
+
+
+
 EXIT:
 	/* De-Initialize OMX Core */
-	H264CLIENT_TRACE_PRINT( "call OMX Deinit");		
+	H264CLIENT_TRACE_PRINT( "call OMX Deinit");
 	eError = OMX_Deinit();
-	
+
 	/*Delete the Events*/
 	TIMM_OSAL_EventDelete(H264VE_Events);
    	TIMM_OSAL_EventDelete(H264VE_CmdEvent);
-	
+
 	if(eError != OMX_ErrorNone){
 		H264CLIENT_ERROR_PRINT( "%s",H264_GetErrorString(eError));
-	}		
-	
+	}
+
 	H264CLIENT_EXIT_PRINT(eError);
 	return eError;
 }
@@ -2889,13 +2889,13 @@ OMX_ERRORTYPE OMXH264Enc_SizeLessthanMinBufferRequirements(H264E_ILClient* pAppl
 	OMX_CALLBACKTYPE appCallbacks;
 	OMX_PARAM_PORTDEFINITIONTYPE tPortDef;
 	OMX_PORT_PARAM_TYPE tPortParams;
-	OMX_U8 *pTmpBuffer; /*Used with Use Buffer calls*/	
+	OMX_U8 *pTmpBuffer; /*Used with Use Buffer calls*/
 	OMX_U32 i,j;
 	TIMM_OSAL_ERRORTYPE retval = TIMM_OSAL_ERR_UNKNOWN;
 	/*Initialize the structure*/
 	OMX_TEST_INIT_STRUCT_PTR(&tPortDef,OMX_PARAM_PORTDEFINITIONTYPE);
 	OMX_TEST_INIT_STRUCT_PTR(&tPortParams,OMX_PORT_PARAM_TYPE);
-	
+
 
 	H264CLIENT_ENTER_PRINT();
 	/*Get the AppData*/
@@ -2916,7 +2916,7 @@ OMX_ERRORTYPE OMXH264Enc_SizeLessthanMinBufferRequirements(H264E_ILClient* pAppl
 	GOTO_EXIT_IF((eError != OMX_ErrorNone), eError);
 	/* Load the H264ENCoder Component */
 	eError = OMX_GetHandle(&pHandle,(OMX_STRING)"OMX.TI.DUCATI1.VIDEO.H264E",pAppData, &appCallbacks);
-	GOTO_EXIT_IF((eError != OMX_ErrorNone), eError);	
+	GOTO_EXIT_IF((eError != OMX_ErrorNone), eError);
 
 	pAppData->pHandle = pHandle;
 
@@ -2924,12 +2924,12 @@ OMX_ERRORTYPE OMXH264Enc_SizeLessthanMinBufferRequirements(H264E_ILClient* pAppl
 	/* OMX_SendCommand expecting OMX_StateIdle */
 	eError = OMX_SendCommand(pHandle, OMX_CommandStateSet, OMX_StateIdle, NULL);
 	GOTO_EXIT_IF((eError != OMX_ErrorNone), eError);
-	
+
 /*Allocate Buffers*/
 	/*update the height & width*/
 	pAppData->H264_TestCaseParams->width=176;
 	pAppData->H264_TestCaseParams->height=100;
-	
+
 	H264CLIENT_TRACE_PRINT( "Allocate the resources for the state trasition to Idle to complete");
 	eError = OMX_GetParameter(pHandle, OMX_IndexParamVideoInit, &tPortParams);
 	GOTO_EXIT_IF((eError != OMX_ErrorNone),eError);
@@ -2943,26 +2943,26 @@ OMX_ERRORTYPE OMXH264Enc_SizeLessthanMinBufferRequirements(H264E_ILClient* pAppl
 			GOTO_EXIT_IF((pAppData->pInBuff == TIMM_OSAL_NULL),OMX_ErrorInsufficientResources);
 			/*USE Buffer calls*/
 			for (j = 0; j < tPortDef.nBufferCountActual; j++){
-				
-				pTmpBuffer= TIMM_OSAL_Malloc(((pAppData->H264_TestCaseParams->width*pAppData->H264_TestCaseParams->height*3/2)), TIMM_OSAL_TRUE, 0 ,TIMMOSAL_MEM_SEGMENT_EXT);		
+
+				pTmpBuffer= TIMM_OSAL_Malloc(((pAppData->H264_TestCaseParams->width*pAppData->H264_TestCaseParams->height*3/2)), TIMM_OSAL_TRUE, 0 ,TIMMOSAL_MEM_SEGMENT_EXT);
 				GOTO_EXIT_IF((pTmpBuffer== TIMM_OSAL_NULL),OMX_ErrorInsufficientResources);
-			
+
 				eError = OMX_UseBuffer(pAppData->pHandle, &(pAppData->pInBuff[j]), tPortDef.nPortIndex, pAppData, ((pAppData->H264_TestCaseParams->width*pAppData->H264_TestCaseParams->height*3/2)),pTmpBuffer);
-				GOTO_EXIT_IF((eError != OMX_ErrorNone), eError);				
+				GOTO_EXIT_IF((eError != OMX_ErrorNone), eError);
 			}
 
 		}else if(tPortDef.nPortIndex==H264_APP_OUTPUTPORT){
 			pAppData->pOutBuff = TIMM_OSAL_Malloc((sizeof(OMX_BUFFERHEADERTYPE*) * tPortDef.nBufferCountActual), TIMM_OSAL_TRUE, 0 ,TIMMOSAL_MEM_SEGMENT_EXT);
 			GOTO_EXIT_IF((pAppData->pOutBuff == TIMM_OSAL_NULL),OMX_ErrorInsufficientResources);
-			
+
 			for (j= 0; j < tPortDef.nBufferCountActual; j++)
 			{
-				/*USE Buffer calls*/ 			
-				pTmpBuffer= TIMM_OSAL_Malloc(((pAppData->H264_TestCaseParams->width*pAppData->H264_TestCaseParams->height)), TIMM_OSAL_TRUE, 0 ,TIMMOSAL_MEM_SEGMENT_EXT);								   
-				GOTO_EXIT_IF((pTmpBuffer== TIMM_OSAL_NULL),OMX_ErrorInsufficientResources);			
+				/*USE Buffer calls*/
+				pTmpBuffer= TIMM_OSAL_Malloc(((pAppData->H264_TestCaseParams->width*pAppData->H264_TestCaseParams->height)), TIMM_OSAL_TRUE, 0 ,TIMMOSAL_MEM_SEGMENT_EXT);
+				GOTO_EXIT_IF((pTmpBuffer== TIMM_OSAL_NULL),OMX_ErrorInsufficientResources);
 				eError = OMX_UseBuffer(pAppData->pHandle, &(pAppData->pOutBuff[j]), tPortDef.nPortIndex, pAppData, ((pAppData->H264_TestCaseParams->width*pAppData->H264_TestCaseParams->height)),pTmpBuffer);
 				GOTO_EXIT_IF((eError != OMX_ErrorNone), eError);
-					
+
 			}
 		}
 
@@ -2972,20 +2972,20 @@ OMX_ERRORTYPE OMXH264Enc_SizeLessthanMinBufferRequirements(H264E_ILClient* pAppl
 	/* Wait for initialization to complete.. Wait for Idle state of component  */
 	eError = H264ENC_WaitForState(pAppData);
 	GOTO_EXIT_IF((eError != OMX_ErrorNone), eError);
-	
+
 	H264CLIENT_TRACE_PRINT( "call to goto Idle -> Loaded state");
 	eError = OMX_SendCommand(pHandle,OMX_CommandStateSet, OMX_StateLoaded, NULL);
 	GOTO_EXIT_IF((eError != OMX_ErrorNone), eError);
 /*Free Buffers*/
-	for(i=0; i < tPortParams.nPorts ; i++){			
+	for(i=0; i < tPortParams.nPorts ; i++){
 		tPortDef.nPortIndex = i;
 		eError = OMX_GetParameter(pHandle, OMX_IndexParamPortDefinition, &tPortDef);
 		GOTO_EXIT_IF((eError != OMX_ErrorNone),eError);
 		if(i==H264_APP_INPUTPORT){
 			for (j = 0; j < tPortDef.nBufferCountActual; j++){
 				if(!pAppData->H264_TestCaseParams->bInAllocatebuffer)
-				{		
-					TIMM_OSAL_Free(pAppData->pInBuff[j]->pBuffer);				
+				{
+					TIMM_OSAL_Free(pAppData->pInBuff[j]->pBuffer);
 				}
 				eError = OMX_FreeBuffer(pAppData->pHandle, tPortDef.nPortIndex, pAppData->pInBuff[j]);
 				GOTO_EXIT_IF((eError != OMX_ErrorNone), eError);
@@ -2993,16 +2993,16 @@ OMX_ERRORTYPE OMXH264Enc_SizeLessthanMinBufferRequirements(H264E_ILClient* pAppl
 		}else if(i==H264_APP_OUTPUTPORT){
 			for (j = 0; j < tPortDef.nBufferCountActual; j++){
 				if(!pAppData->H264_TestCaseParams->bInAllocatebuffer)
-				{				   
-					TIMM_OSAL_Free(pAppData->pOutBuff[j]->pBuffer); 	   
+				{
+					TIMM_OSAL_Free(pAppData->pOutBuff[j]->pBuffer);
 				}
 
 				eError = OMX_FreeBuffer(pAppData->pHandle, tPortDef.nPortIndex, pAppData->pOutBuff[j]);
 				GOTO_EXIT_IF((eError != OMX_ErrorNone), eError);
 			}
-		}	
+		}
 	}
-	
+
 	/* Wait for initialization to complete.. Wait for Idle state of component  */
 	eError = H264ENC_WaitForState(pAppData);
 	GOTO_EXIT_IF((eError != OMX_ErrorNone), eError);
@@ -3014,22 +3014,22 @@ OMX_ERRORTYPE OMXH264Enc_SizeLessthanMinBufferRequirements(H264E_ILClient* pAppl
 	H264CLIENT_TRACE_PRINT( "call to FreeHandle()");
 	eError = OMX_FreeHandle(pHandle);
 	GOTO_EXIT_IF((eError != OMX_ErrorNone), eError);
-		
-	
-		
+
+
+
 EXIT:
 	/* De-Initialize OMX Core */
-	H264CLIENT_TRACE_PRINT( "call OMX Deinit");		
+	H264CLIENT_TRACE_PRINT( "call OMX Deinit");
 	eError = OMX_Deinit();
-	
+
 	/*Delete the Events*/
 	TIMM_OSAL_EventDelete(H264VE_Events);
    	TIMM_OSAL_EventDelete(H264VE_CmdEvent);
-	
+
 	if(eError != OMX_ErrorNone){
 		H264CLIENT_ERROR_PRINT( "%s",H264_GetErrorString(eError));
-	}		
-	
+	}
+
 	H264CLIENT_EXIT_PRINT(eError);
 	return eError;
 
@@ -3045,14 +3045,14 @@ OMX_ERRORTYPE OMXH264Enc_LessthanMinBufferRequirementsNum(H264E_ILClient* pAppli
 	OMX_CALLBACKTYPE appCallbacks;
 	OMX_PARAM_PORTDEFINITIONTYPE tPortDef;
 	OMX_PORT_PARAM_TYPE tPortParams;
-	OMX_U8 *pTmpBuffer; /*Used with Use Buffer calls*/	
+	OMX_U8 *pTmpBuffer; /*Used with Use Buffer calls*/
 	OMX_U32 i,j;
 	TIMM_OSAL_ERRORTYPE retval = TIMM_OSAL_ERR_UNKNOWN;
-	
+
 	/*Initialize the structure*/
 	OMX_TEST_INIT_STRUCT_PTR(&tPortDef,OMX_PARAM_PORTDEFINITIONTYPE);
 	OMX_TEST_INIT_STRUCT_PTR(&tPortParams,OMX_PORT_PARAM_TYPE);
-	
+
 
 	H264CLIENT_ENTER_PRINT();
 	/*Get the AppData*/
@@ -3073,7 +3073,7 @@ OMX_ERRORTYPE OMXH264Enc_LessthanMinBufferRequirementsNum(H264E_ILClient* pAppli
 	GOTO_EXIT_IF((eError != OMX_ErrorNone), eError);
 	/* Load the H264ENCoder Component */
 	eError = OMX_GetHandle(&pHandle,(OMX_STRING)"OMX.TI.DUCATI1.VIDEO.H264E",pAppData, &appCallbacks);
-	GOTO_EXIT_IF((eError != OMX_ErrorNone), eError);	
+	GOTO_EXIT_IF((eError != OMX_ErrorNone), eError);
 
 	pAppData->pHandle = pHandle;
 
@@ -3081,12 +3081,12 @@ OMX_ERRORTYPE OMXH264Enc_LessthanMinBufferRequirementsNum(H264E_ILClient* pAppli
 	/* OMX_SendCommand expecting OMX_StateIdle */
 	eError = OMX_SendCommand(pHandle, OMX_CommandStateSet, OMX_StateIdle, NULL);
 	GOTO_EXIT_IF((eError != OMX_ErrorNone), eError);
-	
+
 /*Allocate Buffers*/
 	/*update the height & width*/
 	pAppData->H264_TestCaseParams->width=176;
 	pAppData->H264_TestCaseParams->height=144;
-	
+
 	H264CLIENT_TRACE_PRINT( "Allocate the resources for the state trasition to Idle to complete");
 	eError = OMX_GetParameter(pHandle, OMX_IndexParamVideoInit, &tPortParams);
 	GOTO_EXIT_IF((eError != OMX_ErrorNone),eError);
@@ -3100,26 +3100,26 @@ OMX_ERRORTYPE OMXH264Enc_LessthanMinBufferRequirementsNum(H264E_ILClient* pAppli
 			GOTO_EXIT_IF((pAppData->pInBuff == TIMM_OSAL_NULL),OMX_ErrorInsufficientResources);
 			/*USE Buffer calls*/
 			for (j = 0; j < tPortDef.nBufferCountActual-1; j++){
-				
-				pTmpBuffer= TIMM_OSAL_Malloc(((pAppData->H264_TestCaseParams->width*pAppData->H264_TestCaseParams->height*3/2)), TIMM_OSAL_TRUE, 0 ,TIMMOSAL_MEM_SEGMENT_EXT);		
+
+				pTmpBuffer= TIMM_OSAL_Malloc(((pAppData->H264_TestCaseParams->width*pAppData->H264_TestCaseParams->height*3/2)), TIMM_OSAL_TRUE, 0 ,TIMMOSAL_MEM_SEGMENT_EXT);
 				GOTO_EXIT_IF((pTmpBuffer== TIMM_OSAL_NULL),OMX_ErrorInsufficientResources);
-				
+
 				eError = OMX_UseBuffer(pAppData->pHandle, &(pAppData->pInBuff[j]), tPortDef.nPortIndex, pAppData, ((pAppData->H264_TestCaseParams->width*pAppData->H264_TestCaseParams->height*3/2)),pTmpBuffer);
-				GOTO_EXIT_IF((eError != OMX_ErrorNone), eError);				
+				GOTO_EXIT_IF((eError != OMX_ErrorNone), eError);
 			}
 
 		}else if(tPortDef.nPortIndex==H264_APP_OUTPUTPORT){
 			pAppData->pOutBuff = TIMM_OSAL_Malloc((sizeof(OMX_BUFFERHEADERTYPE*) * tPortDef.nBufferCountActual), TIMM_OSAL_TRUE, 0 ,TIMMOSAL_MEM_SEGMENT_EXT);
 			GOTO_EXIT_IF((pAppData->pOutBuff == TIMM_OSAL_NULL),OMX_ErrorInsufficientResources);
-			
+
 			for (j= 0; j < tPortDef.nBufferCountActual; j++)
 			{
-				/*USE Buffer calls*/ 			
-				pTmpBuffer= TIMM_OSAL_Malloc(((pAppData->H264_TestCaseParams->width*pAppData->H264_TestCaseParams->height)), TIMM_OSAL_TRUE, 0 ,TIMMOSAL_MEM_SEGMENT_EXT);								   
-				GOTO_EXIT_IF((pTmpBuffer== TIMM_OSAL_NULL),OMX_ErrorInsufficientResources);			
+				/*USE Buffer calls*/
+				pTmpBuffer= TIMM_OSAL_Malloc(((pAppData->H264_TestCaseParams->width*pAppData->H264_TestCaseParams->height)), TIMM_OSAL_TRUE, 0 ,TIMMOSAL_MEM_SEGMENT_EXT);
+				GOTO_EXIT_IF((pTmpBuffer== TIMM_OSAL_NULL),OMX_ErrorInsufficientResources);
 				eError = OMX_UseBuffer(pAppData->pHandle, &(pAppData->pOutBuff[j]), tPortDef.nPortIndex, pAppData, ((pAppData->H264_TestCaseParams->width*pAppData->H264_TestCaseParams->height)),pTmpBuffer);
 				GOTO_EXIT_IF((eError != OMX_ErrorNone), eError);
-					
+
 			}
 		}
 
@@ -3129,20 +3129,20 @@ OMX_ERRORTYPE OMXH264Enc_LessthanMinBufferRequirementsNum(H264E_ILClient* pAppli
 	/* Wait for initialization to complete.. Wait for Idle state of component  */
 	eError = H264ENC_WaitForState(pAppData);
 	GOTO_EXIT_IF((eError != OMX_ErrorNone), eError);
-	
+
 	H264CLIENT_TRACE_PRINT( "call to goto Idle -> Loaded state");
 	eError = OMX_SendCommand(pHandle,OMX_CommandStateSet, OMX_StateLoaded, NULL);
 	GOTO_EXIT_IF((eError != OMX_ErrorNone), eError);
 /*Free Buffers*/
-	for(i=0; i < tPortParams.nPorts ; i++){			
+	for(i=0; i < tPortParams.nPorts ; i++){
 		tPortDef.nPortIndex = i;
 		eError = OMX_GetParameter(pHandle, OMX_IndexParamPortDefinition, &tPortDef);
 		GOTO_EXIT_IF((eError != OMX_ErrorNone),eError);
 		if(i==H264_APP_INPUTPORT){
 			for (j = 0; j < tPortDef.nBufferCountActual-1; j++){
 				if(!pAppData->H264_TestCaseParams->bInAllocatebuffer)
-						{		
-						TIMM_OSAL_Free(pAppData->pInBuff[j]->pBuffer);				
+						{
+						TIMM_OSAL_Free(pAppData->pInBuff[j]->pBuffer);
 						}
 				eError = OMX_FreeBuffer(pAppData->pHandle, tPortDef.nPortIndex, pAppData->pInBuff[j]);
 				GOTO_EXIT_IF((eError != OMX_ErrorNone), eError);
@@ -3150,16 +3150,16 @@ OMX_ERRORTYPE OMXH264Enc_LessthanMinBufferRequirementsNum(H264E_ILClient* pAppli
 		}else if(i==H264_APP_OUTPUTPORT){
 			for (j = 0; j < tPortDef.nBufferCountActual; j++){
 				if(!pAppData->H264_TestCaseParams->bInAllocatebuffer)
-				{				   
-					TIMM_OSAL_Free(pAppData->pOutBuff[j]->pBuffer); 	   
+				{
+					TIMM_OSAL_Free(pAppData->pOutBuff[j]->pBuffer);
 				}
 
 				eError = OMX_FreeBuffer(pAppData->pHandle, tPortDef.nPortIndex, pAppData->pOutBuff[j]);
 				GOTO_EXIT_IF((eError != OMX_ErrorNone), eError);
 			}
-		}	
+		}
 	}
-	
+
 	/* Wait for initialization to complete.. Wait for Idle state of component  */
 	eError = H264ENC_WaitForState(pAppData);
 	GOTO_EXIT_IF((eError != OMX_ErrorNone), eError);
@@ -3171,23 +3171,23 @@ OMX_ERRORTYPE OMXH264Enc_LessthanMinBufferRequirementsNum(H264E_ILClient* pAppli
 	H264CLIENT_TRACE_PRINT( "call to FreeHandle()");
 	eError = OMX_FreeHandle(pHandle);
 	GOTO_EXIT_IF((eError != OMX_ErrorNone), eError);
-		
-	
-		
+
+
+
 EXIT:
 	/* De-Initialize OMX Core */
-	H264CLIENT_TRACE_PRINT( "call OMX Deinit");		
+	H264CLIENT_TRACE_PRINT( "call OMX Deinit");
 	eError = OMX_Deinit();
 
 	/*Delete the Events*/
 	TIMM_OSAL_EventDelete(H264VE_Events);
    	TIMM_OSAL_EventDelete(H264VE_CmdEvent);
-	
-	
+
+
 	if(eError != OMX_ErrorNone){
 		H264CLIENT_ERROR_PRINT( "%s",H264_GetErrorString(eError));
-	}		
-	
+	}
+
 	H264CLIENT_EXIT_PRINT(eError);
 	return eError;
 
@@ -3196,10 +3196,10 @@ EXIT:
 
 
 
-	
 
-       
-        
+
+
+
 
 
 

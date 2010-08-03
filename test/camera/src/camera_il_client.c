@@ -76,7 +76,7 @@
 #include <timm_osal_error.h>
 #include <timm_osal_task.h>
 
-	
+
 /* bridge related include files */
 #include <RcmClient.h>
 
@@ -539,8 +539,8 @@ static int omx_fillthisbuffer(int index, int PortNum)
 	timearray[61].sec=tp.tv_sec;
 	timearray[61].usec=tp.tv_usec;
 	framedoneprofile[framedonecount].fillbuffertimestamp =
-		tp.tv_sec *1000000 + tp.tv_usec;	
-	sPortParam->bufferheader[index]->pMarkData = 
+		tp.tv_sec *1000000 + tp.tv_usec;
+	sPortParam->bufferheader[index]->pMarkData =
 	framedoneprofile[framedonecount].fillbuffertimestamp;
 #endif
 	eError = OMX_FillThisBuffer(pContext->hComp,
@@ -551,9 +551,9 @@ static int omx_fillthisbuffer(int index, int PortNum)
 	gettimeofday(&tp,0);
 	timearray[62].sec=tp.tv_sec;
 	timearray[62].usec=tp.tv_usec;
-	dprintf(83,"D OMX_FillThisBuffer call takes = %d usec\n", 
-				((timearray[62].sec - timearray[61].sec)*1000000 + 
-				 timearray[62].usec - timearray[61].usec)); 
+	dprintf(83,"D OMX_FillThisBuffer call takes = %d usec\n",
+				((timearray[62].sec - timearray[61].sec)*1000000 +
+				 timearray[62].usec - timearray[61].usec));
 #endif
         return eError;
 
@@ -596,9 +596,9 @@ int SendbufferToDss(int index)
 	gettimeofday(&tp,0);
 	timearray[65].sec=tp.tv_sec;
 	timearray[65].usec=tp.tv_usec;
-	dprintf(83,"D SendbufferToDss qbuf= %d usec\n", 
-				((timearray[65].sec - timearray[64].sec)*1000000 + 
-				 timearray[65].usec - timearray[64].usec)); 
+	dprintf(83,"D SendbufferToDss qbuf= %d usec\n",
+				((timearray[65].sec - timearray[64].sec)*1000000 +
+				 timearray[65].usec - timearray[64].usec));
 #endif
 	if (time_to_streamon == 0) {
 		dprintf(3,"\n STREAM ON DONE !!! \n");
@@ -618,7 +618,7 @@ int SendbufferToDss(int index)
 	timearray[66].sec=tp.tv_sec;
 	timearray[66].usec=tp.tv_usec;
 #endif
-	if (time_to_streamon > 1) {	
+	if (time_to_streamon > 1) {
 		dprintf(2,"\n DQBUF CALLED \n");
 		result = ioctl(vid1_fd, VIDIOC_DQBUF, &filledbuffer);
 		dprintf(2,"DQBUF buffer index = %d\n",filledbuffer.index);
@@ -626,15 +626,15 @@ int SendbufferToDss(int index)
 			perror("VIDIOC_DQBUF FAILED FAILED FAILED FAILED");
 		}
 	}
-	else 
+	else
 		filledbuffer.index = 0xFF;
 #ifdef PROFILE
 	gettimeofday(&tp,0);
 	timearray[67].sec=tp.tv_sec;
 	timearray[67].usec=tp.tv_usec;
-	dprintf(83,"D SendbufferToDss dbuf= %d usec\n", 
-				((timearray[67].sec - timearray[66].sec)*1000000 + 
-				 timearray[67].usec - timearray[66].usec)); 
+	dprintf(83,"D SendbufferToDss dbuf= %d usec\n",
+				((timearray[67].sec - timearray[66].sec)*1000000 +
+				 timearray[67].usec - timearray[66].usec));
 #endif
 #if 0
 	if ( time_to_streamon == 2 ){
@@ -644,7 +644,7 @@ int SendbufferToDss(int index)
 	    TIMM_OSAL_Error("Error from fill Buffer done : ");
 	}
 	}
-#endif 
+#endif
 	return filledbuffer.index ;
 }
 
@@ -678,7 +678,7 @@ OMX_ERRORTYPE SampleTest_FillBufferDone(OMX_IN OMX_HANDLETYPE hComponent,
 	TotalCapFrame++;
 	dprintf(2,"\n D TotalCapFrame = %d writing to pipe", TotalCapFrame);
 	retval = TIMM_OSAL_WriteToPipe(pContext->FBD_pipe, &pBuffHeader, sizeof(pBuffHeader),
-									TIMM_OSAL_SUSPEND); 
+									TIMM_OSAL_SUSPEND);
 	if (retval != TIMM_OSAL_ERR_NONE) {
 		dprintf(0,"\n D FAILED FAILED FAILED FAILED\n");
 		TIMM_OSAL_Error("Error in writing to pipe!");
@@ -689,14 +689,14 @@ OMX_ERRORTYPE SampleTest_FillBufferDone(OMX_IN OMX_HANDLETYPE hComponent,
 	if(eError != OMX_ErrorNone) {
 	    TIMM_OSAL_Error("Error from fill Buffer done : ");
 	}
-		
-    
+
+
 	dprintf(2,"D Write to pipe SUCCESSFUL\n");
 
-	
+
 #ifdef PROFILE
 	gettimeofday(&tp,0);
-	framedoneprofile[framedonecount].fbdtime= 
+	framedoneprofile[framedonecount].fbdtime=
 	(tp.tv_sec - framedoneprofile[framedonecount].sec)*1000000 +
 			 tp.tv_usec - framedoneprofile[framedonecount].usec;
 
@@ -801,9 +801,9 @@ OMX_ERRORTYPE SampleTest_AllocateBuffers(OMX_PARAM_PORTDEFINITIONTYPE *pPortDef,
 	gettimeofday(&tp,0);
 	timearray[54].sec=tp.tv_sec;
 	timearray[54].usec=tp.tv_usec;
-	dprintf(3,"\nD time to get buffers from DSS = %d usec\n", 
-				((timearray[54].sec - timearray[53].sec)*1000000 + 
-				 timearray[54].usec - timearray[53].usec)); 
+	dprintf(3,"\nD time to get buffers from DSS = %d usec\n",
+				((timearray[54].sec - timearray[53].sec)*1000000 +
+				 timearray[54].usec - timearray[53].usec));
 #endif
 	} else {
 	/* Allocate the buffers now. Assume that this else part is for the video capture for now.
@@ -815,8 +815,8 @@ OMX_ERRORTYPE SampleTest_AllocateBuffers(OMX_PARAM_PORTDEFINITIONTYPE *pPortDef,
 			buffersize = 4096 * ((pPortDef->format.video.nFrameHeight +32 ) +
 								(pPortDef->format.video.nFrameHeight >>2)+ 32);
 		}
-	
-		MemReqDescTiler=(MemAllocBlock*)TIMM_OSAL_Malloc((sizeof(MemAllocBlock) * 2), 
+
+		MemReqDescTiler=(MemAllocBlock*)TIMM_OSAL_Malloc((sizeof(MemAllocBlock) * 2),
 							TIMM_OSAL_TRUE, 0 ,TIMMOSAL_MEM_SEGMENT_EXT);
 		if (!MemReqDescTiler)
 			dprintf(0,"\nD can't allocate memory for Tiler block allocation \n");
@@ -841,7 +841,7 @@ OMX_ERRORTYPE SampleTest_AllocateBuffers(OMX_PARAM_PORTDEFINITIONTYPE *pPortDef,
 				gettimeofday(&tp,0);
 				timearray[54].sec=tp.tv_sec;
 				timearray[54].usec=tp.tv_usec;
-				dprintf(3,"\nD time to get buffers from tiler = %d usec\n", ((timearray[54].sec - timearray[53].sec)*1000000 + timearray[54].usec - timearray[53].usec)); 
+				dprintf(3,"\nD time to get buffers from tiler = %d usec\n", ((timearray[54].sec - timearray[53].sec)*1000000 + timearray[54].usec - timearray[53].usec));
 #endif
 				dprintf(1,"\nTiler buffer allocated is %x\n", (unsigned int)TilerAddr);
 				pTmpBuffer = (OMX_U8 *)TilerAddr;
@@ -888,9 +888,9 @@ OMX_ERRORTYPE SampleTest_AllocateBuffers(OMX_PARAM_PORTDEFINITIONTYPE *pPortDef,
 	gettimeofday(&tp,0);
 	timearray[56].sec=tp.tv_sec;
 	timearray[56].usec=tp.tv_usec;
-	dprintf(0,"\nD time taken in OMX_UseBuffer = %d usec\n", 
-				((timearray[56].sec - timearray[55].sec)*1000000 + 
-				 timearray[56].usec - timearray[55].usec)); 
+	dprintf(0,"\nD time taken in OMX_UseBuffer = %d usec\n",
+				((timearray[56].sec - timearray[55].sec)*1000000 +
+				 timearray[56].usec - timearray[55].usec));
 #endif
 
 		dprintf(3,"\n ---- ALLIGNMENT PART ---- \n");
@@ -945,9 +945,9 @@ OMX_ERRORTYPE SampleTest_DeInitBuffers(SampleCompTestCtxt *pContext)
 	gettimeofday(&tp,0);
 	timearray[92].sec=tp.tv_sec;
 	timearray[92].usec=tp.tv_usec;
-	dprintf(0,"D MemMgr_Free takes = %d usec\n", 
-				((timearray[92].sec - timearray[91].sec)*1000000 + 
-				 timearray[92].usec - timearray[91].usec)); 
+	dprintf(0,"D MemMgr_Free takes = %d usec\n",
+				((timearray[92].sec - timearray[91].sec)*1000000 +
+				 timearray[92].usec - timearray[91].usec));
 #endif
 #ifdef PROFILE
 	gettimeofday(&tp,0);
@@ -960,9 +960,9 @@ OMX_ERRORTYPE SampleTest_DeInitBuffers(SampleCompTestCtxt *pContext)
 	gettimeofday(&tp,0);
 	timearray[94].sec=tp.tv_sec;
 	timearray[94].usec=tp.tv_usec;
-	dprintf(0,"D OMX_FreeBuffer takes = %d usec\n", 
-				((timearray[94].sec - timearray[93].sec)*1000000 + 
-				 timearray[94].usec - timearray[93].usec)); 
+	dprintf(0,"D OMX_FreeBuffer takes = %d usec\n",
+				((timearray[94].sec - timearray[93].sec)*1000000 +
+				 timearray[94].usec - timearray[93].usec));
 #endif
 			pBufferHdr = NULL;
 		}
@@ -1001,7 +1001,7 @@ OMX_ERRORTYPE SampleTest_TransitionWait(OMX_STATETYPE eToState)
         */
         /* Verify that the component is still in Loaded state */
         eError = OMX_GetState (pContext->hComp, &pContext->eState);
-        if (eError != OMX_ErrorNone) 
+        if (eError != OMX_ErrorNone)
         	dprintf(0,"\nD get state from sample test transition wait failed\n");
         OMX_TEST_BAIL_IF_ERROR(eError);
         if ((eToState == OMX_StateIdle) &&
@@ -1068,7 +1068,7 @@ OMX_TEST_BAIL:
 }
 
 /*========================================================*/
-/* @ fn SetFormatforDSSvid : Set the resolution width and 
+/* @ fn SetFormatforDSSvid : Set the resolution width and
 height of DSS Driver */
 /*========================================================*/
 void SetFormatforDSSvid( unsigned int width, unsigned int height)
@@ -1088,7 +1088,7 @@ void SetFormatforDSSvid( unsigned int width, unsigned int height)
 }
 
 /*========================================================*/
-/* @ fn SetFormat : Set the resolution width, height and 
+/* @ fn SetFormat : Set the resolution width, height and
 Format */
 /*========================================================*/
 static int SetFormat(int width, int height, OMX_COLOR_FORMATTYPE pix_fmt)
@@ -1114,9 +1114,9 @@ static int SetFormat(int width, int height, OMX_COLOR_FORMATTYPE pix_fmt)
 	gettimeofday(&tp,0);
 	timearray[20].sec=tp.tv_sec;
 	timearray[20].usec=tp.tv_usec;
-	dprintf(0,"\nD GetParameter takes = %d usec\n", 
-				((timearray[20].sec - timearray[19].sec)*1000000 + 
-				 timearray[20].usec - timearray[19].usec)); 
+	dprintf(0,"\nD GetParameter takes = %d usec\n",
+				((timearray[20].sec - timearray[19].sec)*1000000 +
+				 timearray[20].usec - timearray[19].usec));
 #endif
 
         portCheck.format.video.nFrameWidth = width;
@@ -1157,7 +1157,7 @@ static int SetFormat(int width, int height, OMX_COLOR_FORMATTYPE pix_fmt)
 	gettimeofday(&tp,0);
 	timearray[22].sec=tp.tv_sec;
 	timearray[22].usec=tp.tv_usec;
-	dprintf(0,"\nD OMX_SetParameter takes = %d usec\n", 
+	dprintf(0,"\nD OMX_SetParameter takes = %d usec\n",
 			((timearray[22].sec - timearray[21].sec)*1000000 +
 			timearray[22].usec - timearray[21].usec));
 #endif
@@ -1194,13 +1194,13 @@ static int SetFormat(int width, int height, OMX_COLOR_FORMATTYPE pix_fmt)
 
 		PrevPort->tVNFMode.nPortIndex = OMX_CAMERA_PORT_VIDEO_OUT_PREVIEW;
 		PrevPort->tVNFMode.eMode = OMX_VideoNoiseFilterModeOn;
-		eError = OMX_SetParameter(pContext->hComp, OMX_IndexParamVideoNoiseFilter, 
+		eError = OMX_SetParameter(pContext->hComp, OMX_IndexParamVideoNoiseFilter,
 								&(PrevPort->tVNFMode));
 
 		dprintf(2,"\n D SETPARAMETER FOR NOISE FILTER MODE RETURNED\n");
 		OMX_TEST_BAIL_IF_ERROR(eError);
 #if 0
-		eError = OMX_SetParameter(pHandle, OMX_IndexParamVideoCaptureYUVRange, 
+		eError = OMX_SetParameter(pHandle, OMX_IndexParamVideoCaptureYUVRange,
 									&(pContext->tYUVRange));
 		OMX_TEST_BAIL_IF_ERROR(eError);
 		eError = OMX_SetParameter(pHandle, OMX_IndexParamFrameStabilisation,
@@ -1299,9 +1299,9 @@ startagain:
 	dprintf(0,"\nD starttime= %d, endtime = %d, average = %d\n", u1, timearray[0].usec,
 							average);
 	dprintf(0,"\nD Calibration done for profiling calls \n");
-	
+
 #endif
-		
+
         /* to load the images on the ducati side through CCS this call is
         * essential
         */
@@ -1314,9 +1314,9 @@ startagain:
 	gettimeofday(&tp,0);
 	timearray[2].sec=tp.tv_sec;
 	timearray[2].usec=tp.tv_usec;
-	dprintf(0,"\nD mmplatform_init takes = %d usec\n", 
-				((timearray[2].sec - timearray[1].sec)*1000000 + 
-				 timearray[2].usec - timearray[1].usec)); 
+	dprintf(0,"\nD mmplatform_init takes = %d usec\n",
+				((timearray[2].sec - timearray[1].sec)*1000000 +
+				 timearray[2].usec - timearray[1].usec));
 #endif
         dprintf(0,"\nWait until RCM Server is created on other side. Press any key after that\n");
         getchar();
@@ -1886,7 +1886,7 @@ void Camera_dqBuff(void *threadsArg)
     rc = pthread_setschedparam(thread_id, SCHED_RR/*policy*/, &param);
 
     if (rc !=0) printf("<Thread> 2 error %d\n", rc);
-    
+
     rc = pthread_getschedparam(thread_id, &policy, &param);
     if (rc !=0) printf("<Thread> 3 error %d\n", rc);
     printf("<Thread> %d %d %d %d\n", policy, param.sched_priority, sched_get_priority_min(policy), sched_get_priority_max(policy));
@@ -1923,15 +1923,15 @@ void Camera_dqBuff(void *threadsArg)
 		gettimeofday(&tp,0);
 		timearray[67].sec=tp.tv_sec;
 		timearray[67].usec=tp.tv_usec;
-		dprintf(0,"D Camera_dqBuff dbuf= %d usec\n", 
-				((timearray[67].sec - timearray[66].sec)*1000000 + 
-				 timearray[67].usec - timearray[66].usec)); 
+		dprintf(0,"D Camera_dqBuff dbuf= %d usec\n",
+				((timearray[67].sec - timearray[66].sec)*1000000 +
+				 timearray[67].usec - timearray[66].usec));
 #endif
 		omx_fillthisbuffer(filledbuffer.index, OMX_CAMERA_PORT_VIDEO_OUT_PREVIEW);
 	}
-  
+
 }
-#endif 
+#endif
 
 
 /*========================================================*/
@@ -1947,7 +1947,7 @@ void Camera_processfbd(void *threadsArg)
 	struct port_param *pPortParam;
 	int buffer_index;
 	unsigned int numRemainingIn = 0;
-	
+
 	int ii;
 	unsigned int actualSize =0;
     pthread_t             thread_id;
@@ -1965,12 +1965,12 @@ void Camera_processfbd(void *threadsArg)
     rc = pthread_setschedparam(thread_id, SCHED_RR/*policy*/, &param);
 
     if (rc !=0) printf("<Thread> 2 error %d\n", rc);
-    
+
     rc = pthread_getschedparam(thread_id, &policy, &param);
     if (rc !=0) printf("<Thread> 3 error %d\n", rc);
     printf("<Thread> %d %d %d %d\n", policy, param.sched_priority, sched_get_priority_min(policy), sched_get_priority_max(policy));
     //sleep(5);
-	while (OMX_ErrorNone == err) 
+	while (OMX_ErrorNone == err)
 	{
 		uRequestedEvents = EVENT_CAMERA_FBD;
 
@@ -1981,7 +1981,7 @@ void Camera_processfbd(void *threadsArg)
 			TIMM_OSAL_Error("Error in Retrieving event!");
 			err = OMX_ErrorUndefined;
 		}
-		
+
     /* Read the number of buffers available in pipe */
     TIMM_OSAL_GetPipeReadyMessageCount (pContext->FBD_pipe, (void*) &numRemainingIn);
     while(numRemainingIn)
@@ -1996,7 +1996,7 @@ void Camera_processfbd(void *threadsArg)
 		    break;
 		}
 		dprintf(2,"\n D  ReadFromPipe successfully returned\n");
-		
+
 		buffer_index = (int)pBuffHeader->pAppPrivate;
 		dprintf(2,"\n D buffer_index = %d\n", buffer_index);
 		pPortParam = &(pContext->sPortParam[pBuffHeader->nOutputPortIndex]);
@@ -2014,8 +2014,8 @@ void Camera_processfbd(void *threadsArg)
 				lines_to_read = cmd_height + cmd_height/2;
 				dprintf(3,"\n D START writing frame into the fileD\n");
 				for ( ii = 0; ii < lines_to_read ; ++ii) {
-					byteswritten= fwrite((char *)(pBuffHeader->pBuffer 
-								+ ( ii * 4096)), 1,  
+					byteswritten= fwrite((char *)(pBuffHeader->pBuffer
+								+ ( ii * 4096)), 1,
 								cmd_width, OutputFile);
 					if( byteswritten != cmd_width  ) {
 						dprintf(0,"\n Error!! Couldn't write into file correctly\n");
@@ -2046,7 +2046,7 @@ void Camera_processfbd(void *threadsArg)
     }
 	}
 	dprintf(0, " SHOULD NEVER COME HERE\n");
-	
+
 	return;
 }
 /*========================================================*/
@@ -2064,7 +2064,7 @@ int test_camera_preview( int width, int height, char *image_fmt)
 	cmd_height = height;
 
 	dprintf(1,"\nD value of DSS_enable = %d \n", dss_enable);
-	/* right now make dss_enable only for preview 
+	/* right now make dss_enable only for preview
 	if( (video_capture == 0) || (width < 848 && height < 486)  ) {
 		dprintf(0,"\nD the display will be on LCD\n");
 		dss_enable=1;
@@ -2129,9 +2129,9 @@ int test_camera_preview( int width, int height, char *image_fmt)
 	gettimeofday(&tp,0);
 	timearray[4].sec=tp.tv_sec;
 	timearray[4].usec=tp.tv_usec;
-	dprintf(0,"\nD OMX_init takes = %d usec\n", 
-			((timearray[4].sec - timearray[3].sec)*1000000 + 
-			 timearray[4].usec - timearray[3].usec)); 
+	dprintf(0,"\nD OMX_init takes = %d usec\n",
+			((timearray[4].sec - timearray[3].sec)*1000000 +
+			 timearray[4].usec - timearray[3].usec));
 #endif
 	dprintf(3,"D call OMX_getHandle \n");
 
@@ -2150,9 +2150,9 @@ int test_camera_preview( int width, int height, char *image_fmt)
 	gettimeofday(&tp,0);
 	timearray[6].sec=tp.tv_sec;
 	timearray[6].usec=tp.tv_usec;
-	dprintf(0,"\nD OMX_GetHandle takes = %d usec\n", 
-				((timearray[6].sec - timearray[5].sec)*1000000 + 
-				 timearray[6].usec - timearray[5].usec)); 
+	dprintf(0,"\nD OMX_GetHandle takes = %d usec\n",
+				((timearray[6].sec - timearray[5].sec)*1000000 +
+				 timearray[6].usec - timearray[5].usec));
 #endif
 	dprintf(3,"\n D GETHANDLE DONE \n");
 	/* store the handle in global structure */
@@ -2169,12 +2169,12 @@ int test_camera_preview( int width, int height, char *image_fmt)
 		/* set the usecase for the video capture mode */
 		OMX_TEST_INIT_STRUCT_PTR (&tCamOpMode, OMX_CONFIG_CAMOPERATINGMODETYPE);
 		dprintf(3,"\n D ***** NOW CALLING THE SET OPERATING MODE ****\n");
-		
+
 		tCamOpMode.eCamOperatingMode = OMX_CaptureVideo;
 		eError = OMX_SetParameter(pContext->hComp, OMX_IndexCameraOperatingMode, &tCamOpMode);
 		OMX_TEST_BAIL_IF_ERROR(eError);
-		
-		dprintf(3,"\n D **** SET THE PARMS FOR OPERATING MODE **** \n");   
+
+		dprintf(3,"\n D **** SET THE PARMS FOR OPERATING MODE **** \n");
 	}
 	/* disable all ports and then enable preview and video out port
 	* enabling two ports are necessary right now for OMX Camera component
@@ -2216,9 +2216,9 @@ int test_camera_preview( int width, int height, char *image_fmt)
 	gettimeofday(&tp,0);
 	timearray[72].sec=tp.tv_sec;
 	timearray[72].usec=tp.tv_usec;
-	dprintf(0,"\nD time to chage from idle to executing takes = %d usec\n", 
-				((timearray[72].sec - timearray[71].sec)*1000000 + 
-				 timearray[72].usec - timearray[71].usec)); 
+	dprintf(0,"\nD time to chage from idle to executing takes = %d usec\n",
+				((timearray[72].sec - timearray[71].sec)*1000000 +
+				 timearray[72].usec - timearray[71].usec));
 #endif
 
     /*wait till the State transition is complete */
@@ -2230,7 +2230,7 @@ int test_camera_preview( int width, int height, char *image_fmt)
 		TIMM_OSAL_Error("Error: TIMM_OSAL_CreatePipe failed to open");
 		eError = OMX_ErrorContentPipeCreationFailed;
 	}
-	
+
     /* Create input data read thread */
       eError = TIMM_OSAL_EventCreate (&myEventIn);
       if (TIMM_OSAL_ERR_NONE != eError) {
@@ -2245,7 +2245,7 @@ int test_camera_preview( int width, int height, char *image_fmt)
                     (10*1024),
                     -1,
                     (signed char*)"CAMERA_FBD_TASK");
-	
+
 #if 0
     /* Create input data read thread */
     retval = TIMM_OSAL_CreateTask(
@@ -2256,10 +2256,10 @@ int test_camera_preview( int width, int height, char *image_fmt)
                     (10*1024),
                     -1,
                     (signed char*)"CAMERA_DQBUFF_TASK");
-	
+
 
 #endif
-	for (jj = 0; jj < DEFAULT_BUFF_CNT; jj++) { 
+	for (jj = 0; jj < DEFAULT_BUFF_CNT; jj++) {
 		dprintf(3, " Before FillThisBuffer Call \n");
 		omx_fillthisbuffer(jj, OMX_CAMERA_PORT_VIDEO_OUT_PREVIEW);
 	}
@@ -2269,10 +2269,10 @@ int test_camera_preview( int width, int height, char *image_fmt)
 #ifdef PROFILE
 	dprintf(0,"\nD framedone received at framenumber, timeinusec \n");
 	for (i = 0; i < framedonecount; ++i)
-		//dprintf(0,"%3d\t%10d\t%10d\t%8d\t%8d\n", 
-		dprintf(0,"%3d\t%10d\n", 
+		//dprintf(0,"%3d\t%10d\t%10d\t%8d\t%8d\n",
+		dprintf(0,"%3d\t%10d\n",
 					framedoneprofile[i+1].bufferindex,
-	((framedoneprofile[i+1].sec - framedoneprofile[i].sec) *1000000 + 
+	((framedoneprofile[i+1].sec - framedoneprofile[i].sec) *1000000 +
 		 framedoneprofile[i+1].usec - framedoneprofile[i].usec));
 #endif
 	omx_switch_to_loaded();
@@ -2551,7 +2551,7 @@ EXIT:
 }
 
 /*========================================================*/
-/* @ fn test_OMX_CAM_SetParams : SetParameter function for 
+/* @ fn test_OMX_CAM_SetParams : SetParameter function for
 all basic configurations for Camera Component
 */
 /*========================================================*/
@@ -2580,7 +2580,7 @@ static OMX_ERRORTYPE test_OMX_CAM_SetParams(test_OMX_CAM_AppData_t *appData)
                 OMX_TEST_INIT_STRUCT_PTR(&tThumbnail, OMX_PARAM_THUMBNAILTYPE);
         }
         pHandle = appData->pHandle;
-        
+
         #if 0
         dprintf(0,"\n Setting up the high quality mode for the capture \n");
         /* Select Usecase for HQ. The default setting is for high speed and */
@@ -2588,7 +2588,7 @@ static OMX_ERRORTYPE test_OMX_CAM_SetParams(test_OMX_CAM_AppData_t *appData)
         eError = OMX_SetParameter(pHandle, OMX_IndexCameraOperatingMode, &tCamOpMode);
         GOTO_EXIT_IF((eError != OMX_ErrorNone), eError);
         #endif
-        
+
         dprintf(3,"\n D (4) n");
         /* Disable all ports except Preview (VPB+1) port and Image (IPB+0) port */
         eError = OMX_SendCommand(pHandle, OMX_CommandPortDisable, OMX_ALL, NULL);
@@ -2598,8 +2598,8 @@ static OMX_ERRORTYPE test_OMX_CAM_SetParams(test_OMX_CAM_AppData_t *appData)
 					appData->nPreviewPortIndex, NULL);
         GOTO_EXIT_IF((eError != OMX_ErrorNone), eError);
         dprintf(2,"\nENABLED PREVIEW PORT ");
-        
-        
+
+
         if (zoom_prv == 0) {
 		dprintf(3, "\n Sending command to enable Capture Port\n");
 	eError = OMX_SendCommand(pHandle, OMX_CommandPortEnable,
@@ -2611,9 +2611,9 @@ static OMX_ERRORTYPE test_OMX_CAM_SetParams(test_OMX_CAM_AppData_t *appData)
         tPortDef.nPortIndex = appData->nPreviewPortIndex;
         eError = OMX_GetParameter(pHandle, OMX_IndexParamPortDefinition, &tPortDef);
         GOTO_EXIT_IF((eError != OMX_ErrorNone), eError);
-        
+
         dprintf(3,"\n D (5) n");
-        
+
         tPortDef.format.video.eColorFormat = appData->ePrvFormat;
         tPortDef.format.video.nFrameWidth = appData->nPrvWidth;
         tPortDef.format.video.nFrameHeight = appData->nPrvHeight;
@@ -2621,16 +2621,16 @@ static OMX_ERRORTYPE test_OMX_CAM_SetParams(test_OMX_CAM_AppData_t *appData)
         tPortDef.format.video.xFramerate = 30<<16;
         eError = OMX_SetParameter(pHandle, OMX_IndexParamPortDefinition, &tPortDef);
         GOTO_EXIT_IF((eError != OMX_ErrorNone), eError);
-        
+
         dprintf(3,"\n D (6) n");
-        if (zoom_prv == 0) {        
+        if (zoom_prv == 0) {
                 /* Setup Image Capture Port */
                 tPortDef.nPortIndex = appData->nCapturePortIndex;
                 eError = OMX_GetParameter(pHandle, OMX_IndexParamPortDefinition, &tPortDef);
                 GOTO_EXIT_IF((eError != OMX_ErrorNone), eError);
-                
+
                 dprintf(3,"\n D (7) n");
-                
+
                 tPortDef.format.image.eCompressionFormat = appData->eCapCompressionFormat;
                 tPortDef.format.image.eColorFormat = appData->eCapColorFormat;
                 tPortDef.format.image.nFrameWidth = appData->nCapWidth;
@@ -2641,7 +2641,7 @@ static OMX_ERRORTYPE test_OMX_CAM_SetParams(test_OMX_CAM_AppData_t *appData)
                 tPortDef.format.image.nFrameHeight,tPortDef.format.image.nStride);
                 eError = OMX_SetParameter(pHandle, OMX_IndexParamPortDefinition, &tPortDef);
                 GOTO_EXIT_IF((eError != OMX_ErrorNone), eError);
-                
+
                 dprintf(3,"\n D (8) n");
 		tSenSelect.eSensor = appData->eSenSelect;
                 eError = OMX_SetParameter(pHandle, OMX_IndexParamSensorSelect, &tSenSelect);
@@ -2661,16 +2661,16 @@ static OMX_ERRORTYPE test_OMX_CAM_SetParams(test_OMX_CAM_AppData_t *appData)
                 tThumbnail.nPortIndex = appData->nCapturePortIndex;
                 eError = OMX_GetParameter(pHandle, OMX_IndexParamThumbnail, &tThumbnail);
                 GOTO_EXIT_IF((eError != OMX_ErrorNone), eError);
-        
-                dprintf(3,"\n D (11) n");        
+
+                dprintf(3,"\n D (11) n");
                 tThumbnail.nHeight = appData->nThumbHeight;
                 tThumbnail.nWidth  = appData->nThumbWidth;
                 eError = OMX_SetParameter(pHandle, OMX_IndexParamThumbnail, &tThumbnail);
                 GOTO_EXIT_IF((eError != OMX_ErrorNone), eError);
-        }      
-        dprintf(3,"\n D (12) n");        
+        }
+        dprintf(3,"\n D (12) n");
         return OMX_ErrorNone;
-        
+
         EXIT:
         dprintf(0,"\n\n\n D ERROR OCCURED IN SETCONG F returning \n");
         return eError;
@@ -2678,7 +2678,7 @@ static OMX_ERRORTYPE test_OMX_CAM_SetParams(test_OMX_CAM_AppData_t *appData)
 
 
 /*========================================================*/
-/* @ fn test_camera_capture : function to test the camera 
+/* @ fn test_camera_capture : function to test the camera
 Image Capture test case called from the main() and passed
 arguments width, height and image format
 */
@@ -2748,7 +2748,7 @@ int test_camera_capture( int width, int height, char *image_fmt)
 		if (OMX_IMAGE_CodingJPEG == appData.eCapCompressionFormat) {
 			sprintf(cap_outputfilename,"/mnt/mmc/camera_bin/cap_out_%dx%d_%s.jpg",width,height,image_fmt);
 			dprintf(2,"\nD Captured output filename = %s\n", cap_outputfilename);
-			appData.pCapOutputFile = fopen(cap_outputfilename,"wb"); 
+			appData.pCapOutputFile = fopen(cap_outputfilename,"wb");
 		} else {
 			sprintf(cap_outputfilename,"/mnt/mmc/camera_bin/cap_out_%dx%d_%s.yuv",width,height,image_fmt);
 			dprintf(2,"\nD Captured output filename = %s\n", cap_outputfilename);
@@ -2762,11 +2762,11 @@ int test_camera_capture( int width, int height, char *image_fmt)
         GOTO_EXIT_IF((retval != TIMM_OSAL_ERR_NONE),
         OMX_ErrorInsufficientResources);
         dprintf(3,"\n D STRUCT INIT + parameters set \n");
-        
+
         /* OMX_init() call */
         eError = OMX_Init();
         GOTO_EXIT_IF((eError != OMX_ErrorNone), eError);
-        
+
         dprintf(2,"\n D OMX_INIT DONE \n");
         appCallbacks.EventHandler = test_OMX_CAM_EventHandler;
         appCallbacks.EmptyBufferDone = test_OMX_CAM_EmptyBufferDone;
@@ -2806,14 +2806,14 @@ int test_camera_capture( int width, int height, char *image_fmt)
         dprintf(2,"\n getting preview port for color format = %x, width = %d, height = %d, stride = %d\n",
         tPortDef.format.image.eColorFormat,tPortDef.format.image.nFrameWidth,
         tPortDef.format.image.nFrameHeight,tPortDef.format.image.nStride);
-        
+
         appData.nPreviewBuffers = tPortDef.nBufferCountActual;
         dprintf(2,"\n PRV BUFFERS = %d\n",(int)tPortDef.nBufferCountActual);
-        
+
         appData.ppPreviewBuffers = TIMM_OSAL_Malloc(
                                 sizeof(OMX_BUFFERHEADERTYPE *)*appData.nPreviewBuffers,
                                 TIMM_OSAL_TRUE, 0, TIMMOSAL_MEM_SEGMENT_EXT);
-        
+
         GOTO_EXIT_IF((appData.ppPreviewBuffers == TIMM_OSAL_NULL),
         OMX_ErrorInsufficientResources);
 
@@ -2995,8 +2995,8 @@ int test_camera_capture( int width, int height, char *image_fmt)
 
 	TIMM_OSAL_InfoExt(TIMM_OSAL_TRACEGRP_OMXCAM,
 				"Waiting for Executing -> Idle Done\n");
- 
-	/* Transition Idle -> Loaded */ 
+
+	/* Transition Idle -> Loaded */
 	TIMM_OSAL_InfoExt(TIMM_OSAL_TRACEGRP_OMXCAM, "Idle -> Loaded\n");
 
 	eError = OMX_SendCommand(pHandle, OMX_CommandStateSet,

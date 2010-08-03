@@ -192,8 +192,8 @@ Int main (Int argc, Char * argv [])
 	RcmClient_Params rcmParams;
     char cServerName[] = {"RSrv_Ducati1"};
     RcmClient_Handle rcmHndl = NULL;
-    
-    
+
+
     cfgParams.maxNameLen = 20;
     cfgParams.defaultHeapIdArrayLength = 4;
 
@@ -233,11 +233,11 @@ Int main (Int argc, Char * argv [])
     RcmClient_getConfig(&cfgParams);
     printf( "\nPrinting Config Parameters\n");
     printf( "\nMaxNameLen %d\nHeapIdArrayLength %d\n",cfgParams.maxNameLen,cfgParams.defaultHeapIdArrayLength);
-		 
+
     printf( "\nRPC_InstanceInit: creating rcm instance\n");
 
-    RcmClient_Params_init(NULL,&rcmParams); 
-    
+    RcmClient_Params_init(NULL,&rcmParams);
+
     rcmParams.heapId = 1;
     printf("\n Heap ID configured : %d\n",rcmParams.heapId);
 
@@ -262,7 +262,7 @@ Int main (Int argc, Char * argv [])
 		 else{
 			 printf( "\nConnected to Server\n");
 		 }
-        
+
     }
     //To ensure that it is always running
     while(1)

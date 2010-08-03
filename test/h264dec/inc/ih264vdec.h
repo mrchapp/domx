@@ -3,7 +3,7 @@
  *  All rights reserved. Property of Texas Instruments Incorporated.
  *  Restricted rights to use, duplicate or disclose this code are
  *  granted through contract.
- *  
+ *
  */
 /*
  *  ======== ih264vdec.h ========
@@ -52,10 +52,10 @@ extern "C" {
   typedef struct IH264VDEC_Params {
 	IVIDDEC3_Params viddec3Params;
     XDAS_UInt32     seiDataWriteMode; /* Specify SEI data Mode (0: Disable)
-                                         see enum IH264VDEC_seiDataMode below 
+                                         see enum IH264VDEC_seiDataMode below
                                       */
     XDAS_UInt32     vuiDataWriteMode; /* Specify VUI data Mode (0: Disable)
-                                         see enum IH264VDEC_vuiDataMode below 
+                                         see enum IH264VDEC_vuiDataMode below
                                       */
 	XDAS_UInt32     maxNumRefFrames;
   } IH264VDEC_Params;
@@ -66,8 +66,8 @@ extern "C" {
   typedef enum {
     IH264VDEC_SEI_DATA_NONE = 0,           /**< Do not write any SEI data */
     IH264VDEC_WRITE_PARSED_SEI_DATA = 1,   /**< Write out Parsed SEI data */
-    IH264VDEC_WRITE_ENCODED_SEI_DATA = 2   /**< Write out Compressed/Encoded 
-                                                SEI data */  
+    IH264VDEC_WRITE_ENCODED_SEI_DATA = 2   /**< Write out Compressed/Encoded
+                                                SEI data */
   } IH264VDEC_seiDataMode;
 
 /*
@@ -76,8 +76,8 @@ extern "C" {
   typedef enum {
     IH264VDEC_VUI_DATA_NONE = 0,           /**< Do not write any SEI data */
     IH264VDEC_WRITE_PARSED_VUI_DATA = 1,   /**< Write out Parsed SEI data */
-    IH264VDEC_WRITE_ENCODED_VUI_DATA = 2   /**< Write out Compressed/Encoded 
-                                                VUI data */  
+    IH264VDEC_WRITE_ENCODED_VUI_DATA = 2   /**< Write out Compressed/Encoded
+                                                VUI data */
   } IH264VDEC_vuiDataMode;
 
 /*
@@ -120,19 +120,19 @@ extern "C" {
  */
 
   typedef struct IH264VDEC_OutArgs {
-    
+
     /* OLD Extended class. Just retained for reference */
 	/*
     IVIDDEC1_OutArgs viddec1OutArgs;
     XDAS_Bool hrd;
     XDAS_Int16 picStruct;
-    // These later parameters probably should not be here... only 
+    // These later parameters probably should not be here... only
     // inserted for quick port to xDM
     XDAS_Int16 xOffset;
     XDAS_Int16 yOffset;
     XDAS_Int16 refHeight;
     XDAS_Int16 refStorageType; //Field or frame storage
-    XDAS_Int16 fieldPicFlag;   // Current decoded picture is Field or frame 
+    XDAS_Int16 fieldPicFlag;   // Current decoded picture is Field or frame
     XDAS_Int16 bottomFieldFlag;// Current decoded picture is Bot field/top Fld
 	*/
 
@@ -185,7 +185,7 @@ typedef enum {
   /*--------------------------------------------------
    Constant definitions required for SEI support
   --------------------------------------------------*/
-#define H264VDEC_MAXCPBCNT        32  /*!< HRD sequence parameter set   */           
+#define H264VDEC_MAXCPBCNT        32  /*!< HRD sequence parameter set   */
 
  /*-------------------------------------------------------------
    sBufferingPeriod
@@ -247,7 +247,7 @@ typedef struct user_data_unregistered_SEI
     sSeiMessages
     This structure contains all the supported SEI msg objects
    ----------------------------------------------------------*/
-typedef struct sei_messages 
+typedef struct sei_messages
 {
     XDAS_UInt32 parsed_flag;
     sUserDataUnregistered     user_data_unregistered;
@@ -271,23 +271,23 @@ typedef struct profiling_struct
 } sProfileInfo;
 
 typedef enum {
-    IH264VDEC_NUM_REFFRAMES_AUTO = 0,  
-    IH264VDEC_NUM_REFFRAMES_1 = 1,     
-    IH264VDEC_NUM_REFFRAMES_2 = 2,     
-    IH264VDEC_NUM_REFFRAMES_3 = 3,     
-    IH264VDEC_NUM_REFFRAMES_4 = 4,     
-    IH264VDEC_NUM_REFFRAMES_5 = 5,     
-    IH264VDEC_NUM_REFFRAMES_6 = 6,     
-    IH264VDEC_NUM_REFFRAMES_7 = 7,     
-    IH264VDEC_NUM_REFFRAMES_8 = 8,     
-    IH264VDEC_NUM_REFFRAMES_9 = 9,     
-    IH264VDEC_NUM_REFFRAMES_10 = 10,   
-    IH264VDEC_NUM_REFFRAMES_11 = 11,   
-    IH264VDEC_NUM_REFFRAMES_12 = 12,   
-    IH264VDEC_NUM_REFFRAMES_13 = 13,   
-    IH264VDEC_NUM_REFFRAMES_14 = 14,   
-    IH264VDEC_NUM_REFFRAMES_15 = 15,   
-    IH264VDEC_NUM_REFFRAMES_16 = 16,   
+    IH264VDEC_NUM_REFFRAMES_AUTO = 0,
+    IH264VDEC_NUM_REFFRAMES_1 = 1,
+    IH264VDEC_NUM_REFFRAMES_2 = 2,
+    IH264VDEC_NUM_REFFRAMES_3 = 3,
+    IH264VDEC_NUM_REFFRAMES_4 = 4,
+    IH264VDEC_NUM_REFFRAMES_5 = 5,
+    IH264VDEC_NUM_REFFRAMES_6 = 6,
+    IH264VDEC_NUM_REFFRAMES_7 = 7,
+    IH264VDEC_NUM_REFFRAMES_8 = 8,
+    IH264VDEC_NUM_REFFRAMES_9 = 9,
+    IH264VDEC_NUM_REFFRAMES_10 = 10,
+    IH264VDEC_NUM_REFFRAMES_11 = 11,
+    IH264VDEC_NUM_REFFRAMES_12 = 12,
+    IH264VDEC_NUM_REFFRAMES_13 = 13,
+    IH264VDEC_NUM_REFFRAMES_14 = 14,
+    IH264VDEC_NUM_REFFRAMES_15 = 15,
+    IH264VDEC_NUM_REFFRAMES_16 = 16,
     IH264VDEC_NUM_REFFRAMES_DEFAULT = IH264VDEC_NUM_REFFRAMES_AUTO
 } IH264VDEC_numRefFrames;
 

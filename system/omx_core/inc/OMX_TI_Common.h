@@ -47,7 +47,7 @@ extern "C" {
 #define OMX_TI_BUFFERFLAG_READONLY 0x00000200
 
 /* TI extra data will be passed in the platform private structure rather than
- * appended at the end of the buffer. Adding a new custom flag to indicate 
+ * appended at the end of the buffer. Adding a new custom flag to indicate
  * this.*/
 #define OMX_TI_BUFFERFLAG_DETACHEDEXTRADATA 0x00000400
 
@@ -76,23 +76,23 @@ typedef struct OMX_TI_PLATFORMPRIVATE
 /** OMX_TI_PARAM_BUFFERPREANNOUNCE    : This parameter is used to enable/disable
  *                                      buffer pre announcement. Buffer pre
  *                                      announcement is enabled by default i.e.
- *                                      if buffer is being allocated by client 
- *                                      then the buffer ptrs will be made known 
- *                                      to the component at the time of 
+ *                                      if buffer is being allocated by client
+ *                                      then the buffer ptrs will be made known
+ *                                      to the component at the time of
  *                                      UseBuffer and these will not change in
  *                                      lifetime of the component. If pre
- *                                      announcement is disabled then new 
- *                                      buffers can be allocated by the client 
+ *                                      announcement is disabled then new
+ *                                      buffers can be allocated by the client
  *                                      at runtime and passed in ETB/FTB. This
- *                                      parameter is valid only in cases where 
- *                                      client allocates the buffer 
+ *                                      parameter is valid only in cases where
+ *                                      client allocates the buffer
  *                                      (i.e. UseBuffer cases).
  *
  *  @ param nSize                     : Size of the structure.
  *  @ param nVersion                  : Version.
  *  @ param nPortIndex                : Port index on which the parameter will
  *                                      be applied.
- *  @ param bEnabled                  : Whether buffer pre announcement is 
+ *  @ param bEnabled                  : Whether buffer pre announcement is
  *                                      enabled or not. Set to TRUE (enabled)
  *                                      by default.
  */
@@ -108,10 +108,10 @@ typedef struct OMX_TI_PARAM_BUFFERPREANNOUNCE
 
 
 /*===============================================================*/
-/** OMX_TI_CONFIG_BUFFERREFCOUNTNOTIFYTYPE : This config is used to 
+/** OMX_TI_CONFIG_BUFFERREFCOUNTNOTIFYTYPE : This config is used to
  *                                           enable/disable notification when
  *                                           reference count of a buffer changes
- *                                           This happens usually when buffers 
+ *                                           This happens usually when buffers
  *                                           are locked/unlocked by codecs. By
  *                                           DEFAULT all notifications are
  *                                           DISABLED.
@@ -120,24 +120,24 @@ typedef struct OMX_TI_PARAM_BUFFERPREANNOUNCE
  *  @ param nVersion                       : Version.
  *  @ param nPortIndex                     : Port index on which the config will
  *                                           be applied.
- *  @param bNotifyOnIncrease              : Enable notification when reference 
+ *  @param bNotifyOnIncrease              : Enable notification when reference
  *                                           count is increased.
- *  @ param bNotifyOnDecrease              : Enable notification when reference 
+ *  @ param bNotifyOnDecrease              : Enable notification when reference
  *                                           count is decreased.
- *  @ param nCountForNotification          : Count at which to trigger 
+ *  @ param nCountForNotification          : Count at which to trigger
  *                                           notification. Count indicates no.
- *                                           of copies of the buffer in 
+ *                                           of copies of the buffer in
  *                                           circulation e.g.
- *                                           1 - Only the original buffer is in 
+ *                                           1 - Only the original buffer is in
  *                                               circulation i.e. no buffers are
  *                                               currently locked.
- *                                           2 - There are two copies of the 
- *                                               buffer i.e. one original and 
+ *                                           2 - There are two copies of the
+ *                                               buffer i.e. one original and
  *                                               one copy which has been locked
  *                                               by the codec.
  *                                           And so on
  *                                           SPECIAL CASE
- *                                           0 - Indicates notify always 
+ *                                           0 - Indicates notify always
  *                                               irrespective of count value.
  */
 /*===============================================================*/
@@ -155,11 +155,11 @@ typedef struct OMX_TI_CONFIG_BUFFERREFCOUNTNOTIFYTYPE
 
 
 
-/* OMX_TI_SEVERITYTYPE enumeration is used to indicate severity level of errors returned by TI OpenMax components. 
+/* OMX_TI_SEVERITYTYPE enumeration is used to indicate severity level of errors returned by TI OpenMax components.
    Critcal      Requires reboot/reset DSP
    Severe       Have to unload components and free memory and try again
    Major        Can be handled without unloading the component
-   Minor        Essentially informational 
+   Minor        Essentially informational
 */
 typedef enum OMX_TI_SEVERITYTYPE {
     OMX_TI_ErrorCritical=1,

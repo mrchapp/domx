@@ -406,15 +406,15 @@ typedef struct OMX_CONFIG_BLEMISHTYPE {
  *      To suppport temporal bracketing.
  */
 typedef enum OMX_BRACKETMODETYPE {
-    OMX_BracketExposureRelativeInEV = 0, 
+    OMX_BracketExposureRelativeInEV = 0,
     OMX_BracketExposureAbsoluteMs,
     OMX_BracketFocusRelative,
     OMX_BracketFocusAbsolute,
     OMX_BracketFlashPower,
     OMX_BracketAperture,
-    OMX_BracketTemporal,    
+    OMX_BracketTemporal,
     OMX_BrackerTypeKhronosExtensions = 0x6f000000,
-    OMX_BrackerTypeVendorStartUnused = 0x7f000000, 
+    OMX_BrackerTypeVendorStartUnused = 0x7f000000,
     OMX_BracketTypeMax = 0x7FFFFFFF
 } OMX_BRACKETMODETYPE;
 
@@ -424,18 +424,18 @@ typedef struct OMX_CONFIG_BRACKETINGTYPE {
     OMX_U32 nPortIndex;
     OMX_BRACKETMODETYPE eBracketMode;
     OMX_U32 nNbrBracketingValues;
-    OMX_U32 nBracketValues[10]; /**< 10 can be assumed */ 
+    OMX_U32 nBracketValues[10]; /**< 10 can be assumed */
 } OMX_CONFIG_BRACKETINGTYPE;
 
 
-/** 
+/**
  * Capture mode types
  * Note: this list could get extended modified based on the type of interenal use-case pipelines implemented within the camera component.
- *  
+ *
  *       OMX_CaptureImageHighSpeedBurst = 0,
  *       OMX_CaptureImageHighSpeedTemporalBracketing,
  *       OMX_CaptureImageProfileBase(Base):
- *       	Base one almost same as Highspeed one. 
+ *       	Base one almost same as Highspeed one.
  *       OMX_CaptureImageProfileLowLight1(LL1):
  *       	Includes NSF2 in addition to Base processing
  *       OMX_CaptureImageProfileLowLight2(LL2):
@@ -447,13 +447,13 @@ typedef struct OMX_CONFIG_BRACKETINGTYPE {
  *       OMX_CaptureImageProfileExtended1(Ext1):
  *       	Includes NSF2, LBCE, LDC, and CAC in addition to Base
  *       OMX_CaptureStereoImageCapture:
- *       	Stereo image capture use-case. 
+ *       	Stereo image capture use-case.
  *       OMX_CaptureImageMemoryInput:
  *       	need to take sensor input from INPUT port.
  *       OMX_CaptureVideo:
  *       OMX_CaptureHighSpeedVideo:
  *       OMX_CaptureVideoMemoryInput:
- * 
+ *
  */
 typedef enum OMX_CAMOPERATINGMODETYPE {
         OMX_CaptureImageHighSpeedBurst = 0,
@@ -471,14 +471,14 @@ typedef enum OMX_CAMOPERATINGMODETYPE {
         OMX_CaptureVideoMemoryInput,
         OMX_CamOperatingModeMax = 0x7fffffff
 } OMX_CAMOPERATINGMODETYPE;
-/** 
- * Capture mode setting: applicable to multi shot capture also including bracketing. 
+/**
+ * Capture mode setting: applicable to multi shot capture also including bracketing.
  *
  * STRUCT MEMBERS:
- *  nSize        : Size of the structure in bytes       
+ *  nSize        : Size of the structure in bytes
  *  nVersion     : OMX specification version information
- *  nPortIndex   : Port that this structure applies to 
- *  eCamOperatingMode : specifies the camera operating mode. 
+ *  nPortIndex   : Port that this structure applies to
+ *  eCamOperatingMode : specifies the camera operating mode.
  */
 typedef struct OMX_CONFIG_CAMOPERATINGMODETYPE {
    OMX_U32 nSize;
@@ -487,21 +487,21 @@ typedef struct OMX_CONFIG_CAMOPERATINGMODETYPE {
 } OMX_CONFIG_CAMOPERATINGMODETYPE;
 
 
-/** 
- * Capture mode setting: applicable to multi shot capture also including bracketing. 
+/**
+ * Capture mode setting: applicable to multi shot capture also including bracketing.
  *
  * STRUCT MEMBERS:
- *  nSize        : Size of the structure in bytes       
+ *  nSize        : Size of the structure in bytes
  *  nVersion     : OMX specification version information
- *  nPortIndex   : Port that this structure applies to 
- *  nFrameRate   : when bContinuous is FALSE, need to define the frame rate of the muti-shot scenario. Since this would be applicable to IMAGE domain port, there is no port specific frame rate.   
- *  nFrameBefore : 
- * 	is specifying how many frames before the capture trigger shall be used. 
+ *  nPortIndex   : Port that this structure applies to
+ *  nFrameRate   : when bContinuous is FALSE, need to define the frame rate of the muti-shot scenario. Since this would be applicable to IMAGE domain port, there is no port specific frame rate.
+ *  nFrameBefore :
+ * 	is specifying how many frames before the capture trigger shall be used.
  * 	It is implementation dependent how many is supported. This shall only be supported for images and not for video frames.
- * bPrepareCapture : 
- *	should be set to true when nFrameBefore is greater than zero and before capturing of before-frames should start. 
- *	The component is not allowed to deliver buffers until capturing starts. This shall only be supported for images and not for video frames. 
- * bEnableBracketing : 
+ * bPrepareCapture :
+ *	should be set to true when nFrameBefore is greater than zero and before capturing of before-frames should start.
+ *	The component is not allowed to deliver buffers until capturing starts. This shall only be supported for images and not for video frames.
+ * bEnableBracketing :
  *	should be enabled when bracketing is used. In bracketing mode, one parameter can be changed per each capture.
  * tBracketConfigType :
  *	specifies bracket mode to use. Valid only when bEnableBracketing is set.
@@ -750,20 +750,20 @@ typedef enum OMX_PROCESSINGLEVEL{
         OMX_ProcessingLevelMax = 0x7fffffff
 }OMX_PROCESSINGLEVEL;
 
-/** 
- *processing level type  
+/**
+ *processing level type
  *  Simultaneously lock focus, white balance and exposure (and relevant other settings).
  *
  * STRUCT MEMBERS:
- *  nSize        : Size of the structure in bytes       
+ *  nSize        : Size of the structure in bytes
  *  nVersion     : OMX specification version information
- *  nPortIndex   : Port that this structure applies to 
- *  nLevel : 
- *               nLevel hinting processing amount. Range of values is -100 to 100.  
- *               0 causes no change to the image.  Increased values cause increased processing to occur, with 100 applying maximum processing. 
+ *  nPortIndex   : Port that this structure applies to
+ *  nLevel :
+ *               nLevel hinting processing amount. Range of values is -100 to 100.
+ *               0 causes no change to the image.  Increased values cause increased processing to occur, with 100 applying maximum processing.
  *               Negative values have the opposite effect of positive values.
  *  bAuto:
- *		sets if the processing should be applied according to input data. 
+ *		sets if the processing should be applied according to input data.
  		It is allowed to combine the hint level with the auto setting,
  *		i.e. to give a bias to the automatic setting. When set to false, the processing should not take input data into account.
  */
@@ -808,7 +808,7 @@ typedef struct OMX_CONFIG_WHITEBALGAINTYPE {
     OMX_S32 xWhiteBalanceGain[4];
     OMX_S32 xWhiteBalanceOffset[4];
     OMX_S32 nWhiteThreshhold[4];
-} OMX_CONFIG_WHITEBALGAINTYPE; 
+} OMX_CONFIG_WHITEBALGAINTYPE;
 
 /**
  *  This structure represents linear color conversion from one space to another.  For example, to conversion from one RGB color into another RGB color space can be represented as
@@ -960,24 +960,24 @@ typedef enum OMX_BARCODETYPE{
         OMX_Barcode2D,	/**< 2D barcode */
 }OMX_BARCODETYPE;
 /**
- * Brcode detection data 
+ * Brcode detection data
  *	nLeft is the leftmost coordinate of the detected area rectangle.
  *	nTop is the topmost coordinate of the detected area rectangle.
  *	nWidth is the width of the detected area rectangle in pixels.
  *	nHeight is the height of the detected area rectangle in pixels.
  *	nOrientation is the orientation of the axis of the detected object. This refers to the angle between the vertical axis of barcode and the horizontal axis.
  *	eBarcodetype is an enumeration specifying the barcode type, as listed in the given table.
- */ 
+ */
 typedef struct OMX_BARCODEDETECTIONTYPE {
 	OMX_U32 nSize;
 	OMX_VERSIONTYPE nVersion;
-	OMX_U32 nPortIndex; 
-	OMX_S32 nLeft; 
+	OMX_U32 nPortIndex;
+	OMX_S32 nLeft;
 	OMX_S32 nTop;
-	OMX_U32 nWidth; 
+	OMX_U32 nWidth;
 	OMX_U32 nHeight;
 	OMX_S32 nOrientation;
-	OMX_BARCODETYPE eBarcodetype; 
+	OMX_BARCODETYPE eBarcodetype;
  } OMX_BARCODEDETECTIONTYPE;
 
 /**
@@ -986,14 +986,14 @@ typedef struct OMX_BARCODEDETECTIONTYPE {
  *	nTop is the topmost coordinate of the detected area rectangle.
  *	nWidth is the width of the detected area rectangle in pixels.
  *	nHeight is the height of the detected area rectangle in pixels.
- */ 
+ */
 typedef struct OMX_FRONTOBJDETECTIONTYPE {
     OMX_U32 nSize;
     OMX_VERSIONTYPE nVersion;
-    OMX_U32 nPortIndex; 
-    OMX_S32 nLeft; 
-    OMX_S32 nTop; 
-    OMX_U32 nWidth; 
+    OMX_U32 nPortIndex;
+    OMX_S32 nLeft;
+    OMX_S32 nTop;
+    OMX_U32 nWidth;
     OMX_U32 nHeight;
 } OMX_FRONTOBJDETECTIONTYPE;
 
@@ -1001,11 +1001,11 @@ typedef struct OMX_FRONTOBJDETECTIONTYPE {
  * Distance estimation data
  * nDistance is the estimated distance to the object in millimeters.
  * nLargestDiscrepancy is the estimated largest discrepancy of the distance to the object in millimeters. When equal to MAX_INT the discrepancy is unknown.
- */ 
+ */
 typedef struct OMX_DISTANCEESTIMATIONTYPE {
     OMX_U32 nSize;
     OMX_VERSIONTYPE nVersion;
-    OMX_U32 nPortIndex; 
+    OMX_U32 nPortIndex;
     OMX_U32 nDistance;
     OMX_U32 nLargestDiscrepancy;
 } OMX_DISTANCEESTIMATIONTYPE;
@@ -1014,14 +1014,14 @@ typedef struct OMX_DISTANCEESTIMATIONTYPE {
  * Distance estimation data
  * nDistance is the estimated distance to the object in millimeters.
  * nLargestDiscrepancy is the estimated largest discrepancy of the distance to the object in millimeters. When equal to MAX_INT the discrepancy is unknown.
- */ 
+ */
 
 typedef struct OMX_MOTIONESTIMATIONTYPE {
     OMX_U32 nSize;
     OMX_VERSIONTYPE nVersion;
-    OMX_U32 nPortIndex; 
-    OMX_S32 nPanX; 
-    OMX_S32 nPanY; 
+    OMX_U32 nPortIndex;
+    OMX_S32 nPanX;
+    OMX_S32 nPanY;
 } OMX_MOTIONESTIMATIONTYPE;
 
 
@@ -1033,15 +1033,15 @@ typedef struct OMX_MOTIONESTIMATIONTYPE {
  *	nWidth is the width of the focus region rectangle in pixels.
  *	nHeight is the height of the focus region rectangle in pixels.
  *
- */ 
+ */
 typedef struct OMX_FOCUSREGIONTYPE {
     OMX_U32 nSize;
     OMX_VERSIONTYPE nVersion;
-    OMX_U32 nPortIndex; 
-    OMX_U32 nRefPortIndex; 
-    OMX_S32 nLeft; 
-    OMX_S32 nTop; 
-    OMX_U32 nWidth; 
+    OMX_U32 nPortIndex;
+    OMX_U32 nRefPortIndex;
+    OMX_S32 nLeft;
+    OMX_S32 nTop;
+    OMX_U32 nWidth;
     OMX_U32 nHeight;
 } OMX_FOCUSREGIONTYPE;
 
@@ -1055,40 +1055,40 @@ typedef enum OMX_ISOSETTINGTYPE{
 }OMX_ISOSETTINGTYPE;
 
 /**
- *  nSize is the size of the structure including the length of data field containing 
+ *  nSize is the size of the structure including the length of data field containing
  *  the histogram data.
- *  eISOMode: 
- *  	specifies the ISO seetting mode - auto/manual 
+ *  eISOMode:
+ *  	specifies the ISO seetting mode - auto/manual
  *  nISOSetting:
- *  	for manual mode client can specify the ISO setting. 
+ *  	for manual mode client can specify the ISO setting.
  */
 
 typedef struct OMX_CONFIG_ISOSETTINGTYPE{
 	OMX_U32 nSize;
 	OMX_VERSIONTYPE nVersion;
-	OMX_U32 nPortIndex; 
+	OMX_U32 nPortIndex;
 	OMX_ISOSETTINGTYPE eISOMode;
-	OMX_U32 nISOSetting; 
+	OMX_U32 nISOSetting;
 }OMX_CONFIG_ISOSETTINGTYPE;
 
 /**
- * custom RAW format 
+ * custom RAW format
  */
 typedef struct OMX_CONFIG_RAWFORMATTYPE {
     OMX_U32 nSize;
     OMX_VERSIONTYPE nVersion;
-    OMX_U32 nPortIndex; 
+    OMX_U32 nPortIndex;
     OMX_VERSIONTYPE nFormatVersion;
     OMX_STRING cVendorName;
 } OMX_CONFIG_RAWFORMATTYPE;
 
 /**
- * Sensor type 
+ * Sensor type
  */
 typedef struct OMX_CONFIG_SENSORTYPE {
     OMX_U32 nSize;
     OMX_VERSIONTYPE nVersion;
-    OMX_U32 nPortIndex; 
+    OMX_U32 nPortIndex;
     OMX_VERSIONTYPE nSensorVersion;
     OMX_STRING cModelName;
 } OMX_CONFIG_SENSORTYPE;
@@ -1099,7 +1099,7 @@ typedef struct OMX_CONFIG_SENSORTYPE {
 typedef struct OMX_CONFIG_SENSORCUSTOMDATATYPE {
     OMX_U32 nSize;
     OMX_VERSIONTYPE nVersion;
-    OMX_U32 nPortIndex; 
+    OMX_U32 nPortIndex;
     OMX_U32 nDataLength;
     OMX_U8 xSensorData[1];
 } OMX_CONFIG_SENSORCUSTOMDATATYPE;
@@ -1160,23 +1160,23 @@ typedef enum OMX_DISTTYPE{
 
 
 /**
- * Distance mesurement 
- *	bStarted is a Boolean. The IL client sets it to true to start the measurement . 
+ * Distance mesurement
+ *	bStarted is a Boolean. The IL client sets it to true to start the measurement .
  *		the IL client sets to false to stop the measurement. The IL client can query it to check if the measurement is ongoing.
- *	nLeft : is the leftmost coordinate of the rectangle. 
- *	nTop : is the topmost coordinate of the rectangle. 
- *	nWidth:  is the width of the rectangle in pixels. 
- *	nHeight:  is the height of the rectangle in pixels. 
- *	eDistType:  is an enumeration specifying the distance measurement type, as shown in 
- */ 
+ *	nLeft : is the leftmost coordinate of the rectangle.
+ *	nTop : is the topmost coordinate of the rectangle.
+ *	nWidth:  is the width of the rectangle in pixels.
+ *	nHeight:  is the height of the rectangle in pixels.
+ *	eDistType:  is an enumeration specifying the distance measurement type, as shown in
+ */
 typedef struct OMX_CONFIG_DISTANCETYPE {
     OMX_U32 nSize;
     OMX_VERSIONTYPE nVersion;
     OMX_U32 nPortIndex;
     OMX_BOOL bStarted;
-    OMX_S32 nLeft; 
-    OMX_S32 nTop; 
-    OMX_U32 nWidth; 
+    OMX_S32 nLeft;
+    OMX_S32 nTop;
+    OMX_U32 nWidth;
     OMX_U32 nHeight;
     OMX_DISTTYPE eDistType;
 } OMX_CONFIG_DISTANCETYPE;
@@ -1245,7 +1245,7 @@ OMX_FACEATTRIBUTE nFaceAttr;
 
 
 /**
- * The OMX_EXTRADATATYPE enumeration is used to define the 
+ * The OMX_EXTRADATATYPE enumeration is used to define the
  * possible extra data payload types.
  */
 typedef enum OMX_EXT_EXTRADATATYPE
@@ -1265,18 +1265,18 @@ typedef enum OMX_EXT_EXTRADATATYPE
 } OMX_EXT_EXTRADATATYPE;
 
 
-/** 
- * Enable Extra-data on a specific port. 
+/**
+ * Enable Extra-data on a specific port.
  *
  *
- * 
+ *
  * STRUCT MEMBERS:
- *  nSize        : Size of the structure in bytes       
+ *  nSize        : Size of the structure in bytes
  *  nVersion     : OMX specification version information
- *  nPortIndex   : Port on which this extra data to be assosiated 
+ *  nPortIndex   : Port on which this extra data to be assosiated
  *  eExtraDataType :  Extra data type
- *  bEnable      : Eneble/Disable this extra-data through port. 
- * 
+ *  bEnable      : Eneble/Disable this extra-data through port.
+ *
  */
 typedef struct OMX_CONFIG_EXTRADATATYPE {
     OMX_U32 nSize;
@@ -1287,7 +1287,7 @@ typedef struct OMX_CONFIG_EXTRADATATYPE {
 } OMX_CONFIG_EXTRADATATYPE;
 
 /**
- * JPEG header type 
+ * JPEG header type
  * */
 
 typedef enum OMX_JPEGHEADERTYPE{
@@ -1295,48 +1295,48 @@ typedef enum OMX_JPEGHEADERTYPE{
 	OMX_JFIF,
 	OMX_EXIF
 }OMX_JPEGHEADERTYPE;
-/** 
- * Re-start marker configuration 
+/**
+ * Re-start marker configuration
  *
  *
- * 
+ *
  * STRUCT MEMBERS:
- *  nSize        : Size of the structure in bytes       
+ *  nSize        : Size of the structure in bytes
  *  nVersion     : OMX specification version information
- *  nPortIndex   : Port on which this extra data to be assosiated 
- *  eJpegHeaderType : JPEG header type EXIF, JFIF, or No heeader.  
+ *  nPortIndex   : Port on which this extra data to be assosiated
+ *  eJpegHeaderType : JPEG header type EXIF, JFIF, or No heeader.
  */
 
 typedef struct OMX_CONFIG_JPEGHEEADERTYPE{
 	OMX_U32 nSize;
 	OMX_VERSIONTYPE nVersion;
-	OMX_U32 nPortIndex;	
+	OMX_U32 nPortIndex;
 	OMX_JPEGHEADERTYPE eJpegHeaderType;
 }OMX_CONFIG_JPEGHEEADERTYPE;
 
-/** 
- * Re-start marker configuration 
+/**
+ * Re-start marker configuration
  *
  *
- * 
+ *
  * STRUCT MEMBERS:
- *  nSize        : Size of the structure in bytes       
+ *  nSize        : Size of the structure in bytes
  *  nVersion     : OMX specification version information
- *  nPortIndex   : Port on which this extra data to be assosiated 
- *  nRstInterval :  interval at which RST markers are to be inserted. 
- *  bEnable      : Eneble/Disable this RST marker insertion feature. 
- * 
+ *  nPortIndex   : Port on which this extra data to be assosiated
+ *  nRstInterval :  interval at which RST markers are to be inserted.
+ *  bEnable      : Eneble/Disable this RST marker insertion feature.
+ *
  */
 
 typedef struct OMX_CONFIG_RSTMARKER{
 	OMX_U32 nSize;
 	OMX_VERSIONTYPE nVersion;
-	OMX_U32 nPortIndex;	
+	OMX_U32 nPortIndex;
 	OMX_U32 nRstInterval;
 	OMX_BOOL nEnable;
 }OMX_CONFIG_RSTMARKER;
 
-/** 
+/**
  * Enable Extra-data on a specific port.
  *
  *

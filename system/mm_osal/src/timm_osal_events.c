@@ -209,12 +209,12 @@ EXIT:
 *3) Call pthread_cond_wait() to perform a blocking wait 	|  variable. If it fulfills the desired
 *  for signal from Thread-B. Note that a call to 			|  condition, signal Thread-A.
 *  pthread_cond_wait() automatically and atomically 		|5)Unlock mutex.
-*  unlocks the associated mutex variable so that it can 	|6)Continue 
+*  unlocks the associated mutex variable so that it can 	|6)Continue
 *  be used by Thread-B.							|
 *4) When signalled, wake up. Mutex is automatically and 	|
 *  atomically locked.								|
 *5) Explicitly unlock mutex							|
-*6) Continue										|	
+*6) Continue										|
 *
 */
 /* ========================================================================== */

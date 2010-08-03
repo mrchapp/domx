@@ -2,17 +2,17 @@
 *             Texas Instruments OMAP(TM) Platform Software
 *  (c) Copyright 2009 Texas Instruments Incorporated.  All Rights Reserved.
 *
-*  Use of this software is controlled by the terms and conditions found 
+*  Use of this software is controlled by the terms and conditions found
 *  in the license agreement under which this software has been supplied.
 * =========================================================================== */
-/*!  
+/*!
  *****************************************************************************
  * \file
- *    H264_ILClient.c                                                         
+ *    H264_ILClient.c
  *
- * \brief  
+ * \brief
  *  This file contains IL Client implementation specific to OMX H264 Decoder
- *    
+ *
  * \version 1.0
  *
  *****************************************************************************
@@ -55,7 +55,7 @@
 #ifdef H264_LINUX_CLIENT
    #if 0
       //AD - only for linux testing
-      #define OMX_H264D_SRCHANGES 
+      #define OMX_H264D_SRCHANGES
       #define OMX_H264D_BUF_HEAP
       #define OMX_H264D_NONTILERTEST
    #endif
@@ -71,7 +71,7 @@
       #include <HeapBuf.h>
       #include <SharedRegion.h>
    #endif
-   
+
    #ifdef OMX_H264D_LINUX_TILERTEST
       #include <memmgr.h>
    #endif
@@ -150,7 +150,7 @@ static unsigned short outputDisplayFrame(IH264VDEC_OutArgs *outArgs, unsigned sh
 
   /*--------------------------------------------------------------------------------
    Here the actual frame data (w/out padding), is extracted and dumped.
-   Also UV is de-interleaved.   
+   Also UV is de-interleaved.
   --------------------------------------------------------------------------------*/
   char *lumaAddr   = (char *)displayBufs->planeDesc[0].buf;
   char *chromaAddr = (char *)displayBufs->planeDesc[1].buf;
@@ -158,7 +158,7 @@ static unsigned short outputDisplayFrame(IH264VDEC_OutArgs *outArgs, unsigned sh
   char *CbBuf, *CrBuf, *YBuf;
   unsigned int pic_size, i, j;
   unsigned short ref_width_c = ref_width;
-  
+
   if(displayBufs->planeDesc[1].memType)
     ref_width_c *= displayBufs->planeDesc[1].memType;
 
@@ -191,9 +191,9 @@ static unsigned short outputDisplayFrame(IH264VDEC_OutArgs *outArgs, unsigned sh
 
   if(!complianceMode)
   {
-    //Cache_inv(fieldBuf, (pic_size * 3)>>1, Cache_Type_ALL, TRUE);	  
+    //Cache_inv(fieldBuf, (pic_size * 3)>>1, Cache_Type_ALL, TRUE);
     fwrite((void *)fieldBuf, sizeof(unsigned char), ((pic_size*3)>>1), fout);
-    //retval = (pic_size/pic_size) - 1; 
+    //retval = (pic_size/pic_size) - 1;
   }
 
   return (retval);
@@ -205,7 +205,7 @@ static unsigned short outputDisplayFrame(IH264VDEC_OutArgs *outArgs, unsigned sh
 *@brief  Sub  Function to interleave 2 fields.
 * In case of interlaced or PICAFF streams, the frame is stored as
 * 2 separate field. This function is used to interleaved the 2 fields
-* and form the frame.The interleaving is done in fieldBuf and is then 
+* and form the frame.The interleaving is done in fieldBuf and is then
 * written out
 *
 *@param  outArgs                  output arguments
@@ -225,24 +225,24 @@ static unsigned short outputDisplayField(IH264VDEC_OutArgs *outArgs, unsigned sh
   /*--------------------------------------------------------------------------------
    Here the actual frame data (w/out padding), is extracted and dumped.
    Also UV is de-interleaved.
-   Top and Bottom fields are interleaved and written   
+   Top and Bottom fields are interleaved and written
   --------------------------------------------------------------------------------*/
   char *lumaAddr1, *lumaAddr2, *chromaAddr1, *chromaAddr2;
   unsigned short retval = 0;
   char *CbBuf, *CrBuf, *YBuf;
   unsigned int pic_size, i, j;
-  
+
     unsigned int fieldSizeY;
     unsigned int fieldSizeCbCr;
     unsigned short ref_width_c = ref_width;
-    
+
   if(displayBufs->planeDesc[1].memType)
     ref_width_c *= displayBufs->planeDesc[1].memType;
-    
+
 
     fieldSizeY = (ref_width*ref_height)>>1;
     fieldSizeCbCr = (ref_width_c*ref_height)>>2;
-    
+
 
   pic_size = width * height;
 
@@ -337,7 +337,7 @@ static XDAS_Void TestApp_WriteOutputData
      contentType indicates if the frame was stored as field or not.
      contentType :0 , frame storage
      otherwise, it is field storage
-    ---------------------------------------------------------------*/    
+    ---------------------------------------------------------------*/
 	if(displayBufs->contentType == IVIDEO_PROGRESSIVE)
     {
 		//Progressive frame
@@ -350,7 +350,7 @@ static XDAS_Void TestApp_WriteOutputData
 					(unsigned short) height,
 					displayBufs->repeatFrame,
 					hrd, fieldBuf, fOutFile,complianceMode);
-  
+
     }
     else
     {
@@ -380,16 +380,16 @@ static XDAS_Void TestApp_WriteOutputData
 
 /* ========================================================================== */
 /**
-* H264DEC_Calculate_TotalRefFrames() : Calculates the total reference frames 
+* H264DEC_Calculate_TotalRefFrames() : Calculates the total reference frames
 * required by the codec without display delay
 *
 *
 * @param pAppData   : Pointer to the application data
 *
-*  @return      
-*  OMX_U32 = Number of reference frames required 
+*  @return
+*  OMX_U32 = Number of reference frames required
 *
-*  0 = Failed 
+*  0 = Failed
 *
 */
 /* ========================================================================== */
@@ -414,14 +414,14 @@ static OMX_U32 H264DEC_Calculate_TotalRefFrames(H264_Client* pAppData)
 
 /* ========================================================================== */
 /**
-* H264DEC_AllocateResources() : Allocates the resources required for H264 
-* Decoder. 
+* H264DEC_AllocateResources() : Allocates the resources required for H264
+* Decoder.
 *
 *
 * @param pAppData   : Pointer to the application data
 *
-*  @return      
-*  OMX_ErrorNone = Successful 
+*  @return
+*  OMX_ErrorNone = Successful
 *
 *  Other_value = Failed (Error code is returned)
 *
@@ -483,7 +483,7 @@ static OMX_ERRORTYPE H264DEC_AllocateResources(H264_Client* pAppData)
         scanf("%d", &num_out_buffers);
     #else
         num_out_buffers = H264DEC_Calculate_TotalRefFrames(pAppData) + 4;
-        if (num_out_buffers == 0) 
+        if (num_out_buffers == 0)
         {
            TIMM_OSAL_Error("Error computing Total reference frames");
            eError = OMX_ErrorInsufficientResources;
@@ -493,7 +493,7 @@ static OMX_ERRORTYPE H264DEC_AllocateResources(H264_Client* pAppData)
 #else
 //    num_out_buffers = 20;
     num_out_buffers = H264DEC_Calculate_TotalRefFrames(pAppData) + 4;
-    if (num_out_buffers == 0) 
+    if (num_out_buffers == 0)
     {
        TIMM_OSAL_Error("Error computing Total reference frames");
        eError = OMX_ErrorInsufficientResources;
@@ -516,14 +516,14 @@ EXIT:
 
 /* ========================================================================== */
 /**
-* H264DEC_FreeResources() : Free the resources allocated for H264 
-* Decoder. 
+* H264DEC_FreeResources() : Free the resources allocated for H264
+* Decoder.
 *
 *
 * @param pAppData   : Pointer to the application data
 *
-*  @return      
-*  OMX_ErrorNone = Successful 
+*  @return
+*  OMX_ErrorNone = Successful
 *
 *  Other_value = Failed (Error code is returned)
 *
@@ -558,7 +558,7 @@ static void H264DEC_FreeResources(H264_Client* pAppData)
 *
 * @param error   : OMX Error type
 *
-*  @return      
+*  @return
 *  String conversion of the OMX_ERRORTYPE
 *
 */
@@ -643,8 +643,8 @@ static OMX_STRING H264_GetDecoderErrorString(OMX_ERRORTYPE error)
 * @param pAppData   : Pointer to the application data
 * @param pBuf       : Pointer to the input buffer
 *
-*  @return      
-*  OMX_ErrorNone = Successful 
+*  @return
+*  OMX_ErrorNone = Successful
 *
 *  Other_value = Failed (Error code is returned)
 *
@@ -674,7 +674,7 @@ static OMX_U32 H264DEC_FillData(H264_Client* pAppData,OMX_BUFFERHEADERTYPE *pBuf
 
         //pBuf->nFlags = OMX_BUFFERFLAG_EOS;
         pInputPtr = pBuf->pBuffer;
-        
+
      #ifdef H264D_DEBUG
         TIMM_OSAL_Info( "%d bytes read into the input buffer", (int)framesizetoread);
         TIMM_OSAL_Info( "OMX Input buff = 0x%x",pBuf->pBuffer);
@@ -691,14 +691,14 @@ static OMX_U32 H264DEC_FillData(H264_Client* pAppData,OMX_BUFFERHEADERTYPE *pBuf
 
 /* ========================================================================== */
 /**
-* H264DEC_SetParamPortDefinition() : Function to fill the port definition 
+* H264DEC_SetParamPortDefinition() : Function to fill the port definition
 * structures and call the Set_Parameter function on to the H264 Decoder
 * Component
 *
 * @param pAppData   : Pointer to the application data
 *
-*  @return      
-*  OMX_ErrorNone = Successful 
+*  @return
+*  OMX_ErrorNone = Successful
 *
 *  Other_value = Failed (Error code is returned)
 *
@@ -738,7 +738,7 @@ static OMX_ERRORTYPE H264DEC_SetParamPortDefinition(H264_Client* pAppData)
     fseek (pAppData->fIn, 0, SEEK_END);
     pAppData->pInPortDef->nBufferSize = ftell (pAppData->fIn);// + sizeof(OMX_U32);
     fseek (pAppData->fIn, 0, SEEK_SET);
-    
+
     //pAppData->pInPortDef->nBufferSize = (pAppData->nWidth * pAppData->nHeight); // approx
     pAppData->pInPortDef->bEnabled = OMX_TRUE;
     pAppData->pInPortDef->bPopulated = OMX_FALSE;
@@ -805,14 +805,14 @@ EXIT:
 
 /* ========================================================================== */
 /**
-* H264DEC_WaitForState() : This method will wait for the component to get 
+* H264DEC_WaitForState() : This method will wait for the component to get
 * to the correct state.
 *
 * @param pHandle        : Handle to the component
-* @param DesiredState   : Desired 
+* @param DesiredState   : Desired
 *
-*  @return      
-*  OMX_ErrorNone = Successful 
+*  @return
+*  OMX_ErrorNone = Successful
 *
 *  Other_value = Failed (Error code is returned)
 *
@@ -832,13 +832,13 @@ static OMX_ERRORTYPE H264DEC_WaitForState(OMX_HANDLETYPE* pHandle,
 	uRequestedEvents = (H264_STATETRANSITION_COMPLETE|H264_DECODER_ERROR_EVENT);
 	retval = TIMM_OSAL_EventRetrieve (H264VD_CmdEvent, uRequestedEvents,
 			TIMM_OSAL_EVENT_OR_CONSUME, &pRetrievedEvents, TIMM_OSAL_SUSPEND);
-	
+
 	if (TIMM_OSAL_ERR_NONE != retval) {
           TIMM_OSAL_Debug("\nError in EventRetrieve !\n");
           eError = OMX_ErrorInsufficientResources;
           goto EXIT;
         }
-	
+
 	if (pRetrievedEvents & H264_DECODER_ERROR_EVENT) {
 		eError=OMX_ErrorUndefined; //TODO: Needs to be changed
 	}else{
@@ -860,7 +860,7 @@ static OMX_ERRORTYPE H264DEC_WaitForState(OMX_HANDLETYPE* pHandle,
      }//end while
 
 
-     if( eError != OMX_ErrorNone ) 
+     if( eError != OMX_ErrorNone )
         return eError;
 #endif
 EXIT:
@@ -869,12 +869,12 @@ EXIT:
 
 /* ========================================================================== */
 /**
-* H264DEC_ChangePortSettings() : This method will 
+* H264DEC_ChangePortSettings() : This method will
 *
 * @param pHandle        : Handle to the component
 *
-*  @return      
-*  OMX_ErrorNone = Successful 
+*  @return
+*  OMX_ErrorNone = Successful
 *
 *  Other_value = Failed (Error code is returned)
 *
@@ -943,18 +943,18 @@ EXIT:
 
 /* ========================================================================== */
 /**
-* H264DEC_EventHandler() : This method is the event handler implementation to 
+* H264DEC_EventHandler() : This method is the event handler implementation to
 * handle events from the OMX H264 Derived component
 *
 * @param hComponent        : Handle to the component
-* @param ptrAppData        : 
+* @param ptrAppData        :
 * @param eEvent            :
 * @param nData1            :
 * @param nData2            :
 * @param pEventData        :
 *
-*  @return      
-*  OMX_ErrorNone = Successful 
+*  @return
+*  OMX_ErrorNone = Successful
 *
 *  Other_value = Failed (Error code is returned)
 *
@@ -1037,8 +1037,8 @@ static OMX_ERRORTYPE H264DEC_EventHandler(OMX_HANDLETYPE hComponent,OMX_PTR ptrA
 * @param hComponent        : Handle to the component
 * @param ptrAppData        : Pointer to the app data
 *
-*  @return      
-*  OMX_ErrorNone = Successful 
+*  @return
+*  OMX_ErrorNone = Successful
 *
 *  Other_value = Failed (Error code is returned)
 *
@@ -1057,10 +1057,10 @@ static OMX_ERRORTYPE H264DEC_FillBufferDone (OMX_HANDLETYPE hComponent, OMX_PTR 
               TIMM_OSAL_Debug("\npBuffer SR after FBD = %x\n",pBuffer->pBuffer);
               pBuffer->pBuffer = SharedRegion_getPtr(pBuffer->pBuffer);
               TIMM_OSAL_Debug("\npBuffer after FBD = %x\n",pBuffer->pBuffer);
-            #endif    
+            #endif
       #endif
 
-    
+
     retval = TIMM_OSAL_WriteToPipe(pAppData->OpBuf_Pipe, &pBuffer, sizeof(pBuffer), TIMM_OSAL_SUSPEND); //timeout - TIMM_OSAL_SUSPEND ??
     if (retval != TIMM_OSAL_ERR_NONE) {
         TIMM_OSAL_Error("Error writing to Output buffer Pipe!");
@@ -1087,8 +1087,8 @@ TIMM_OSAL_Debug("\nFBD recd, for for frame no. %d\n", frameno++);
 * @param hComponent        : Handle to the component
 * @param ptrAppData        : Pointer to the app data
 *
-*  @return      
-*  OMX_ErrorNone = Successful 
+*  @return
+*  OMX_ErrorNone = Successful
 *
 *  Other_value = Failed (Error code is returned)
 *
@@ -1177,7 +1177,7 @@ fwrite(pInBuffer, 1, nWidth2D, pOutFileLineByLine);
               pInBuffer++;
             }
 
-            
+
             //retval=TIMM_OSAL_Memcpy(pOutBuffer, pInBuffer, nWidth2D);
 //		GOTO_EXIT_IF((retval != TIMM_OSAL_ERR_NONE),OMX_ErrorUndefined);
         }
@@ -1190,9 +1190,9 @@ fwrite(pInBuffer, 1, nSizeLeft, pOutFileLineByLine);
               *pOutBuffer = *pInBuffer;
               nRowSum += *pOutBuffer;
               pOutBuffer++;
-              pInBuffer++;     
+              pInBuffer++;
             }
-            
+
             //retval=TIMM_OSAL_Memcpy(pOutBuffer, pInBuffer, nSizeLeft);
 //		GOTO_EXIT_IF((retval != TIMM_OSAL_ERR_NONE),OMX_ErrorUndefined);
             break;
@@ -1204,7 +1204,7 @@ fwrite(pInBuffer, 1, nSizeLeft, pOutFileLineByLine);
         //TIMM_OSAL_Debug("\n Sum of Row %d = %d\n", i, nRowSum);
     }
     //TIMM_OSAL_Debug("\nDone copying\n");
-    
+
 EXIT:
 return eError;
 
@@ -1215,14 +1215,14 @@ return eError;
 /* ========================================================================== */
 /**
 * H264_Decoder_main() : This method is the function that needs to be invoked
-* from any test framework. This will execute all the tests that are defined in 
+* from any test framework. This will execute all the tests that are defined in
 * testcase list. This will mimic the functioning of IL Client and test the OMX
 * H264 Decoder implementation
 *
-* @param param1        : Currently used 
+* @param param1        : Currently used
 * @param param2        : Currently used
 *
-*  @return      
+*  @return
 *  None
 */
 /* ========================================================================== */
@@ -1274,7 +1274,7 @@ void main()
 	MemAllocBlock *MemReqDescTiler = NULL;
 	OMX_PTR TilerAddr=NULL;
     TIMM_OSAL_Debug("\nWait until RCM Server is created on other side. Press any key after that\n");
-    getchar();    
+    getchar();
 #endif
 
 #ifndef H264_LINUX_CLIENT
@@ -1297,7 +1297,7 @@ void main()
     TIMM_OSAL_Info( "1: Additional test vectors ");
     scanf("%d", &main_input);
     //main_input = 0;
-    
+
 
     if(main_input == 0)
     {
@@ -1319,7 +1319,7 @@ void main()
     {
        /* Check for the input file and open the input file */
        TIMM_OSAL_Info( "Trying to open file Decoder_input.cfg ");
-       fconfigFile = fopen(configFile,"r"); 
+       fconfigFile = fopen(configFile,"r");
 
        if (!fconfigFile)
        {
@@ -1390,7 +1390,7 @@ void main()
           eError = OMX_ErrorInsufficientResources;
           goto EXIT;
       }
-    
+
       pAppData = (H264_Client*)TIMM_OSAL_Malloc(sizeof(H264_Client), TIMM_OSAL_TRUE, 0, TIMMOSAL_MEM_SEGMENT_EXT);
       if (!pAppData) {
           TIMM_OSAL_Error("Error allocating pAppData!");
@@ -1425,7 +1425,7 @@ void main()
           TIMM_OSAL_Error("Error: failed to open the file <%s> for reading", H264_Decoder_TestCaseParams[test_index].InFile);
           goto EXIT;
       }
-  
+
      #ifdef H264D_WRITEOUTPUT
       if(main_input == 0)
       {
@@ -1453,7 +1453,7 @@ void main()
           goto EXIT;
       }
      #endif
-#ifdef H264_LINUX_CLIENT  
+#ifdef H264_LINUX_CLIENT
         pOutFileLineByLine = fopen(strcat(H264_Decoder_TestCaseParams[test_index].OutFile,"-dec_out_linebyline"), "wb");
         if(pOutFileLineByLine == NULL)
         {
@@ -1461,7 +1461,7 @@ void main()
             printf("\n!!!!!!!!!!!!!!!!Error in file open\n");
         }
 #endif
-      
+
       pAppData->eCompressionFormat = OMX_VIDEO_CodingAVC;
       if(main_input == 0)
       {
@@ -1482,7 +1482,7 @@ void main()
          {
             TIMM_OSAL_Error("Could not get the width. Check the file syntax");
             goto EXIT;
-         }	      
+         }
 
          /* Get the Height */
          if(fgets(line,254,fconfigFile))
@@ -1495,7 +1495,7 @@ void main()
          {
             TIMM_OSAL_Error("Could not get the Height. Check the file syntax");
             goto EXIT;
-         }	      
+         }
 
          /* Get the ColorFormat */
          if(fgets(line,254,fconfigFile))
@@ -1508,7 +1508,7 @@ void main()
          {
             TIMM_OSAL_Error("Could not get the ColorFormat. Check the file syntax");
             goto EXIT;
-         }	      
+         }
       }
 
       eError = H264DEC_AllocateResources(pAppData); // Allocate memory for the structure fields present in the pAppData(H264_Client)
@@ -1539,7 +1539,7 @@ void main()
     }
 
 
-    eError = OMX_Init();    
+    eError = OMX_Init();
 
     /* Load the H264Decoder Component */
     eError = OMX_GetHandle(&pHandle,(OMX_STRING)"OMX.TI.DUCATI1.VIDEO.H264D"/*StrH264Decoder*/,pAppData, pAppData->pCb);
@@ -1587,14 +1587,14 @@ void main()
    		TilerAddr=MemMgr_Alloc(MemReqDescTiler,1);
    		TIMM_OSAL_Debug("\nTiler buffer allocated is %x\n",TilerAddr);
    		pTmpBuffer=(OMX_U8*)TilerAddr;
-   #else        
+   #else
    		pTmpBuffer= TIMM_OSAL_Malloc(((pAppData->pInPortDef->nBufferSize)), TIMM_OSAL_TRUE, 0 ,TIMMOSAL_MEM_SEGMENT_EXT);
-   #endif        
+   #endif
    		if(pTmpBuffer== TIMM_OSAL_NULL) {
    			TIMM_OSAL_Debug("OMX_ErrorInsufficientResources\n");
    			goto EXIT;
    		}
-   #ifdef OMX_H264D_SRCHANGES        
+   #ifdef OMX_H264D_SRCHANGES
    			TIMM_OSAL_Debug("\npBuffer before UB = %x\n",pTmpBuffer);
    pTmpBuffer = (char *)SharedRegion_getSRPtr(pTmpBuffer, 2);
    			TIMM_OSAL_Debug("\npBuffer SR before UB = %x\n",pTmpBuffer);
@@ -1603,8 +1603,8 @@ void main()
    				goto EXIT;
    			}
    #endif
-   			TIMM_OSAL_Debug("\ncall to use buffer\n");	
-   		eError = OMX_UseBuffer(pHandle, &(pAppData->pInBuff[i]), pAppData->pInPortDef->nPortIndex, pAppData, (pAppData->pInPortDef->nBufferSize),pTmpBuffer);			
+   			TIMM_OSAL_Debug("\ncall to use buffer\n");
+   		eError = OMX_UseBuffer(pHandle, &(pAppData->pInBuff[i]), pAppData->pInPortDef->nPortIndex, pAppData, (pAppData->pInPortDef->nBufferSize),pTmpBuffer);
    			if(eError != OMX_ErrorNone)
    			{
    			    TIMM_OSAL_Debug("Error %s:    after Usebuffer\n", H264_GetDecoderErrorString(eError));
@@ -1613,12 +1613,12 @@ void main()
    #ifdef OMX_H264D_SRCHANGES
    			TIMM_OSAL_Debug("\npBuffer SR after UB = %x\n",pAppData->pInBuff[i]->pBuffer);
    pAppData->pInBuff[i]->pBuffer = SharedRegion_getPtr(pAppData->pInBuff[i]->pBuffer);
-   			TIMM_OSAL_Debug("\npBuffer after UB = %x\n",pAppData->pInBuff[i]->pBuffer); 
+   			TIMM_OSAL_Debug("\npBuffer after UB = %x\n",pAppData->pInBuff[i]->pBuffer);
    #endif
        }
    	for (i = 0; i < pAppData->pOutPortDef->nBufferCountActual; i++) {
        TIMM_OSAL_Debug("\nAllocating buffer no. %d\n",i);
-   #ifdef OMX_H264D_BUF_HEAP	
+   #ifdef OMX_H264D_BUF_HEAP
            pTmpBuffer = HeapBuf_alloc(heapHandle, pAppData->pOutPortDef->nBufferSize, 0);
    #elif defined (OMX_H264D_LINUX_TILERTEST)
    		MemReqDescTiler[0].pixelFormat=PIXEL_FMT_8BIT;
@@ -1635,21 +1635,21 @@ void main()
    		pTmpBuffer = (OMX_U8 *)TilerAddr;
    #else
            pTmpBuffer= TIMM_OSAL_Malloc((pAppData->pOutPortDef->nBufferSize), TIMM_OSAL_TRUE, 0 ,TIMMOSAL_MEM_SEGMENT_EXT);
-   #endif		
+   #endif
            if(pTmpBuffer== TIMM_OSAL_NULL) {
    			TIMM_OSAL_Debug("OMX_ErrorInsufficientResources\n");
    			goto EXIT;
    		}
-   #ifdef OMX_H264D_SRCHANGES        
+   #ifdef OMX_H264D_SRCHANGES
    			TIMM_OSAL_Debug("\npBuffer before UB = %x\n",pTmpBuffer);
    pTmpBuffer = (char *)SharedRegion_getSRPtr(pTmpBuffer, 2);
    			TIMM_OSAL_Debug("\npBuffer SR before UB = %x\n",pTmpBuffer);
-   #endif        
+   #endif
    			if(pTmpBuffer== TIMM_OSAL_NULL) {
    				TIMM_OSAL_Debug("OMX_ErrorInsufficientResources\n");
    				goto EXIT;
    			}
-   		eError = OMX_UseBuffer(pHandle, &(pAppData->pOutBuff[i]), pAppData->pOutPortDef->nPortIndex, pAppData, (pAppData->pOutPortDef->nBufferSize),pTmpBuffer);						
+   		eError = OMX_UseBuffer(pHandle, &(pAppData->pOutBuff[i]), pAppData->pOutPortDef->nPortIndex, pAppData, (pAppData->pOutPortDef->nBufferSize),pTmpBuffer);
    			if(eError != OMX_ErrorNone)
    			{
    			    TIMM_OSAL_Debug("Error %s:    after Usebuffer\n", H264_GetDecoderErrorString(eError));
@@ -1658,14 +1658,14 @@ void main()
    #ifdef OMX_H264D_SRCHANGES
    			TIMM_OSAL_Debug("\npBuffer SR after UB = %x\n",pAppData->pInBuff[j]->pBuffer);
    pAppData->pOutBuff[i]->pBuffer = SharedRegion_getPtr(pAppData->pOutBuff[i]->pBuffer);
-   			TIMM_OSAL_Debug("\npBuffer after UB = %x\n",pAppData->pInBuff[j]->pBuffer);	
-   #endif	
-       }
-   
+   			TIMM_OSAL_Debug("\npBuffer after UB = %x\n",pAppData->pInBuff[j]->pBuffer);
    #endif
-#endif		  
-   
-#if 0   
+       }
+
+   #endif
+#endif
+
+#if 0
        /* Allocate I/O Buffers */
     for (i = 0; i < pAppData->pInPortDef->nBufferCountActual; i++) {
         eError = OMX_AllocateBuffer(pHandle, /*&pBufferIn*/&pAppData->pInBuff[i], pAppData->pInPortDef->nPortIndex, pAppData, pAppData->pInPortDef->nBufferSize);
@@ -1705,8 +1705,8 @@ void main()
    #ifdef SRCHANGES
    TIMM_OSAL_Debug("\npBuffer before ETB = %x\n",pAppData->pInBuff[i]->pBuffer);
    pAppData->pInBuff[i]->pBuffer = (char *)SharedRegion_getSRPtr(pAppData->pInBuff[i]->pBuffer, 2);
-   TIMM_OSAL_Debug("\npBuffer SR before ETB = %x\n",pAppData->pInBuff[i]->pBuffer);        
-   #endif	
+   TIMM_OSAL_Debug("\npBuffer SR before ETB = %x\n",pAppData->pInBuff[i]->pBuffer);
+   #endif
 #endif
         eError = pAppData->pComponent->EmptyThisBuffer(pHandle, pAppData->pInBuff[i]);
 
@@ -1715,7 +1715,7 @@ void main()
    TIMM_OSAL_Debug("\npBuffer SR after ETB = %x\n",pAppData->pInBuff[i]->pBuffer);
    pAppData->pInBuff[i]->pBuffer = SharedRegion_getPtr(pAppData->pInBuff[i]->pBuffer);
    TIMM_OSAL_Debug("\npBuffer after ETB = %x\n",pAppData->pInBuff[i]->pBuffer);
-   #endif        
+   #endif
 #endif
         if(eError != OMX_ErrorNone) {
             TIMM_OSAL_Error("Error from Empty this buffer : %s ", H264_GetDecoderErrorString(eError));
@@ -1726,13 +1726,13 @@ void main()
     for (i = 0; i < pAppData->pOutPortDef->nBufferCountActual; i++) {
 #ifdef H264_LINUX_CLIENT
    #ifdef OMX_H264D_SRCHANGES
-   pAppData->pOutBuff[i]->pBuffer = (char *)SharedRegion_getSRPtr(pAppData->pOutBuff[i]->pBuffer, 2);    
-   #endif	    
-#endif	    
+   pAppData->pOutBuff[i]->pBuffer = (char *)SharedRegion_getSRPtr(pAppData->pOutBuff[i]->pBuffer, 2);
+   #endif
+#endif
         eError = pAppData->pComponent->FillThisBuffer(pHandle, pAppData->pOutBuff[i]);
 #ifdef H264_LINUX_CLIENT
-   #ifdef OMX_H264D_SRCHANGES        
-   pAppData->pOutBuff[i]->pBuffer = SharedRegion_getPtr(pAppData->pOutBuff[i]->pBuffer);        
+   #ifdef OMX_H264D_SRCHANGES
+   pAppData->pOutBuff[i]->pBuffer = SharedRegion_getPtr(pAppData->pOutBuff[i]->pBuffer);
    #endif
 #endif
         if(eError != OMX_ErrorNone) {
@@ -1774,7 +1774,7 @@ void main()
        TIMM_OSAL_Info( "");
        break;
     }
-    
+
 
         if (pRetrievedEvents & H264_DECODER_INPUT_READY) {
             TIMM_OSAL_Debug( "\n Input ready received");
@@ -1812,7 +1812,7 @@ void main()
         }
         else
         {
-           //pBufferIn->nFilledLen = pBufferIn->nAllocLen; 
+           //pBufferIn->nFilledLen = pBufferIn->nAllocLen;
            pBufferIn->nOffset = (pBufferIn->nAllocLen - pBufferIn->nFilledLen);
 	   pBufferIn->nFilledLen = 0;
            pBufferIn->nFlags = OMX_BUFFERFLAG_EOS;
@@ -1832,15 +1832,15 @@ void main()
      #ifdef H264_LINUX_CLIENT
          if(pBufferIn->pBuffer == NULL)
          {
-            TIMM_OSAL_Debug("\nBuffer is NULL\n");    
+            TIMM_OSAL_Debug("\nBuffer is NULL\n");
          }
          #ifdef OMX_H264D_SRCHANGES
             TIMM_OSAL_Debug("\npBuffer before ETB = %x\n",pBufferIn->pBuffer);
             pBufferIn->pBuffer = (char *)SharedRegion_getSRPtr(pBufferIn->pBuffer, 2);
-            TIMM_OSAL_Debug("\npBuffer SR before ETB = %x\n",pBufferIn->pBuffer);        
+            TIMM_OSAL_Debug("\npBuffer SR before ETB = %x\n",pBufferIn->pBuffer);
          #endif
      #endif
-        
+
 
                 eError = pAppData->pComponent->EmptyThisBuffer(pHandle, pBufferIn);
 
@@ -1849,7 +1849,7 @@ void main()
          TIMM_OSAL_Debug("\npBuffer SR after ETB = %x\n",pBufferIn->pBuffer);
          pBufferIn->pBuffer = SharedRegion_getPtr(pBufferIn->pBuffer);
          TIMM_OSAL_Debug("\npBuffer after ETB = %x\n",pBufferIn->pBuffer);
-        #endif 
+        #endif
      #endif
                 if(eError != OMX_ErrorNone) {
                     TIMM_OSAL_Error("Error from Empty this buffer : %s ", H264_GetDecoderErrorString(eError));
@@ -1872,7 +1872,7 @@ void main()
 
                 fieldBuf = TIMM_OSAL_Malloc((((pAppData->nWidth + (2*PADX) + 127) & 0xFFFFFF80) *  ((pAppData->nHeight + (4*PADY))) * 3/2), TIMM_OSAL_TRUE, 0, TIMMOSAL_MEM_SEGMENT_EXT);
 		 TIMM_OSAL_Debug("\nfied buf allocated\n");
-		
+
 
             #ifndef H264_LINUX_CLIENT
 #if 1
@@ -1894,19 +1894,19 @@ void main()
 #endif
             #else
 		//fwrite(pBufferOut->pBuffer, sizeof(unsigned char), pAppData->pOutPortDef->format.video.nFrameWidth * pAppData->pOutPortDef->format.video.nFrameHeight, pAppData->fOut);
-		
+
 		/* Allocate a 1D Buffer
-		 * Call the Util 2D to 1D convert 
-		 * Here there is only one fwrite because stride is same for Y and UV 
+		 * Call the Util 2D to 1D convert
+		 * Here there is only one fwrite because stride is same for Y and UV
 		 * and also the buffers are contiguous
 		 * Write the data to the file */
 	if(pBufferOut->nFilledLen != 0)
 	{
 TIMM_OSAL_Debug("\n Calling 2D to 1D memcpy\n");
 		eError = OMXH264_Util_Memcpy_2Dto1D(fieldBuf, pBufferOut->pBuffer,(((pAppData->nWidth + (2*PADX) + 127) & 0xFFFFFF80))*(((((pAppData->nHeight + (4*PADY))))) + ((((pAppData->nHeight + (4*PADY))))/2)), (((((pAppData->nHeight + (4*PADY))))) + ((((pAppData->nHeight + (4*PADY))))/2)), (((pAppData->nWidth + (2*PADX) + 127) & 0xFFFFFF80)), STRIDE_8BIT);
-TIMM_OSAL_Debug("\nCopied, now writing field buf to file\n");		
+TIMM_OSAL_Debug("\nCopied, now writing field buf to file\n");
 		//fwrite(fieldBuf, sizeof(unsigned char), 256*360, pAppData->fOut);
-TIMM_OSAL_Debug("\nWrite to file done, calling FTB again\n");		
+TIMM_OSAL_Debug("\nWrite to file done, calling FTB again\n");
 	}
             #endif
                 TIMM_OSAL_Debug("\n pBufferOut = 0x%x", pBufferOut);
@@ -1914,9 +1914,9 @@ TIMM_OSAL_Debug("\nWrite to file done, calling FTB again\n");
 
             #ifdef H264_LINUX_CLIENT
                #ifdef OMX_H264D_SRCHANGES
-               pBufferOut->pBuffer = (char *)SharedRegion_getSRPtr(pBufferOut->pBuffer, 2);    
-               #endif		
-            #endif		
+               pBufferOut->pBuffer = (char *)SharedRegion_getSRPtr(pBufferOut->pBuffer, 2);
+               #endif
+            #endif
                 TIMM_OSAL_Debug("\n pAppData = 0x%x", pAppData);
                 TIMM_OSAL_Debug("\n pComponent = 0x%x", pAppData->pComponent);
                 TIMM_OSAL_Debug("\n Fill This buffer fn ptr = 0x%x", pAppData->pComponent->FillThisBuffer);
@@ -1924,12 +1924,12 @@ TIMM_OSAL_Debug("\nWrite to file done, calling FTB again\n");
                 TIMM_OSAL_Debug("\n pBufferOut = 0x%x", pBufferOut);
 
                 eError = pAppData->pComponent->FillThisBuffer(pHandle, pBufferOut);
-TIMM_OSAL_Debug("\nReturnrd from FTB call\n");				
+TIMM_OSAL_Debug("\nReturnrd from FTB call\n");
             #ifdef H264_LINUX_CLIENT
                #ifdef OMX_H264D_SRCHANGES
-               pBufferOut->pBuffer = SharedRegion_getPtr(pBufferOut->pBuffer);        
-               #endif		
-            #endif				
+               pBufferOut->pBuffer = SharedRegion_getPtr(pBufferOut->pBuffer);
+               #endif
+            #endif
                 if(eError != OMX_ErrorNone) {
                     TIMM_OSAL_Error("Error from Fill this buffer : %s ", H264_GetDecoderErrorString(eError));
                     goto EXIT;
@@ -1977,11 +1977,11 @@ TIMM_OSAL_Debug("\nReturnrd from FTB call\n");
 	 #ifdef OMX_H264E_BUF_HEAP
            HeapBuf_free(heapHandle, pAppData->pInBuff[i]->pBuffer, pAppData->pInBuff[i]->nAllocLen);
 	 #elif defined (OMX_H264D_LINUX_TILERTEST)
-	  MemMgr_Free(pAppData->pInBuff[i]->pBuffer);   
+	  MemMgr_Free(pAppData->pInBuff[i]->pBuffer);
          #else
           TIMM_OSAL_Free(pAppData->pInBuff[i]->pBuffer);
-         #endif    
-       #endif	    
+         #endif
+       #endif
     #endif
         eError = OMX_FreeBuffer(pHandle, pAppData->pInPortDef->nPortIndex,pAppData->pInBuff[i]);
         if(eError != OMX_ErrorNone) {
@@ -1996,10 +1996,10 @@ TIMM_OSAL_Debug("\nReturnrd from FTB call\n");
 	#ifdef OMX_H264E_BUF_HEAP
            HeapBuf_free(heapHandle, pAppData->pOutBuff[i]->pBuffer, pAppData->pOutBuff[i]->nAllocLen);
 	#elif defined (OMX_H264D_LINUX_TILERTEST)
-		MemMgr_Free(pAppData->pOutBuff[i]->pBuffer);   
+		MemMgr_Free(pAppData->pOutBuff[i]->pBuffer);
         #else
              TIMM_OSAL_Free(pAppData->pOutBuff[i]->pBuffer);
-        #endif        
+        #endif
         #endif
     #endif
         eError = OMX_FreeBuffer(pHandle, pAppData->pOutPortDef->nPortIndex, pAppData->pOutBuff[i]);
@@ -2013,7 +2013,7 @@ TIMM_OSAL_Debug("\nReturnrd from FTB call\n");
     if(eError != OMX_ErrorNone) {
         TIMM_OSAL_Error("Error %s:    WaitForState has timed out ", H264_GetDecoderErrorString(eError));
         goto EXIT;
-    }    
+    }
 
     if(pOutFileLineByLine)
         fclose(pOutFileLineByLine);
@@ -2027,7 +2027,7 @@ TIMM_OSAL_Debug("\nSUCCESS: 2-D Decoder output written and closed\n");
     }
 TIMM_OSAL_Debug("\nFree handle done\n");
     #ifdef H264_LINUX_CLIENT
-        #ifdef OMX_H264D_LINUX_TILERTEST 
+        #ifdef OMX_H264D_LINUX_TILERTEST
         	if(MemReqDescTiler)
             	TIMM_OSAL_Free(MemReqDescTiler);
         #endif
@@ -2100,7 +2100,7 @@ TIMM_OSAL_Debug("\nDeleting events\n");
     }
     TIMM_OSAL_Info( "-----------------------------------------------");
     TIMM_OSAL_Info( "");
-    
+
       if(input != 100)
           break;
 

@@ -30,8 +30,8 @@ typedef struct _ComponentTable {
 }ComponentTable;
 
 
-OMX_API OMX_ERRORTYPE OMX_GetRolesOfComponent ( 
-    OMX_IN      OMX_STRING compName, 
+OMX_API OMX_ERRORTYPE OMX_GetRolesOfComponent (
+    OMX_IN      OMX_STRING compName,
     OMX_INOUT   OMX_U32 *pNumRoles,
     OMX_OUT     OMX_U8 **roles);
 

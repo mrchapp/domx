@@ -37,7 +37,7 @@
 #define OMX_MASK_ERROR     0x40000000
 #define OMX_MASK_WARN      0x20000000
 #define OMX_MASK_INFO      0x10000000
-#define OMX_MASK_DEBUG     0x08000000  
+#define OMX_MASK_DEBUG     0x08000000
 #define OMX_MASK_TRACE     0x04000000
 #define OMX_MASK_RESERVE1  0x02000000
 #define OMX_MASK_RESERVE2  0x01000000
@@ -72,7 +72,7 @@
     #define OMX_DPRINT(HANDLE, STR, ARG...) OMX_LOG_PRINT(OMX_MASK_DEBUG | HANDLE, STR, ##ARG)
     #define OMX_TPRINT(HANDLE, STR, ARG...) OMX_LOG_PRINT(OMX_MASK_TRACE | HANDLE, STR, ##ARG)
 #else
-    #define OMX_DPRINT(HANDLE, STR, ARG...)  
+    #define OMX_DPRINT(HANDLE, STR, ARG...)
     #define OMX_TPRINT(HANDLE, STR, ARG...)
 #endif
 
@@ -114,7 +114,7 @@ unsigned int   OMX_Log_SetMask(OMX_DBG_HANDLE hDebug, unsigned int uiNewMask);
 unsigned int   OMX_Log_GetOptions(OMX_DBG_HANDLE hDebug);
 unsigned int   OMX_Log_SetOptions(OMX_DBG_HANDLE hDebug, unsigned int uiNewOptions);
 
-void OMX_Log(unsigned int mask, const char *szFileName, int iLineNum, 
+void OMX_Log(unsigned int mask, const char *szFileName, int iLineNum,
              const char *szFunctionName, const char *strFormat, ...);
 
 const char *OMX_GetErrorString(OMX_ERRORTYPE error);
@@ -126,7 +126,7 @@ OMX_ERRORTYPE OMX_Log_LoadConfigFile(char* szConfigFile);
  * The following macros are intended to make accessing a debug handle easier.
  *
  * For example, for the Util library, you would create a header file called
- *   OMX_Util_Private.h.  This file will be included in all source files 
+ *   OMX_Util_Private.h.  This file will be included in all source files
  *   compiled into the Util library.  The header file uses the 'define' macro
  *   to generate a prototype for the getDebugHandle() function:
  *
@@ -138,7 +138,7 @@ OMX_ERRORTYPE OMX_Log_LoadConfigFile(char* szConfigFile);
  *   #define UTIL_WARNPRINT(str,args...) OMX_WARNPRINT(ACCESS_DEBUG_HANDLE(UTIL),str,##args)
  *   #define UTIL_ERRPRINT(str,args...) OMX_ERRPRINT(ACCESS_DEBUG_HANDLE(UTIL),str,##args)
  *
- * Finally, in a source file which will be compiled into the lib, for example 
+ * Finally, in a source file which will be compiled into the lib, for example
  *   OMX_Util_Private.c, you implement the function with the 'implement' macro:
  *
  *   IMPLEMENT_DEBUG_HANDLE_FN(UTIL)

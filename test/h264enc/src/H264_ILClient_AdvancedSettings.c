@@ -25,7 +25,7 @@ H264E_TestCaseParamsAdvanced H264_TestCaseAdvTable[1]= {
 			0x2040,
 			0
 		},
-		{	
+		{
 			0,
 			0,
 			0,
@@ -37,7 +37,7 @@ H264E_TestCaseParamsAdvanced H264_TestCaseAdvTable[1]= {
 			1,
 			1
 		},
-        {	
+        {
 			0,
 			0,
 			0,
@@ -49,19 +49,19 @@ H264E_TestCaseParamsAdvanced H264_TestCaseAdvTable[1]= {
 			1,
 			1
 		},
-		{	
+		{
 			0x1,
 			0x1,
 			0x1,
 			0x1,
 			1
 		},
-		{	
+		{
 			0,
 			0,
 			0,
 			0
-		}  
+		}
  }
 };
 

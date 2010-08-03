@@ -34,7 +34,7 @@
 	#ifdef MPEG4ENC_TRACE_ENABLE
 	/*overwriting the default trcae flags*/
 	#define TIMM_OSAL_DEBUG_TRACE_DETAIL 0
-	#define TIMM_OSAL_DEBUG_TRACE_LEVEL 4 
+	#define TIMM_OSAL_DEBUG_TRACE_LEVEL 4
 	#endif
 #endif
 #ifdef MPEG4_LINUX_CLIENT
@@ -51,11 +51,11 @@
 	#include <OMX_IVCommon.h>
 	#include <OMX_TI_Video.h>
 	#include <OMX_TI_Index.h>
-	#include <OMX_TI_Common.h> 
+	#include <OMX_TI_Common.h>
 #else
 	#include "omx_core.h"
 	#include "omx_component.h"
-	#include "omx_video.h"      
+	#include "omx_video.h"
 	#include "omx_ivcommon.h"
 	#include "omx_ti_video.h"
 	#include "omx_ti_index.h"
@@ -98,11 +98,11 @@
 
 /*Advanced Settings*/
 typedef struct{
-	OMX_U32 	nStartofSequence;	
-	OMX_U32 	nEndofSequence;	
+	OMX_U32 	nStartofSequence;
+	OMX_U32 	nEndofSequence;
 	OMX_U32 	nIDR;
 	OMX_U32 	nIntraPicture;
-	OMX_U32 	nNonIntraPicture;	
+	OMX_U32 	nNonIntraPicture;
 }NALUSettings;
 
 
@@ -126,14 +126,14 @@ typedef struct{
 
 
 typedef struct{
-	OMX_U32	 nLumaIntra4x4Enable;	
-	OMX_U32 nLumaIntra8x8Enable;	
-	OMX_U32 nLumaIntra16x16Enable; 
+	OMX_U32	 nLumaIntra4x4Enable;
+	OMX_U32 nLumaIntra8x8Enable;
+	OMX_U32 nLumaIntra16x16Enable;
 	OMX_U32 nChromaIntra8x8Enable;
 	OMX_VIDEO_CHROMACOMPONENTTYPE eChromaComponentEnable;
 }IntrapredictionSettings;
 
-typedef struct{	
+typedef struct{
 	OMX_VIDEO_DATASYNCMODETYPE inputDataMode;
 	OMX_VIDEO_DATASYNCMODETYPE outputDataMode;
 	OMX_U32 numInputDataUnits;
@@ -145,7 +145,7 @@ typedef struct{
 /*Dynamic Params Settings*/
 typedef struct{
 	OMX_S32 *nFrameNumber;
-	OMX_U32 *nFramerate;	
+	OMX_U32 *nFramerate;
 }FrameRate;
 
 
@@ -247,14 +247,14 @@ typedef enum MPEG4E_TestType{
 
 typedef struct MPEG4E_TestCaseParams
 {
-	OMX_U8 TestCaseId; 
+	OMX_U8 TestCaseId;
 	OMX_U32 width;
 	OMX_U32 height;
 	OMX_VIDEO_AVCPROFILETYPE profile;
 	OMX_VIDEO_AVCLEVELTYPE level;
 	OMX_COLOR_FORMATTYPE inputChromaFormat;
 	OMX_VIDEO_FRAMECONTENTTYPE InputContentType;
-	OMX_VIDEO_INTERLACE_CODINGTYPE InterlaceCodingType; 
+	OMX_VIDEO_INTERLACE_CODINGTYPE InterlaceCodingType;
 	OMX_BOOL bLoopFilter;
 	OMX_BOOL bCABAC;
 	OMX_BOOL bFMO;
@@ -267,7 +267,7 @@ typedef struct MPEG4E_TestCaseParams
 	OMX_VIDEO_ENCODING_MODE_PRESETTYPE EncodingPreset;
 	OMX_VIDEO_RATECONTROL_PRESETTYPE RateCntrlPreset;
 	OMX_VIDEO_AVCBITSTREAMFORMATTYPE BitStreamFormat;
-	OMX_U32 maxInterFrameInterval;	
+	OMX_U32 maxInterFrameInterval;
 	OMX_U32 nBitEnableAdvanced;
 	OMX_U32 nBitEnableDynamic;
 	OMX_U32 nNumInputBuf;
@@ -275,14 +275,14 @@ typedef struct MPEG4E_TestCaseParams
 	OMX_BOOL bInAllocatebuffer;
 	OMX_BOOL bOutAllocatebuffer;
 	OMX_U8 TestType;
-	OMX_U8 StopFrameNum;	
+	OMX_U8 StopFrameNum;
 }MPEG4E_TestCaseParams;
 
 typedef struct MPEG4E_ILClient{
 	OMX_HANDLETYPE pHandle;
 	OMX_STATETYPE eState;
 	OMX_ERRORTYPE eAppError;
-	
+
 	OMX_BUFFERHEADERTYPE	** pInBuff;
 	OMX_BUFFERHEADERTYPE	**pOutBuff;
 

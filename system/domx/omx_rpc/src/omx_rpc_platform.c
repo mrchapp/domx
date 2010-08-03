@@ -30,7 +30,7 @@
  *         This file contains methods that provides the functionality for
  *         the OpenMAX1.1 DOMX Framework RPC.
  *
- *  @path \WTSD_DucatiMMSW\framework\domx\omx_rpc\src 
+ *  @path \WTSD_DucatiMMSW\framework\domx\omx_rpc\src
  *
  *  @rev 1.0
  */
@@ -45,7 +45,7 @@
   /******************************************************************
  *   INCLUDE FILES
  ******************************************************************/
- /* ----- system and platform files ----------------------------*/ 
+ /* ----- system and platform files ----------------------------*/
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>

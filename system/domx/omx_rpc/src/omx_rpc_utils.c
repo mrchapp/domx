@@ -30,7 +30,7 @@
  *         This file contains methods that provides the functionality for
  *         the OpenMAX1.1 DOMX Framework RPC.
  *
- *  @path \WTSD_DucatiMMSW\framework\domx\omx_rpc\src 
+ *  @path \WTSD_DucatiMMSW\framework\domx\omx_rpc\src
  *
  *  @rev 1.0
  */
@@ -60,7 +60,7 @@ extern char Core_Array[MAX_PROC][MAX_CORENAME_LENGTH];
 /* ===========================================================================*/
 /**
  * @name EMPTY-STUB
- * @brief 
+ * @brief
  * @param
  * @return
  *
@@ -73,10 +73,10 @@ RPC_OMX_ERRORTYPE RPC_UTIL_GetTargetServerName(OMX_STRING ComponentName, OMX_STR
     OMX_U8 servertable_idx=0;
     OMX_STRING str;
     char Core[MAX_CORENAME_LENGTH];
-    
+
     DOMX_ENTER("");
     DOMX_DEBUG(" Calling Component Name %s", ComponentName);
-    
+
     while(*ComponentName != '\0')
     {
         if(*ComponentName == '.')
@@ -86,7 +86,7 @@ RPC_OMX_ERRORTYPE RPC_UTIL_GetTargetServerName(OMX_STRING ComponentName, OMX_STR
              {
                   ComponentName++;
                   str = ComponentName;
-                  
+
                   while(*str!='.')
                   {
                        Core[i] = *str;
@@ -96,34 +96,34 @@ RPC_OMX_ERRORTYPE RPC_UTIL_GetTargetServerName(OMX_STRING ComponentName, OMX_STR
                    Core[i] = '\0';
                    break;
               }
-              
+
         }
-                       
+
         ComponentName++;
     }
-    
+
     DOMX_DEBUG(" CORE NAME RECOVERED: %s", Core);
     DOMX_DEBUG("____________________________________________________________");
     DOMX_DEBUG("Recovering Server Table Index");
        for(i=0;i<CORE_MAX;i++)
        	{
-       	
+
 	   	if(strcmp(Core,Core_Array[i])==0) {
 			servertable_idx = i;
 			DOMX_DEBUG("Recovered Server table index = %d",i);
 			break;
 	   		}
        	}
-	*ServerName = (OMX_STRING)rcmservertable[servertable_idx];	
+	*ServerName = (OMX_STRING)rcmservertable[servertable_idx];
 	DOMX_DEBUG(" ServerName recovered = %s", *ServerName);
-		
+
 	return RPC_OMX_ErrorNone;
 }
 
 /* ===========================================================================*/
 /**
  * @name EMPTY-STUB
- * @brief 
+ * @brief
  * @param
  * @return
  *
@@ -131,8 +131,8 @@ RPC_OMX_ERRORTYPE RPC_UTIL_GetTargetServerName(OMX_STRING ComponentName, OMX_STR
 /* ===========================================================================*/
 RPC_OMX_ERRORTYPE RPC_UTIL_GetLocalServerName(OMX_STRING ComponentName, OMX_STRING * ServerName)
 {
-/* Implementation returns only current core ID - But this is a place holder to abstract out the 
-default server and other additional servers available on the current core. This additional servers 
+/* Implementation returns only current core ID - But this is a place holder to abstract out the
+default server and other additional servers available on the current core. This additional servers
 should be available in the RPC global that is indexed using the calling component name*/
     OMX_U8 servertable_idx=0;
 
@@ -145,9 +145,9 @@ should be available in the RPC global that is indexed using the calling componen
 /* ===========================================================================*/
 /**
  * @name EMPTY-STUB
- * @brief  the Api creates the RCM client on the target core(where the component sits). 
+ * @brief  the Api creates the RCM client on the target core(where the component sits).
 This happens in the context of the Default RCM server on the target core.
-The RCM server name to connect for this client will be the default RCM server on the calling core. 
+The RCM server name to connect for this client will be the default RCM server on the calling core.
 This can be provided as an option as the name that you pass in the string server is used as the RCM server name
 input to the client create call.
 @Default_RcmServer - The default rcm server on the target core
@@ -158,7 +158,7 @@ input to the client create call.
  */
 /* ===========================================================================*/
 /*
-RPC_OMX_ERRORTYPE RPC_GetTargetClient(OMX_STRING Default_RcmServer, OMX_STRING server, rcmhHndl) 
+RPC_OMX_ERRORTYPE RPC_GetTargetClient(OMX_STRING Default_RcmServer, OMX_STRING server, rcmhHndl)
 {
 
 
@@ -168,7 +168,7 @@ RPC_OMX_ERRORTYPE RPC_GetTargetClient(OMX_STRING Default_RcmServer, OMX_STRING s
 /* ===========================================================================*/
 /**
  * @name EMPTY-STUB
- * @brief 
+ * @brief
  * @param
  * @return
  *
@@ -185,7 +185,7 @@ RPC_OMX_ERRORTYPE RPC_MapBuffer(OMX_U32 mappedBuffer )
 /* ===========================================================================*/
 /**
  * @name EMPTY-STUB
- * @brief 
+ * @brief
  * @param
  * @return
  *
@@ -202,7 +202,7 @@ RPC_OMX_ERRORTYPE RPC_UnMapBuffer(OMX_U32 mappedBuffer )
 /* ===========================================================================*/
 /**
  * @name RPC_FlushBuffer
- * @brief 
+ * @brief
  * @param
  * @return
  *
@@ -216,7 +216,7 @@ RPC_OMX_ERRORTYPE RPC_FlushBuffer(OMX_U8 * pBuffer, OMX_U32 size )
     OMX_S32 nStatus = 0;
 
    	DOMX_DEBUG("About to flush %d bytes", size);
- 
+
 	nStatus = ProcMgr_flushMemory((OMX_PTR)pBuffer, size);
     if (nStatus < 0)
     {

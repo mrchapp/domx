@@ -7,7 +7,7 @@
  * ==================================================================== */
 /*
 *  @file timm_osal_defines.h
-*  The osal header file defines 
+*  The osal header file defines
 *  @path
 *
 */
@@ -35,7 +35,7 @@ TIMM_OSAL_ERRORTYPE TIMM_OSAL_CreatePipe (TIMM_OSAL_PTR *pPipe,
                                           TIMM_OSAL_U32  pipeSize,
                                           TIMM_OSAL_U32  messageSize,
                                           TIMM_OSAL_U8   isFixedMessage);
-                                          
+
 TIMM_OSAL_ERRORTYPE TIMM_OSAL_DeletePipe (TIMM_OSAL_PTR pPipe);
 
 TIMM_OSAL_ERRORTYPE TIMM_OSAL_WriteToPipe (TIMM_OSAL_PTR pPipe,
@@ -53,7 +53,7 @@ TIMM_OSAL_ERRORTYPE TIMM_OSAL_ReadFromPipe (TIMM_OSAL_PTR pPipe,
                                             TIMM_OSAL_U32 size,
                                             TIMM_OSAL_U32 *actualSize,
                                             TIMM_OSAL_S32 timeout);
-                                                  
+
 TIMM_OSAL_ERRORTYPE TIMM_OSAL_ClearPipe (TIMM_OSAL_PTR pPipe);
 
 TIMM_OSAL_ERRORTYPE TIMM_OSAL_IsPipeReady (TIMM_OSAL_PTR pPipe);

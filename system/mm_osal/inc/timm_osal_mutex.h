@@ -7,7 +7,7 @@
  * ==================================================================== */
 /*
 *  @file timm_osal_defines.h
-*  The osal header file defines 
+*  The osal header file defines
 *  @path
 *
 */

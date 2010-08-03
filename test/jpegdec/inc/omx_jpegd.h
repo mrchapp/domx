@@ -6,11 +6,11 @@
 *  in the license agreement under which this software has been supplied.
 * =========================================================================== */
 /**
-* 
+*
 *
 * This File contains testcase table for JPEG decoder.
 *
-* @path  
+* @path
 *
 * @rev  0.1
 */
@@ -109,7 +109,7 @@ goto EXIT; }
         eError = ERRORCODE;\
         goto EXIT;\
     }\
-} 
+}
 
 /****************************************************************
 *  EXTERNAL REFERENCES NOTE : only use if not found in header file
@@ -141,7 +141,7 @@ typedef struct JPEGDTestCaseParams
     OMX_JPEG_UNCOMPRESSEDMODETYPE eOutputImageMode;
     OMX_BOOL bIsApplnMemAllocatorforInBuff ;
     OMX_BOOL bIsApplnMemAllocatorforOutBuff;
-    
+
 }JPEGDTestCaseParams;
 
 
@@ -167,11 +167,11 @@ typedef struct OMX_EXIF_THUMBNAIL_INFO
     //OMX_U32   JPEGImageOffset;
 
     OMX_U32     nFields;/*total number of fields in the EXIF Thumbnail that are to be supported*/
-    
+
 }OMX_EXIF_THUMBNAIL_INFO;
 
 
-typedef enum 
+typedef enum
 {
     EXIF_ERROR,
     EXIF_NOT_SUPPORTED,
@@ -197,7 +197,7 @@ typedef enum
     TAG_TYPE_UNDEFINED = 0x7,
     TAG_TYPE_SLONG = 0x9,
     TAG_TYPE_SRATIONAL = 0xA
-}EXIF_TAG_TYPE; 
+}EXIF_TAG_TYPE;
 
 
 typedef enum   {  // Enumerator for the file orientation
@@ -226,10 +226,10 @@ typedef struct OMX_EXIF_INFO_SUPPORTED
     char    *pCopyright;
     OMX_U32    ulImageWidth;
     OMX_U32    ulImageHeight;
-    OMX_U32  ulExifSize;    
+    OMX_U32  ulExifSize;
     OMX_EXIF_THUMBNAIL_INFO *pThumbnailInfo;
     OMX_U32    nFields;/*total number of fields in the EXIF format that are to be supported*/
-    
+
 }OMX_EXIF_INFO_SUPPORTED;
 
 
@@ -247,7 +247,7 @@ typedef struct JpegDecoderTestObject
 
     /*OMX_JPEG DEC Handle*/
     OMX_PTR hOMXJPEGD;
-   
+
     OMX_BUFFERHEADERTYPE *pInBufHeader, *pOutBufHeader;
 
     /*Set parameter structures */
@@ -261,7 +261,7 @@ typedef struct JpegDecoderTestObject
 
     /*Buffer header sent during EmptyThisBuffer Call*/
      OMX_BUFFERHEADERTYPE tBufHeader;
- 
+
     /*TestCase Parameter structure */
      JPEGDTestCaseParams tTestcaseParam;
 
@@ -293,7 +293,7 @@ OMX_ERRORTYPE OMX_JPEGD_TEST_EventHandler(
                                   OMX_IN OMX_U32 nData1,
                                   OMX_IN OMX_U32 nData2,
                                   OMX_IN OMX_PTR pEventData);
-								   
+
 OMX_TestStatus JPEGD_TestEntry_Exif(uint32_t uMsg, void *pParam, uint32_t paramSize);
 
 

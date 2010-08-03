@@ -30,7 +30,7 @@
 		/*Enable the corresponding flags*/
 		/*HeapBuf & Shared Region Defines*/
 		#define OMX_MPEG4E_SRCHANGES
-		#define OMX_MPEG4E_BUF_HEAP		
+		#define OMX_MPEG4E_BUF_HEAP
 	#endif
 	#define OMX_MPEG4E_NONTILERTEST
     //#define TIMESTAMPSPRINT
@@ -101,7 +101,7 @@ static OMX_U8 DynamicSettingsCount=0;
 static OMX_U8 DynamicSettingsArray[9];
 static OMX_U8 DynFrameCountArray_Index[9]={0,0,0,0,0,0,0,0,0};
 static OMX_U8 DynFrameCountArray_FreeIndex[9]={0,0,0,0,0,0,0,0,0};
-static OMX_U8 PauseFrameNum[NUMTIMESTOPAUSE]={5};	
+static OMX_U8 PauseFrameNum[NUMTIMESTOPAUSE]={5};
 
 #define TODO_ENC_MPEG4 1 // temporary to be deleted later on
 
@@ -180,27 +180,27 @@ static OMX_ERRORTYPE MPEG4ENC_FreeResources(MPEG4E_ILClient* pAppData)
 	OMX_PARAM_PORTDEFINITIONTYPE tPortDef;
 	OMX_PORT_PARAM_TYPE tPortParams;
 	OMX_U32 i,j;
-	
+
 	GOTO_EXIT_IF(!pAppData,OMX_ErrorBadParameter);
 
 	MPEG4CLIENT_ENTER_PRINT();
-	
+
 	pHandle = pAppData->pHandle;
 	/*Initialize the structure*/
 	OMX_TEST_INIT_STRUCT_PTR(&tPortDef,OMX_PARAM_PORTDEFINITIONTYPE);
 	OMX_TEST_INIT_STRUCT_PTR(&tPortParams,OMX_PORT_PARAM_TYPE);
-		
+
 	eError = OMX_GetParameter(pHandle, OMX_IndexParamVideoInit, &tPortParams);
 	GOTO_EXIT_IF((eError != OMX_ErrorNone),eError);
 	for(i=0; i < tPortParams.nPorts ; i++){
-		
+
 		tPortDef.nPortIndex = i;
 		eError = OMX_GetParameter(pHandle, OMX_IndexParamPortDefinition, &tPortDef);
 		GOTO_EXIT_IF((eError != OMX_ErrorNone),eError);
 		if(i==MPEG4_APP_INPUTPORT){
 			for (j = 0; j < tPortDef.nBufferCountActual; j++){
 				if(!pAppData->MPEG4_TestCaseParams->bInAllocatebuffer)
-            			{       
+            			{
 #ifdef OMX_MPEG4E_BUF_HEAP
 				HeapBuf_free(heapHandle, pAppData->pInBuff[j]->pBuffer, pAppData->pInBuff[j]->nAllocLen);
 #elif defined (OMX_MPEG4E_LINUX_TILERTEST)
@@ -217,7 +217,7 @@ static OMX_ERRORTYPE MPEG4ENC_FreeResources(MPEG4E_ILClient* pAppData)
 		}else if(i==MPEG4_APP_OUTPUTPORT){
 			for (j = 0; j < tPortDef.nBufferCountActual; j++){
 				if(!pAppData->MPEG4_TestCaseParams->bInAllocatebuffer)
-				{                  
+				{
 #ifdef OMX_MPEG4E_BUF_HEAP
 				HeapBuf_free(heapHandle, pAppData->pOutBuff[j]->pBuffer, pAppData->pOutBuff[j]->nAllocLen);
 #elif defined (OMX_MPEG4E_LINUX_TILERTEST)
@@ -231,7 +231,7 @@ static OMX_ERRORTYPE MPEG4ENC_FreeResources(MPEG4E_ILClient* pAppData)
 				eError = OMX_FreeBuffer(pAppData->pHandle, tPortDef.nPortIndex, pAppData->pOutBuff[j]);
 				GOTO_EXIT_IF((eError != OMX_ErrorNone), eError);
 			}
-		}	
+		}
 	}
 
 	if(pAppData->IpBuf_Pipe){
@@ -263,7 +263,7 @@ static OMX_ERRORTYPE MPEG4ENC_AllocateResources(MPEG4E_ILClient* pAppData)
 	OMX_ERRORTYPE eError = OMX_ErrorNone;
 	OMX_PARAM_PORTDEFINITIONTYPE tPortDef;
 	OMX_PORT_PARAM_TYPE tPortParams;
-	OMX_U8 *pTmpBuffer; /*Used with Use Buffer calls*/	
+	OMX_U8 *pTmpBuffer; /*Used with Use Buffer calls*/
 	OMX_U32 i,j;
 
 #ifdef OMX_MPEG4E_LINUX_TILERTEST
@@ -272,7 +272,7 @@ static OMX_ERRORTYPE MPEG4ENC_AllocateResources(MPEG4E_ILClient* pAppData)
 #endif
 	MPEG4CLIENT_ENTER_PRINT();
 	GOTO_EXIT_IF(!pAppData,OMX_ErrorBadParameter);
-	
+
 	pHandle = pAppData->pHandle;
 #ifdef OMX_MPEG4E_LINUX_TILERTEST
 	MemReqDescTiler=(MemAllocBlock*)TIMM_OSAL_Malloc((sizeof(MemAllocBlock) * 2), TIMM_OSAL_TRUE, 0 ,TIMMOSAL_MEM_SEGMENT_EXT);
@@ -288,27 +288,27 @@ static OMX_ERRORTYPE MPEG4ENC_AllocateResources(MPEG4E_ILClient* pAppData)
 	tPortDef.nPortIndex = i;
 	eError = OMX_GetParameter(pHandle, OMX_IndexParamPortDefinition, &tPortDef);
 	GOTO_EXIT_IF((eError != OMX_ErrorNone),eError);
-		if(tPortDef.nPortIndex==MPEG4_APP_INPUTPORT){			
+		if(tPortDef.nPortIndex==MPEG4_APP_INPUTPORT){
 			pAppData->pInBuff = TIMM_OSAL_Malloc((sizeof(OMX_BUFFERHEADERTYPE*) * tPortDef.nBufferCountActual), TIMM_OSAL_TRUE, 0 ,TIMMOSAL_MEM_SEGMENT_EXT);
 			GOTO_EXIT_IF((pAppData->pInBuff == TIMM_OSAL_NULL),OMX_ErrorInsufficientResources);
 			/* Create a pipes for Input Buffers.. used to queue data from the callback. */
 			MPEG4CLIENT_TRACE_PRINT("\nCreating i/p pipe\n");
     			retval = TIMM_OSAL_CreatePipe(&(pAppData->IpBuf_Pipe),sizeof(OMX_BUFFERHEADERTYPE*) * tPortDef.nBufferCountActual,
     									sizeof(OMX_BUFFERHEADERTYPE*), OMX_TRUE );
-			GOTO_EXIT_IF((retval != TIMM_OSAL_ERR_NONE),OMX_ErrorInsufficientResources);	
-			
-			/*allocate/Use buffer calls for input*/	
+			GOTO_EXIT_IF((retval != TIMM_OSAL_ERR_NONE),OMX_ErrorInsufficientResources);
+
+			/*allocate/Use buffer calls for input*/
 			for (j = 0; j < tPortDef.nBufferCountActual; j++)
 			{
 				if(pAppData->MPEG4_TestCaseParams->bInAllocatebuffer){
 					/*Min Buffer requirements depends on the Amount of Stride.....here No padding so Width==Stride */
 					eError = OMX_AllocateBuffer(pAppData->pHandle, &(pAppData->pInBuff[j]), tPortDef.nPortIndex, pAppData, ((pAppData->MPEG4_TestCaseParams->width*pAppData->MPEG4_TestCaseParams->height*3/2)));
-					GOTO_EXIT_IF((eError != OMX_ErrorNone), eError);	
-				
+					GOTO_EXIT_IF((eError != OMX_ErrorNone), eError);
+
 					retval = TIMM_OSAL_WriteToPipe(pAppData->IpBuf_Pipe, &(pAppData->pInBuff[j]), sizeof(pAppData->pInBuff[j]), TIMM_OSAL_SUSPEND);
 					GOTO_EXIT_IF((retval != TIMM_OSAL_ERR_NONE),OMX_ErrorInsufficientResources);
 				}else{
-					/*USE Buffer calls*/                     
+					/*USE Buffer calls*/
 #ifdef OMX_MPEG4E_BUF_HEAP
 					pTmpBuffer = HeapBuf_alloc(heapHandle, (pAppData->MPEG4_TestCaseParams->width*pAppData->MPEG4_TestCaseParams->height*3/2),0);
 
@@ -347,24 +347,24 @@ static OMX_ERRORTYPE MPEG4ENC_AllocateResources(MPEG4E_ILClient* pAppData)
 					pAppData->pInBuff[j]->pBuffer = SharedRegion_getPtr(pAppData->pInBuff[j]->pBuffer);
 					MPEG4CLIENT_TRACE_PRINT("\npBuffer after UB = %x\n",pAppData->pInBuff[j]->pBuffer);
 #endif
-					MPEG4CLIENT_TRACE_PRINT("\nWriting to i/p pipe\n");	
-					
+					MPEG4CLIENT_TRACE_PRINT("\nWriting to i/p pipe\n");
+
 					retval = TIMM_OSAL_WriteToPipe(pAppData->IpBuf_Pipe, &(pAppData->pInBuff[j]), sizeof(pAppData->pInBuff[j]), TIMM_OSAL_SUSPEND);
 					GOTO_EXIT_IF((retval != TIMM_OSAL_ERR_NONE),OMX_ErrorInsufficientResources);
-					
-				}				
-				
+
+				}
+
 			}
-		
+
             MPEG4CLIENT_TRACE_PRINT("\nSetting i/p ready event\n");
 			retval = TIMM_OSAL_EventSet (MPEG4VE_Events, MPEG4_INPUT_READY, TIMM_OSAL_EVENT_OR);
 			GOTO_EXIT_IF((retval != TIMM_OSAL_ERR_NONE), OMX_ErrorBadParameter);
             MPEG4CLIENT_TRACE_PRINT("\ni/p ready event set\n");
 		}else if(tPortDef.nPortIndex==MPEG4_APP_OUTPUTPORT){
-			
+
 			pAppData->pOutBuff = TIMM_OSAL_Malloc((sizeof(OMX_BUFFERHEADERTYPE*) * tPortDef.nBufferCountActual), TIMM_OSAL_TRUE, 0 ,TIMMOSAL_MEM_SEGMENT_EXT);
 			GOTO_EXIT_IF((pAppData->pOutBuff == TIMM_OSAL_NULL),OMX_ErrorInsufficientResources);
-			/* Create a pipes for Output Buffers.. used to queue data from the callback. */	
+			/* Create a pipes for Output Buffers.. used to queue data from the callback. */
 			MPEG4CLIENT_TRACE_PRINT("\nCreating o/p pipe\n");
 			retval = TIMM_OSAL_CreatePipe(&(pAppData->OpBuf_Pipe),sizeof(OMX_BUFFERHEADERTYPE*) * tPortDef.nBufferCountActual,
 													sizeof(OMX_BUFFERHEADERTYPE*), OMX_TRUE );
@@ -375,11 +375,11 @@ static OMX_ERRORTYPE MPEG4ENC_AllocateResources(MPEG4E_ILClient* pAppData)
 				if(pAppData->MPEG4_TestCaseParams->bOutAllocatebuffer){
 					/*Min Buffer requirements depends on the Amount of Stride.....here No padding so Width==Stride */
 					eError = OMX_AllocateBuffer(pAppData->pHandle, &(pAppData->pOutBuff[j]), tPortDef.nPortIndex, pAppData, (pAppData->MPEG4_TestCaseParams->width*pAppData->MPEG4_TestCaseParams->height));
-					GOTO_EXIT_IF((eError != OMX_ErrorNone), eError);	
+					GOTO_EXIT_IF((eError != OMX_ErrorNone), eError);
 					/*the output buffer nfillelen initially is zero*/
 					pAppData->pOutBuff[j]->nFilledLen=0;
 					retval=TIMM_OSAL_WriteToPipe(pAppData->OpBuf_Pipe, &(pAppData->pOutBuff[j]), sizeof(pAppData->pOutBuff[j]), TIMM_OSAL_SUSPEND);
-					GOTO_EXIT_IF((retval != TIMM_OSAL_ERR_NONE),OMX_ErrorInsufficientResources);		
+					GOTO_EXIT_IF((retval != TIMM_OSAL_ERR_NONE),OMX_ErrorInsufficientResources);
 				}else{
 					/*USE Buffer calls*/
 #ifdef OMX_MPEG4E_BUF_HEAP
@@ -414,20 +414,20 @@ static OMX_ERRORTYPE MPEG4ENC_AllocateResources(MPEG4E_ILClient* pAppData)
 					MPEG4CLIENT_TRACE_PRINT("\npBuffer after UB = %x\n",pAppData->pOutBuff[j]->pBuffer);
 #endif
 
-					MPEG4CLIENT_TRACE_PRINT("\nWriting to o/p pipe\n");	
+					MPEG4CLIENT_TRACE_PRINT("\nWriting to o/p pipe\n");
 					retval = TIMM_OSAL_WriteToPipe(pAppData->OpBuf_Pipe, &(pAppData->pOutBuff[j]), sizeof(pAppData->pOutBuff[j]), TIMM_OSAL_SUSPEND);
 					GOTO_EXIT_IF((retval != TIMM_OSAL_ERR_NONE),OMX_ErrorInsufficientResources);
-				}	
-				
+				}
+
 			}
-		
+
             MPEG4CLIENT_TRACE_PRINT("\nSetting o/p ready event\n");
 			retval = TIMM_OSAL_EventSet (MPEG4VE_Events, MPEG4_OUTPUT_READY, TIMM_OSAL_EVENT_OR);
 			GOTO_EXIT_IF((retval != TIMM_OSAL_ERR_NONE), OMX_ErrorBadParameter);
             MPEG4CLIENT_TRACE_PRINT("\no/p ready event set\n");
 		}else{
 			MPEG4CLIENT_TRACE_PRINT("Port index Assigned is Neither Input Nor Output");
-			eError=OMX_ErrorBadPortIndex;			
+			eError=OMX_ErrorBadPortIndex;
 			GOTO_EXIT_IF((eError != OMX_ErrorNone),eError);
 		}
 	}
@@ -519,7 +519,7 @@ OMX_ERRORTYPE MPEG4ENC_FillData(MPEG4E_ILClient* pAppData,OMX_BUFFERHEADERTYPE *
 	OMX_U32 nRead = 0;
 	OMX_U32 framesizetoread = 0;
 	OMX_ERRORTYPE eError = OMX_ErrorNone;
-#ifdef OMX_MPEG4E_TILERTEST	
+#ifdef OMX_MPEG4E_TILERTEST
     	OMX_U8 *pTmpBuffer = NULL,*pActualPtr=NULL;
 	OMX_U32 size1D = 0;
 #endif
@@ -528,7 +528,7 @@ OMX_ERRORTYPE MPEG4ENC_FillData(MPEG4E_ILClient* pAppData,OMX_BUFFERHEADERTYPE *
 #endif
 
 	MPEG4CLIENT_ENTER_PRINT();
-	
+
 	framesizetoread = pAppData->MPEG4_TestCaseParams->width * pAppData->MPEG4_TestCaseParams->height * 3  / 2;
 
 	/*Tiler Interface code*/
@@ -537,13 +537,13 @@ OMX_ERRORTYPE MPEG4ENC_FillData(MPEG4E_ILClient* pAppData,OMX_BUFFERHEADERTYPE *
        if(pTmpBuffer == NULL){
 	   	eError=OMX_ErrorInsufficientResources;
 	   	GOTO_EXIT_IF((eError != OMX_ErrorNone),eError);
-       }      
+       }
 	 pActualPtr=pTmpBuffer;
 	 size1D=framesizetoread;
 	 if((!feof(pAppData->fIn))&&((nRead = fread(pTmpBuffer,sizeof(OMX_U8),framesizetoread, pAppData->fIn))!=0)&&((MPEG4ClientStopFrameNum-1)>nFramesRead)){
-		nFramesRead++; 
+		nFramesRead++;
 		MPEG4CLIENT_TRACE_PRINT( "\nnumber of bytes read from %d frame=%d",nFramesRead,nRead);
-		eError= OMXMPEG4_Util_Memcpy_1Dto2D(pBuf->pBuffer, pTmpBuffer, size1D, pAppData->MPEG4_TestCaseParams->height, pAppData->MPEG4_TestCaseParams->width, STRIDE_8BIT); 
+		eError= OMXMPEG4_Util_Memcpy_1Dto2D(pBuf->pBuffer, pTmpBuffer, size1D, pAppData->MPEG4_TestCaseParams->height, pAppData->MPEG4_TestCaseParams->width, STRIDE_8BIT);
 		GOTO_EXIT_IF((eError != OMX_ErrorNone),eError);
 		if(nRead < (pAppData->MPEG4_TestCaseParams->height * pAppData->MPEG4_TestCaseParams->width))
 			/*frame data< the required so need not send for processing send an EOS flag with no data */
@@ -559,45 +559,45 @@ OMX_ERRORTYPE MPEG4ENC_FillData(MPEG4E_ILClient* pAppData,OMX_BUFFERHEADERTYPE *
 		   size1D-=(pAppData->MPEG4_TestCaseParams->height * pAppData->MPEG4_TestCaseParams->width);
 		}
 		#ifdef OMX_MPEG4E_DUCATIAPPM3_TILERTEST
-		eError= OMXMPEG4_Util_Memcpy_1Dto2D(((OMX_TI_PLATFORMPRIVATE *)pBuf->pPlatformPrivate)->pAuxBuf1, pTmpBuffer, size1D, 
-		           								(pAppData->MPEG4_TestCaseParams->height/2), pAppData->MPEG4_TestCaseParams->width, STRIDE_16BIT); 
+		eError= OMXMPEG4_Util_Memcpy_1Dto2D(((OMX_TI_PLATFORMPRIVATE *)pBuf->pPlatformPrivate)->pAuxBuf1, pTmpBuffer, size1D,
+		           								(pAppData->MPEG4_TestCaseParams->height/2), pAppData->MPEG4_TestCaseParams->width, STRIDE_16BIT);
 		GOTO_EXIT_IF((eError != OMX_ErrorNone),eError);
 		#endif
 		#ifdef OMX_MPEG4E_LINUX_TILERTEST
 		Addoffset=(pAppData->MPEG4_TestCaseParams->height * STRIDE_8BIT);
-		eError= OMXMPEG4_Util_Memcpy_1Dto2D((pBuf->pBuffer+Addoffset), pTmpBuffer, size1D, 
-		           								(pAppData->MPEG4_TestCaseParams->height/2), pAppData->MPEG4_TestCaseParams->width, STRIDE_16BIT); 
+		eError= OMXMPEG4_Util_Memcpy_1Dto2D((pBuf->pBuffer+Addoffset), pTmpBuffer, size1D,
+		           								(pAppData->MPEG4_TestCaseParams->height/2), pAppData->MPEG4_TestCaseParams->width, STRIDE_16BIT);
 		GOTO_EXIT_IF((eError != OMX_ErrorNone),eError);
 		#endif
-		
+
 	}
-	else{	
+	else{
 			/*Incase of Full Record update the StopFrame nUmber to limit the ETB & FTB calls*/
 			if(MPEG4ClientStopFrameNum==MAXFRAMESTOREADFROMFILE){
 				/*Incase of Full Record update the StopFrame nUmber to limit the ETB & FTB calls*/
 				MPEG4ClientStopFrameNum=nFramesRead;
 			}
-			nFramesRead++; 
+			nFramesRead++;
 			pBuf->nFlags = OMX_BUFFERFLAG_EOS;
 			MPEG4CLIENT_TRACE_PRINT("end of file reached and EOS flag has been set");
 	}
-    
+
 #endif
 
 #ifdef OMX_MPEG4E_NONTILERTEST
-  /**********************Original Code*************************************************/	
+  /**********************Original Code*************************************************/
 	if((!feof(pAppData->fIn))&&((nRead = fread(pBuf->pBuffer,sizeof(OMX_U8),framesizetoread, pAppData->fIn))!=0)&&((MPEG4ClientStopFrameNum-1)>nFramesRead)){
-			
+
 			MPEG4CLIENT_TRACE_PRINT( "\nnumber of bytes read from %d frame=%d",nFramesRead,nRead);
-			nFramesRead++; 
-		
+			nFramesRead++;
+
 	}
-	else{	
+	else{
 			/*incase of partial record update the EOS*/
 			if(MPEG4ClientStopFrameNum==MAXFRAMESTOREADFROMFILE){
 				/*Incase of Full Record update the StopFrame nUmber to limit the ETB & FTB calls*/
 				MPEG4ClientStopFrameNum=nFramesRead;
-				
+
 			}
 			nFramesRead++;
 			pBuf->nFlags = OMX_BUFFERFLAG_EOS;
@@ -612,11 +612,11 @@ EXIT:
 #ifdef OMX_MPEG4E_TILERTEST
 	if(pActualPtr != NULL){
 	   	TIMM_OSAL_Free(pActualPtr);
-       }   
+       }
 #endif
 MPEG4CLIENT_EXIT_PRINT(eError);
 return eError;
-	
+
 }
 
 
@@ -634,18 +634,18 @@ OMX_ERRORTYPE MPEG4E_Populate_BitFieldSettings(OMX_U32 BitFields,OMX_U8* Count,O
 		if(i==0){
 			break;
 		}
-		
-	 }	
+
+	 }
 	for(i=0,j=0;i<8;i++){
 		if(Temp[i]){
 			Array[j++]=i;
-			LCount++;			
-		}		
+			LCount++;
+		}
 	}
 	*Count=LCount;
 	MPEG4CLIENT_EXIT_PRINT(eError);
 	return eError;
-	
+
 }
 
 OMX_ERRORTYPE MPEG4E_Update_DynamicSettingsArray(OMX_U8 RemCount,OMX_U32* RemoveArray){
@@ -655,7 +655,7 @@ OMX_ERRORTYPE MPEG4E_Update_DynamicSettingsArray(OMX_U8 RemCount,OMX_U32* Remove
 	OMX_BOOL bFound=OMX_FALSE;
 
 	MPEG4CLIENT_ENTER_PRINT();
-	
+
 	for(i=0;i<DynamicSettingsCount;i++){/*the elements in the dynamic array list are always in ascending order */
 		for(j=LRemcount;j<RemCount;j++){/*the elements in the remove list are also in ascending order */
 			if(RemoveArray[j]==DynamicSettingsArray[i]){
@@ -666,7 +666,7 @@ OMX_ERRORTYPE MPEG4E_Update_DynamicSettingsArray(OMX_U8 RemCount,OMX_U32* Remove
 		if(!bFound){
 			LocalDynArray[LCount]=DynamicSettingsArray[i];
 			LocalDynArray_Index[LCount]=DynFrameCountArray_Index[i];
-			LCount++;		
+			LCount++;
 		}else{
 			bFound=OMX_FALSE;
 			LRemcount++;
@@ -707,11 +707,11 @@ OMX_ERRORTYPE MPEG4ENC_SetParamsFromInitialDynamicParams(MPEG4E_ILClient* pAppli
 	OMX_PORT_PARAM_TYPE tPortParams;
 	OMX_PARAM_PORTDEFINITIONTYPE tPortDef;
 
-	MPEG4CLIENT_ENTER_PRINT();	
-	
+	MPEG4CLIENT_ENTER_PRINT();
+
 	OMX_TEST_INIT_STRUCT_PTR(&tAVCParams,OMX_VIDEO_PARAM_AVCTYPE);
-	OMX_TEST_INIT_STRUCT_PTR(&tVidEncBitRate,OMX_VIDEO_PARAM_BITRATETYPE);	
-	OMX_TEST_INIT_STRUCT_PTR(&tVideoParams,OMX_VIDEO_PARAM_PORTFORMATTYPE);	
+	OMX_TEST_INIT_STRUCT_PTR(&tVidEncBitRate,OMX_VIDEO_PARAM_BITRATETYPE);
+	OMX_TEST_INIT_STRUCT_PTR(&tVideoParams,OMX_VIDEO_PARAM_PORTFORMATTYPE);
 	OMX_TEST_INIT_STRUCT_PTR(&tPortParams,OMX_PORT_PARAM_TYPE);
 	OMX_TEST_INIT_STRUCT_PTR(&tPortDef,OMX_PARAM_PORTDEFINITIONTYPE);
 
@@ -726,7 +726,7 @@ OMX_ERRORTYPE MPEG4ENC_SetParamsFromInitialDynamicParams(MPEG4E_ILClient* pAppli
 	eError= MPEG4E_Populate_BitFieldSettings(pAppData->MPEG4_TestCaseParams->nBitEnableDynamic,&DynamicSettingsCount,DynamicSettingsArray);
     	GOTO_EXIT_IF((eError != OMX_ErrorNone),eError);
 
-	
+
     	for(i=0;i<DynamicSettingsCount;i++){
 		switch(DynamicSettingsArray[i]){
 			case 0:
@@ -735,20 +735,20 @@ OMX_ERRORTYPE MPEG4ENC_SetParamsFromInitialDynamicParams(MPEG4E_ILClient* pAppli
 					bFramerate=OMX_TRUE;
 					LFrameRate=pAppData->MPEG4_TestCaseParamsDynamic->DynFrameRate.nFramerate[DynFrameCountArray_Index[i]];
 					DynFrameCountArray_Index[i]++;
-					
+
 				}
 				/*check to remove from the DynamicSettingsArray list*/
 				if(pAppData->MPEG4_TestCaseParamsDynamic->DynFrameRate.nFrameNumber[DynFrameCountArray_Index[i]]==-1){
 					nRemoveList[RemoveIndex++]=DynamicSettingsArray[i];
 				}
-								
+
 			break;
 			case 1:
 				/*Bitrate*/
 				if(pAppData->MPEG4_TestCaseParamsDynamic->DynBitRate.nFrameNumber[DynFrameCountArray_Index[i]]==0){
 					bBitrate=OMX_TRUE;
 					LBitRate=pAppData->MPEG4_TestCaseParamsDynamic->DynBitRate.nBitrate[DynFrameCountArray_Index[i]];
-					DynFrameCountArray_Index[i]++;					
+					DynFrameCountArray_Index[i]++;
 				}
 				/*check to remove from the DynamicSettingsArray list*/
 				if(pAppData->MPEG4_TestCaseParamsDynamic->DynBitRate.nFrameNumber[DynFrameCountArray_Index[i]]==-1){
@@ -757,8 +757,8 @@ OMX_ERRORTYPE MPEG4ENC_SetParamsFromInitialDynamicParams(MPEG4E_ILClient* pAppli
 			break;
 			case 2:
 				/*set config to OMX_TI_VIDEO_CONFIG_ME_SEARCHRANGE*/
-				
-				if(pAppData->MPEG4_TestCaseParamsDynamic->DynMESearchRange.nFrameNumber[DynFrameCountArray_Index[i]]==0){					
+
+				if(pAppData->MPEG4_TestCaseParamsDynamic->DynMESearchRange.nFrameNumber[DynFrameCountArray_Index[i]]==0){
 
 					OMX_TEST_INIT_STRUCT_PTR(&tMESearchrange,OMX_VIDEO_CONFIG_MESEARCHRANGETYPE);
 					tMESearchrange.nPortIndex=MPEG4_APP_OUTPUTPORT;
@@ -773,9 +773,9 @@ OMX_ERRORTYPE MPEG4ENC_SetParamsFromInitialDynamicParams(MPEG4E_ILClient* pAppli
 
 					eError = OMX_SetConfig(pHandle, (OMX_INDEXTYPE)OMX_TI_IndexConfigVideoMESearchRange, &tMESearchrange);
 					GOTO_EXIT_IF((eError != OMX_ErrorNone),eError);
-					
+
 					DynFrameCountArray_Index[i]++;
-					
+
 				}
 				/*check to remove from the DynamicSettingsArray list*/
 				if(pAppData->MPEG4_TestCaseParamsDynamic->DynMESearchRange.nFrameNumber[DynFrameCountArray_Index[i]]==-1){
@@ -784,7 +784,7 @@ OMX_ERRORTYPE MPEG4ENC_SetParamsFromInitialDynamicParams(MPEG4E_ILClient* pAppli
 			break;
 			case 3:
 				/*set config to OMX_CONFIG_INTRAREFRESHVOPTYPE*/
-				if(pAppData->MPEG4_TestCaseParamsDynamic->DynForceFrame.nFrameNumber[DynFrameCountArray_Index[i]]==0){					
+				if(pAppData->MPEG4_TestCaseParamsDynamic->DynForceFrame.nFrameNumber[DynFrameCountArray_Index[i]]==0){
 
 					OMX_TEST_INIT_STRUCT_PTR(&tForceFrame,OMX_CONFIG_INTRAREFRESHVOPTYPE);
 					tForceFrame.nPortIndex=MPEG4_APP_OUTPUTPORT;
@@ -795,9 +795,9 @@ OMX_ERRORTYPE MPEG4ENC_SetParamsFromInitialDynamicParams(MPEG4E_ILClient* pAppli
 
 					eError = OMX_SetConfig(pHandle, OMX_IndexConfigVideoIntraVOPRefresh, &tForceFrame);
 					GOTO_EXIT_IF((eError != OMX_ErrorNone),eError);
-					
+
 					DynFrameCountArray_Index[i]++;
-					
+
 				}
 				/*check to remove from the DynamicSettingsArray list*/
 				if(pAppData->MPEG4_TestCaseParamsDynamic->DynForceFrame.nFrameNumber[DynFrameCountArray_Index[i]]==-1){
@@ -806,7 +806,7 @@ OMX_ERRORTYPE MPEG4ENC_SetParamsFromInitialDynamicParams(MPEG4E_ILClient* pAppli
 			break;
 			case 4:
 				/*set config to OMX_TI_VIDEO_CONFIG_QPSETTINGS*/
-				if(pAppData->MPEG4_TestCaseParamsDynamic->DynQpSettings.nFrameNumber[DynFrameCountArray_Index[i]]==0){					
+				if(pAppData->MPEG4_TestCaseParamsDynamic->DynQpSettings.nFrameNumber[DynFrameCountArray_Index[i]]==0){
 
 					OMX_TEST_INIT_STRUCT_PTR(&tQPSettings,OMX_VIDEO_CONFIG_QPSETTINGSTYPE);
 					tQPSettings.nPortIndex=MPEG4_APP_OUTPUTPORT;
@@ -825,9 +825,9 @@ OMX_ERRORTYPE MPEG4ENC_SetParamsFromInitialDynamicParams(MPEG4E_ILClient* pAppli
 
 					eError = OMX_SetConfig(pHandle, OMX_TI_IndexConfigVideoQPSettings, &tQPSettings);
 					GOTO_EXIT_IF((eError != OMX_ErrorNone),eError);
-					
+
 					DynFrameCountArray_Index[i]++;
-					
+
 				}
 				/*check to remove from the DynamicSettingsArray list*/
 				if(pAppData->MPEG4_TestCaseParamsDynamic->DynQpSettings.nFrameNumber[DynFrameCountArray_Index[i]]==-1){
@@ -835,12 +835,12 @@ OMX_ERRORTYPE MPEG4ENC_SetParamsFromInitialDynamicParams(MPEG4E_ILClient* pAppli
 				}
 			break;
 			case 5:
-				/*set config to OMX_VIDEO_CONFIG_AVCINTRAPERIOD*/				
-				if(pAppData->MPEG4_TestCaseParamsDynamic->DynIntraFrmaeInterval.nFrameNumber[DynFrameCountArray_Index[i]]==0){					
+				/*set config to OMX_VIDEO_CONFIG_AVCINTRAPERIOD*/
+				if(pAppData->MPEG4_TestCaseParamsDynamic->DynIntraFrmaeInterval.nFrameNumber[DynFrameCountArray_Index[i]]==0){
 					bIntraperiod=OMX_TRUE;
-					LIntraPeriod=pAppData->MPEG4_TestCaseParamsDynamic->DynIntraFrmaeInterval.nIntraFrameInterval[DynFrameCountArray_Index[i]];					
+					LIntraPeriod=pAppData->MPEG4_TestCaseParamsDynamic->DynIntraFrmaeInterval.nIntraFrameInterval[DynFrameCountArray_Index[i]];
 					DynFrameCountArray_Index[i]++;
-					
+
 				}
 				/*check to remove from the DynamicSettingsArray list*/
 				if(pAppData->MPEG4_TestCaseParamsDynamic->DynIntraFrmaeInterval.nFrameNumber[DynFrameCountArray_Index[i]]==-1){
@@ -849,7 +849,7 @@ OMX_ERRORTYPE MPEG4ENC_SetParamsFromInitialDynamicParams(MPEG4E_ILClient* pAppli
 			break;
 			case 6:
 			/*set config to OMX_IndexConfigVideoNalSize*/
-				if(pAppData->MPEG4_TestCaseParamsDynamic->DynNALSize.nFrameNumber[DynFrameCountArray_Index[i]]==0){					
+				if(pAppData->MPEG4_TestCaseParamsDynamic->DynNALSize.nFrameNumber[DynFrameCountArray_Index[i]]==0){
 					/*Set Port Index*/
 					OMX_TEST_INIT_STRUCT_PTR(&tNALUSize,OMX_VIDEO_CONFIG_NALSIZE);
 					tNALUSize.nPortIndex=MPEG4_APP_OUTPUTPORT;
@@ -857,12 +857,12 @@ OMX_ERRORTYPE MPEG4ENC_SetParamsFromInitialDynamicParams(MPEG4E_ILClient* pAppli
 					GOTO_EXIT_IF((eError != OMX_ErrorNone),eError);
 
 					tNALUSize.nNaluBytes=pAppData->MPEG4_TestCaseParamsDynamic->DynNALSize.nNaluSize[DynFrameCountArray_Index[i]];
-										
+
 					eError = OMX_SetConfig(pHandle, OMX_IndexConfigVideoNalSize, &(tNALUSize));
 					GOTO_EXIT_IF((eError != OMX_ErrorNone),eError);
-					
+
 					DynFrameCountArray_Index[i]++;
-					
+
 				}
 				/*check to remove from the DynamicSettingsArray list*/
 				if(pAppData->MPEG4_TestCaseParamsDynamic->DynNALSize.nFrameNumber[DynFrameCountArray_Index[i]]==-1){
@@ -871,7 +871,7 @@ OMX_ERRORTYPE MPEG4ENC_SetParamsFromInitialDynamicParams(MPEG4E_ILClient* pAppli
 			break;
 			case 7:
 				/*set config to OMX_TI_VIDEO_CONFIG_SLICECODING*/
-				if(pAppData->MPEG4_TestCaseParamsDynamic->DynSliceSettings.nFrameNumber[DynFrameCountArray_Index[i]]==0){					
+				if(pAppData->MPEG4_TestCaseParamsDynamic->DynSliceSettings.nFrameNumber[DynFrameCountArray_Index[i]]==0){
 
 					OMX_TEST_INIT_STRUCT_PTR(&tSliceCodingparams,OMX_VIDEO_CONFIG_SLICECODINGTYPE);
 					tSliceCodingparams.nPortIndex=MPEG4_APP_OUTPUTPORT;
@@ -880,22 +880,22 @@ OMX_ERRORTYPE MPEG4ENC_SetParamsFromInitialDynamicParams(MPEG4E_ILClient* pAppli
 
 					tSliceCodingparams.eSliceMode=pAppData->MPEG4_TestCaseParamsDynamic->DynSliceSettings.eSliceMode[DynFrameCountArray_Index[i]];
 					tSliceCodingparams.nSlicesize=pAppData->MPEG4_TestCaseParamsDynamic->DynSliceSettings.nSlicesize[DynFrameCountArray_Index[i]];
-					
+
 					eError = OMX_SetConfig(pHandle, (OMX_INDEXTYPE)OMX_TI_IndexConfigSliceSettings, &tSliceCodingparams);
 					GOTO_EXIT_IF((eError != OMX_ErrorNone),eError);
-					
+
 					DynFrameCountArray_Index[i]++;
-					
+
 				}
 				/*check to remove from the DynamicSettingsArray list*/
 				if(pAppData->MPEG4_TestCaseParamsDynamic->DynSliceSettings.nFrameNumber[DynFrameCountArray_Index[i]]==-1){
 					nRemoveList[RemoveIndex++]=DynamicSettingsArray[i];
 				}
-				
+
 			break;
 			case 8:
 				/*set config to OMX_TI_VIDEO_CONFIG_PIXELINFO*/
-				if(pAppData->MPEG4_TestCaseParamsDynamic->DynPixelInfo.nFrameNumber[DynFrameCountArray_Index[i]]==0){					
+				if(pAppData->MPEG4_TestCaseParamsDynamic->DynPixelInfo.nFrameNumber[DynFrameCountArray_Index[i]]==0){
 
 					OMX_TEST_INIT_STRUCT_PTR(&tPixelInfo,OMX_VIDEO_CONFIG_PIXELINFOTYPE);
 					tPixelInfo.nPortIndex=MPEG4_APP_OUTPUTPORT;
@@ -904,20 +904,20 @@ OMX_ERRORTYPE MPEG4ENC_SetParamsFromInitialDynamicParams(MPEG4E_ILClient* pAppli
 
 					tPixelInfo.nWidth=pAppData->MPEG4_TestCaseParamsDynamic->DynPixelInfo.nWidth[DynFrameCountArray_Index[i]];
 					tPixelInfo.nHeight=pAppData->MPEG4_TestCaseParamsDynamic->DynPixelInfo.nHeight[DynFrameCountArray_Index[i]];
-					
+
 					eError = OMX_SetConfig(pHandle, (OMX_INDEXTYPE)OMX_TI_IndexConfigVideoPixelInfo, &tPixelInfo);
 					GOTO_EXIT_IF((eError != OMX_ErrorNone),eError);
-					
+
 					DynFrameCountArray_Index[i]++;
-					
+
 				}
 				/*check to remove from the DynamicSettingsArray list*/
 				if(pAppData->MPEG4_TestCaseParamsDynamic->DynPixelInfo.nFrameNumber[DynFrameCountArray_Index[i]]==-1){
 					nRemoveList[RemoveIndex++]=DynamicSettingsArray[i];
 				}
-			break;			
+			break;
 			default:
-				MPEG4CLIENT_ERROR_PRINT( "Invalid inputs");	
+				MPEG4CLIENT_ERROR_PRINT( "Invalid inputs");
 		}
 	}
 
@@ -934,7 +934,7 @@ OMX_ERRORTYPE MPEG4ENC_SetParamsFromInitialDynamicParams(MPEG4E_ILClient* pAppli
 		GOTO_EXIT_IF((eError != OMX_ErrorNone),eError);
 
 		if(tPortDef.eDir == OMX_DirInput){
-			
+
 			/*set the actual number of buffers required*/
 			if(pAppData->MPEG4_TestCaseParams->TestCaseId==6){
 				tPortDef.nBufferCountActual=MPEG4_INPUT_BUFFERCOUNTACTUAL;/*currently hard coded & can be taken from test parameters*/
@@ -947,16 +947,16 @@ OMX_ERRORTYPE MPEG4ENC_SetParamsFromInitialDynamicParams(MPEG4E_ILClient* pAppli
 					GOTO_EXIT_IF((eError != OMX_ErrorNone),eError);
 				}
 			}
-			
+
 			/*set the video format settings*/
 			tPortDef.format.video.nFrameWidth = pAppData->MPEG4_TestCaseParams->width;
 			tPortDef.format.video.nStride = pAppData->MPEG4_TestCaseParams->width;
 			tPortDef.format.video.nFrameHeight = pAppData->MPEG4_TestCaseParams->height;
 			tPortDef.format.video.eColorFormat = pAppData->MPEG4_TestCaseParams->inputChromaFormat;
-			
+
 			/*settings for OMX_IndexParamVideoPortFormat*/
 			tVideoParams.eColorFormat = pAppData->MPEG4_TestCaseParams->inputChromaFormat;
-			
+
 		}
 		if(tPortDef.eDir == OMX_DirOutput){
 			/*set the actual number of buffers required*/
@@ -977,16 +977,16 @@ OMX_ERRORTYPE MPEG4ENC_SetParamsFromInitialDynamicParams(MPEG4E_ILClient* pAppli
 						tPortDef.nBufferCountActual=pAppData->MPEG4_TestCaseParams->nNumOutputBuf;
 					}else{
 						eError= OMX_ErrorUnsupportedSetting;
-						GOTO_EXIT_IF((eError != OMX_ErrorNone),eError);						
+						GOTO_EXIT_IF((eError != OMX_ErrorNone),eError);
 					}
 				}
-				
+
 			}
 			/*settings for OMX_IndexParamPortDefinition*/
 			tPortDef.format.video.nFrameWidth = pAppData->MPEG4_TestCaseParams->width;
 			tPortDef.format.video.nStride = pAppData->MPEG4_TestCaseParams->width;
-			tPortDef.format.video.nFrameHeight = pAppData->MPEG4_TestCaseParams->height;			
-			tPortDef.format.video.eCompressionFormat = OMX_VIDEO_CodingAVC;			
+			tPortDef.format.video.nFrameHeight = pAppData->MPEG4_TestCaseParams->height;
+			tPortDef.format.video.eCompressionFormat = OMX_VIDEO_CodingAVC;
 			if(bFramerate){
 				tPortDef.format.video.xFramerate =(LFrameRate << 16);
 				tVideoParams.xFramerate=(LFrameRate << 16);
@@ -995,7 +995,7 @@ OMX_ERRORTYPE MPEG4ENC_SetParamsFromInitialDynamicParams(MPEG4E_ILClient* pAppli
 				tPortDef.format.video.nBitrate=LBitRate;
 			}
 			/*settings for OMX_IndexParamVideoPortFormat*/
-			tVideoParams.eCompressionFormat = OMX_VIDEO_CodingAVC;			
+			tVideoParams.eCompressionFormat = OMX_VIDEO_CodingAVC;
 		}
 
 		eError = OMX_SetParameter(pHandle, OMX_IndexParamPortDefinition, &tPortDef);
@@ -1004,7 +1004,7 @@ OMX_ERRORTYPE MPEG4ENC_SetParamsFromInitialDynamicParams(MPEG4E_ILClient* pAppli
 		eError = OMX_SetParameter(pHandle, OMX_IndexParamVideoPortFormat, &tVideoParams);
 		GOTO_EXIT_IF((eError != OMX_ErrorNone),eError);
 
-		/*AVC Settings*/	
+		/*AVC Settings*/
 		tAVCParams.nPortIndex=OMX_DirOutput;
 		eError = OMX_GetParameter(pHandle, OMX_IndexParamVideoAvc, &tAVCParams);
 		GOTO_EXIT_IF((eError != OMX_ErrorNone),eError);
@@ -1019,7 +1019,7 @@ OMX_ERRORTYPE MPEG4ENC_SetParamsFromInitialDynamicParams(MPEG4E_ILClient* pAppli
 		tAVCParams.bconstIpred=pAppData->MPEG4_TestCaseParams->bConstIntraPred;
 		tAVCParams.eLoopFilterMode=pAppData->MPEG4_TestCaseParams->bLoopFilter;
 		eError = OMX_SetParameter(pHandle, OMX_IndexParamVideoAvc, &tAVCParams);
-		GOTO_EXIT_IF((eError != OMX_ErrorNone),eError);    	
+		GOTO_EXIT_IF((eError != OMX_ErrorNone),eError);
 	}
 
 	tVidEncBitRate.nPortIndex=OMX_DirOutput;
@@ -1032,16 +1032,16 @@ OMX_ERRORTYPE MPEG4ENC_SetParamsFromInitialDynamicParams(MPEG4E_ILClient* pAppli
 	eError = OMX_SetParameter(pHandle, OMX_IndexParamVideoBitrate, &tVidEncBitRate);
 	GOTO_EXIT_IF((eError != OMX_ErrorNone),eError);
 
-	
+
 	/*Update the DynamicSettingsArray*/
 	eError = MPEG4E_Update_DynamicSettingsArray(RemoveIndex,nRemoveList);
 	GOTO_EXIT_IF((eError != OMX_ErrorNone),eError);
 
-	
+
 EXIT:
 	MPEG4CLIENT_EXIT_PRINT(eError);
 	return eError;
-	
+
 }
 
 
@@ -1057,7 +1057,7 @@ static OMX_ERRORTYPE MPEG4ENC_SetAllParams(MPEG4E_ILClient* pAppData)
 	OMX_VIDEO_PARAM_FRAMEDATACONTENTTYPE tInputImageFormat;
 	OMX_VIDEO_PARAM_TRANSFORM_BLOCKSIZETYPE tTransformBlockSize;
 	OMX_VIDEO_PARAM_AVCSLICEFMO tAVCFMO;
-	
+
 	OMX_U32 i;
 
 	MPEG4CLIENT_ENTER_PRINT();
@@ -1071,17 +1071,17 @@ static OMX_ERRORTYPE MPEG4ENC_SetAllParams(MPEG4E_ILClient* pAppData)
 	/*Profile Level settings*/
 	OMX_TEST_INIT_STRUCT_PTR(&tProfileLevel,OMX_VIDEO_PARAM_PROFILELEVELTYPE);
 	tProfileLevel.nPortIndex=MPEG4_APP_OUTPUTPORT;
-	
+
 	eError = OMX_GetParameter(pHandle, OMX_IndexParamVideoProfileLevelCurrent, &tProfileLevel);
 	GOTO_EXIT_IF((eError != OMX_ErrorNone),eError);
 
-	tProfileLevel.eProfile= pAppData->MPEG4_TestCaseParams->profile;     
+	tProfileLevel.eProfile= pAppData->MPEG4_TestCaseParams->profile;
   	tProfileLevel.eLevel= pAppData->MPEG4_TestCaseParams->level;
-	
+
 	eError = OMX_SetParameter(pHandle, OMX_IndexParamVideoProfileLevelCurrent, &tProfileLevel);
 	GOTO_EXIT_IF((eError != OMX_ErrorNone),eError);
-	
-	/*BitStream Format settings*/	
+
+	/*BitStream Format settings*/
 	OMX_TEST_INIT_STRUCT_PTR(&tBitStreamFormat,OMX_VIDEO_PARAM_AVCBITSTREAMFORMATTYPE);
 	tBitStreamFormat.nPortIndex=MPEG4_APP_OUTPUTPORT;
 	eError = OMX_GetParameter(pHandle, (OMX_INDEXTYPE)OMX_TI_IndexParamVideoBitStreamFormatSelect, &tBitStreamFormat);
@@ -1089,16 +1089,16 @@ static OMX_ERRORTYPE MPEG4ENC_SetAllParams(MPEG4E_ILClient* pAppData)
 	tBitStreamFormat.eStreamFormat=pAppData->MPEG4_TestCaseParams->BitStreamFormat;
 	eError = OMX_SetParameter(pHandle, (OMX_INDEXTYPE)OMX_TI_IndexParamVideoBitStreamFormatSelect, &tBitStreamFormat);
 	GOTO_EXIT_IF((eError != OMX_ErrorNone),eError);
-	
-	/*Encoder Preset settings*/	
+
+	/*Encoder Preset settings*/
 	OMX_TEST_INIT_STRUCT_PTR(&tEncoderPreset,OMX_VIDEO_PARAM_ENCODER_PRESETTYPE);
 	tEncoderPreset.nPortIndex=MPEG4_APP_OUTPUTPORT;
 	eError = OMX_GetParameter(pHandle, (OMX_INDEXTYPE)OMX_TI_IndexParamVideoEncoderPreset, &tEncoderPreset);
 	GOTO_EXIT_IF((eError != OMX_ErrorNone),eError);
 
-	tEncoderPreset.eEncodingModePreset=pAppData->MPEG4_TestCaseParams->EncodingPreset;	
+	tEncoderPreset.eEncodingModePreset=pAppData->MPEG4_TestCaseParams->EncodingPreset;
 	tEncoderPreset.eRateControlPreset=pAppData->MPEG4_TestCaseParams->RateCntrlPreset;
-	
+
 	eError = OMX_SetParameter(pHandle, (OMX_INDEXTYPE)OMX_TI_IndexParamVideoEncoderPreset, &tEncoderPreset);
 	GOTO_EXIT_IF((eError != OMX_ErrorNone),eError);
 
@@ -1109,8 +1109,8 @@ static OMX_ERRORTYPE MPEG4ENC_SetAllParams(MPEG4E_ILClient* pAppData)
 	GOTO_EXIT_IF((eError != OMX_ErrorNone),eError);
 	tInputImageFormat.eContentType=pAppData->MPEG4_TestCaseParams->InputContentType;
 	if(tInputImageFormat.eContentType!=OMX_Video_Progressive){
-		tInputImageFormat.eInterlaceCodingType=pAppData->MPEG4_TestCaseParams->InterlaceCodingType; 
-	}	
+		tInputImageFormat.eInterlaceCodingType=pAppData->MPEG4_TestCaseParams->InterlaceCodingType;
+	}
 	eError = OMX_SetParameter(pHandle, (OMX_INDEXTYPE)OMX_TI_IndexParamVideoFrameDataContentSettings, &tInputImageFormat);
 	GOTO_EXIT_IF((eError != OMX_ErrorNone),eError);
 
@@ -1119,14 +1119,14 @@ static OMX_ERRORTYPE MPEG4ENC_SetAllParams(MPEG4E_ILClient* pAppData)
 	tTransformBlockSize.nPortIndex=MPEG4_APP_OUTPUTPORT;
 	eError = OMX_GetParameter(pHandle, (OMX_INDEXTYPE)OMX_TI_IndexParamVideoTransformBlockSize, &tTransformBlockSize);
 	GOTO_EXIT_IF((eError != OMX_ErrorNone),eError);
-	
+
 	tTransformBlockSize.eTransformBlocksize=pAppData->MPEG4_TestCaseParams->TransformBlockSize;
-	
+
 	eError = OMX_SetParameter(pHandle, (OMX_INDEXTYPE)OMX_TI_IndexParamVideoTransformBlockSize, &tTransformBlockSize);
 	GOTO_EXIT_IF((eError != OMX_ErrorNone),eError);
 
 	if((pAppData->MPEG4_TestCaseParams->bFMO)&&((pAppData->MPEG4_TestCaseParams->nBitEnableAdvanced>>1)==0)){
-		/*Basic FMO  settings*/	
+		/*Basic FMO  settings*/
 		OMX_TEST_INIT_STRUCT_PTR(&tAVCFMO,OMX_VIDEO_PARAM_AVCSLICEFMO);
 		tAVCFMO.nPortIndex=MPEG4_APP_OUTPUTPORT;
 		eError = OMX_GetParameter(pHandle, OMX_IndexParamVideoSliceFMO, &tAVCFMO);
@@ -1135,20 +1135,20 @@ static OMX_ERRORTYPE MPEG4ENC_SetAllParams(MPEG4E_ILClient* pAppData)
 		tAVCFMO.nNumSliceGroups =  pAppData->MPEG4_TestCaseParams->nNumSliceGroups;
 		tAVCFMO.nSliceGroupMapType = pAppData->MPEG4_TestCaseParams->nSliceGroupMapType;
 		tAVCFMO.eSliceMode = pAppData->MPEG4_TestCaseParams->eSliceMode;
-			
+
 		eError = OMX_SetParameter(pHandle, OMX_IndexParamVideoSliceFMO, &tAVCFMO);
 		GOTO_EXIT_IF((eError != OMX_ErrorNone),eError);
-	}	
+	}
 
-#if 0	
+#if 0
 	/*Set the Advanced Setting if any*/
 	eError =  MPEG4ENC_SetAdvancedParams(pAppData);
 	GOTO_EXIT_IF((eError != OMX_ErrorNone),eError);
-#endif 
+#endif
 
 	/*Settings from Initial DynamicParams*/
 	eError =MPEG4ENC_SetParamsFromInitialDynamicParams(pAppData);
-	GOTO_EXIT_IF((eError != OMX_ErrorNone),eError);	
+	GOTO_EXIT_IF((eError != OMX_ErrorNone),eError);
 
 EXIT:
 	MPEG4CLIENT_EXIT_PRINT(eError);
@@ -1163,7 +1163,7 @@ static OMX_ERRORTYPE MPEG4ENC_WaitForState(MPEG4E_ILClient* pAppData)
 	TIMM_OSAL_U32 uRequestedEvents, pRetrievedEvents, numRemaining;
 
 	MPEG4CLIENT_ENTER_PRINT();
-	
+
 	/* Wait for an event */
 	uRequestedEvents = (MPEG4_STATETRANSITION_COMPLETE|MPEG4_ERROR_EVENT);
 	retval = TIMM_OSAL_EventRetrieve (MPEG4VE_CmdEvent, uRequestedEvents,
@@ -1174,7 +1174,7 @@ static OMX_ERRORTYPE MPEG4ENC_WaitForState(MPEG4E_ILClient* pAppData)
 	}else{
 		/*transition Complete*/
 		eError=OMX_ErrorNone;
-	}	
+	}
 
 EXIT:
 	MPEG4CLIENT_EXIT_PRINT(eError);
@@ -1212,7 +1212,7 @@ OMX_ERRORTYPE MPEG4ENC_EventHandler(OMX_HANDLETYPE hComponent,OMX_PTR ptrAppData
 			if (nData2 == OMX_BUFFERFLAG_EOS){
 				retval = TIMM_OSAL_EventSet (MPEG4VE_Events, MPEG4_EOS_EVENT, TIMM_OSAL_EVENT_OR);
 				GOTO_EXIT_IF((retval != TIMM_OSAL_ERR_NONE), OMX_ErrorBadParameter);
-			}				
+			}
 			MPEG4CLIENT_TRACE_PRINT( "Event: EOS has reached the client");
 			break;
 
@@ -1260,15 +1260,15 @@ OMX_ERRORTYPE MPEG4ENC_FillBufferDone (OMX_HANDLETYPE hComponent, OMX_PTR ptrApp
 	pBuffer->pBuffer = SharedRegion_getPtr(pBuffer->pBuffer);
 	MPEG4CLIENT_TRACE_PRINT("\npBuffer after FBD = %x\n",pBuffer->pBuffer);
 #endif
-	
-	MPEG4CLIENT_TRACE_PRINT( "\nWrite the buffer to the Output pipe");	
+
+	MPEG4CLIENT_TRACE_PRINT( "\nWrite the buffer to the Output pipe");
    	retval = TIMM_OSAL_WriteToPipe(pAppData->OpBuf_Pipe, &pBuffer, sizeof(pBuffer), TIMM_OSAL_SUSPEND);
 	GOTO_EXIT_IF((retval != TIMM_OSAL_ERR_NONE), OMX_ErrorBadParameter);
-	MPEG4CLIENT_TRACE_PRINT( "\nSet the Output Ready event");	
+	MPEG4CLIENT_TRACE_PRINT( "\nSet the Output Ready event");
 	retval = TIMM_OSAL_EventSet (MPEG4VE_Events, MPEG4_OUTPUT_READY, TIMM_OSAL_EVENT_OR);
 	GOTO_EXIT_IF((retval != TIMM_OSAL_ERR_NONE), OMX_ErrorBadParameter);
 
-	
+
 EXIT:
 	MPEG4CLIENT_EXIT_PRINT(eError);
 	return eError;
@@ -1281,20 +1281,20 @@ OMX_ERRORTYPE MPEG4ENC_EmptyBufferDone(OMX_HANDLETYPE hComponent, OMX_PTR ptrApp
     	OMX_ERRORTYPE eError = OMX_ErrorNone;
 	TIMM_OSAL_ERRORTYPE retval = TIMM_OSAL_ERR_UNKNOWN;
 	MPEG4CLIENT_ENTER_PRINT();
-	
+
 #ifdef OMX_MPEG4E_SRCHANGES
 	MPEG4CLIENT_TRACE_PRINT("\npBuffer SR after EBD = %x\n",pBuffer->pBuffer);
 	pBuffer->pBuffer = SharedRegion_getPtr(pBuffer->pBuffer);
 	MPEG4CLIENT_TRACE_PRINT("\npBuffer after EBD = %x\n",pBuffer->pBuffer);
 #endif
-	MPEG4CLIENT_TRACE_PRINT( "\nWrite the buffer to the Input pipe");	
+	MPEG4CLIENT_TRACE_PRINT( "\nWrite the buffer to the Input pipe");
 	retval = TIMM_OSAL_WriteToPipe(pAppData->IpBuf_Pipe, &pBuffer, sizeof(pBuffer),  TIMM_OSAL_SUSPEND);
 	GOTO_EXIT_IF((retval != TIMM_OSAL_ERR_NONE), OMX_ErrorBadParameter);
-	MPEG4CLIENT_TRACE_PRINT( "\nSet the Input Ready event");	
+	MPEG4CLIENT_TRACE_PRINT( "\nSet the Input Ready event");
 	retval = TIMM_OSAL_EventSet (MPEG4VE_Events, MPEG4_INPUT_READY, TIMM_OSAL_EVENT_OR);
 	GOTO_EXIT_IF((retval != TIMM_OSAL_ERR_NONE), OMX_ErrorBadParameter);
 
-	
+
 EXIT:
 	MPEG4CLIENT_EXIT_PRINT(eError);
 	return eError;
@@ -1318,7 +1318,7 @@ void OMXMPEG4Enc_TestEntry(Int32 paramSize, void *pParam)
 #ifndef MPEG4_LINUX_CLIENT
     	Memory_Stats stats;
 #endif
-	
+
 #ifdef MPEG4_LINUX_CLIENT
 	OMX_U32 setup;
 	#ifdef OMX_MPEG4E_LINUX_TILERTEST
@@ -1343,7 +1343,7 @@ void OMXMPEG4Enc_TestEntry(Int32 paramSize, void *pParam)
 	MPEG4CLIENT_TRACE_PRINT( "\ntracegroup=%x",TraceGrp);
 #endif
 
-	eError = OMX_Init();	
+	eError = OMX_Init();
 	GOTO_EXIT_IF((eError != OMX_ErrorNone), eError);
 
 	/*allocate memory for pAppData.MPEG4_TestCaseParams*/
@@ -1358,11 +1358,11 @@ void OMXMPEG4Enc_TestEntry(Int32 paramSize, void *pParam)
 	 pAppData.MPEG4_TestCaseParamsAdvanced=NULL;
 	pAppData.MPEG4_TestCaseParamsAdvanced=(MPEG4E_TestCaseParamsAdvanced*)TIMM_OSAL_Malloc(sizeof(MPEG4E_TestCaseParamsAdvanced), TIMM_OSAL_TRUE, 0 ,TIMMOSAL_MEM_SEGMENT_EXT);
 	GOTO_EXIT_IF((pAppData.MPEG4_TestCaseParamsAdvanced== TIMM_OSAL_NULL),OMX_ErrorInsufficientResources);
-	 
+
 
 	eError= MPEG4E_SetClientParams( &pAppData);
 	GOTO_EXIT_IF((eError != OMX_ErrorNone), eError);
-	
+
     	#ifdef TIMESTAMPSPRINT/*will be removed later*/
 			/*print the received timestamps information*/
 			for(i=0;i<20;i++){
@@ -1381,13 +1381,13 @@ void OMXMPEG4Enc_TestEntry(Int32 paramSize, void *pParam)
 			case 0:
 				/*call to Total functionality*/
 			MPEG4CLIENT_TRACE_PRINT( "\nRunning TestCaseId=%d",pAppData.MPEG4_TestCaseParams->TestCaseId);
-               		 #if 0				
+               		 #if 0
 			      Memory_getStats(NULL, &stats);
-			      MPEG4CLIENT_INFO_PRINT("Total size = %d", stats.totalSize); 
-			      MPEG4CLIENT_INFO_PRINT("Total free size = %d", stats.totalFreeSize); 
-			      MPEG4CLIENT_INFO_PRINT("Largest Free size = %d", stats.largestFreeSize); 
+			      MPEG4CLIENT_INFO_PRINT("Total size = %d", stats.totalSize);
+			      MPEG4CLIENT_INFO_PRINT("Total free size = %d", stats.totalFreeSize);
+			      MPEG4CLIENT_INFO_PRINT("Largest Free size = %d", stats.largestFreeSize);
 				#endif
-				
+
 				mem_count_start = TIMM_OSAL_GetMemCounter();
 				#ifndef MPEG4_LINUX_CLIENT
 				mem_size_start = TIMM_OSAL_GetMemUsage();
@@ -1397,7 +1397,7 @@ void OMXMPEG4Enc_TestEntry(Int32 paramSize, void *pParam)
 				#ifndef MPEG4_LINUX_CLIENT
 				MPEG4CLIENT_INFO_PRINT( "\nbefore Test case Start: Value from GetMemUsage = %d", mem_size_start);
 				#endif
-				
+
 				eError=OMXMPEG4Enc_CompleteFunctionality(&pAppData);
 
 				mem_count_end = TIMM_OSAL_GetMemCounter();
@@ -1412,14 +1412,14 @@ void OMXMPEG4Enc_TestEntry(Int32 paramSize, void *pParam)
 					MPEG4CLIENT_ERROR_PRINT("Memory leak detected. Bytes lost = %d", (mem_size_end - mem_size_start));
 				}
 				#endif
-				
-			
+
+
 			break;
 			case 1:
 			MPEG4CLIENT_TRACE_PRINT( "\nRunning TestCaseId=%d",pAppData.MPEG4_TestCaseParams->TestCaseId);
 
 				/*call to gethandle & Freehandle: Simple Test*/
-				for(i=0;i<GETHANDLE_FREEHANDLE_LOOPCOUNT;i++){                		
+				for(i=0;i<GETHANDLE_FREEHANDLE_LOOPCOUNT;i++){
 					mem_count_start = TIMM_OSAL_GetMemCounter();
 					#ifndef MPEG4_LINUX_CLIENT
 					mem_size_start = TIMM_OSAL_GetMemUsage();
@@ -1444,13 +1444,13 @@ void OMXMPEG4Enc_TestEntry(Int32 paramSize, void *pParam)
 					}
 					#endif
 				}
-                
+
 			break;
 
 			case 2:
 				/*call to gethandle, Loaded->Idle, Idle->Loaded & Freehandle: Simple Test: ports being Disabled*/
 			MPEG4CLIENT_TRACE_PRINT( "\nRunning TestCaseId=%d",pAppData.MPEG4_TestCaseParams->TestCaseId);
-            			
+
 				mem_count_start = TIMM_OSAL_GetMemCounter();
 				#ifndef MPEG4_LINUX_CLIENT
 				mem_size_start = TIMM_OSAL_GetMemUsage();
@@ -1460,7 +1460,7 @@ void OMXMPEG4Enc_TestEntry(Int32 paramSize, void *pParam)
 				#ifndef MPEG4_LINUX_CLIENT
 				MPEG4CLIENT_INFO_PRINT( "\nbefore Test case Start: Value from GetMemUsage = %d", mem_size_start);
 				#endif
-				
+
 				 eError=OMXMPEG4Enc_LoadedToIdlePortDisable(&pAppData);
 
 				mem_count_end = TIMM_OSAL_GetMemCounter();
@@ -1475,12 +1475,12 @@ void OMXMPEG4Enc_TestEntry(Int32 paramSize, void *pParam)
 					MPEG4CLIENT_ERROR_PRINT("Memory leak detected. Bytes lost = %d", (mem_size_end - mem_size_start));
 				}
 				#endif
-                
+
 			break;
 			case 3:
 				/*call to gethandle, Loaded->Idle, Idle->Loaded & Freehandle: Simple Test: ports being allocated with the required num of buffers*/
 			MPEG4CLIENT_TRACE_PRINT( "\nRunning TestCaseId=%d",pAppData.MPEG4_TestCaseParams->TestCaseId);
-                		
+
 				mem_count_start = TIMM_OSAL_GetMemCounter();
 				#ifndef MPEG4_LINUX_CLIENT
 				mem_size_start = TIMM_OSAL_GetMemUsage();
@@ -1504,12 +1504,12 @@ void OMXMPEG4Enc_TestEntry(Int32 paramSize, void *pParam)
 					MPEG4CLIENT_ERROR_PRINT("Memory leak detected. Bytes lost = %d", (mem_size_end - mem_size_start));
 				}
 				#endif
-                
+
 			break;
 			case 4:
 			MPEG4CLIENT_TRACE_PRINT( "\nRunning TestCaseId=%d",pAppData.MPEG4_TestCaseParams->TestCaseId);
 
-				/*Unaligned Buffers : client allocates the buffers (use buffer) 
+				/*Unaligned Buffers : client allocates the buffers (use buffer)
 				call to gethandle, Loaded->Idle, Idle->Loaded & Freehandle: Simple Test: ports being allocated with the required num of buffers*/
 				mem_count_start = TIMM_OSAL_GetMemCounter();
 				#ifndef MPEG4_LINUX_CLIENT
@@ -1539,7 +1539,7 @@ void OMXMPEG4Enc_TestEntry(Int32 paramSize, void *pParam)
 				/*less than the min size requirements : client allocates the buffers (use buffer)/component allocate (allocate buffer)
 				call to gethandle, Loaded->Idle, Idle->Loaded & Freehandle: Simple Test: ports being allocated with the required num of buffers*/
 			MPEG4CLIENT_TRACE_PRINT( "\nRunning TestCaseId=%d",pAppData.MPEG4_TestCaseParams->TestCaseId);
-				
+
 				mem_count_start = TIMM_OSAL_GetMemCounter();
 				#ifndef MPEG4_LINUX_CLIENT
 				mem_size_start = TIMM_OSAL_GetMemUsage();
@@ -1549,7 +1549,7 @@ void OMXMPEG4Enc_TestEntry(Int32 paramSize, void *pParam)
 				#ifndef MPEG4_LINUX_CLIENT
 				MPEG4CLIENT_INFO_PRINT( "\nbefore Test case Start: Value from GetMemUsage = %d", mem_size_start);
 				#endif
-				
+
 				 eError=OMXMPEG4Enc_SizeLessthanMinBufferRequirements(&pAppData);
 
 				mem_count_end = TIMM_OSAL_GetMemCounter();
@@ -1579,7 +1579,7 @@ void OMXMPEG4Enc_TestEntry(Int32 paramSize, void *pParam)
 				#ifndef MPEG4_LINUX_CLIENT
 				MPEG4CLIENT_INFO_PRINT( "\nbefore Test case Start: Value from GetMemUsage = %d", mem_size_start);
 				#endif
-				
+
 				eError=OMXMPEG4Enc_CompleteFunctionality(&pAppData);
 
 				mem_count_end = TIMM_OSAL_GetMemCounter();
@@ -1599,7 +1599,7 @@ void OMXMPEG4Enc_TestEntry(Int32 paramSize, void *pParam)
 				/* Different Number of input & output buffers Not satisfying the min buffers requirements
 				 call to gethandle, Loaded->Idle, Idle->Loaded & Freehandle: Simple Test: ports being allocated with less num of buffers*/
 			MPEG4CLIENT_TRACE_PRINT( "\nRunning TestCaseId=%d",pAppData.MPEG4_TestCaseParams->TestCaseId);
-				
+
 				mem_count_start = TIMM_OSAL_GetMemCounter();
 				#ifndef MPEG4_LINUX_CLIENT
 				mem_size_start = TIMM_OSAL_GetMemUsage();
@@ -1609,7 +1609,7 @@ void OMXMPEG4Enc_TestEntry(Int32 paramSize, void *pParam)
 				#ifndef MPEG4_LINUX_CLIENT
 				MPEG4CLIENT_INFO_PRINT( "\nbefore Test case Start: Value from GetMemUsage = %d", mem_size_start);
 				#endif
-				
+
 				 eError=OMXMPEG4Enc_LessthanMinBufferRequirementsNum(&pAppData);
 
 				mem_count_end = TIMM_OSAL_GetMemCounter();
@@ -1632,7 +1632,7 @@ void OMXMPEG4Enc_TestEntry(Int32 paramSize, void *pParam)
 
 				MPEG4CLIENT_TRACE_PRINT( "\nNot Implemented");
 				//printf("\nNot Implemented\n");
-						
+
 		}
 		OutputFilesize=0;
 		nFramesRead=0;
@@ -1649,7 +1649,7 @@ void OMXMPEG4Enc_TestEntry(Int32 paramSize, void *pParam)
 		if (eError!=OMX_ErrorNone)
 		{
 			MPEG4CLIENT_ERROR_PRINT("Error during freeup of dynamic testcase param structures= %x",eError);
-		}		
+		}
 		TIMM_OSAL_Free(pAppData.MPEG4_TestCaseParamsDynamic);
 	}
 	/*free memory for pAppData.MPEG4_TestCaseParamsAdvanced*/
@@ -1657,8 +1657,8 @@ void OMXMPEG4Enc_TestEntry(Int32 paramSize, void *pParam)
 		TIMM_OSAL_Free(pAppData.MPEG4_TestCaseParamsAdvanced);
 	}
 	MPEG4CLIENT_TRACE_PRINT("Reached the end of the programming");
-	
-	
+
+
 }
 
 OMX_ERRORTYPE OMXMPEG4Enc_CompleteFunctionality(MPEG4E_ILClient* pApplicationData){
@@ -1675,12 +1675,12 @@ OMX_ERRORTYPE OMXMPEG4Enc_CompleteFunctionality(MPEG4E_ILClient* pApplicationDat
 	}
 	/*Get the AppData*/
 	pAppData=pApplicationData;
-	
+
 	/*initialize the call back functions before the get handle function*/
 	appCallbacks.EventHandler 		= MPEG4ENC_EventHandler;
 	appCallbacks.EmptyBufferDone 	= MPEG4ENC_EmptyBufferDone;
 	appCallbacks.FillBufferDone 		= MPEG4ENC_FillBufferDone;
-	
+
 	/*create event*/
 	retval = TIMM_OSAL_EventCreate (&MPEG4VE_Events);
 	GOTO_EXIT_IF((retval != TIMM_OSAL_ERR_NONE), OMX_ErrorInsufficientResources);
@@ -1692,10 +1692,10 @@ OMX_ERRORTYPE OMXMPEG4Enc_CompleteFunctionality(MPEG4E_ILClient* pApplicationDat
 	GOTO_EXIT_IF((eError != OMX_ErrorNone), eError);
 
 	MPEG4CLIENT_TRACE_PRINT( "\nGot the Component Handle =%x",pHandle);
-	
+
 	pAppData->pHandle = pHandle;
 
-#if 0 
+#if 0
 	/*Set the Component Static Params*/
 	MPEG4CLIENT_TRACE_PRINT( "\nSet the Component Initial Parameters (in Loaded state)");
 	eError = MPEG4ENC_SetAllParams(pAppData);
@@ -1720,7 +1720,7 @@ OMX_ERRORTYPE OMXMPEG4Enc_CompleteFunctionality(MPEG4E_ILClient* pApplicationDat
 	/* Wait for initialization to complete.. Wait for Idle state of component  */
 	eError = MPEG4ENC_WaitForState(pAppData);
 	GOTO_EXIT_IF((eError != OMX_ErrorNone), eError);
-	
+
 	MPEG4CLIENT_TRACE_PRINT( "\ncall to goto Idle -> executing state");
 	eError = OMX_SendCommand(pHandle,OMX_CommandStateSet, OMX_StateExecuting, NULL);
 	GOTO_EXIT_IF((eError != OMX_ErrorNone), eError);
@@ -1732,7 +1732,7 @@ OMX_ERRORTYPE OMXMPEG4Enc_CompleteFunctionality(MPEG4E_ILClient* pApplicationDat
 	MPEG4CLIENT_TRACE_PRINT( "\nTrasition to executing state is completed");
 
 	/*Executing Loop*/
-	eError =OMXMPEG4Enc_InExecuting(pAppData);	
+	eError =OMXMPEG4Enc_InExecuting(pAppData);
 	GOTO_EXIT_IF((eError != OMX_ErrorNone), eError);
 
 	/*Command to goto Idle*/
@@ -1760,27 +1760,27 @@ OMX_ERRORTYPE OMXMPEG4Enc_CompleteFunctionality(MPEG4E_ILClient* pApplicationDat
 		fclose(pAppData->fIn);
 	if(pAppData->fOut)
 		fclose(pAppData->fOut);
-	
+
 	/* UnLoad the Encoder Component */
 	MPEG4CLIENT_TRACE_PRINT( "\ncall to FreeHandle()");
 	eError = OMX_FreeHandle(pHandle);
 	GOTO_EXIT_IF((eError != OMX_ErrorNone), eError);
-	
 
-	
+
+
 	EXIT:
 		/* De-Initialize OMX Core */
-		MPEG4CLIENT_TRACE_PRINT( "\ncall OMX Deinit");		
+		MPEG4CLIENT_TRACE_PRINT( "\ncall OMX Deinit");
 		eError = OMX_Deinit();
-		
+
 		/*Delete the Events*/
 		TIMM_OSAL_EventDelete(MPEG4VE_Events);
        	TIMM_OSAL_EventDelete(MPEG4VE_CmdEvent);
-		
+
 		if(eError != OMX_ErrorNone){
 			MPEG4CLIENT_ERROR_PRINT( "\n%s",MPEG4_GetErrorString(eError));
-		}		
-		
+		}
+
 		MPEG4CLIENT_EXIT_PRINT(eError);
 	return eError;
 
@@ -1795,7 +1795,7 @@ OMX_ERRORTYPE OMXMPEG4Enc_InExecuting(MPEG4E_ILClient* pApplicationData){
 	OMX_BUFFERHEADERTYPE* pBufferIn = NULL;
 	OMX_BUFFERHEADERTYPE* pBufferOut = NULL;
 	OMX_U32 actualSize,fwritesize=0,fflushstatus;
-	TIMM_OSAL_ERRORTYPE retval = TIMM_OSAL_ERR_UNKNOWN;	
+	TIMM_OSAL_ERRORTYPE retval = TIMM_OSAL_ERR_UNKNOWN;
 	TIMM_OSAL_U32 uRequestedEvents, pRetrievedEvents, numRemaining;
 	OMX_U8 FrameNumToProcess=1,PauseFrameNumIndex=0,i;//,nCountFTB=1;
 	OMX_MPEG4E_DynamicConfigs OMXConfigStructures;
@@ -1804,11 +1804,11 @@ OMX_ERRORTYPE OMXMPEG4Enc_InExecuting(MPEG4E_ILClient* pApplicationData){
 	MemAllocBlock *MemReqDescTiler;
 	OMX_PTR TilerAddr=NULL;
 	#endif
-	
+
 
 	MPEG4CLIENT_ENTER_PRINT();
 	/*Initialize the ConfigStructures*/
-	
+
 	OMX_TEST_INIT_STRUCT_PTR(&(OMXConfigStructures.tFrameRate),OMX_CONFIG_FRAMERATETYPE);
 	OMX_TEST_INIT_STRUCT_PTR(&(OMXConfigStructures.tBitRate),OMX_VIDEO_CONFIG_BITRATETYPE);
 	OMX_TEST_INIT_STRUCT_PTR(&(OMXConfigStructures.tMESearchrange),OMX_VIDEO_CONFIG_MESEARCHRANGETYPE);
@@ -1831,74 +1831,74 @@ OMX_ERRORTYPE OMXMPEG4Enc_InExecuting(MPEG4E_ILClient* pApplicationData){
 	MemReqDescTiler=(MemAllocBlock*)TIMM_OSAL_Malloc((sizeof(MemAllocBlock) * 2), TIMM_OSAL_TRUE, 0 ,TIMMOSAL_MEM_SEGMENT_EXT);
 	GOTO_EXIT_IF((MemReqDescTiler== TIMM_OSAL_NULL),OMX_ErrorInsufficientResources);
 #endif
-	
+
      	/*Check: partial or full record & in case of partial record check for stop frame number */
 	if(pAppData->MPEG4_TestCaseParams->TestType==PARTIAL_RECORD){
 		MPEG4ClientStopFrameNum=pAppData->MPEG4_TestCaseParams->StopFrameNum;
-		MPEG4CLIENT_TRACE_PRINT( "\nStopFrame in Partial record case=%d\n",MPEG4ClientStopFrameNum);	
+		MPEG4CLIENT_TRACE_PRINT( "\nStopFrame in Partial record case=%d\n",MPEG4ClientStopFrameNum);
 	}else if(pAppData->MPEG4_TestCaseParams->TestType==FULL_RECORD){
 		/*go ahead with processing until it reaches EOS..update the "MPEG4ClientStopFrameNum" with sufficiently big value: used in case of FULL RECORD*/
-		MPEG4ClientStopFrameNum=MAXFRAMESTOREADFROMFILE;		
+		MPEG4ClientStopFrameNum=MAXFRAMESTOREADFROMFILE;
 	}else{
 		eError = OMX_ErrorBadParameter;
-		MPEG4CLIENT_ERROR_PRINT( "\nInvalid parameter:TestType ");	
+		MPEG4CLIENT_ERROR_PRINT( "\nInvalid parameter:TestType ");
 		goto EXIT;
 	}
 	while ((eError == OMX_ErrorNone) && ((pAppData->eState == OMX_StateExecuting) || (pAppData->eState == OMX_StatePause)) ) {
-		
+
 		/* Wait for an event (input/output/error) */
         MPEG4CLIENT_TRACE_PRINT("\nWait for an event (input/output/error)\n");
 		uRequestedEvents = (MPEG4_INPUT_READY | MPEG4_OUTPUT_READY | MPEG4_ERROR_EVENT|MPEG4_EOS_EVENT);
 		retval = TIMM_OSAL_EventRetrieve (MPEG4VE_Events, uRequestedEvents,
 				TIMM_OSAL_EVENT_OR_CONSUME, &pRetrievedEvents, TIMM_OSAL_SUSPEND);
-        MPEG4CLIENT_TRACE_PRINT("\nEvent recd. = %d\n", pRetrievedEvents);                
+        MPEG4CLIENT_TRACE_PRINT("\nEvent recd. = %d\n", pRetrievedEvents);
 		GOTO_EXIT_IF((retval != TIMM_OSAL_ERR_NONE), OMX_ErrorInsufficientResources);
-		
+
 		/*Check for Error Event & Exit upon receiving the Error*/
 		GOTO_EXIT_IF((pRetrievedEvents & MPEG4_ERROR_EVENT), pAppData->eAppError);
 
 		/*Check for OUTPUT READY Event*/
 		numRemaining = 0;
 		if (pRetrievedEvents & MPEG4_OUTPUT_READY) {
-			MPEG4CLIENT_TRACE_PRINT( "\nin Output Ready Event");	
+			MPEG4CLIENT_TRACE_PRINT( "\nin Output Ready Event");
 			retval = TIMM_OSAL_GetPipeReadyMessageCount (pAppData->OpBuf_Pipe, &numRemaining);
 			GOTO_EXIT_IF((retval != TIMM_OSAL_ERR_NONE), OMX_ErrorBadParameter);
 			MPEG4CLIENT_TRACE_PRINT( "\nOutput Msg count=%d",numRemaining);
 			while (numRemaining) {
 				/*read from the pipe*/
-				MPEG4CLIENT_TRACE_PRINT( "\nRead Buffer from the Output Pipe to give the Next FTB call");	
+				MPEG4CLIENT_TRACE_PRINT( "\nRead Buffer from the Output Pipe to give the Next FTB call");
 				retval = TIMM_OSAL_ReadFromPipe(pAppData->OpBuf_Pipe, &pBufferOut, sizeof(pBufferOut), &actualSize, TIMM_OSAL_SUSPEND );
 				GOTO_EXIT_IF((retval != TIMM_OSAL_ERR_NONE), OMX_ErrorNotReady);
 				if(pBufferOut->nFilledLen){
-					MPEG4CLIENT_TRACE_PRINT( "\nWrite the data into output file before it is given for the next FTB call");	
+					MPEG4CLIENT_TRACE_PRINT( "\nWrite the data into output file before it is given for the next FTB call");
 					fwritesize=fwrite((pBufferOut->pBuffer+(pBufferOut->nOffset)), sizeof(OMX_U8), pBufferOut->nFilledLen, pAppData->fOut);
 					fflushstatus=fflush(pAppData->fOut);
 					if(fflushstatus!=0)
-						MPEG4CLIENT_ERROR_PRINT( "\nWhile fflush operation");					
+						MPEG4CLIENT_ERROR_PRINT( "\nWhile fflush operation");
 					OutputFilesize+=pBufferOut->nFilledLen;
 				}
-				
-				MPEG4CLIENT_TRACE_PRINT( "\ntimestamp received is=%ld  ",pBufferOut->nTimeStamp);		
-				MPEG4CLIENT_TRACE_PRINT( "\nfilledlen=%d  fwritesize=%d, OutputFilesize=%d",pBufferOut->nFilledLen,fwritesize,OutputFilesize);	
-				MPEG4CLIENT_TRACE_PRINT( "\nupdate the nFilledLen & nOffset");	
+
+				MPEG4CLIENT_TRACE_PRINT( "\ntimestamp received is=%ld  ",pBufferOut->nTimeStamp);
+				MPEG4CLIENT_TRACE_PRINT( "\nfilledlen=%d  fwritesize=%d, OutputFilesize=%d",pBufferOut->nFilledLen,fwritesize,OutputFilesize);
+				MPEG4CLIENT_TRACE_PRINT( "\nupdate the nFilledLen & nOffset");
 				pBufferOut->nFilledLen = 0;
 				pBufferOut->nOffset=0;
-				MPEG4CLIENT_TRACE_PRINT( "\nBefore the FTB call");	
+				MPEG4CLIENT_TRACE_PRINT( "\nBefore the FTB call");
 #ifdef OMX_MPEG4E_SRCHANGES
 					pBufferOut->pBuffer = (char *)SharedRegion_getSRPtr(pBufferOut->pBuffer, 2);
 #endif
-					
-				eError = OMX_FillThisBuffer(pHandle, pBufferOut);				
+
+				eError = OMX_FillThisBuffer(pHandle, pBufferOut);
 				GOTO_EXIT_IF((eError != OMX_ErrorNone), eError);
 #ifdef OMX_MPEG4E_SRCHANGES
 					pBufferOut->pBuffer = SharedRegion_getPtr(pBufferOut->pBuffer);
 #endif
-			
+
 				retval = TIMM_OSAL_GetPipeReadyMessageCount (pAppData->OpBuf_Pipe, &numRemaining);
 				GOTO_EXIT_IF((retval != TIMM_OSAL_ERR_NONE), OMX_ErrorBadParameter);
 				MPEG4CLIENT_TRACE_PRINT( "\nOutput Msg count=%d",numRemaining);
-				
-			} 
+
+			}
 
 			/*if(bEOS){
 				goto EXIT;
@@ -1910,23 +1910,23 @@ OMX_ERRORTYPE OMXMPEG4Enc_InExecuting(MPEG4E_ILClient* pApplicationData){
 			#ifdef TIMESTAMPSPRINT/*to check the prder of output timestamp information....will be removed later*/
 				/*print the received timestamps information*/
 				for(i=0;i<pAppData->nFillBufferDoneCount;i++){
-					MPEG4CLIENT_TRACE_PRINT( "\nTimeStamp[%d]=%d",i,pAppData->TimeStampsArray[i]);	
-					//printf( "TimeStamp[%d]=%d",i,pAppData->TimeStampsArray[i]);	
+					MPEG4CLIENT_TRACE_PRINT( "\nTimeStamp[%d]=%d",i,pAppData->TimeStampsArray[i]);
+					//printf( "TimeStamp[%d]=%d",i,pAppData->TimeStampsArray[i]);
 				}
 			#endif
 			eError=OMX_ErrorNone;
 			//bEOS=OMX_TRUE;
 			goto EXIT;
-			
-		}	
-		
+
+		}
+
 		/*Check for Input Ready Event*/
 		numRemaining = 0;
 		if ((pRetrievedEvents & MPEG4_INPUT_READY)) {
-					
+
 			/*continue with the ETB calls only if MPEG4ClientStopFrameNum!=FrameNumToProcess*/
 			if((MPEG4ClientStopFrameNum>=FrameNumToProcess)){
-				MPEG4CLIENT_TRACE_PRINT( "\nIn Input Ready event");			
+				MPEG4CLIENT_TRACE_PRINT( "\nIn Input Ready event");
 				retval = TIMM_OSAL_GetPipeReadyMessageCount (pAppData->IpBuf_Pipe, &numRemaining);
 				GOTO_EXIT_IF((retval != TIMM_OSAL_ERR_NONE), OMX_ErrorBadParameter);
 				MPEG4CLIENT_TRACE_PRINT( "\nInput Msg count=%d",numRemaining);
@@ -1946,7 +1946,7 @@ OMX_ERRORTYPE OMXMPEG4Enc_InExecuting(MPEG4E_ILClient* pApplicationData){
 					#elif defined (OMX_MPEG4E_LINUX_TILERTEST)
 					/*free the older buffer & allocate the new*/
 			       	MemMgr_Free(pBufferIn->pBuffer);
-					
+
 					MemReqDescTiler[0].pixelFormat=PIXEL_FMT_8BIT;
 					MemReqDescTiler[0].dim.area.width=pAppData->MPEG4_TestCaseParams->width;/*width*/
 					MemReqDescTiler[0].dim.area.height=pAppData->MPEG4_TestCaseParams->height;/*height*/
@@ -1970,9 +1970,9 @@ OMX_ERRORTYPE OMXMPEG4Enc_InExecuting(MPEG4E_ILClient* pApplicationData){
 					pBufferIn->pBuffer= TIMM_OSAL_Malloc(((pAppData->MPEG4_TestCaseParams->width*pAppData->MPEG4_TestCaseParams->height*3/2)), TIMM_OSAL_TRUE, 32 ,TIMMOSAL_MEM_SEGMENT_EXT);
 					#endif
                    			GOTO_EXIT_IF((pBufferIn->pBuffer== TIMM_OSAL_NULL),OMX_ErrorInsufficientResources);
-					
-#endif               
-					MPEG4CLIENT_TRACE_PRINT( "\nRead Data from the Input File");		
+
+#endif
+					MPEG4CLIENT_TRACE_PRINT( "\nRead Data from the Input File");
 					eError=MPEG4ENC_FillData(pAppData,pBufferIn);
 					GOTO_EXIT_IF((eError != OMX_ErrorNone), eError);
 					MPEG4CLIENT_TRACE_PRINT( "\nCall to ETB");
@@ -1992,17 +1992,17 @@ OMX_ERRORTYPE OMXMPEG4Enc_InExecuting(MPEG4E_ILClient* pApplicationData){
 
 					/*Send command to Pause*/
 					if((PauseFrameNum[PauseFrameNumIndex]==FrameNumToProcess)&&(PauseFrameNumIndex<NUMTIMESTOPAUSE)){
-						MPEG4CLIENT_TRACE_PRINT( "\ncommand to go Exectuing -> Pause state");		
+						MPEG4CLIENT_TRACE_PRINT( "\ncommand to go Exectuing -> Pause state");
 						eError = OMX_SendCommand(pHandle,OMX_CommandStateSet, OMX_StatePause, NULL);
 						GOTO_EXIT_IF((eError != OMX_ErrorNone), eError);
 
 						eError = MPEG4ENC_WaitForState(pHandle);
 						GOTO_EXIT_IF((eError != OMX_ErrorNone), eError);
 						PauseFrameNumIndex++;
-						MPEG4CLIENT_TRACE_PRINT( "\nComponent is in Paused state");		
+						MPEG4CLIENT_TRACE_PRINT( "\nComponent is in Paused state");
 					}
 
-#ifndef TODO_ENC_MPEG4 
+#ifndef TODO_ENC_MPEG4
 					/*Call to Dynamic Settings*/
 					//MPEG4CLIENT_TRACE_PRINT( "\nConfigure the RunTime Settings");
 					//eError = OMXMPEG4Enc_ConfigureRunTimeSettings(pAppData,&OMXConfigStructures,FrameNumToProcess);
@@ -2010,7 +2010,7 @@ OMX_ERRORTYPE OMXMPEG4Enc_InExecuting(MPEG4E_ILClient* pApplicationData){
 #endif
 
 					/*Increase the frame count that has been sent for processing*/
-					FrameNumToProcess++;				
+					FrameNumToProcess++;
 
 					retval = TIMM_OSAL_GetPipeReadyMessageCount (pAppData->IpBuf_Pipe, &numRemaining);
 					GOTO_EXIT_IF((retval != TIMM_OSAL_ERR_NONE), OMX_ErrorBadParameter);
@@ -2025,45 +2025,45 @@ OMX_ERRORTYPE OMXMPEG4Enc_InExecuting(MPEG4E_ILClient* pApplicationData){
 		/*instead of sleep......to send the executing State command*/
 		while((pAppData->eState==OMX_StatePause)&&(TempCount<10) ){
 			TempCount++;
-		}		
+		}
 		if(TempCount==10){
-			MPEG4CLIENT_TRACE_PRINT( "\ncommand to go Pause -> Executing state");	
+			MPEG4CLIENT_TRACE_PRINT( "\ncommand to go Pause -> Executing state");
 			eError = OMX_SendCommand(pHandle,OMX_CommandStateSet, OMX_StateExecuting, NULL);
 			GOTO_EXIT_IF((eError != OMX_ErrorNone), eError);
 			eError = MPEG4ENC_WaitForState(pHandle);
 			GOTO_EXIT_IF((eError != OMX_ErrorNone), eError);
 			TempCount=0;
-			
+
 		}
 
 		/*get the Component State*/
 		eError = OMX_GetState(pHandle, &(pAppData->eState));
 		MPEG4CLIENT_TRACE_PRINT( "\nComponent Current State=%d",pAppData->eState);
-		
+
 	}
 EXIT:
 	MPEG4CLIENT_EXIT_PRINT(eError);
 	return eError;
-	
+
 }
 
 OMX_ERRORTYPE OMXMPEG4Enc_ConfigureRunTimeSettings(MPEG4E_ILClient * pApplicationData,OMX_MPEG4E_DynamicConfigs* MPEG4EConfigStructures,OMX_U32 FrameNumber){
 	OMX_ERRORTYPE eError = OMX_ErrorNone;
-	MPEG4E_ILClient *pAppData; 
+	MPEG4E_ILClient *pAppData;
 	OMX_HANDLETYPE pHandle = NULL;
 	OMX_U32 nRemoveList[9];
     	OMX_U8 i,RemoveIndex=0;
 
 
 	MPEG4CLIENT_ENTER_PRINT();
-		
+
     	if(!pApplicationData){
 		eError = OMX_ErrorBadParameter;
 		goto EXIT;
 	}
 	/*Get the AppData*/
 	pAppData=pApplicationData;
-	pHandle = pAppData->pHandle;			
+	pHandle = pAppData->pHandle;
 
 	for(i=0;i<DynamicSettingsCount;i++){
 		switch(DynamicSettingsArray[i]){
@@ -2071,14 +2071,14 @@ OMX_ERRORTYPE OMXMPEG4Enc_ConfigureRunTimeSettings(MPEG4E_ILClient * pApplicatio
 				/*set config to OMX_CONFIG_FRAMERATETYPE */
 				if(pAppData->MPEG4_TestCaseParamsDynamic->DynFrameRate.nFrameNumber[DynFrameCountArray_Index[i]]==FrameNumber){
 					/*Set Port Index*/
-					MPEG4EConfigStructures->tFrameRate.nPortIndex=MPEG4_APP_OUTPUTPORT;					
+					MPEG4EConfigStructures->tFrameRate.nPortIndex=MPEG4_APP_OUTPUTPORT;
 					eError = OMX_GetConfig(pHandle, OMX_IndexConfigVideoFramerate, &(MPEG4EConfigStructures->tFrameRate));
 					GOTO_EXIT_IF((eError != OMX_ErrorNone),eError);
 					MPEG4EConfigStructures->tFrameRate.xEncodeFramerate=((pAppData->MPEG4_TestCaseParamsDynamic->DynFrameRate.nFramerate[DynFrameCountArray_Index[i]]) << 16);
 
 					eError = OMX_SetConfig(pHandle, OMX_IndexConfigVideoFramerate, &(MPEG4EConfigStructures->tFrameRate));
 					GOTO_EXIT_IF((eError != OMX_ErrorNone),eError);
-					
+
 					DynFrameCountArray_Index[i]++;
 					/*check to remove from the DynamicSettingsArray list*/
 					if(pAppData->MPEG4_TestCaseParamsDynamic->DynFrameRate.nFrameNumber[DynFrameCountArray_Index[i]]==-1){
@@ -2093,12 +2093,12 @@ OMX_ERRORTYPE OMXMPEG4Enc_ConfigureRunTimeSettings(MPEG4E_ILClient * pApplicatio
 					MPEG4EConfigStructures->tBitRate.nPortIndex=MPEG4_APP_OUTPUTPORT;
 					eError = OMX_GetConfig(pHandle, OMX_IndexConfigVideoBitrate, &(MPEG4EConfigStructures->tBitRate));
 					GOTO_EXIT_IF((eError != OMX_ErrorNone),eError);
-					
+
 					MPEG4EConfigStructures->tBitRate.nEncodeBitrate=pAppData->MPEG4_TestCaseParamsDynamic->DynBitRate.nBitrate[DynFrameCountArray_Index[i]];
 
 					eError = OMX_SetConfig(pHandle, OMX_IndexConfigVideoBitrate, &(MPEG4EConfigStructures->tBitRate));
 					GOTO_EXIT_IF((eError != OMX_ErrorNone),eError);
-					
+
 					DynFrameCountArray_Index[i]++;
 					/*check to remove from the DynamicSettingsArray list*/
 					if(pAppData->MPEG4_TestCaseParamsDynamic->DynBitRate.nFrameNumber[DynFrameCountArray_Index[i]]==-1){
@@ -2113,7 +2113,7 @@ OMX_ERRORTYPE OMXMPEG4Enc_ConfigureRunTimeSettings(MPEG4E_ILClient * pApplicatio
 					MPEG4EConfigStructures->tMESearchrange.nPortIndex=MPEG4_APP_OUTPUTPORT;
 					eError = OMX_GetConfig(pHandle, OMX_TI_IndexConfigVideoMESearchRange, &(MPEG4EConfigStructures->tMESearchrange));
 					GOTO_EXIT_IF((eError != OMX_ErrorNone),eError);
-					
+
 					MPEG4EConfigStructures->tMESearchrange.eMVAccuracy=pAppData->MPEG4_TestCaseParamsDynamic->DynMESearchRange.nMVAccuracy[DynFrameCountArray_Index[i]];
 					MPEG4EConfigStructures->tMESearchrange.nHorSearchRangeP=pAppData->MPEG4_TestCaseParamsDynamic->DynMESearchRange.nHorSearchRangeP[DynFrameCountArray_Index[i]];
 					MPEG4EConfigStructures->tMESearchrange.nVerSearchRangeP=pAppData->MPEG4_TestCaseParamsDynamic->DynMESearchRange.nVerSearchRangeP[DynFrameCountArray_Index[i]];
@@ -2122,7 +2122,7 @@ OMX_ERRORTYPE OMXMPEG4Enc_ConfigureRunTimeSettings(MPEG4E_ILClient * pApplicatio
 
 					eError = OMX_SetConfig(pHandle, OMX_TI_IndexConfigVideoMESearchRange, &(MPEG4EConfigStructures->tMESearchrange));
 					GOTO_EXIT_IF((eError != OMX_ErrorNone),eError);
-					
+
 					DynFrameCountArray_Index[i]++;
 					/*check to remove from the DynamicSettingsArray list*/
 					if(pAppData->MPEG4_TestCaseParamsDynamic->DynMESearchRange.nFrameNumber[DynFrameCountArray_Index[i]]==-1){
@@ -2132,7 +2132,7 @@ OMX_ERRORTYPE OMXMPEG4Enc_ConfigureRunTimeSettings(MPEG4E_ILClient * pApplicatio
 			break;
 			case 3:
 				/*set config to OMX_CONFIG_INTRAREFRESHVOPTYPE*/
-				if(pAppData->MPEG4_TestCaseParamsDynamic->DynForceFrame.nFrameNumber[DynFrameCountArray_Index[i]]==FrameNumber){					
+				if(pAppData->MPEG4_TestCaseParamsDynamic->DynForceFrame.nFrameNumber[DynFrameCountArray_Index[i]]==FrameNumber){
 					/*Set Port Index*/
 					MPEG4EConfigStructures->tForceframe.nPortIndex=MPEG4_APP_OUTPUTPORT;
 					eError = OMX_GetConfig(pHandle, OMX_IndexConfigVideoIntraVOPRefresh, &(MPEG4EConfigStructures->tForceframe));
@@ -2142,7 +2142,7 @@ OMX_ERRORTYPE OMXMPEG4Enc_ConfigureRunTimeSettings(MPEG4E_ILClient * pApplicatio
 
 					eError = OMX_SetConfig(pHandle, OMX_IndexConfigVideoIntraVOPRefresh, &(MPEG4EConfigStructures->tForceframe));
 					GOTO_EXIT_IF((eError != OMX_ErrorNone),eError);
-					
+
 					DynFrameCountArray_Index[i]++;
 					/*check to remove from the DynamicSettingsArray list*/
 					if(pAppData->MPEG4_TestCaseParamsDynamic->DynForceFrame.nFrameNumber[DynFrameCountArray_Index[i]]==-1){
@@ -2152,7 +2152,7 @@ OMX_ERRORTYPE OMXMPEG4Enc_ConfigureRunTimeSettings(MPEG4E_ILClient * pApplicatio
 			break;
 			case 4:
 				/*set config to OMX_TI_VIDEO_CONFIG_QPSETTINGS*/
-				if(pAppData->MPEG4_TestCaseParamsDynamic->DynQpSettings.nFrameNumber[DynFrameCountArray_Index[i]]==FrameNumber){					
+				if(pAppData->MPEG4_TestCaseParamsDynamic->DynQpSettings.nFrameNumber[DynFrameCountArray_Index[i]]==FrameNumber){
 					/*Set Port Index*/
 					MPEG4EConfigStructures->tQPSettings.nPortIndex=MPEG4_APP_OUTPUTPORT;
 					eError = OMX_GetConfig(pHandle, OMX_TI_IndexConfigVideoQPSettings, &(MPEG4EConfigStructures->tQPSettings));
@@ -2170,7 +2170,7 @@ OMX_ERRORTYPE OMXMPEG4Enc_ConfigureRunTimeSettings(MPEG4E_ILClient * pApplicatio
 
 					eError = OMX_SetConfig(pHandle, OMX_TI_IndexConfigVideoQPSettings, &(MPEG4EConfigStructures->tQPSettings));
 					GOTO_EXIT_IF((eError != OMX_ErrorNone),eError);
-					
+
 					DynFrameCountArray_Index[i]++;
 					/*check to remove from the DynamicSettingsArray list*/
 					if(pAppData->MPEG4_TestCaseParamsDynamic->DynQpSettings.nFrameNumber[DynFrameCountArray_Index[i]]==-1){
@@ -2180,14 +2180,14 @@ OMX_ERRORTYPE OMXMPEG4Enc_ConfigureRunTimeSettings(MPEG4E_ILClient * pApplicatio
 			break;
 			case 5:
 				/*set config to OMX_VIDEO_CONFIG_AVCINTRAPERIOD*/
-				if(pAppData->MPEG4_TestCaseParamsDynamic->DynIntraFrmaeInterval.nFrameNumber[DynFrameCountArray_Index[i]]==FrameNumber){					
+				if(pAppData->MPEG4_TestCaseParamsDynamic->DynIntraFrmaeInterval.nFrameNumber[DynFrameCountArray_Index[i]]==FrameNumber){
 					/*Set Port Index*/
 					MPEG4EConfigStructures->tAVCIntraPeriod.nPortIndex=MPEG4_APP_OUTPUTPORT;
 					eError = OMX_GetConfig(pHandle, OMX_IndexConfigVideoAVCIntraPeriod, &(MPEG4EConfigStructures->tAVCIntraPeriod));
 					GOTO_EXIT_IF((eError != OMX_ErrorNone),eError);
 
 					MPEG4EConfigStructures->tAVCIntraPeriod.nIDRPeriod=pAppData->MPEG4_TestCaseParamsDynamic->DynIntraFrmaeInterval.nIntraFrameInterval[DynFrameCountArray_Index[i]];
-					
+
 					eError = OMX_SetConfig(pHandle, OMX_IndexConfigVideoAVCIntraPeriod, &(MPEG4EConfigStructures->tAVCIntraPeriod));
 					GOTO_EXIT_IF((eError != OMX_ErrorNone),eError);
 					DynFrameCountArray_Index[i]++;
@@ -2195,32 +2195,32 @@ OMX_ERRORTYPE OMXMPEG4Enc_ConfigureRunTimeSettings(MPEG4E_ILClient * pApplicatio
 					if(pAppData->MPEG4_TestCaseParamsDynamic->DynIntraFrmaeInterval.nFrameNumber[DynFrameCountArray_Index[i]]==-1){
 						nRemoveList[RemoveIndex++]=DynamicSettingsArray[i];
 					}
-				}				
+				}
 			break;
 			case 6:
 				/*set config to OMX_IndexConfigVideoNalSize*/
-				if(pAppData->MPEG4_TestCaseParamsDynamic->DynNALSize.nFrameNumber[DynFrameCountArray_Index[i]]==FrameNumber){					
+				if(pAppData->MPEG4_TestCaseParamsDynamic->DynNALSize.nFrameNumber[DynFrameCountArray_Index[i]]==FrameNumber){
 					/*Set Port Index*/
 					MPEG4EConfigStructures->tNALUSize.nPortIndex=MPEG4_APP_OUTPUTPORT;
 					eError = OMX_GetConfig(pHandle, OMX_IndexConfigVideoNalSize, &(MPEG4EConfigStructures->tNALUSize));
 					GOTO_EXIT_IF((eError != OMX_ErrorNone),eError);
 
 					MPEG4EConfigStructures->tNALUSize.nNaluBytes=pAppData->MPEG4_TestCaseParamsDynamic->DynNALSize.nNaluSize[DynFrameCountArray_Index[i]];
-										
+
 					eError = OMX_SetConfig(pHandle, OMX_IndexConfigVideoNalSize, &(MPEG4EConfigStructures->tNALUSize));
 					GOTO_EXIT_IF((eError != OMX_ErrorNone),eError);
-					
+
 					DynFrameCountArray_Index[i]++;
 					/*check to remove from the DynamicSettingsArray list*/
 					if(pAppData->MPEG4_TestCaseParamsDynamic->DynNALSize.nFrameNumber[DynFrameCountArray_Index[i]]==-1){
 						nRemoveList[RemoveIndex++]=DynamicSettingsArray[i];
 					}
 				}
-				
+
 			break;
 			case 7:
 				/*set config to OMX_TI_VIDEO_CONFIG_SLICECODING*/
-				if(pAppData->MPEG4_TestCaseParamsDynamic->DynSliceSettings.nFrameNumber[DynFrameCountArray_Index[i]]==FrameNumber){					
+				if(pAppData->MPEG4_TestCaseParamsDynamic->DynSliceSettings.nFrameNumber[DynFrameCountArray_Index[i]]==FrameNumber){
 					/*Set Port Index*/
 					MPEG4EConfigStructures->tSliceSettings.nPortIndex=MPEG4_APP_OUTPUTPORT;
 					eError = OMX_GetConfig(pHandle, OMX_TI_IndexConfigSliceSettings, &(MPEG4EConfigStructures->tSliceSettings));
@@ -2228,21 +2228,21 @@ OMX_ERRORTYPE OMXMPEG4Enc_ConfigureRunTimeSettings(MPEG4E_ILClient * pApplicatio
 
 					MPEG4EConfigStructures->tSliceSettings.eSliceMode=pAppData->MPEG4_TestCaseParamsDynamic->DynSliceSettings.eSliceMode[DynFrameCountArray_Index[i]];
 					MPEG4EConfigStructures->tSliceSettings.nSlicesize=pAppData->MPEG4_TestCaseParamsDynamic->DynSliceSettings.nSlicesize[DynFrameCountArray_Index[i]];
-					
+
 					eError = OMX_SetConfig(pHandle, OMX_TI_IndexConfigSliceSettings, &(MPEG4EConfigStructures->tSliceSettings));
 					GOTO_EXIT_IF((eError != OMX_ErrorNone),eError);
-					
+
 					DynFrameCountArray_Index[i]++;
 					/*check to remove from the DynamicSettingsArray list*/
 					if(pAppData->MPEG4_TestCaseParamsDynamic->DynSliceSettings.nFrameNumber[DynFrameCountArray_Index[i]]==-1){
 						nRemoveList[RemoveIndex++]=DynamicSettingsArray[i];
 					}
 				}
-				
+
 			break;
 			case 8:
 				/*set config to OMX_TI_VIDEO_CONFIG_PIXELINFO*/
-				if(pAppData->MPEG4_TestCaseParamsDynamic->DynPixelInfo.nFrameNumber[DynFrameCountArray_Index[i]]==FrameNumber){					
+				if(pAppData->MPEG4_TestCaseParamsDynamic->DynPixelInfo.nFrameNumber[DynFrameCountArray_Index[i]]==FrameNumber){
 
 					/*Set Port Index*/
 					MPEG4EConfigStructures->tPixelInfo.nPortIndex=MPEG4_APP_OUTPUTPORT;
@@ -2251,10 +2251,10 @@ OMX_ERRORTYPE OMXMPEG4Enc_ConfigureRunTimeSettings(MPEG4E_ILClient * pApplicatio
 
 					MPEG4EConfigStructures->tPixelInfo.nWidth=pAppData->MPEG4_TestCaseParamsDynamic->DynPixelInfo.nWidth[DynFrameCountArray_Index[i]];
 					MPEG4EConfigStructures->tPixelInfo.nHeight=pAppData->MPEG4_TestCaseParamsDynamic->DynPixelInfo.nHeight[DynFrameCountArray_Index[i]];
-					
+
 					eError = OMX_SetConfig(pHandle, OMX_TI_IndexConfigVideoPixelInfo, &(MPEG4EConfigStructures->tPixelInfo));
 					GOTO_EXIT_IF((eError != OMX_ErrorNone),eError);
-					
+
 					DynFrameCountArray_Index[i]++;
 					/*check to remove from the DynamicSettingsArray list*/
 					if(pAppData->MPEG4_TestCaseParamsDynamic->DynPixelInfo.nFrameNumber[DynFrameCountArray_Index[i]]==-1){
@@ -2262,11 +2262,11 @@ OMX_ERRORTYPE OMXMPEG4Enc_ConfigureRunTimeSettings(MPEG4E_ILClient * pApplicatio
 					}
 				}
 			break;
-			default:		
+			default:
 			break;
 		}
 	}
-	
+
 	/*Update the DynamicSettingsArray*/
 		eError= MPEG4E_Update_DynamicSettingsArray(RemoveIndex,nRemoveList);
 
@@ -2367,22 +2367,22 @@ return eError;
 OMX_ERRORTYPE OMXMPEG4Enc_DynamicPortConfiguration(MPEG4E_ILClient * pApplicationData,OMX_U32 nPortIndex){
 	OMX_ERRORTYPE eError = OMX_ErrorNone;
 	MPEG4E_ILClient *pAppData;
-	
+
 	MPEG4CLIENT_ENTER_PRINT();
-	
+
 	/*validate the Input Prameters*/
 	if(pApplicationData==NULL){
 		eError=OMX_ErrorBadParameter;
-		goto EXIT;		
+		goto EXIT;
 	}
 	pAppData=pApplicationData;
 
 	/*validate the Port Index*/
 	if(nPortIndex>MPEG4_APP_OUTPUTPORT){
 		eError=OMX_ErrorBadPortIndex;
-		goto EXIT;		
+		goto EXIT;
 	}
-	
+
 	/*call OMX_Sendcommand with cmd as Port Disable */
 	eError = OMX_SendCommand(pAppData->pHandle,OMX_CommandPortDisable,nPortIndex, NULL);
 	GOTO_EXIT_IF((eError != OMX_ErrorNone),eError);
@@ -2401,20 +2401,20 @@ EXIT:
 void OMXMPEG4Enc_Client_ErrorHandling(MPEG4E_ILClient * pApplicationData,OMX_U32 nErrorIndex,OMX_ERRORTYPE eGenError){
 	OMX_ERRORTYPE eError = OMX_ErrorNone;
 	MPEG4E_ILClient *pAppData;
-	
+
 	MPEG4CLIENT_ENTER_PRINT();
-	
+
 	/*validate the Input Prameters*/
 	if(pApplicationData==NULL){
 		eError=OMX_ErrorBadParameter;
-		goto EXIT;		
+		goto EXIT;
 	}
 	pAppData=pApplicationData;
 	switch(nErrorIndex){
 		case 1:
 			/*Error During Set Params or Error During state Transition Loaded->Idle*/
 			eError = OMX_FreeHandle(pAppData->pHandle);
-			MPEG4CLIENT_ERROR_PRINT("%s  During FreeHandle",MPEG4_GetErrorString(eGenError));						
+			MPEG4CLIENT_ERROR_PRINT("%s  During FreeHandle",MPEG4_GetErrorString(eGenError));
 		break;
 		case 2:
 			/*TODO: Error During Allocate Buffers*/
@@ -2452,14 +2452,14 @@ EXIT:
 MPEG4CLIENT_EXIT_PRINT(eError);
 
 }
-	
+
 
 OMX_ERRORTYPE OMXMPEG4Enc_GetHandle_FreeHandle(MPEG4E_ILClient* pApplicationData){
 	MPEG4E_ILClient *pAppData;
 	OMX_HANDLETYPE pHandle = NULL;
 	OMX_ERRORTYPE eError = OMX_ErrorNone;
 	OMX_CALLBACKTYPE appCallbacks;
-	
+
 	MPEG4CLIENT_ENTER_PRINT();
 	/*Get the AppData*/
 	pAppData=pApplicationData;
@@ -2473,7 +2473,7 @@ OMX_ERRORTYPE OMXMPEG4Enc_GetHandle_FreeHandle(MPEG4E_ILClient* pApplicationData
 	GOTO_EXIT_IF((eError != OMX_ErrorNone), eError);
 	/* Load the MPEG4ENCoder Component */
 	eError = OMX_GetHandle(&pHandle,(OMX_STRING)"OMX.TI.DUCATI1.VIDEO.MPEG4E",pAppData, &appCallbacks);
-	GOTO_EXIT_IF((eError != OMX_ErrorNone), eError);	
+	GOTO_EXIT_IF((eError != OMX_ErrorNone), eError);
 
 	pAppData->pHandle = pHandle;
 
@@ -2483,28 +2483,28 @@ OMX_ERRORTYPE OMXMPEG4Enc_GetHandle_FreeHandle(MPEG4E_ILClient* pApplicationData
 	MPEG4CLIENT_TRACE_PRINT( "\ncall to FreeHandle()");
 	eError = OMX_FreeHandle(pHandle);
 	GOTO_EXIT_IF((eError != OMX_ErrorNone), eError);
-		
-	
-		
+
+
+
 EXIT:
 	/* De-Initialize OMX Core */
-	MPEG4CLIENT_TRACE_PRINT( "\ncall OMX Deinit");		
+	MPEG4CLIENT_TRACE_PRINT( "\ncall OMX Deinit");
 	eError = OMX_Deinit();
-	
+
 	if(eError != OMX_ErrorNone){
 		MPEG4CLIENT_ERROR_PRINT( "\n%s",MPEG4_GetErrorString(eError));
-	}		
-	
+	}
+
 	MPEG4CLIENT_EXIT_PRINT(eError);
 	return eError;
 
-        
-	
+
+
 
 }
 
 OMX_ERRORTYPE OMXMPEG4Enc_LoadedToIdlePortDisable(MPEG4E_ILClient* pApplicationData){
-	
+
 	MPEG4E_ILClient *pAppData;
 	OMX_HANDLETYPE pHandle = NULL;
 	OMX_ERRORTYPE eError = OMX_ErrorNone;
@@ -2515,7 +2515,7 @@ OMX_ERRORTYPE OMXMPEG4Enc_LoadedToIdlePortDisable(MPEG4E_ILClient* pApplicationD
 	/*Get the AppData*/
 	pAppData=pApplicationData;
 
-	
+
 	/*create event*/
 	retval = TIMM_OSAL_EventCreate (&MPEG4VE_Events);
 	GOTO_EXIT_IF((retval != TIMM_OSAL_ERR_NONE), OMX_ErrorInsufficientResources);
@@ -2531,20 +2531,20 @@ OMX_ERRORTYPE OMXMPEG4Enc_LoadedToIdlePortDisable(MPEG4E_ILClient* pApplicationD
 	GOTO_EXIT_IF((eError != OMX_ErrorNone), eError);
 	/* Load the MPEG4ENCoder Component */
 	eError = OMX_GetHandle(&pHandle,(OMX_STRING)"OMX.TI.DUCATI1.VIDEO.MPEG4E",pAppData, &appCallbacks);
-	GOTO_EXIT_IF((eError != OMX_ErrorNone), eError);	
+	GOTO_EXIT_IF((eError != OMX_ErrorNone), eError);
 
 	pAppData->pHandle = pHandle;
 	MPEG4CLIENT_TRACE_PRINT( "\nGot the Component Handle =%x",pHandle);
-	
+
 	/*call OMX_Sendcommand with cmd as Port Disable */
 	eError = OMX_SendCommand(pAppData->pHandle,OMX_CommandPortDisable,OMX_ALL, NULL);
 	GOTO_EXIT_IF((eError != OMX_ErrorNone),eError);
-	
+
 	/* Wait for initialization to complete.. Wait for Idle state of component  */
 	eError = MPEG4ENC_WaitForState(pAppData);
 	GOTO_EXIT_IF((eError != OMX_ErrorNone), eError);
-	
-	
+
+
 	MPEG4CLIENT_TRACE_PRINT( "\ncall to goto Loaded -> Idle state");
 	/* OMX_SendCommand expecting OMX_StateIdle */
 	eError = OMX_SendCommand(pHandle, OMX_CommandStateSet, OMX_StateIdle, NULL);
@@ -2561,35 +2561,35 @@ OMX_ERRORTYPE OMXMPEG4Enc_LoadedToIdlePortDisable(MPEG4E_ILClient* pApplicationD
 	eError = MPEG4ENC_WaitForState(pAppData);
 	GOTO_EXIT_IF((eError != OMX_ErrorNone), eError);
 
-	
+
 
 	/* UnLoad the Encoder Component */
 	MPEG4CLIENT_TRACE_PRINT( "\ncall to FreeHandle()");
 	eError = OMX_FreeHandle(pHandle);
 	GOTO_EXIT_IF((eError != OMX_ErrorNone), eError);
-		
-	
-		
+
+
+
 EXIT:
 	/* De-Initialize OMX Core */
-	MPEG4CLIENT_TRACE_PRINT( "\ncall OMX Deinit");		
+	MPEG4CLIENT_TRACE_PRINT( "\ncall OMX Deinit");
 	eError = OMX_Deinit();
 
 	/*Delete the Events*/
 	TIMM_OSAL_EventDelete(MPEG4VE_Events);
    	TIMM_OSAL_EventDelete(MPEG4VE_CmdEvent);
-	
+
 	if(eError != OMX_ErrorNone){
 		MPEG4CLIENT_ERROR_PRINT( "\n%s",MPEG4_GetErrorString(eError));
-	}		
-	
+	}
+
 	MPEG4CLIENT_EXIT_PRINT(eError);
 	return eError;
-	
+
 }
 
 OMX_ERRORTYPE OMXMPEG4Enc_LoadedToIdlePortEnable(MPEG4E_ILClient* pApplicationData){
-	
+
 	MPEG4E_ILClient *pAppData;
 	OMX_HANDLETYPE pHandle = NULL;
 	OMX_ERRORTYPE eError = OMX_ErrorNone;
@@ -2615,7 +2615,7 @@ OMX_ERRORTYPE OMXMPEG4Enc_LoadedToIdlePortEnable(MPEG4E_ILClient* pApplicationDa
 	GOTO_EXIT_IF((eError != OMX_ErrorNone), eError);
 	/* Load the MPEG4ENCoder Component */
 	eError = OMX_GetHandle(&pHandle,(OMX_STRING)"OMX.TI.DUCATI1.VIDEO.MPEG4E",pAppData, &appCallbacks);
-	GOTO_EXIT_IF((eError != OMX_ErrorNone), eError);	
+	GOTO_EXIT_IF((eError != OMX_ErrorNone), eError);
 
 	pAppData->pHandle = pHandle;
 
@@ -2627,11 +2627,11 @@ OMX_ERRORTYPE OMXMPEG4Enc_LoadedToIdlePortEnable(MPEG4E_ILClient* pApplicationDa
 /*for the allocate resorces call fill the height & width*/
 	pAppData->MPEG4_TestCaseParams->width=176;
 	pAppData->MPEG4_TestCaseParams->height=144;
-	
+
 	MPEG4CLIENT_TRACE_PRINT( "\nAllocate the resources for the state trasition to Idle to complete");
 	eError = MPEG4ENC_AllocateResources(pAppData);
 	GOTO_EXIT_IF((eError != OMX_ErrorNone),eError);
-	
+
 	/* Wait for initialization to complete.. Wait for Idle state of component  */
 	eError = MPEG4ENC_WaitForState(pAppData);
 	GOTO_EXIT_IF((eError != OMX_ErrorNone), eError);
@@ -2643,7 +2643,7 @@ OMX_ERRORTYPE OMXMPEG4Enc_LoadedToIdlePortEnable(MPEG4E_ILClient* pApplicationDa
 	MPEG4CLIENT_TRACE_PRINT( "\nFree up the Component Resources");
 	eError = MPEG4ENC_FreeResources(pAppData);
 	GOTO_EXIT_IF((eError != OMX_ErrorNone), eError);
-	
+
 	/* Wait for initialization to complete.. Wait for Idle state of component  */
 	eError = MPEG4ENC_WaitForState(pAppData);
 	GOTO_EXIT_IF((eError != OMX_ErrorNone), eError);
@@ -2655,27 +2655,27 @@ OMX_ERRORTYPE OMXMPEG4Enc_LoadedToIdlePortEnable(MPEG4E_ILClient* pApplicationDa
 	MPEG4CLIENT_TRACE_PRINT( "\ncall to FreeHandle()");
 	eError = OMX_FreeHandle(pHandle);
 	GOTO_EXIT_IF((eError != OMX_ErrorNone), eError);
-		
-	
-		
+
+
+
 EXIT:
 	/* De-Initialize OMX Core */
-	MPEG4CLIENT_TRACE_PRINT( "\ncall OMX Deinit");		
+	MPEG4CLIENT_TRACE_PRINT( "\ncall OMX Deinit");
 	eError = OMX_Deinit();
-	
+
 	/*Delete the Events*/
 	TIMM_OSAL_EventDelete(MPEG4VE_Events);
    	TIMM_OSAL_EventDelete(MPEG4VE_CmdEvent);
-	
+
 	if(eError != OMX_ErrorNone){
 		MPEG4CLIENT_ERROR_PRINT( "\n%s",MPEG4_GetErrorString(eError));
-	}		
-	
+	}
+
 	MPEG4CLIENT_EXIT_PRINT(eError);
 	return eError;
-	
+
 }
-       
+
 OMX_ERRORTYPE OMXMPEG4Enc_UnalignedBuffers(MPEG4E_ILClient* pApplicationData){
 	MPEG4E_ILClient *pAppData;
 	OMX_HANDLETYPE pHandle = NULL;
@@ -2683,14 +2683,14 @@ OMX_ERRORTYPE OMXMPEG4Enc_UnalignedBuffers(MPEG4E_ILClient* pApplicationData){
 	OMX_CALLBACKTYPE appCallbacks;
 	OMX_PARAM_PORTDEFINITIONTYPE tPortDef;
 	OMX_PORT_PARAM_TYPE tPortParams;
-	OMX_U8 *pTmpBuffer; /*Used with Use Buffer calls*/	
+	OMX_U8 *pTmpBuffer; /*Used with Use Buffer calls*/
 	OMX_U32 i,j;
 	TIMM_OSAL_ERRORTYPE retval = TIMM_OSAL_ERR_UNKNOWN;
 
 	/*Initialize the structure*/
 	OMX_TEST_INIT_STRUCT_PTR(&tPortDef,OMX_PARAM_PORTDEFINITIONTYPE);
 	OMX_TEST_INIT_STRUCT_PTR(&tPortParams,OMX_PORT_PARAM_TYPE);
-	
+
 
 	MPEG4CLIENT_ENTER_PRINT();
 	/*Get the AppData*/
@@ -2710,7 +2710,7 @@ OMX_ERRORTYPE OMXMPEG4Enc_UnalignedBuffers(MPEG4E_ILClient* pApplicationData){
 	GOTO_EXIT_IF((eError != OMX_ErrorNone), eError);
 	/* Load the MPEG4ENCoder Component */
 	eError = OMX_GetHandle(&pHandle,(OMX_STRING)"OMX.TI.DUCATI1.VIDEO.MPEG4E",pAppData, &appCallbacks);
-	GOTO_EXIT_IF((eError != OMX_ErrorNone), eError);	
+	GOTO_EXIT_IF((eError != OMX_ErrorNone), eError);
 
 	pAppData->pHandle = pHandle;
 
@@ -2718,13 +2718,13 @@ OMX_ERRORTYPE OMXMPEG4Enc_UnalignedBuffers(MPEG4E_ILClient* pApplicationData){
 	/* OMX_SendCommand expecting OMX_StateIdle */
 	eError = OMX_SendCommand(pHandle, OMX_CommandStateSet, OMX_StateIdle, NULL);
 	GOTO_EXIT_IF((eError != OMX_ErrorNone), eError);
-	
+
 /*Allocate Buffers*/
 /*update the height & width*/
 	pAppData->MPEG4_TestCaseParams->width=176;
 	pAppData->MPEG4_TestCaseParams->height=144;
 
-	
+
 	MPEG4CLIENT_TRACE_PRINT( "\nAllocate the resources for the state trasition to Idle to complete");
 	eError = OMX_GetParameter(pHandle, OMX_IndexParamVideoInit, &tPortParams);
 	GOTO_EXIT_IF((eError != OMX_ErrorNone),eError);
@@ -2738,27 +2738,27 @@ OMX_ERRORTYPE OMXMPEG4Enc_UnalignedBuffers(MPEG4E_ILClient* pApplicationData){
 			GOTO_EXIT_IF((pAppData->pInBuff == TIMM_OSAL_NULL),OMX_ErrorInsufficientResources);
 			/*USE Buffer calls*/
 			for (j = 0; j < tPortDef.nBufferCountActual; j++){
-				
-				pTmpBuffer= TIMM_OSAL_Malloc(((pAppData->MPEG4_TestCaseParams->width*pAppData->MPEG4_TestCaseParams->height*3/2)), TIMM_OSAL_TRUE, 0 ,TIMMOSAL_MEM_SEGMENT_EXT);		
+
+				pTmpBuffer= TIMM_OSAL_Malloc(((pAppData->MPEG4_TestCaseParams->width*pAppData->MPEG4_TestCaseParams->height*3/2)), TIMM_OSAL_TRUE, 0 ,TIMMOSAL_MEM_SEGMENT_EXT);
 				GOTO_EXIT_IF((pTmpBuffer== TIMM_OSAL_NULL),OMX_ErrorInsufficientResources);
 				//pTmpBuffer = (((OMX_U8)pTmpBuffer + 11) & (~11));
 				pTmpBuffer =0x14;
 				eError = OMX_UseBuffer(pAppData->pHandle, &(pAppData->pInBuff[j]), tPortDef.nPortIndex, pAppData, ((pAppData->MPEG4_TestCaseParams->width*pAppData->MPEG4_TestCaseParams->height*3/2)),pTmpBuffer);
-				GOTO_EXIT_IF((eError != OMX_ErrorNone), eError);				
+				GOTO_EXIT_IF((eError != OMX_ErrorNone), eError);
 			}
 
 		}else if(tPortDef.nPortIndex==MPEG4_APP_OUTPUTPORT){
 			pAppData->pOutBuff = TIMM_OSAL_Malloc((sizeof(OMX_BUFFERHEADERTYPE*) * tPortDef.nBufferCountActual), TIMM_OSAL_TRUE, 0 ,TIMMOSAL_MEM_SEGMENT_EXT);
 			GOTO_EXIT_IF((pAppData->pOutBuff == TIMM_OSAL_NULL),OMX_ErrorInsufficientResources);
-			
+
 			for (j= 0; j < tPortDef.nBufferCountActual; j++)
 			{
-				/*USE Buffer calls*/ 			
-				pTmpBuffer= TIMM_OSAL_Malloc(((pAppData->MPEG4_TestCaseParams->width*pAppData->MPEG4_TestCaseParams->height)), TIMM_OSAL_TRUE, 0 ,TIMMOSAL_MEM_SEGMENT_EXT);								   
-				GOTO_EXIT_IF((pTmpBuffer== TIMM_OSAL_NULL),OMX_ErrorInsufficientResources);			
+				/*USE Buffer calls*/
+				pTmpBuffer= TIMM_OSAL_Malloc(((pAppData->MPEG4_TestCaseParams->width*pAppData->MPEG4_TestCaseParams->height)), TIMM_OSAL_TRUE, 0 ,TIMMOSAL_MEM_SEGMENT_EXT);
+				GOTO_EXIT_IF((pTmpBuffer== TIMM_OSAL_NULL),OMX_ErrorInsufficientResources);
 				eError = OMX_UseBuffer(pAppData->pHandle, &(pAppData->pOutBuff[j]), tPortDef.nPortIndex, pAppData, ((pAppData->MPEG4_TestCaseParams->width*pAppData->MPEG4_TestCaseParams->height)),pTmpBuffer);
 				GOTO_EXIT_IF((eError != OMX_ErrorNone), eError);
-					
+
 			}
 		}
 
@@ -2768,20 +2768,20 @@ OMX_ERRORTYPE OMXMPEG4Enc_UnalignedBuffers(MPEG4E_ILClient* pApplicationData){
 	/* Wait for initialization to complete.. Wait for Idle state of component  */
 	eError = MPEG4ENC_WaitForState(pAppData);
 	GOTO_EXIT_IF((eError != OMX_ErrorNone), eError);
-	
+
 	MPEG4CLIENT_TRACE_PRINT( "\ncall to goto Idle -> Loaded state");
 	eError = OMX_SendCommand(pHandle,OMX_CommandStateSet, OMX_StateLoaded, NULL);
 	GOTO_EXIT_IF((eError != OMX_ErrorNone), eError);
 /*Free Buffers*/
-	for(i=0; i < tPortParams.nPorts ; i++){			
+	for(i=0; i < tPortParams.nPorts ; i++){
 		tPortDef.nPortIndex = i;
 		eError = OMX_GetParameter(pHandle, OMX_IndexParamPortDefinition, &tPortDef);
 		GOTO_EXIT_IF((eError != OMX_ErrorNone),eError);
 		if(i==MPEG4_APP_INPUTPORT){
 			for (j = 0; j < tPortDef.nBufferCountActual; j++){
 				if(!pAppData->MPEG4_TestCaseParams->bInAllocatebuffer)
-				{		
-					TIMM_OSAL_Free(pAppData->pInBuff[j]->pBuffer);				
+				{
+					TIMM_OSAL_Free(pAppData->pInBuff[j]->pBuffer);
 				}
 				eError = OMX_FreeBuffer(pAppData->pHandle, tPortDef.nPortIndex, pAppData->pInBuff[j]);
 				GOTO_EXIT_IF((eError != OMX_ErrorNone), eError);
@@ -2789,16 +2789,16 @@ OMX_ERRORTYPE OMXMPEG4Enc_UnalignedBuffers(MPEG4E_ILClient* pApplicationData){
 		}else if(i==MPEG4_APP_OUTPUTPORT){
 			for (j = 0; j < tPortDef.nBufferCountActual; j++){
 				if(!pAppData->MPEG4_TestCaseParams->bInAllocatebuffer)
-				{				   
-					TIMM_OSAL_Free(pAppData->pOutBuff[j]->pBuffer); 	   
+				{
+					TIMM_OSAL_Free(pAppData->pOutBuff[j]->pBuffer);
 				}
 
 				eError = OMX_FreeBuffer(pAppData->pHandle, tPortDef.nPortIndex, pAppData->pOutBuff[j]);
 				GOTO_EXIT_IF((eError != OMX_ErrorNone), eError);
 			}
-		}	
+		}
 	}
-	
+
 	/* Wait for initialization to complete.. Wait for Idle state of component  */
 	eError = MPEG4ENC_WaitForState(pAppData);
 	GOTO_EXIT_IF((eError != OMX_ErrorNone), eError);
@@ -2810,22 +2810,22 @@ OMX_ERRORTYPE OMXMPEG4Enc_UnalignedBuffers(MPEG4E_ILClient* pApplicationData){
 	MPEG4CLIENT_TRACE_PRINT( "\ncall to FreeHandle()");
 	eError = OMX_FreeHandle(pHandle);
 	GOTO_EXIT_IF((eError != OMX_ErrorNone), eError);
-		
-	
-		
+
+
+
 EXIT:
 	/* De-Initialize OMX Core */
-	MPEG4CLIENT_TRACE_PRINT( "\ncall OMX Deinit");		
+	MPEG4CLIENT_TRACE_PRINT( "\ncall OMX Deinit");
 	eError = OMX_Deinit();
-	
+
 	/*Delete the Events*/
 	TIMM_OSAL_EventDelete(MPEG4VE_Events);
    	TIMM_OSAL_EventDelete(MPEG4VE_CmdEvent);
-	
+
 	if(eError != OMX_ErrorNone){
 		MPEG4CLIENT_ERROR_PRINT( "\n%s",MPEG4_GetErrorString(eError));
-	}		
-	
+	}
+
 	MPEG4CLIENT_EXIT_PRINT(eError);
 	return eError;
 }
@@ -2837,13 +2837,13 @@ OMX_ERRORTYPE OMXMPEG4Enc_SizeLessthanMinBufferRequirements(MPEG4E_ILClient* pAp
 	OMX_CALLBACKTYPE appCallbacks;
 	OMX_PARAM_PORTDEFINITIONTYPE tPortDef;
 	OMX_PORT_PARAM_TYPE tPortParams;
-	OMX_U8 *pTmpBuffer; /*Used with Use Buffer calls*/	
+	OMX_U8 *pTmpBuffer; /*Used with Use Buffer calls*/
 	OMX_U32 i,j;
 	TIMM_OSAL_ERRORTYPE retval = TIMM_OSAL_ERR_UNKNOWN;
 	/*Initialize the structure*/
 	OMX_TEST_INIT_STRUCT_PTR(&tPortDef,OMX_PARAM_PORTDEFINITIONTYPE);
 	OMX_TEST_INIT_STRUCT_PTR(&tPortParams,OMX_PORT_PARAM_TYPE);
-	
+
 
 	MPEG4CLIENT_ENTER_PRINT();
 	/*Get the AppData*/
@@ -2864,7 +2864,7 @@ OMX_ERRORTYPE OMXMPEG4Enc_SizeLessthanMinBufferRequirements(MPEG4E_ILClient* pAp
 	GOTO_EXIT_IF((eError != OMX_ErrorNone), eError);
 	/* Load the MPEG4ENCoder Component */
 	eError = OMX_GetHandle(&pHandle,(OMX_STRING)"OMX.TI.DUCATI1.VIDEO.MPEG4E",pAppData, &appCallbacks);
-	GOTO_EXIT_IF((eError != OMX_ErrorNone), eError);	
+	GOTO_EXIT_IF((eError != OMX_ErrorNone), eError);
 
 	pAppData->pHandle = pHandle;
 
@@ -2872,12 +2872,12 @@ OMX_ERRORTYPE OMXMPEG4Enc_SizeLessthanMinBufferRequirements(MPEG4E_ILClient* pAp
 	/* OMX_SendCommand expecting OMX_StateIdle */
 	eError = OMX_SendCommand(pHandle, OMX_CommandStateSet, OMX_StateIdle, NULL);
 	GOTO_EXIT_IF((eError != OMX_ErrorNone), eError);
-	
+
 /*Allocate Buffers*/
 	/*update the height & width*/
 	pAppData->MPEG4_TestCaseParams->width=176;
 	pAppData->MPEG4_TestCaseParams->height=100;
-	
+
 	MPEG4CLIENT_TRACE_PRINT( "\nAllocate the resources for the state trasition to Idle to complete");
 	eError = OMX_GetParameter(pHandle, OMX_IndexParamVideoInit, &tPortParams);
 	GOTO_EXIT_IF((eError != OMX_ErrorNone),eError);
@@ -2891,26 +2891,26 @@ OMX_ERRORTYPE OMXMPEG4Enc_SizeLessthanMinBufferRequirements(MPEG4E_ILClient* pAp
 			GOTO_EXIT_IF((pAppData->pInBuff == TIMM_OSAL_NULL),OMX_ErrorInsufficientResources);
 			/*USE Buffer calls*/
 			for (j = 0; j < tPortDef.nBufferCountActual; j++){
-				
-				pTmpBuffer= TIMM_OSAL_Malloc(((pAppData->MPEG4_TestCaseParams->width*pAppData->MPEG4_TestCaseParams->height*3/2)), TIMM_OSAL_TRUE, 0 ,TIMMOSAL_MEM_SEGMENT_EXT);		
+
+				pTmpBuffer= TIMM_OSAL_Malloc(((pAppData->MPEG4_TestCaseParams->width*pAppData->MPEG4_TestCaseParams->height*3/2)), TIMM_OSAL_TRUE, 0 ,TIMMOSAL_MEM_SEGMENT_EXT);
 				GOTO_EXIT_IF((pTmpBuffer== TIMM_OSAL_NULL),OMX_ErrorInsufficientResources);
-			
+
 				eError = OMX_UseBuffer(pAppData->pHandle, &(pAppData->pInBuff[j]), tPortDef.nPortIndex, pAppData, ((pAppData->MPEG4_TestCaseParams->width*pAppData->MPEG4_TestCaseParams->height*3/2)),pTmpBuffer);
-				GOTO_EXIT_IF((eError != OMX_ErrorNone), eError);				
+				GOTO_EXIT_IF((eError != OMX_ErrorNone), eError);
 			}
 
 		}else if(tPortDef.nPortIndex==MPEG4_APP_OUTPUTPORT){
 			pAppData->pOutBuff = TIMM_OSAL_Malloc((sizeof(OMX_BUFFERHEADERTYPE*) * tPortDef.nBufferCountActual), TIMM_OSAL_TRUE, 0 ,TIMMOSAL_MEM_SEGMENT_EXT);
 			GOTO_EXIT_IF((pAppData->pOutBuff == TIMM_OSAL_NULL),OMX_ErrorInsufficientResources);
-			
+
 			for (j= 0; j < tPortDef.nBufferCountActual; j++)
 			{
-				/*USE Buffer calls*/ 			
-				pTmpBuffer= TIMM_OSAL_Malloc(((pAppData->MPEG4_TestCaseParams->width*pAppData->MPEG4_TestCaseParams->height)), TIMM_OSAL_TRUE, 0 ,TIMMOSAL_MEM_SEGMENT_EXT);								   
-				GOTO_EXIT_IF((pTmpBuffer== TIMM_OSAL_NULL),OMX_ErrorInsufficientResources);			
+				/*USE Buffer calls*/
+				pTmpBuffer= TIMM_OSAL_Malloc(((pAppData->MPEG4_TestCaseParams->width*pAppData->MPEG4_TestCaseParams->height)), TIMM_OSAL_TRUE, 0 ,TIMMOSAL_MEM_SEGMENT_EXT);
+				GOTO_EXIT_IF((pTmpBuffer== TIMM_OSAL_NULL),OMX_ErrorInsufficientResources);
 				eError = OMX_UseBuffer(pAppData->pHandle, &(pAppData->pOutBuff[j]), tPortDef.nPortIndex, pAppData, ((pAppData->MPEG4_TestCaseParams->width*pAppData->MPEG4_TestCaseParams->height)),pTmpBuffer);
 				GOTO_EXIT_IF((eError != OMX_ErrorNone), eError);
-					
+
 			}
 		}
 
@@ -2920,20 +2920,20 @@ OMX_ERRORTYPE OMXMPEG4Enc_SizeLessthanMinBufferRequirements(MPEG4E_ILClient* pAp
 	/* Wait for initialization to complete.. Wait for Idle state of component  */
 	eError = MPEG4ENC_WaitForState(pAppData);
 	GOTO_EXIT_IF((eError != OMX_ErrorNone), eError);
-	
+
 	MPEG4CLIENT_TRACE_PRINT( "\ncall to goto Idle -> Loaded state");
 	eError = OMX_SendCommand(pHandle,OMX_CommandStateSet, OMX_StateLoaded, NULL);
 	GOTO_EXIT_IF((eError != OMX_ErrorNone), eError);
 /*Free Buffers*/
-	for(i=0; i < tPortParams.nPorts ; i++){			
+	for(i=0; i < tPortParams.nPorts ; i++){
 		tPortDef.nPortIndex = i;
 		eError = OMX_GetParameter(pHandle, OMX_IndexParamPortDefinition, &tPortDef);
 		GOTO_EXIT_IF((eError != OMX_ErrorNone),eError);
 		if(i==MPEG4_APP_INPUTPORT){
 			for (j = 0; j < tPortDef.nBufferCountActual; j++){
 				if(!pAppData->MPEG4_TestCaseParams->bInAllocatebuffer)
-				{		
-					TIMM_OSAL_Free(pAppData->pInBuff[j]->pBuffer);				
+				{
+					TIMM_OSAL_Free(pAppData->pInBuff[j]->pBuffer);
 				}
 				eError = OMX_FreeBuffer(pAppData->pHandle, tPortDef.nPortIndex, pAppData->pInBuff[j]);
 				GOTO_EXIT_IF((eError != OMX_ErrorNone), eError);
@@ -2941,16 +2941,16 @@ OMX_ERRORTYPE OMXMPEG4Enc_SizeLessthanMinBufferRequirements(MPEG4E_ILClient* pAp
 		}else if(i==MPEG4_APP_OUTPUTPORT){
 			for (j = 0; j < tPortDef.nBufferCountActual; j++){
 				if(!pAppData->MPEG4_TestCaseParams->bInAllocatebuffer)
-				{				   
-					TIMM_OSAL_Free(pAppData->pOutBuff[j]->pBuffer); 	   
+				{
+					TIMM_OSAL_Free(pAppData->pOutBuff[j]->pBuffer);
 				}
 
 				eError = OMX_FreeBuffer(pAppData->pHandle, tPortDef.nPortIndex, pAppData->pOutBuff[j]);
 				GOTO_EXIT_IF((eError != OMX_ErrorNone), eError);
 			}
-		}	
+		}
 	}
-	
+
 	/* Wait for initialization to complete.. Wait for Idle state of component  */
 	eError = MPEG4ENC_WaitForState(pAppData);
 	GOTO_EXIT_IF((eError != OMX_ErrorNone), eError);
@@ -2962,22 +2962,22 @@ OMX_ERRORTYPE OMXMPEG4Enc_SizeLessthanMinBufferRequirements(MPEG4E_ILClient* pAp
 	MPEG4CLIENT_TRACE_PRINT( "\ncall to FreeHandle()");
 	eError = OMX_FreeHandle(pHandle);
 	GOTO_EXIT_IF((eError != OMX_ErrorNone), eError);
-		
-	
-		
+
+
+
 EXIT:
 	/* De-Initialize OMX Core */
-	MPEG4CLIENT_TRACE_PRINT( "\ncall OMX Deinit");		
+	MPEG4CLIENT_TRACE_PRINT( "\ncall OMX Deinit");
 	eError = OMX_Deinit();
-	
+
 	/*Delete the Events*/
 	TIMM_OSAL_EventDelete(MPEG4VE_Events);
    	TIMM_OSAL_EventDelete(MPEG4VE_CmdEvent);
-	
+
 	if(eError != OMX_ErrorNone){
 		MPEG4CLIENT_ERROR_PRINT( "\n%s",MPEG4_GetErrorString(eError));
-	}		
-	
+	}
+
 	MPEG4CLIENT_EXIT_PRINT(eError);
 	return eError;
 
@@ -2993,14 +2993,14 @@ OMX_ERRORTYPE OMXMPEG4Enc_LessthanMinBufferRequirementsNum(MPEG4E_ILClient* pApp
 	OMX_CALLBACKTYPE appCallbacks;
 	OMX_PARAM_PORTDEFINITIONTYPE tPortDef;
 	OMX_PORT_PARAM_TYPE tPortParams;
-	OMX_U8 *pTmpBuffer; /*Used with Use Buffer calls*/	
+	OMX_U8 *pTmpBuffer; /*Used with Use Buffer calls*/
 	OMX_U32 i,j;
 	TIMM_OSAL_ERRORTYPE retval = TIMM_OSAL_ERR_UNKNOWN;
-	
+
 	/*Initialize the structure*/
 	OMX_TEST_INIT_STRUCT_PTR(&tPortDef,OMX_PARAM_PORTDEFINITIONTYPE);
 	OMX_TEST_INIT_STRUCT_PTR(&tPortParams,OMX_PORT_PARAM_TYPE);
-	
+
 
 	MPEG4CLIENT_ENTER_PRINT();
 	/*Get the AppData*/
@@ -3021,7 +3021,7 @@ OMX_ERRORTYPE OMXMPEG4Enc_LessthanMinBufferRequirementsNum(MPEG4E_ILClient* pApp
 	GOTO_EXIT_IF((eError != OMX_ErrorNone), eError);
 	/* Load the MPEG4ENCoder Component */
 	eError = OMX_GetHandle(&pHandle,(OMX_STRING)"OMX.TI.DUCATI1.VIDEO.MPEG4E",pAppData, &appCallbacks);
-	GOTO_EXIT_IF((eError != OMX_ErrorNone), eError);	
+	GOTO_EXIT_IF((eError != OMX_ErrorNone), eError);
 
 	pAppData->pHandle = pHandle;
 
@@ -3029,12 +3029,12 @@ OMX_ERRORTYPE OMXMPEG4Enc_LessthanMinBufferRequirementsNum(MPEG4E_ILClient* pApp
 	/* OMX_SendCommand expecting OMX_StateIdle */
 	eError = OMX_SendCommand(pHandle, OMX_CommandStateSet, OMX_StateIdle, NULL);
 	GOTO_EXIT_IF((eError != OMX_ErrorNone), eError);
-	
+
 /*Allocate Buffers*/
 	/*update the height & width*/
 	pAppData->MPEG4_TestCaseParams->width=176;
 	pAppData->MPEG4_TestCaseParams->height=144;
-	
+
 	MPEG4CLIENT_TRACE_PRINT( "\nAllocate the resources for the state trasition to Idle to complete");
 	eError = OMX_GetParameter(pHandle, OMX_IndexParamVideoInit, &tPortParams);
 	GOTO_EXIT_IF((eError != OMX_ErrorNone),eError);
@@ -3048,26 +3048,26 @@ OMX_ERRORTYPE OMXMPEG4Enc_LessthanMinBufferRequirementsNum(MPEG4E_ILClient* pApp
 			GOTO_EXIT_IF((pAppData->pInBuff == TIMM_OSAL_NULL),OMX_ErrorInsufficientResources);
 			/*USE Buffer calls*/
 			for (j = 0; j < tPortDef.nBufferCountActual-1; j++){
-				
-				pTmpBuffer= TIMM_OSAL_Malloc(((pAppData->MPEG4_TestCaseParams->width*pAppData->MPEG4_TestCaseParams->height*3/2)), TIMM_OSAL_TRUE, 0 ,TIMMOSAL_MEM_SEGMENT_EXT);		
+
+				pTmpBuffer= TIMM_OSAL_Malloc(((pAppData->MPEG4_TestCaseParams->width*pAppData->MPEG4_TestCaseParams->height*3/2)), TIMM_OSAL_TRUE, 0 ,TIMMOSAL_MEM_SEGMENT_EXT);
 				GOTO_EXIT_IF((pTmpBuffer== TIMM_OSAL_NULL),OMX_ErrorInsufficientResources);
-				
+
 				eError = OMX_UseBuffer(pAppData->pHandle, &(pAppData->pInBuff[j]), tPortDef.nPortIndex, pAppData, ((pAppData->MPEG4_TestCaseParams->width*pAppData->MPEG4_TestCaseParams->height*3/2)),pTmpBuffer);
-				GOTO_EXIT_IF((eError != OMX_ErrorNone), eError);				
+				GOTO_EXIT_IF((eError != OMX_ErrorNone), eError);
 			}
 
 		}else if(tPortDef.nPortIndex==MPEG4_APP_OUTPUTPORT){
 			pAppData->pOutBuff = TIMM_OSAL_Malloc((sizeof(OMX_BUFFERHEADERTYPE*) * tPortDef.nBufferCountActual), TIMM_OSAL_TRUE, 0 ,TIMMOSAL_MEM_SEGMENT_EXT);
 			GOTO_EXIT_IF((pAppData->pOutBuff == TIMM_OSAL_NULL),OMX_ErrorInsufficientResources);
-			
+
 			for (j= 0; j < tPortDef.nBufferCountActual; j++)
 			{
-				/*USE Buffer calls*/ 			
-				pTmpBuffer= TIMM_OSAL_Malloc(((pAppData->MPEG4_TestCaseParams->width*pAppData->MPEG4_TestCaseParams->height)), TIMM_OSAL_TRUE, 0 ,TIMMOSAL_MEM_SEGMENT_EXT);								   
-				GOTO_EXIT_IF((pTmpBuffer== TIMM_OSAL_NULL),OMX_ErrorInsufficientResources);			
+				/*USE Buffer calls*/
+				pTmpBuffer= TIMM_OSAL_Malloc(((pAppData->MPEG4_TestCaseParams->width*pAppData->MPEG4_TestCaseParams->height)), TIMM_OSAL_TRUE, 0 ,TIMMOSAL_MEM_SEGMENT_EXT);
+				GOTO_EXIT_IF((pTmpBuffer== TIMM_OSAL_NULL),OMX_ErrorInsufficientResources);
 				eError = OMX_UseBuffer(pAppData->pHandle, &(pAppData->pOutBuff[j]), tPortDef.nPortIndex, pAppData, ((pAppData->MPEG4_TestCaseParams->width*pAppData->MPEG4_TestCaseParams->height)),pTmpBuffer);
 				GOTO_EXIT_IF((eError != OMX_ErrorNone), eError);
-					
+
 			}
 		}
 
@@ -3077,20 +3077,20 @@ OMX_ERRORTYPE OMXMPEG4Enc_LessthanMinBufferRequirementsNum(MPEG4E_ILClient* pApp
 	/* Wait for initialization to complete.. Wait for Idle state of component  */
 	eError = MPEG4ENC_WaitForState(pAppData);
 	GOTO_EXIT_IF((eError != OMX_ErrorNone), eError);
-	
+
 	MPEG4CLIENT_TRACE_PRINT( "\ncall to goto Idle -> Loaded state");
 	eError = OMX_SendCommand(pHandle,OMX_CommandStateSet, OMX_StateLoaded, NULL);
 	GOTO_EXIT_IF((eError != OMX_ErrorNone), eError);
 /*Free Buffers*/
-	for(i=0; i < tPortParams.nPorts ; i++){			
+	for(i=0; i < tPortParams.nPorts ; i++){
 		tPortDef.nPortIndex = i;
 		eError = OMX_GetParameter(pHandle, OMX_IndexParamPortDefinition, &tPortDef);
 		GOTO_EXIT_IF((eError != OMX_ErrorNone),eError);
 		if(i==MPEG4_APP_INPUTPORT){
 			for (j = 0; j < tPortDef.nBufferCountActual-1; j++){
 				if(!pAppData->MPEG4_TestCaseParams->bInAllocatebuffer)
-						{		
-						TIMM_OSAL_Free(pAppData->pInBuff[j]->pBuffer);				
+						{
+						TIMM_OSAL_Free(pAppData->pInBuff[j]->pBuffer);
 						}
 				eError = OMX_FreeBuffer(pAppData->pHandle, tPortDef.nPortIndex, pAppData->pInBuff[j]);
 				GOTO_EXIT_IF((eError != OMX_ErrorNone), eError);
@@ -3098,16 +3098,16 @@ OMX_ERRORTYPE OMXMPEG4Enc_LessthanMinBufferRequirementsNum(MPEG4E_ILClient* pApp
 		}else if(i==MPEG4_APP_OUTPUTPORT){
 			for (j = 0; j < tPortDef.nBufferCountActual; j++){
 				if(!pAppData->MPEG4_TestCaseParams->bInAllocatebuffer)
-				{				   
-					TIMM_OSAL_Free(pAppData->pOutBuff[j]->pBuffer); 	   
+				{
+					TIMM_OSAL_Free(pAppData->pOutBuff[j]->pBuffer);
 				}
 
 				eError = OMX_FreeBuffer(pAppData->pHandle, tPortDef.nPortIndex, pAppData->pOutBuff[j]);
 				GOTO_EXIT_IF((eError != OMX_ErrorNone), eError);
 			}
-		}	
+		}
 	}
-	
+
 	/* Wait for initialization to complete.. Wait for Idle state of component  */
 	eError = MPEG4ENC_WaitForState(pAppData);
 	GOTO_EXIT_IF((eError != OMX_ErrorNone), eError);
@@ -3119,23 +3119,23 @@ OMX_ERRORTYPE OMXMPEG4Enc_LessthanMinBufferRequirementsNum(MPEG4E_ILClient* pApp
 	MPEG4CLIENT_TRACE_PRINT( "\ncall to FreeHandle()");
 	eError = OMX_FreeHandle(pHandle);
 	GOTO_EXIT_IF((eError != OMX_ErrorNone), eError);
-		
-	
-		
+
+
+
 EXIT:
 	/* De-Initialize OMX Core */
-	MPEG4CLIENT_TRACE_PRINT( "\ncall OMX Deinit");		
+	MPEG4CLIENT_TRACE_PRINT( "\ncall OMX Deinit");
 	eError = OMX_Deinit();
 
 	/*Delete the Events*/
 	TIMM_OSAL_EventDelete(MPEG4VE_Events);
    	TIMM_OSAL_EventDelete(MPEG4VE_CmdEvent);
-	
-	
+
+
 	if(eError != OMX_ErrorNone){
 		MPEG4CLIENT_ERROR_PRINT( "\n%s",MPEG4_GetErrorString(eError));
-	}		
-	
+	}
+
 	MPEG4CLIENT_EXIT_PRINT(eError);
 	return eError;
 
@@ -3143,7 +3143,7 @@ EXIT:
 }
 
 OMX_ERRORTYPE MPEG4E_SetClientParams(MPEG4E_ILClient* pApplicationData){
-	
+
 	MPEG4E_ILClient *pAppData;
 	OMX_ERRORTYPE eError = OMX_ErrorNone;
 	OMX_U32 testcasenum, NumParamCount=0,i,j=0;
@@ -3154,17 +3154,17 @@ OMX_ERRORTYPE MPEG4E_SetClientParams(MPEG4E_ILClient* pApplicationData){
 	char file_string[256];
 	char file_name[256];
 	OMX_S32 file_parameter, MaxParam[10]={0,0,0,0,0,0,0,0,0,0};
-	
+
 
 	if(!pApplicationData){
 		eError = OMX_ErrorBadParameter;
 		goto EXIT;
 	}
 	/*Get the AppData*/
-	pAppData=pApplicationData;	
+	pAppData=pApplicationData;
 	MPEG4CLIENT_INFO_PRINT( "enter the testcase number");
-	scanf("%d", &testcasenum);	
-	
+	scanf("%d", &testcasenum);
+
 /*=================================================================================*/
 /* Get the Basic Settings params from the file 																							  */
 /*=================================================================================*/
@@ -3172,7 +3172,7 @@ OMX_ERRORTYPE MPEG4E_SetClientParams(MPEG4E_ILClient* pApplicationData){
 	//sprintf(EncConfigFile,"%s_Basic_TC_%d.cfg",configFile,testcasenum);
 #endif
 
-#ifdef TODO_ENC_MPEG4	
+#ifdef TODO_ENC_MPEG4
 	strcpy(EncConfigFile, configFile);
 #endif
 
@@ -3194,7 +3194,7 @@ OMX_ERRORTYPE MPEG4E_SetClientParams(MPEG4E_ILClient* pApplicationData){
          }
 	if(fgets(line,254,fpconfigFile)){
 		  sscanf(line,"%s",file_string);
-	        MPEG4CLIENT_INFO_PRINT("Input file = %s", file_string);	
+	        MPEG4CLIENT_INFO_PRINT("Input file = %s", file_string);
 		 pAppData->fIn = fopen(file_string, "rb");
 		 if (!pAppData->fIn)
 		{
@@ -3469,7 +3469,7 @@ OMX_ERRORTYPE MPEG4E_SetClientParams(MPEG4E_ILClient* pApplicationData){
          	eError = OMX_ErrorBadParameter;
             MPEG4CLIENT_ERROR_PRINT("Could not get the StopFrameNum. Check the file syntax");
             goto EXIT;
-         } 
+         }
 	/*close the Basic settings file*/
 	fclose(fpconfigFile);
     fpconfigFile=NULL;
@@ -3486,11 +3486,11 @@ if(pAppData->MPEG4_TestCaseParams->nBitEnableDynamic){
 		MPEG4CLIENT_ERROR_PRINT( "%s - File not found. Place the file in the location of the base_image",EncConfigFile);
 		return OMX_ErrorInsufficientResources;
 	}
-	
+
 	//FrameRate DynFrameRate;
 	MPEG4CLIENT_INFO_PRINT("get the DynFrameRate values");
 	if(fgets(line,254,fpconfigFile)){
-		NumParamCount=0;		
+		NumParamCount=0;
 		j=sscanf(line,"%d %d %d %d %d %d %d %d %d %d",&MaxParam[0],&MaxParam[1],&MaxParam[2],&MaxParam[3],&MaxParam[4],&MaxParam[5],&MaxParam[6],&MaxParam[7],&MaxParam[8],&MaxParam[9]);
 		for(i=0;i<j;i++){
 			MPEG4CLIENT_INFO_PRINT("Param = %d",MaxParam[i]);
@@ -3499,13 +3499,13 @@ if(pAppData->MPEG4_TestCaseParams->nBitEnableDynamic){
 			}else{
 				break;
 			}
-		}			
+		}
 	 }else{
 	 	eError = OMX_ErrorBadParameter;
 		MPEG4CLIENT_ERROR_PRINT("Could not get the frame numbers for the frame rate settings. Check the file syntax");
 		goto EXIT;
-	 } 
-	 /*allocate memory for the Frame rate params*/ 
+	 }
+	 /*allocate memory for the Frame rate params*/
 	 pAppData->MPEG4_TestCaseParamsDynamic->DynFrameRate.nFrameNumber= (OMX_S32*) TIMM_OSAL_Malloc((sizeof(OMX_S32)*(NumParamCount+1)), TIMM_OSAL_TRUE, 0 ,TIMMOSAL_MEM_SEGMENT_EXT);
 	GOTO_EXIT_IF((pAppData->MPEG4_TestCaseParamsDynamic->DynFrameRate.nFrameNumber== TIMM_OSAL_NULL),OMX_ErrorInsufficientResources);
 	/*get the frame numbers in the structure*/
@@ -3517,25 +3517,25 @@ if(pAppData->MPEG4_TestCaseParams->nBitEnableDynamic){
 	if(NumParamCount){
 		 pAppData->MPEG4_TestCaseParamsDynamic->DynFrameRate.nFramerate=(OMX_U32*)TIMM_OSAL_Malloc((sizeof(OMX_U32 )* NumParamCount), TIMM_OSAL_TRUE, 0 ,TIMMOSAL_MEM_SEGMENT_EXT);
 		GOTO_EXIT_IF((pAppData->MPEG4_TestCaseParamsDynamic->DynFrameRate.nFramerate== TIMM_OSAL_NULL),OMX_ErrorInsufficientResources);
-		
+
 		/*get the frame rate values in the structure*/
 		if(fgets(line,254,fpconfigFile)){
 			j=sscanf(line,"%d %d %d %d %d %d %d %d %d %d",&MaxParam[0],&MaxParam[1],&MaxParam[2],&MaxParam[3],&MaxParam[4],&MaxParam[5],&MaxParam[6],&MaxParam[7],&MaxParam[8],&MaxParam[9]);
 			for(i=0;i<NumParamCount;i++){
 				MPEG4CLIENT_INFO_PRINT("Param = %d",MaxParam[i]);
-				pAppData->MPEG4_TestCaseParamsDynamic->DynFrameRate.nFramerate[i]=MaxParam[i];			
-			}			
+				pAppData->MPEG4_TestCaseParamsDynamic->DynFrameRate.nFramerate[i]=MaxParam[i];
+			}
 		 }else{
 		 	eError = OMX_ErrorBadParameter;
 			MPEG4CLIENT_ERROR_PRINT("Could not get the frame rate values . Check the file syntax");
 			goto EXIT;
-		 } 
+		 }
 	 }
 
 	//BitRate DynBitRate;
 	MPEG4CLIENT_INFO_PRINT("get the DynBitRate values");
 	if(fgets(line,254,fpconfigFile)){
-		NumParamCount=0;		
+		NumParamCount=0;
 		j=sscanf(line,"%d %d %d %d %d %d %d %d %d %d",&MaxParam[0],&MaxParam[1],&MaxParam[2],&MaxParam[3],&MaxParam[4],&MaxParam[5],&MaxParam[6],&MaxParam[7],&MaxParam[8],&MaxParam[9]);
 		for(i=0;i<j;i++){
 			MPEG4CLIENT_INFO_PRINT("Param = %d",MaxParam[i]);
@@ -3544,12 +3544,12 @@ if(pAppData->MPEG4_TestCaseParams->nBitEnableDynamic){
 			}else{
 				break;
 			}
-		}			
+		}
 	 }else{
 	 	eError = OMX_ErrorBadParameter;
 		MPEG4CLIENT_ERROR_PRINT("Could not get the frame numbers for the bit rate settings. Check the file syntax");
 		goto EXIT;
-	 } 
+	 }
 	 /*allocate memory for the Bitrate params*/
  	 pAppData->MPEG4_TestCaseParamsDynamic->DynBitRate.nFrameNumber= (OMX_S32*) TIMM_OSAL_Malloc((sizeof(OMX_S32)*(NumParamCount+1)), TIMM_OSAL_TRUE, 0 ,TIMMOSAL_MEM_SEGMENT_EXT);
 	GOTO_EXIT_IF((pAppData->MPEG4_TestCaseParamsDynamic->DynBitRate.nFrameNumber== TIMM_OSAL_NULL),OMX_ErrorInsufficientResources);
@@ -3567,18 +3567,18 @@ if(pAppData->MPEG4_TestCaseParams->nBitEnableDynamic){
 			j=sscanf(line,"%d %d %d %d %d %d %d %d %d %d",&MaxParam[0],&MaxParam[1],&MaxParam[2],&MaxParam[3],&MaxParam[4],&MaxParam[5],&MaxParam[6],&MaxParam[7],&MaxParam[8],&MaxParam[9]);
 			for(i=0;i<NumParamCount;i++){
 				MPEG4CLIENT_INFO_PRINT("Param = %d",MaxParam[i]);
-				pAppData->MPEG4_TestCaseParamsDynamic->DynBitRate.nBitrate[i]=MaxParam[i];			
-			}			
+				pAppData->MPEG4_TestCaseParamsDynamic->DynBitRate.nBitrate[i]=MaxParam[i];
+			}
 		 }else{
 		 	eError = OMX_ErrorBadParameter;
 			MPEG4CLIENT_ERROR_PRINT("Could not get the bitrate values . Check the file syntax");
 			goto EXIT;
 		 }
 	 }
-	 
+
 	//MESearchRange DynMESearchRange;
 	if(fgets(line,254,fpconfigFile)){
-		NumParamCount=0;		
+		NumParamCount=0;
 		j=sscanf(line,"%d %d %d %d %d %d %d %d %d %d",&MaxParam[0],&MaxParam[1],&MaxParam[2],&MaxParam[3],&MaxParam[4],&MaxParam[5],&MaxParam[6],&MaxParam[7],&MaxParam[8],&MaxParam[9]);
 		for(i=0;i<j;i++){
 			MPEG4CLIENT_INFO_PRINT("Param = %d",MaxParam[i]);
@@ -3587,12 +3587,12 @@ if(pAppData->MPEG4_TestCaseParams->nBitEnableDynamic){
 			}else{
 				break;
 			}
-		}			
+		}
 	 }else{
 	 	eError = OMX_ErrorBadParameter;
 		MPEG4CLIENT_ERROR_PRINT("Could not get the frame numbers for the ME search Range settings. Check the file syntax");
 		goto EXIT;
-	 } 
+	 }
 	 /*allocate memory for the ME search Range params*/
 	 pAppData->MPEG4_TestCaseParamsDynamic->DynMESearchRange.nFrameNumber= (OMX_S32*) TIMM_OSAL_Malloc((sizeof(OMX_S32)*(NumParamCount+1)), TIMM_OSAL_TRUE, 0 ,TIMMOSAL_MEM_SEGMENT_EXT);
 	GOTO_EXIT_IF((pAppData->MPEG4_TestCaseParamsDynamic->DynMESearchRange.nFrameNumber== TIMM_OSAL_NULL),OMX_ErrorInsufficientResources);
@@ -3613,14 +3613,14 @@ if(pAppData->MPEG4_TestCaseParams->nBitEnableDynamic){
 		GOTO_EXIT_IF((pAppData->MPEG4_TestCaseParamsDynamic->DynMESearchRange.nHorSearchRangeB== TIMM_OSAL_NULL),OMX_ErrorInsufficientResources);
 		pAppData->MPEG4_TestCaseParamsDynamic->DynMESearchRange.nVerSearchRangeB=(OMX_U32*)TIMM_OSAL_Malloc((sizeof(OMX_U32 )* NumParamCount), TIMM_OSAL_TRUE, 0 ,TIMMOSAL_MEM_SEGMENT_EXT);
 		GOTO_EXIT_IF((pAppData->MPEG4_TestCaseParamsDynamic->DynMESearchRange.nVerSearchRangeB== TIMM_OSAL_NULL),OMX_ErrorInsufficientResources);
-		
+
 		/*get the MEsearch range values in the structure*/
 		if(fgets(line,254,fpconfigFile)){
 			j=sscanf(line,"%d %d %d %d %d %d %d %d %d %d",&MaxParam[0],&MaxParam[1],&MaxParam[2],&MaxParam[3],&MaxParam[4],&MaxParam[5],&MaxParam[6],&MaxParam[7],&MaxParam[8],&MaxParam[9]);
 			for(i=0;i<NumParamCount;i++){
 				MPEG4CLIENT_INFO_PRINT("Param = %d",MaxParam[i]);
-				pAppData->MPEG4_TestCaseParamsDynamic->DynMESearchRange.nMVAccuracy[i]=MaxParam[i];			
-			}			
+				pAppData->MPEG4_TestCaseParamsDynamic->DynMESearchRange.nMVAccuracy[i]=MaxParam[i];
+			}
 		 }else{
 		 	eError = OMX_ErrorBadParameter;
 			MPEG4CLIENT_ERROR_PRINT("Could not get the nMVAccuracy values . Check the file syntax");
@@ -3630,51 +3630,51 @@ if(pAppData->MPEG4_TestCaseParams->nBitEnableDynamic){
 			j=sscanf(line,"%d %d %d %d %d %d %d %d %d %d",&MaxParam[0],&MaxParam[1],&MaxParam[2],&MaxParam[3],&MaxParam[4],&MaxParam[5],&MaxParam[6],&MaxParam[7],&MaxParam[8],&MaxParam[9]);
 			for(i=0;i<NumParamCount;i++){
 				MPEG4CLIENT_INFO_PRINT("Param = %d",MaxParam[i]);
-				pAppData->MPEG4_TestCaseParamsDynamic->DynMESearchRange.nHorSearchRangeP[i]=MaxParam[i];			
-			}			
+				pAppData->MPEG4_TestCaseParamsDynamic->DynMESearchRange.nHorSearchRangeP[i]=MaxParam[i];
+			}
 		 }else{
 		 	eError = OMX_ErrorBadParameter;
 			MPEG4CLIENT_ERROR_PRINT("Could not get the nHorSearchRangeP values . Check the file syntax");
 			goto EXIT;
-		 } 
+		 }
 		 if(fgets(line,254,fpconfigFile)){
 			j=sscanf(line,"%d %d %d %d %d %d %d %d %d %d",&MaxParam[0],&MaxParam[1],&MaxParam[2],&MaxParam[3],&MaxParam[4],&MaxParam[5],&MaxParam[6],&MaxParam[7],&MaxParam[8],&MaxParam[9]);
 			for(i=0;i<NumParamCount;i++){
 				MPEG4CLIENT_INFO_PRINT("Param = %d",MaxParam[i]);
-				pAppData->MPEG4_TestCaseParamsDynamic->DynMESearchRange.nVerSearchRangeP[i]=MaxParam[i];			
-			}			
+				pAppData->MPEG4_TestCaseParamsDynamic->DynMESearchRange.nVerSearchRangeP[i]=MaxParam[i];
+			}
 		 }else{
 		 	eError = OMX_ErrorBadParameter;
 			MPEG4CLIENT_ERROR_PRINT("Could not get the nVerSearchRangeP values . Check the file syntax");
 			goto EXIT;
-		 } 
+		 }
 		 if(fgets(line,254,fpconfigFile)){
 			j=sscanf(line,"%d %d %d %d %d %d %d %d %d %d",&MaxParam[0],&MaxParam[1],&MaxParam[2],&MaxParam[3],&MaxParam[4],&MaxParam[5],&MaxParam[6],&MaxParam[7],&MaxParam[8],&MaxParam[9]);
 			for(i=0;i<NumParamCount;i++){
 				MPEG4CLIENT_INFO_PRINT("Param = %d",MaxParam[i]);
-				pAppData->MPEG4_TestCaseParamsDynamic->DynMESearchRange.nHorSearchRangeB[i]=MaxParam[i];			
-			}			
+				pAppData->MPEG4_TestCaseParamsDynamic->DynMESearchRange.nHorSearchRangeB[i]=MaxParam[i];
+			}
 		 }else{
 		 	eError = OMX_ErrorBadParameter;
 			MPEG4CLIENT_ERROR_PRINT("Could not get the nHorSearchRangeB values . Check the file syntax");
 			goto EXIT;
-		 } 
+		 }
 		 if(fgets(line,254,fpconfigFile)){
 			j=sscanf(line,"%d %d %d %d %d %d %d %d %d %d",&MaxParam[0],&MaxParam[1],&MaxParam[2],&MaxParam[3],&MaxParam[4],&MaxParam[5],&MaxParam[6],&MaxParam[7],&MaxParam[8],&MaxParam[9]);
 			for(i=0;i<NumParamCount;i++){
 				MPEG4CLIENT_INFO_PRINT("Param = %d",MaxParam[i]);
-				pAppData->MPEG4_TestCaseParamsDynamic->DynMESearchRange.nVerSearchRangeB[i]=MaxParam[i];			
-			}			
+				pAppData->MPEG4_TestCaseParamsDynamic->DynMESearchRange.nVerSearchRangeB[i]=MaxParam[i];
+			}
 		 }else{
 		 	eError = OMX_ErrorBadParameter;
 			MPEG4CLIENT_ERROR_PRINT("Could not get the nVerSearchRangeB values . Check the file syntax");
 			goto EXIT;
-		 } 
+		 }
 	 }
 	/////ForceFrame DynForceFrame;
 	MPEG4CLIENT_INFO_PRINT("get the DynForceFrame values");
 	if(fgets(line,254,fpconfigFile)){
-		NumParamCount=0;		
+		NumParamCount=0;
 		j=sscanf(line,"%d %d %d %d %d %d %d %d %d %d",&MaxParam[0],&MaxParam[1],&MaxParam[2],&MaxParam[3],&MaxParam[4],&MaxParam[5],&MaxParam[6],&MaxParam[7],&MaxParam[8],&MaxParam[9]);
 		for(i=0;i<j;i++){
 			MPEG4CLIENT_INFO_PRINT("Param = %d",MaxParam[i]);
@@ -3683,13 +3683,13 @@ if(pAppData->MPEG4_TestCaseParams->nBitEnableDynamic){
 			}else{
 				break;
 			}
-		}			
+		}
 	 }else{
 	 	eError = OMX_ErrorBadParameter;
 		MPEG4CLIENT_ERROR_PRINT("Could not get the frame numbers for the force frame settings. Check the file syntax");
 		goto EXIT;
-	 } 
-	/*allocate memory for the Force frame params*/	
+	 }
+	/*allocate memory for the Force frame params*/
 	pAppData->MPEG4_TestCaseParamsDynamic->DynForceFrame.nFrameNumber= (OMX_S32*) TIMM_OSAL_Malloc((sizeof(OMX_S32)*(NumParamCount+1)), TIMM_OSAL_TRUE, 0 ,TIMMOSAL_MEM_SEGMENT_EXT);
 	GOTO_EXIT_IF((pAppData->MPEG4_TestCaseParamsDynamic->DynForceFrame.nFrameNumber== TIMM_OSAL_NULL),OMX_ErrorInsufficientResources);
 	/*get the frame numbers in the structure*/
@@ -3705,17 +3705,17 @@ if(pAppData->MPEG4_TestCaseParams->nBitEnableDynamic){
 			j=sscanf(line,"%d %d %d %d %d %d %d %d %d %d",&MaxParam[0],&MaxParam[1],&MaxParam[2],&MaxParam[3],&MaxParam[4],&MaxParam[5],&MaxParam[6],&MaxParam[7],&MaxParam[8],&MaxParam[9]);
 			for(i=0;i<NumParamCount;i++){
 				MPEG4CLIENT_INFO_PRINT("Param = %d",MaxParam[i]);
-				pAppData->MPEG4_TestCaseParamsDynamic->DynForceFrame.ForceIFrame[i]=MaxParam[i];			
-			}			
+				pAppData->MPEG4_TestCaseParamsDynamic->DynForceFrame.ForceIFrame[i]=MaxParam[i];
+			}
 		 }else{
 		 	eError = OMX_ErrorBadParameter;
 			MPEG4CLIENT_ERROR_PRINT("Could not get the forceframe values . Check the file syntax");
 			goto EXIT;
-		 } 
+		 }
 	}
 	//QpSettings DynQpSettings;
 	if(fgets(line,254,fpconfigFile)){
-		NumParamCount=0;		
+		NumParamCount=0;
 		j=sscanf(line,"%d %d %d %d %d %d %d %d %d %d",&MaxParam[0],&MaxParam[1],&MaxParam[2],&MaxParam[3],&MaxParam[4],&MaxParam[5],&MaxParam[6],&MaxParam[7],&MaxParam[8],&MaxParam[9]);
 		for(i=0;i<j;i++){
 			MPEG4CLIENT_INFO_PRINT("Param = %d",MaxParam[i]);
@@ -3724,13 +3724,13 @@ if(pAppData->MPEG4_TestCaseParams->nBitEnableDynamic){
 			}else{
 				break;
 			}
-		}			
+		}
 	 }else{
 	 	eError = OMX_ErrorBadParameter;
 		MPEG4CLIENT_ERROR_PRINT("Could not get the frame numbers for theQp settings. Check the file syntax");
 		goto EXIT;
-	 } 
-	/*allocate memory for the Force frame params*/	
+	 }
+	/*allocate memory for the Force frame params*/
 	pAppData->MPEG4_TestCaseParamsDynamic->DynQpSettings.nFrameNumber= (OMX_S32*) TIMM_OSAL_Malloc((sizeof(OMX_S32)*(NumParamCount+1)), TIMM_OSAL_TRUE, 0 ,TIMMOSAL_MEM_SEGMENT_EXT);
 	GOTO_EXIT_IF((pAppData->MPEG4_TestCaseParamsDynamic->DynQpSettings.nFrameNumber== TIMM_OSAL_NULL),OMX_ErrorInsufficientResources);
 	/*get the frame numbers in the structure*/
@@ -3771,8 +3771,8 @@ if(pAppData->MPEG4_TestCaseParams->nBitEnableDynamic){
 			j=sscanf(line,"%d %d %d %d %d %d %d %d %d %d",&MaxParam[0],&MaxParam[1],&MaxParam[2],&MaxParam[3],&MaxParam[4],&MaxParam[5],&MaxParam[6],&MaxParam[7],&MaxParam[8],&MaxParam[9]);
 			for(i=0;i<NumParamCount;i++){
 				MPEG4CLIENT_INFO_PRINT("Param = %d",MaxParam[i]);
-				pAppData->MPEG4_TestCaseParamsDynamic->DynQpSettings.nQpI[i]=MaxParam[i];			
-			}			
+				pAppData->MPEG4_TestCaseParamsDynamic->DynQpSettings.nQpI[i]=MaxParam[i];
+			}
 		 }else{
 		 	eError = OMX_ErrorBadParameter;
 			MPEG4CLIENT_ERROR_PRINT("Could not get the QpI . Check the file syntax");
@@ -3782,94 +3782,94 @@ if(pAppData->MPEG4_TestCaseParams->nBitEnableDynamic){
 			j=sscanf(line,"%d %d %d %d %d %d %d %d %d %d",&MaxParam[0],&MaxParam[1],&MaxParam[2],&MaxParam[3],&MaxParam[4],&MaxParam[5],&MaxParam[6],&MaxParam[7],&MaxParam[8],&MaxParam[9]);
 			for(i=0;i<NumParamCount;i++){
 				MPEG4CLIENT_INFO_PRINT("Param = %d",MaxParam[i]);
-				pAppData->MPEG4_TestCaseParamsDynamic->DynQpSettings.nQpMaxI[i]=MaxParam[i];			
-			}			
+				pAppData->MPEG4_TestCaseParamsDynamic->DynQpSettings.nQpMaxI[i]=MaxParam[i];
+			}
 		 }else{
 		 	eError = OMX_ErrorBadParameter;
 			MPEG4CLIENT_ERROR_PRINT("Could not get the QpMaxI . Check the file syntax");
 			goto EXIT;
-		 } 
+		 }
 		 if(fgets(line,254,fpconfigFile)){
 			j=sscanf(line,"%d %d %d %d %d %d %d %d %d %d",&MaxParam[0],&MaxParam[1],&MaxParam[2],&MaxParam[3],&MaxParam[4],&MaxParam[5],&MaxParam[6],&MaxParam[7],&MaxParam[8],&MaxParam[9]);
 			for(i=0;i<NumParamCount;i++){
 				MPEG4CLIENT_INFO_PRINT("Param = %d",MaxParam[i]);
-				pAppData->MPEG4_TestCaseParamsDynamic->DynQpSettings.nQpMinI[i]=MaxParam[i];			
-			}			
+				pAppData->MPEG4_TestCaseParamsDynamic->DynQpSettings.nQpMinI[i]=MaxParam[i];
+			}
 		 }else{
 		 	eError = OMX_ErrorBadParameter;
 			MPEG4CLIENT_ERROR_PRINT("Could not get the QpMinI . Check the file syntax");
 			goto EXIT;
-		 } 
+		 }
 		 if(fgets(line,254,fpconfigFile)){
 			j=sscanf(line,"%d %d %d %d %d %d %d %d %d %d",&MaxParam[0],&MaxParam[1],&MaxParam[2],&MaxParam[3],&MaxParam[4],&MaxParam[5],&MaxParam[6],&MaxParam[7],&MaxParam[8],&MaxParam[9]);
 			for(i=0;i<NumParamCount;i++){
 				MPEG4CLIENT_INFO_PRINT("Param = %d",MaxParam[i]);
-				pAppData->MPEG4_TestCaseParamsDynamic->DynQpSettings.nQpP[i]=MaxParam[i];			
-			}			
+				pAppData->MPEG4_TestCaseParamsDynamic->DynQpSettings.nQpP[i]=MaxParam[i];
+			}
 		 }else{
 		 	eError = OMX_ErrorBadParameter;
 			MPEG4CLIENT_ERROR_PRINT("Could not get the QpP . Check the file syntax");
 			goto EXIT;
-		 } 
+		 }
 		 if(fgets(line,254,fpconfigFile)){
 			j=sscanf(line,"%d %d %d %d %d %d %d %d %d %d",&MaxParam[0],&MaxParam[1],&MaxParam[2],&MaxParam[3],&MaxParam[4],&MaxParam[5],&MaxParam[6],&MaxParam[7],&MaxParam[8],&MaxParam[9]);
 			for(i=0;i<NumParamCount;i++){
 				MPEG4CLIENT_INFO_PRINT("Param = %d",MaxParam[i]);
-				pAppData->MPEG4_TestCaseParamsDynamic->DynQpSettings.nQpMaxP[i]=MaxParam[i];			
-			}			
+				pAppData->MPEG4_TestCaseParamsDynamic->DynQpSettings.nQpMaxP[i]=MaxParam[i];
+			}
 		 }else{
 		 	eError = OMX_ErrorBadParameter;
 			MPEG4CLIENT_ERROR_PRINT("Could not get the QpMaxP . Check the file syntax");
 			goto EXIT;
-		 } 
+		 }
 		 if(fgets(line,254,fpconfigFile)){
 			j=sscanf(line,"%d %d %d %d %d %d %d %d %d %d",&MaxParam[0],&MaxParam[1],&MaxParam[2],&MaxParam[3],&MaxParam[4],&MaxParam[5],&MaxParam[6],&MaxParam[7],&MaxParam[8],&MaxParam[9]);
 			for(i=0;i<NumParamCount;i++){
 				MPEG4CLIENT_INFO_PRINT("Param = %d",MaxParam[i]);
-				pAppData->MPEG4_TestCaseParamsDynamic->DynQpSettings.nQpMinP[i]=MaxParam[i];			
-			}			
+				pAppData->MPEG4_TestCaseParamsDynamic->DynQpSettings.nQpMinP[i]=MaxParam[i];
+			}
 		 }else{
 		 	eError = OMX_ErrorBadParameter;
 			MPEG4CLIENT_ERROR_PRINT("Could not get the QpPMin . Check the file syntax");
 			goto EXIT;
-		 } 
+		 }
 		 if(fgets(line,254,fpconfigFile)){
 			j=sscanf(line,"%d %d %d %d %d %d %d %d %d %d",&MaxParam[0],&MaxParam[1],&MaxParam[2],&MaxParam[3],&MaxParam[4],&MaxParam[5],&MaxParam[6],&MaxParam[7],&MaxParam[8],&MaxParam[9]);
 			for(i=0;i<NumParamCount;i++){
 				MPEG4CLIENT_INFO_PRINT("Param = %d",MaxParam[i]);
-				pAppData->MPEG4_TestCaseParamsDynamic->DynQpSettings.nQpOffsetB[i]=MaxParam[i];			
-			}			
+				pAppData->MPEG4_TestCaseParamsDynamic->DynQpSettings.nQpOffsetB[i]=MaxParam[i];
+			}
 		 }else{
 		 	eError = OMX_ErrorBadParameter;
 			MPEG4CLIENT_ERROR_PRINT("Could not get the QpoffsetB . Check the file syntax");
 			goto EXIT;
-		 } 
+		 }
 		 if(fgets(line,254,fpconfigFile)){
 			j=sscanf(line,"%d %d %d %d %d %d %d %d %d %d",&MaxParam[0],&MaxParam[1],&MaxParam[2],&MaxParam[3],&MaxParam[4],&MaxParam[5],&MaxParam[6],&MaxParam[7],&MaxParam[8],&MaxParam[9]);
 			for(i=0;i<NumParamCount;i++){
 				MPEG4CLIENT_INFO_PRINT("Param = %d",MaxParam[i]);
-				pAppData->MPEG4_TestCaseParamsDynamic->DynQpSettings.nQpMaxB[i]=MaxParam[i];			
-			}			
+				pAppData->MPEG4_TestCaseParamsDynamic->DynQpSettings.nQpMaxB[i]=MaxParam[i];
+			}
 		 }else{
 		 	eError = OMX_ErrorBadParameter;
 			MPEG4CLIENT_ERROR_PRINT("Could not get the QpMaxB . Check the file syntax");
 			goto EXIT;
-		 } 
+		 }
 		 if(fgets(line,254,fpconfigFile)){
 			j=sscanf(line,"%d %d %d %d %d %d %d %d %d %d",&MaxParam[0],&MaxParam[1],&MaxParam[2],&MaxParam[3],&MaxParam[4],&MaxParam[5],&MaxParam[6],&MaxParam[7],&MaxParam[8],&MaxParam[9]);
 			for(i=0;i<NumParamCount;i++){
 				MPEG4CLIENT_INFO_PRINT("Param = %d",MaxParam[i]);
-				pAppData->MPEG4_TestCaseParamsDynamic->DynQpSettings.nQpMinB[i]=MaxParam[i];			
-			}			
+				pAppData->MPEG4_TestCaseParamsDynamic->DynQpSettings.nQpMinB[i]=MaxParam[i];
+			}
 		 }else{
 		 	eError = OMX_ErrorBadParameter;
 			MPEG4CLIENT_ERROR_PRINT("Could not get the QpBMin . Check the file syntax");
 			goto EXIT;
-		 } 
+		 }
 	}
 	//IntraFrameInterval DynIntraFrmaeInterval;
 	if(fgets(line,254,fpconfigFile)){
-		NumParamCount=0;		
+		NumParamCount=0;
 		j=sscanf(line,"%d %d %d %d %d %d %d %d %d %d",&MaxParam[0],&MaxParam[1],&MaxParam[2],&MaxParam[3],&MaxParam[4],&MaxParam[5],&MaxParam[6],&MaxParam[7],&MaxParam[8],&MaxParam[9]);
 		for(i=0;i<j;i++){
 			MPEG4CLIENT_INFO_PRINT("Param = %d",MaxParam[i]);
@@ -3878,12 +3878,12 @@ if(pAppData->MPEG4_TestCaseParams->nBitEnableDynamic){
 			}else{
 				break;
 			}
-		}			
+		}
 	 }else{
 	 	eError = OMX_ErrorBadParameter;
 		MPEG4CLIENT_ERROR_PRINT("Could not get the frame numbers for the IntrFrameInterval settings. Check the file syntax");
 		goto EXIT;
-	 } 
+	 }
 	 /*allocate memory for the intrafarme interval params*/
  	 pAppData->MPEG4_TestCaseParamsDynamic->DynIntraFrmaeInterval.nFrameNumber= (OMX_S32*) TIMM_OSAL_Malloc((sizeof(OMX_S32)*(NumParamCount+1)), TIMM_OSAL_TRUE, 0 ,TIMMOSAL_MEM_SEGMENT_EXT);
 	GOTO_EXIT_IF((pAppData->MPEG4_TestCaseParamsDynamic->DynIntraFrmaeInterval.nFrameNumber== TIMM_OSAL_NULL),OMX_ErrorInsufficientResources);
@@ -3896,14 +3896,14 @@ if(pAppData->MPEG4_TestCaseParams->nBitEnableDynamic){
 	if(NumParamCount){
 		 pAppData->MPEG4_TestCaseParamsDynamic->DynIntraFrmaeInterval.nIntraFrameInterval=(OMX_U32*)TIMM_OSAL_Malloc((sizeof(OMX_U32 )* NumParamCount), TIMM_OSAL_TRUE, 0 ,TIMMOSAL_MEM_SEGMENT_EXT);
 		GOTO_EXIT_IF((pAppData->MPEG4_TestCaseParamsDynamic->DynIntraFrmaeInterval.nIntraFrameInterval== TIMM_OSAL_NULL),OMX_ErrorInsufficientResources);
-		
+
 		/*get the bitrate values in the structure*/
 		if(fgets(line,254,fpconfigFile)){
 			j=sscanf(line,"%d %d %d %d %d %d %d %d %d %d",&MaxParam[0],&MaxParam[1],&MaxParam[2],&MaxParam[3],&MaxParam[4],&MaxParam[5],&MaxParam[6],&MaxParam[7],&MaxParam[8],&MaxParam[9]);
 			for(i=0;i<NumParamCount;i++){
 				MPEG4CLIENT_INFO_PRINT("Param = %d",MaxParam[i]);
-				pAppData->MPEG4_TestCaseParamsDynamic->DynIntraFrmaeInterval.nIntraFrameInterval[i]=MaxParam[i];			
-			}			
+				pAppData->MPEG4_TestCaseParamsDynamic->DynIntraFrmaeInterval.nIntraFrameInterval[i]=MaxParam[i];
+			}
 		 }else{
 		 	eError = OMX_ErrorBadParameter;
 			MPEG4CLIENT_ERROR_PRINT("Could not get the IntrFrameInterval values . Check the file syntax");
@@ -3913,7 +3913,7 @@ if(pAppData->MPEG4_TestCaseParams->nBitEnableDynamic){
 	//NALSize DynNALSize;
 	MPEG4CLIENT_INFO_PRINT("get the DynNALSize values");
 	if(fgets(line,254,fpconfigFile)){
-		NumParamCount=0;		
+		NumParamCount=0;
 		j=sscanf(line,"%d %d %d %d %d %d %d %d %d %d",&MaxParam[0],&MaxParam[1],&MaxParam[2],&MaxParam[3],&MaxParam[4],&MaxParam[5],&MaxParam[6],&MaxParam[7],&MaxParam[8],&MaxParam[9]);
 		for(i=0;i<j;i++){
 			MPEG4CLIENT_INFO_PRINT("Param = %d",MaxParam[i]);
@@ -3922,12 +3922,12 @@ if(pAppData->MPEG4_TestCaseParams->nBitEnableDynamic){
 			}else{
 				break;
 			}
-		}			
+		}
 	 }else{
 	 	eError = OMX_ErrorBadParameter;
 		MPEG4CLIENT_ERROR_PRINT("Could not get the frame numbers for the DynNAL settings. Check the file syntax");
 		goto EXIT;
-	 } 
+	 }
 	 /*allocate memory for the DynNALSize params*/
  	 pAppData->MPEG4_TestCaseParamsDynamic->DynNALSize.nFrameNumber= (OMX_S32*) TIMM_OSAL_Malloc((sizeof(OMX_S32)*(NumParamCount+1)), TIMM_OSAL_TRUE, 0 ,TIMMOSAL_MEM_SEGMENT_EXT);
 	GOTO_EXIT_IF((pAppData->MPEG4_TestCaseParamsDynamic->DynNALSize.nFrameNumber== TIMM_OSAL_NULL),OMX_ErrorInsufficientResources);
@@ -3940,14 +3940,14 @@ if(pAppData->MPEG4_TestCaseParams->nBitEnableDynamic){
 	if(NumParamCount){
 		 pAppData->MPEG4_TestCaseParamsDynamic->DynNALSize.nNaluSize=(OMX_U32*)TIMM_OSAL_Malloc((sizeof(OMX_U32 )* NumParamCount), TIMM_OSAL_TRUE, 0 ,TIMMOSAL_MEM_SEGMENT_EXT);
 		GOTO_EXIT_IF((pAppData->MPEG4_TestCaseParamsDynamic->DynNALSize.nNaluSize== TIMM_OSAL_NULL),OMX_ErrorInsufficientResources);
-		
+
 		/*get the NALSize values in the structure*/
 		if(fgets(line,254,fpconfigFile)){
 			j=sscanf(line,"%d %d %d %d %d %d %d %d %d %d",&MaxParam[0],&MaxParam[1],&MaxParam[2],&MaxParam[3],&MaxParam[4],&MaxParam[5],&MaxParam[6],&MaxParam[7],&MaxParam[8],&MaxParam[9]);
 			for(i=0;i<NumParamCount;i++){
 				MPEG4CLIENT_INFO_PRINT("Param = %d",MaxParam[i]);
-				pAppData->MPEG4_TestCaseParamsDynamic->DynNALSize.nNaluSize[i]=MaxParam[i];			
-			}			
+				pAppData->MPEG4_TestCaseParamsDynamic->DynNALSize.nNaluSize[i]=MaxParam[i];
+			}
 		 }else{
 		 	eError = OMX_ErrorBadParameter;
 			MPEG4CLIENT_ERROR_PRINT("Could not get the NALSize values . Check the file syntax");
@@ -3957,7 +3957,7 @@ if(pAppData->MPEG4_TestCaseParams->nBitEnableDynamic){
 	//SliceCodingSettings DynSliceSettings;
 	MPEG4CLIENT_INFO_PRINT("get the DynSliceSettings values");
 	if(fgets(line,254,fpconfigFile)){
-		NumParamCount=0;		
+		NumParamCount=0;
 		j=sscanf(line,"%d %d %d %d %d %d %d %d %d %d",&MaxParam[0],&MaxParam[1],&MaxParam[2],&MaxParam[3],&MaxParam[4],&MaxParam[5],&MaxParam[6],&MaxParam[7],&MaxParam[8],&MaxParam[9]);
 		for(i=0;i<j;i++){
 			MPEG4CLIENT_INFO_PRINT("Param = %d",MaxParam[i]);
@@ -3966,12 +3966,12 @@ if(pAppData->MPEG4_TestCaseParams->nBitEnableDynamic){
 			}else{
 				break;
 			}
-		}			
+		}
 	 }else{
 	 	eError = OMX_ErrorBadParameter;
 		MPEG4CLIENT_ERROR_PRINT("Could not get the frame numbers for the DynSliceSettings settings. Check the file syntax");
 		goto EXIT;
-	 } 
+	 }
 	 /*allocate memory for the DynSliceSettings params*/
  	 pAppData->MPEG4_TestCaseParamsDynamic->DynSliceSettings.nFrameNumber= (OMX_S32*) TIMM_OSAL_Malloc((sizeof(OMX_S32)*(NumParamCount+1)), TIMM_OSAL_TRUE, 0 ,TIMMOSAL_MEM_SEGMENT_EXT);
 	GOTO_EXIT_IF((pAppData->MPEG4_TestCaseParamsDynamic->DynSliceSettings.nFrameNumber== TIMM_OSAL_NULL),OMX_ErrorInsufficientResources);
@@ -3986,14 +3986,14 @@ if(pAppData->MPEG4_TestCaseParams->nBitEnableDynamic){
 		GOTO_EXIT_IF((pAppData->MPEG4_TestCaseParamsDynamic->DynSliceSettings.eSliceMode== TIMM_OSAL_NULL),OMX_ErrorInsufficientResources);
 		pAppData->MPEG4_TestCaseParamsDynamic->DynSliceSettings.nSlicesize=(OMX_U32*)TIMM_OSAL_Malloc((sizeof(OMX_U32 )* NumParamCount), TIMM_OSAL_TRUE, 0 ,TIMMOSAL_MEM_SEGMENT_EXT);
 		GOTO_EXIT_IF((pAppData->MPEG4_TestCaseParamsDynamic->DynSliceSettings.nSlicesize== TIMM_OSAL_NULL),OMX_ErrorInsufficientResources);
-		
+
 		/*get the SliceMOde values in the structure*/
 		if(fgets(line,254,fpconfigFile)){
 			j=sscanf(line,"%d %d %d %d %d %d %d %d %d %d",&MaxParam[0],&MaxParam[1],&MaxParam[2],&MaxParam[3],&MaxParam[4],&MaxParam[5],&MaxParam[6],&MaxParam[7],&MaxParam[8],&MaxParam[9]);
 			for(i=0;i<NumParamCount;i++){
 				MPEG4CLIENT_INFO_PRINT("Param = %d",MaxParam[i]);
-				pAppData->MPEG4_TestCaseParamsDynamic->DynSliceSettings.eSliceMode[i]=MaxParam[i];			
-			}			
+				pAppData->MPEG4_TestCaseParamsDynamic->DynSliceSettings.eSliceMode[i]=MaxParam[i];
+			}
 		 }else{
 		 	eError = OMX_ErrorBadParameter;
 			MPEG4CLIENT_ERROR_PRINT("Could not get the slicemode values . Check the file syntax");
@@ -4003,8 +4003,8 @@ if(pAppData->MPEG4_TestCaseParams->nBitEnableDynamic){
 			j=sscanf(line,"%d %d %d %d %d %d %d %d %d %d",&MaxParam[0],&MaxParam[1],&MaxParam[2],&MaxParam[3],&MaxParam[4],&MaxParam[5],&MaxParam[6],&MaxParam[7],&MaxParam[8],&MaxParam[9]);
 			for(i=0;i<NumParamCount;i++){
 				MPEG4CLIENT_INFO_PRINT("Param = %d",MaxParam[i]);
-				pAppData->MPEG4_TestCaseParamsDynamic->DynSliceSettings.nSlicesize[i]=MaxParam[i];			
-			}			
+				pAppData->MPEG4_TestCaseParamsDynamic->DynSliceSettings.nSlicesize[i]=MaxParam[i];
+			}
 		 }else{
 		 	eError = OMX_ErrorBadParameter;
 			MPEG4CLIENT_ERROR_PRINT("Could not get the SliceSize values . Check the file syntax");
@@ -4015,7 +4015,7 @@ if(pAppData->MPEG4_TestCaseParams->nBitEnableDynamic){
 	//PixelInfo DynPixelInfo;
 	MPEG4CLIENT_INFO_PRINT("get the DynPixelInfo values");
 	if(fgets(line,254,fpconfigFile)){
-		NumParamCount=0;		
+		NumParamCount=0;
 		j=sscanf(line,"%d %d %d %d %d %d %d %d %d %d",&MaxParam[0],&MaxParam[1],&MaxParam[2],&MaxParam[3],&MaxParam[4],&MaxParam[5],&MaxParam[6],&MaxParam[7],&MaxParam[8],&MaxParam[9]);
 		for(i=0;i<j;i++){
 			MPEG4CLIENT_INFO_PRINT("Param = %d",MaxParam[i]);
@@ -4024,12 +4024,12 @@ if(pAppData->MPEG4_TestCaseParams->nBitEnableDynamic){
 			}else{
 				break;
 			}
-		}			
+		}
 	 }else{
 	 	eError = OMX_ErrorBadParameter;
 		MPEG4CLIENT_ERROR_PRINT("Could not get the frame numbers for the DynPixelInfo settings. Check the file syntax");
 		goto EXIT;
-	 } 
+	 }
 	 /*allocate memory for the DynPixelInfo params*/
 	 pAppData->MPEG4_TestCaseParamsDynamic->DynPixelInfo.nFrameNumber= (OMX_S32*) TIMM_OSAL_Malloc((sizeof(OMX_S32)*(NumParamCount+1)), TIMM_OSAL_TRUE, 0 ,TIMMOSAL_MEM_SEGMENT_EXT);
 	GOTO_EXIT_IF((pAppData->MPEG4_TestCaseParamsDynamic->DynPixelInfo.nFrameNumber== TIMM_OSAL_NULL),OMX_ErrorInsufficientResources);
@@ -4044,14 +4044,14 @@ if(pAppData->MPEG4_TestCaseParams->nBitEnableDynamic){
 		GOTO_EXIT_IF((pAppData->MPEG4_TestCaseParamsDynamic->DynPixelInfo.nWidth== TIMM_OSAL_NULL),OMX_ErrorInsufficientResources);
 		pAppData->MPEG4_TestCaseParamsDynamic->DynPixelInfo.nHeight=(OMX_U32*)TIMM_OSAL_Malloc((sizeof(OMX_U32 )* NumParamCount), TIMM_OSAL_TRUE, 0 ,TIMMOSAL_MEM_SEGMENT_EXT);
 		GOTO_EXIT_IF((pAppData->MPEG4_TestCaseParamsDynamic->DynPixelInfo.nHeight== TIMM_OSAL_NULL),OMX_ErrorInsufficientResources);
-		
+
 		/*get the width&height values in the structure*/
 		if(fgets(line,254,fpconfigFile)){
 			j=sscanf(line,"%d %d %d %d %d %d %d %d %d %d",&MaxParam[0],&MaxParam[1],&MaxParam[2],&MaxParam[3],&MaxParam[4],&MaxParam[5],&MaxParam[6],&MaxParam[7],&MaxParam[8],&MaxParam[9]);
 			for(i=0;i<NumParamCount;i++){
 				MPEG4CLIENT_INFO_PRINT("Param = %d",MaxParam[i]);
-				pAppData->MPEG4_TestCaseParamsDynamic->DynPixelInfo.nWidth[i]=MaxParam[i];			
-			}			
+				pAppData->MPEG4_TestCaseParamsDynamic->DynPixelInfo.nWidth[i]=MaxParam[i];
+			}
 		 }else{
 		 	eError = OMX_ErrorBadParameter;
 			MPEG4CLIENT_ERROR_PRINT("Could not get the Width values . Check the file syntax");
@@ -4061,15 +4061,15 @@ if(pAppData->MPEG4_TestCaseParams->nBitEnableDynamic){
 			j=sscanf(line,"%d %d %d %d %d %d %d %d %d %d",&MaxParam[0],&MaxParam[1],&MaxParam[2],&MaxParam[3],&MaxParam[4],&MaxParam[5],&MaxParam[6],&MaxParam[7],&MaxParam[8],&MaxParam[9]);
 			for(i=0;i<NumParamCount;i++){
 				MPEG4CLIENT_INFO_PRINT("Param = %d",MaxParam[i]);
-				pAppData->MPEG4_TestCaseParamsDynamic->DynPixelInfo.nHeight[i]=MaxParam[i];			
-			}			
+				pAppData->MPEG4_TestCaseParamsDynamic->DynPixelInfo.nHeight[i]=MaxParam[i];
+			}
 		 }else{
 		 	eError = OMX_ErrorBadParameter;
 			MPEG4CLIENT_ERROR_PRINT("Could not get the Height values . Check the file syntax");
 			goto EXIT;
 		 }
 	 }
-	
+
 	/*close the Dynamic settings file*/
 	fclose(fpconfigFile);
     fpconfigFile=NULL;
@@ -4203,7 +4203,7 @@ if(pAppData->MPEG4_TestCaseParams->nBitEnableAdvanced){
          	eError = OMX_ErrorBadParameter;
             MPEG4CLIENT_ERROR_PRINT("Could not get the pAppData->MPEG4_TestCaseParamsAdvanced->VUI.bFullRange Check the file syntax");
             goto EXIT;
-        }	
+        }
 
 	//IntrapredictionSettings IntraPred;
 	if(fgets(line,254,fpconfigFile)){
@@ -4214,7 +4214,7 @@ if(pAppData->MPEG4_TestCaseParams->nBitEnableAdvanced){
          	eError = OMX_ErrorBadParameter;
             MPEG4CLIENT_ERROR_PRINT("Could not get the pAppData->MPEG4_TestCaseParamsAdvanced->IntraPred.nLumaIntra4x4Enable Check the file syntax");
             goto EXIT;
-        }	
+        }
 	if(fgets(line,254,fpconfigFile)){
             sscanf(line,"%x",&file_parameter);
     	    MPEG4CLIENT_INFO_PRINT("pAppData->MPEG4_TestCaseParamsAdvanced->IntraPred.nLumaIntra8x8Enable= %x", file_parameter);
@@ -4223,7 +4223,7 @@ if(pAppData->MPEG4_TestCaseParams->nBitEnableAdvanced){
          	eError = OMX_ErrorBadParameter;
             MPEG4CLIENT_ERROR_PRINT("Could not get the pAppData->MPEG4_TestCaseParamsAdvanced->IntraPred.nLumaIntra8x8Enable Check the file syntax");
             goto EXIT;
-        }	
+        }
 	if(fgets(line,254,fpconfigFile)){
             sscanf(line,"%x",&file_parameter);
     	    MPEG4CLIENT_INFO_PRINT("pAppData->MPEG4_TestCaseParamsAdvanced->IntraPred.nLumaIntra16x16Enable= %x", file_parameter);
@@ -4232,7 +4232,7 @@ if(pAppData->MPEG4_TestCaseParams->nBitEnableAdvanced){
          	eError = OMX_ErrorBadParameter;
             MPEG4CLIENT_ERROR_PRINT("Could not get the pAppData->MPEG4_TestCaseParamsAdvanced->IntraPred.nLumaIntra16x16Enable  Check the file syntax");
             goto EXIT;
-        }	
+        }
 	if(fgets(line,254,fpconfigFile)){
             sscanf(line,"%x",&file_parameter);
     	    MPEG4CLIENT_INFO_PRINT("pAppData->MPEG4_TestCaseParamsAdvanced->IntraPred.nChromaIntra8x8Enable= %x", file_parameter);
@@ -4241,7 +4241,7 @@ if(pAppData->MPEG4_TestCaseParams->nBitEnableAdvanced){
          	eError = OMX_ErrorBadParameter;
             MPEG4CLIENT_ERROR_PRINT("Could not get the pAppData->MPEG4_TestCaseParamsAdvanced->IntraPred.nChromaIntra8x8Enable Check the file syntax");
             goto EXIT;
-        }	
+        }
 	if(fgets(line,254,fpconfigFile)){
             sscanf(line,"%d",&file_parameter);
     	    MPEG4CLIENT_INFO_PRINT("pAppData->MPEG4_TestCaseParamsAdvanced->IntraPred.eChromaComponentEnable= %d", file_parameter);
@@ -4250,7 +4250,7 @@ if(pAppData->MPEG4_TestCaseParams->nBitEnableAdvanced){
          	eError = OMX_ErrorBadParameter;
             MPEG4CLIENT_ERROR_PRINT("Could not get the pAppData->MPEG4_TestCaseParamsAdvanced->IntraPred.eChromaComponentEnable Check the file syntax");
             goto EXIT;
-        }		
+        }
 
 	//MPEG4EDataSyncSettings DataSync;
 	if(fgets(line,254,fpconfigFile)){
@@ -4261,7 +4261,7 @@ if(pAppData->MPEG4_TestCaseParams->nBitEnableAdvanced){
          	eError = OMX_ErrorBadParameter;
             MPEG4CLIENT_ERROR_PRINT("Could not get the pAppData->MPEG4_TestCaseParamsAdvanced->DataSync.inputDataMode Check the file syntax");
             goto EXIT;
-        }	
+        }
 	if(fgets(line,254,fpconfigFile)){
             sscanf(line,"%d",&file_parameter);
     	    MPEG4CLIENT_INFO_PRINT("pAppData->MPEG4_TestCaseParamsAdvanced->DataSync.outputDataMode= %d", file_parameter);
@@ -4270,7 +4270,7 @@ if(pAppData->MPEG4_TestCaseParams->nBitEnableAdvanced){
          	eError = OMX_ErrorBadParameter;
             MPEG4CLIENT_ERROR_PRINT("Could not get the pAppData->MPEG4_TestCaseParamsAdvanced->DataSync.outputDataMode Check the file syntax");
             goto EXIT;
-        }	
+        }
 	if(fgets(line,254,fpconfigFile)){
             sscanf(line,"%d",&file_parameter);
     	    MPEG4CLIENT_INFO_PRINT("pAppData->MPEG4_TestCaseParamsAdvanced->DataSync.numInputDataUnits= %d", file_parameter);
@@ -4279,7 +4279,7 @@ if(pAppData->MPEG4_TestCaseParams->nBitEnableAdvanced){
          	eError = OMX_ErrorBadParameter;
             MPEG4CLIENT_ERROR_PRINT("Could not get the pAppData->MPEG4_TestCaseParamsAdvanced->DataSync.numInputDataUnits Check the file syntax");
             goto EXIT;
-        }	
+        }
 	if(fgets(line,254,fpconfigFile)){
             sscanf(line,"%d",&file_parameter);
     	    MPEG4CLIENT_INFO_PRINT("pAppData->MPEG4_TestCaseParamsAdvanced->DataSync.numOutputDataUnits= %d", file_parameter);
@@ -4288,8 +4288,8 @@ if(pAppData->MPEG4_TestCaseParams->nBitEnableAdvanced){
          	eError = OMX_ErrorBadParameter;
             MPEG4CLIENT_ERROR_PRINT("Could not get the pAppData->MPEG4_TestCaseParamsAdvanced->DataSync.numOutputDataUnits Check the file syntax");
             goto EXIT;
-        }	
-	
+        }
+
     /*close the Advanced settings file*/
 	fclose(fpconfigFile);
     fpconfigFile=NULL;
@@ -4300,23 +4300,23 @@ EXIT:
 	}
 	return eError;
 
-	
+
 }/*end setparameters_client*/
-       
-        
+
+
 OMX_ERRORTYPE MPEG4E_FreeDynamicClientParams(MPEG4E_ILClient* pApplicationData){
-	
+
 	MPEG4E_ILClient *pAppData;
 	OMX_ERRORTYPE eError = OMX_ErrorNone;
 	OMX_U32 i;
-	
+
 	if(!pApplicationData){
 			eError = OMX_ErrorBadParameter;
 			goto EXIT;
 	}
 		/*Get the AppData*/
 		pAppData=pApplicationData;
-		
+
 		for(i=0;i<9;i++){
 			switch(i){
 				case 0:
@@ -4332,7 +4332,7 @@ OMX_ERRORTYPE MPEG4E_FreeDynamicClientParams(MPEG4E_ILClient* pApplicationData){
 				break;
 				case 1:
 					TIMM_OSAL_Free(pAppData->MPEG4_TestCaseParamsDynamic->DynBitRate.nFrameNumber);
-					if(DynFrameCountArray_FreeIndex[i]){		
+					if(DynFrameCountArray_FreeIndex[i]){
 						if(pAppData->MPEG4_TestCaseParamsDynamic->DynBitRate.nBitrate){
 							TIMM_OSAL_Free(pAppData->MPEG4_TestCaseParamsDynamic->DynBitRate.nBitrate);
 						}else{
@@ -4344,7 +4344,7 @@ OMX_ERRORTYPE MPEG4E_FreeDynamicClientParams(MPEG4E_ILClient* pApplicationData){
 				case 2:
 					TIMM_OSAL_Free(pAppData->MPEG4_TestCaseParamsDynamic->DynMESearchRange.nFrameNumber);
 					if(DynFrameCountArray_FreeIndex[i]){
-						
+
 						if(pAppData->MPEG4_TestCaseParamsDynamic->DynMESearchRange.nMVAccuracy){
 							TIMM_OSAL_Free(pAppData->MPEG4_TestCaseParamsDynamic->DynMESearchRange.nMVAccuracy);
 						}else{
@@ -4375,7 +4375,7 @@ OMX_ERRORTYPE MPEG4E_FreeDynamicClientParams(MPEG4E_ILClient* pApplicationData){
 							eError=OMX_ErrorUndefined;
 							MPEG4CLIENT_ERROR_PRINT( "Something has gone Wrong..........................!!!!!!!!!!!!!");
 						}
-							
+
 					}
 				break;
 				case 3:
@@ -4387,7 +4387,7 @@ OMX_ERRORTYPE MPEG4E_FreeDynamicClientParams(MPEG4E_ILClient* pApplicationData){
 							eError=OMX_ErrorUndefined;
 							MPEG4CLIENT_ERROR_PRINT( "Something has gone Wrong..........................!!!!!!!!!!!!!");
 						}
-							
+
 					}
 				break;
 				case 4:
@@ -4446,7 +4446,7 @@ OMX_ERRORTYPE MPEG4E_FreeDynamicClientParams(MPEG4E_ILClient* pApplicationData){
 						}else{
 							eError=OMX_ErrorUndefined;
 							MPEG4CLIENT_ERROR_PRINT( "Something has gone Wrong..........................!!!!!!!!!!!!!");
-						}						
+						}
 					}
 				break;
 				case 5:
@@ -4457,7 +4457,7 @@ OMX_ERRORTYPE MPEG4E_FreeDynamicClientParams(MPEG4E_ILClient* pApplicationData){
 						}else{
 							eError=OMX_ErrorUndefined;
 							MPEG4CLIENT_ERROR_PRINT( "Something has gone Wrong..........................!!!!!!!!!!!!!");
-						}			
+						}
 					}
 				break;
 				case 6:
@@ -4469,8 +4469,8 @@ OMX_ERRORTYPE MPEG4E_FreeDynamicClientParams(MPEG4E_ILClient* pApplicationData){
 							eError=OMX_ErrorUndefined;
 							MPEG4CLIENT_ERROR_PRINT( "Something has gone Wrong..........................!!!!!!!!!!!!!");
 						}
-						
-							
+
+
 					}
 				break;
 				case 7:
@@ -4488,12 +4488,12 @@ OMX_ERRORTYPE MPEG4E_FreeDynamicClientParams(MPEG4E_ILClient* pApplicationData){
 							eError=OMX_ErrorUndefined;
 							MPEG4CLIENT_ERROR_PRINT( "Something has gone Wrong..........................!!!!!!!!!!!!!");
 						}
-						
+
 					}
 				break;
 				case 8:
 					TIMM_OSAL_Free(pAppData->MPEG4_TestCaseParamsDynamic->DynPixelInfo.nFrameNumber);
-					if(DynFrameCountArray_FreeIndex[i]){					
+					if(DynFrameCountArray_FreeIndex[i]){
 						if(pAppData->MPEG4_TestCaseParamsDynamic->DynPixelInfo.nWidth){
 							TIMM_OSAL_Free(pAppData->MPEG4_TestCaseParamsDynamic->DynPixelInfo.nWidth);
 						}else{

@@ -7,7 +7,7 @@
  * ==================================================================== */
 /*
 *  @file timm_osal_defines.h
-*  The osal header file defines 
+*  The osal header file defines
 *  @path
 *
 */
@@ -47,7 +47,7 @@ TIMM_OSAL_ERRORTYPE TIMM_OSAL_EventRetrieve(TIMM_OSAL_PTR pEvents,
                                             TIMM_OSAL_U32 uRequestedEvents,
                                  TIMM_OSAL_EVENT_OPERATION eOperation,
                                  TIMM_OSAL_U32 *pRetrievedEvents,
-                                 TIMM_OSAL_U32 uTimeOut);                              
+                                 TIMM_OSAL_U32 uTimeOut);
 
 #ifdef __cplusplus
 }

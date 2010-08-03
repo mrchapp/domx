@@ -2,18 +2,18 @@
 *             Texas Instruments OMAP(TM) Platform Software
 *  (c) Copyright 2009 Texas Instruments Incorporated.  All Rights Reserved.
 *
-*  Use of this software is controlled by the terms and conditions found 
+*  Use of this software is controlled by the terms and conditions found
 *  in the license agreement under which this software has been supplied.
 * =========================================================================== */
-/*!  
+/*!
  *****************************************************************************
  * \file
- *	H264_ILClien_Testcases.c														 
+ *	H264_ILClien_Testcases.c
  *
- * \brief  
+ * \brief
  * This File contains functions the details of the input test streams to be
  * used for the verification of the H264 Video Decode component
- *	
+ *
  * \version 1.0
  *
  *****************************************************************************
@@ -37,7 +37,7 @@
 * @param ColorFormat    Format of the input data
 */
 /* ========================================================================== */
-H264_Decoder_TestCaseParamsType H264_Decoder_TestCaseParams[] = 
+H264_Decoder_TestCaseParamsType H264_Decoder_TestCaseParams[] =
 {
 
 /*SR Id*/	/* Input File */	/* Input FrameSize File*/	/* Output File */	/* Width */	/* Height*/ /* Color Format*/

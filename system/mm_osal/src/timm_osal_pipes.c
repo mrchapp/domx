@@ -85,21 +85,21 @@ TIMM_OSAL_ERRORTYPE TIMM_OSAL_CreatePipe (TIMM_OSAL_PTR *pPipe,
 		TIMM_OSAL_Error("Pipe failed!!!");
 		goto EXIT;
 	}
-/*AD - This ensures that file descriptors for stdin/out/err are not assigned to 
-  component pipes incase those file descriptors are free Normally this if 
+/*AD - This ensures that file descriptors for stdin/out/err are not assigned to
+  component pipes incase those file descriptors are free Normally this if
   condition will not be true and we'll go directly to the else part*/
     if(pHandle->pfd[0] == 0 || pHandle->pfd[0] == 1 || pHandle->pfd[0] == 2 ||
        pHandle->pfd[1] == 0 || pHandle->pfd[1] == 1 || pHandle->pfd[1] == 2)
     {
         pHandleBackup = (TIMM_OSAL_PIPE *)TIMM_OSAL_Malloc(sizeof(TIMM_OSAL_PIPE), 0, 0, 0);
-        if (TIMM_OSAL_NULL == pHandleBackup) 
+        if (TIMM_OSAL_NULL == pHandleBackup)
         {
             bReturnStatus = TIMM_OSAL_ERR_ALLOC;
             goto EXIT;
         }
         TIMM_OSAL_Memset(pHandleBackup, 0x0, sizeof(TIMM_OSAL_PIPE));
 /*Allocating the new pipe*/
-        if (SUCCESS != pipe(pHandleBackup->pfd)) 
+        if (SUCCESS != pipe(pHandleBackup->pfd))
         {
             goto EXIT;
 	    }
@@ -108,12 +108,12 @@ TIMM_OSAL_ERRORTYPE TIMM_OSAL_CreatePipe (TIMM_OSAL_PTR *pPipe,
 	    if(pHandleBackup->pfd[0] == 2 || pHandleBackup->pfd[1] == 2)
 	    {
             int pfdDummy[2];
-            
-	        if (SUCCESS != close(pHandleBackup->pfd[0])) 
+
+	        if (SUCCESS != close(pHandleBackup->pfd[0]))
             {
 	           goto EXIT;
 	        }
-            if (SUCCESS != close(pHandleBackup->pfd[1])) 
+            if (SUCCESS != close(pHandleBackup->pfd[1]))
             {
 	            goto EXIT;
    	        }
@@ -123,48 +123,48 @@ TIMM_OSAL_ERRORTYPE TIMM_OSAL_CreatePipe (TIMM_OSAL_PTR *pPipe,
                 goto EXIT;
             }
             /*Now the backup pfd will not get a reserved value*/
-            if (SUCCESS != pipe(pHandleBackup->pfd)) 
+            if (SUCCESS != pipe(pHandleBackup->pfd))
             {
                 goto EXIT;
 	        }
 	        /*Closing the dummy pfd*/
-	        if (SUCCESS != close(pfdDummy[0])) 
+	        if (SUCCESS != close(pfdDummy[0]))
             {
 	           goto EXIT;
 	        }
-            if (SUCCESS != close(pfdDummy[1])) 
+            if (SUCCESS != close(pfdDummy[1]))
             {
 	            goto EXIT;
    	        }
-   	        
+
         }
 /*Closing the previous pipe*/
-	    if (SUCCESS != close(pHandle->pfd[0])) 
+	    if (SUCCESS != close(pHandle->pfd[0]))
         {
 	        goto EXIT;
 	    }
-        if (SUCCESS != close(pHandle->pfd[1])) 
+        if (SUCCESS != close(pHandle->pfd[1]))
         {
 	        goto EXIT;
    	    }
    	    TIMM_OSAL_Free(pHandle);
-   	    
+
 	    pHandleBackup->pipeSize = pipeSize;
         pHandleBackup->messageSize = messageSize;
 	    pHandleBackup->isFixedMessage = isFixedMessage;
         pHandleBackup->messageCount = 0;
-        pHandleBackup->totalBytesInPipe = 0; 
-        
+        pHandleBackup->totalBytesInPipe = 0;
+
         *pPipe = (TIMM_OSAL_PTR ) pHandleBackup ;
     }
 /*This is the normal case when a reserved file descriptor is not assigned to our pipe*/
     else
-    {     
+    {
         pHandle->pipeSize = pipeSize;
         pHandle->messageSize = messageSize;
 	    pHandle->isFixedMessage = isFixedMessage;
         pHandle->messageCount = 0;
-        pHandle->totalBytesInPipe = 0; 
+        pHandle->totalBytesInPipe = 0;
 
         *pPipe = (TIMM_OSAL_PTR ) pHandle ;
     }
@@ -175,7 +175,7 @@ EXIT:
     if ((TIMM_OSAL_ERR_NONE != bReturnStatus) && (TIMM_OSAL_NULL != pHandle)) {
        TIMM_OSAL_Free(pHandle);
     }
-    
+
     if ((TIMM_OSAL_ERR_NONE != bReturnStatus) && (TIMM_OSAL_NULL != pHandleBackup)) {
        TIMM_OSAL_Free(pHandleBackup);
     }
@@ -282,13 +282,13 @@ TIMM_OSAL_ERRORTYPE TIMM_OSAL_WriteToFrontOfPipe (TIMM_OSAL_PTR pPipe,
     TIMM_OSAL_PIPE *pHandle = (TIMM_OSAL_PIPE *)pPipe;
     TIMM_OSAL_U8 * tempPtr = NULL;
 
-       
+
     /*First write to this pipe*/
     if(size == 0) {
 		bReturnStatus = TIMM_OSAL_ERR_PARAMETER;
 		goto EXIT;
 	}
-	
+
     lSizeWritten = write(pHandle->pfd[1], pMessage, size);
 
 	if(lSizeWritten != size){
@@ -299,11 +299,11 @@ TIMM_OSAL_ERRORTYPE TIMM_OSAL_WriteToFrontOfPipe (TIMM_OSAL_PTR pPipe,
     /*Update number of messages*/
     pHandle->messageCount++;
 
-    
+
     if(pHandle->messageCount > 1) {
         /*First allocate memory*/
         tempPtr = (TIMM_OSAL_U8 *)TIMM_OSAL_Malloc(pHandle->totalBytesInPipe, 0, 0, 0);
-        
+
         if(tempPtr == NULL) {
             bReturnStatus = TIMM_OSAL_ERR_PARAMETER;
 		    goto EXIT;
@@ -324,10 +324,10 @@ TIMM_OSAL_ERRORTYPE TIMM_OSAL_WriteToFrontOfPipe (TIMM_OSAL_PTR pPipe,
         pHandle->totalBytesInPipe += size;
     }
 
-     
+
 EXIT:
     TIMM_OSAL_Free(tempPtr);
-    
+
    	return bReturnStatus;
 
 }
@@ -378,7 +378,7 @@ TIMM_OSAL_ERRORTYPE TIMM_OSAL_ReadFromPipe (TIMM_OSAL_PTR pPipe,
 		}
 
 		bReturnStatus = TIMM_OSAL_ERR_NONE;
-        
+
         pHandle->messageCount--;
         pHandle->totalBytesInPipe -= size;
 
@@ -442,7 +442,7 @@ TIMM_OSAL_ERRORTYPE TIMM_OSAL_IsPipeReady (TIMM_OSAL_PTR pPipe)
         return TIMM_OSAL_ERR_NOT_READY;
     }
 #endif
-    
+
     if(pHandle->messageCount <= 0) {
         bReturnStatus = TIMM_OSAL_ERR_NOT_READY;
     } else {

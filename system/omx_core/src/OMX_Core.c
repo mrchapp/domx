@@ -43,7 +43,7 @@
 #include "timm_osal_trace.h"
 #include "timm_osal_mutex.h"
 
-/** size for the array of allocated components.  Sets the maximum 
+/** size for the array of allocated components.  Sets the maximum
  * number of components that can be allocated at once */
 #define MAXCOMP (50)
 #define MAXNAMESIZE (128)
@@ -99,7 +99,7 @@ char *tComponentName[MAXCOMP][2] = {
 /******************************Public*Routine******************************\
 * OMX_Init()
 *
-* Description:This method will initialize the OMX Core.  It is the 
+* Description:This method will initialize the OMX Core.  It is the
 * responsibility of the application to call OMX_Init to ensure the proper
 * set up of core resources.
 *
@@ -121,7 +121,7 @@ OMX_ERRORTYPE OMX_Init()
 
     if (count == 1)
     {
-        pthread_mutex_init(&mutex, NULL);    
+        pthread_mutex_init(&mutex, NULL);
         eError = OMX_BuildComponentTable();
     }
 
@@ -135,20 +135,20 @@ EXIT:
 * OMX_GetHandle
 *
 * Description: This method will create the handle of the COMPONENTTYPE
-* If the component is currently loaded, this method will reutrn the 
+* If the component is currently loaded, this method will reutrn the
 * hadle of existingcomponent or create a new instance of the component.
 * It will call the OMX_ComponentInit function and then the setcallback
 * method to initialize the callback functions
 * Parameters:
-* @param[out] pHandle            Handle of the loaded components 
+* @param[out] pHandle            Handle of the loaded components
 * @param[in] cComponentName     Name of the component to load
-* @param[in] pAppData           Used to identify the callbacks of component 
+* @param[in] pAppData           Used to identify the callbacks of component
 * @param[in] pCallBacks         Application callbacks
 *
-* @retval OMX_ErrorUndefined         
+* @retval OMX_ErrorUndefined
 * @retval OMX_ErrorInvalidComponentName
 * @retval OMX_ErrorInvalidComponent
-* @retval OMX_ErrorInsufficientResources 
+* @retval OMX_ErrorInsufficientResources
 * @retval OMX_NOERROR                      Successful
 *
 * Note
@@ -156,7 +156,7 @@ EXIT:
 \**************************************************************************/
 
 OMX_ERRORTYPE OMX_GetHandle( OMX_HANDLETYPE* pHandle, OMX_STRING cComponentName,
-    OMX_PTR pAppData, OMX_CALLBACKTYPE* pCallBacks) 
+    OMX_PTR pAppData, OMX_CALLBACKTYPE* pCallBacks)
 {
     static const char prefix[] = "lib";
     static const char postfix[] = ".so";
@@ -167,7 +167,7 @@ OMX_ERRORTYPE OMX_GetHandle( OMX_HANDLETYPE* pHandle, OMX_STRING cComponentName,
     char buf[sizeof(prefix) + MAXNAMESIZE +sizeof(postfix)];
     const char* pErr = dlerror();
     char* dlError = NULL;
-    if(pthread_mutex_lock(&mutex) != 0) 
+    if(pthread_mutex_lock(&mutex) != 0)
     {
         TIMM_OSAL_Error("Core: Error in Mutex lock");
     }
@@ -192,15 +192,15 @@ OMX_ERRORTYPE OMX_GetHandle( OMX_HANDLETYPE* pHandle, OMX_STRING cComponentName,
     }
     CORE_assert(i != COUNTOF(pModules), OMX_ErrorInsufficientResources, NULL);
 
-    /* load the component and check for an error.  If filename is not an 
-     * absolute path (i.e., it does not  begin with a "/"), then the 
+    /* load the component and check for an error.  If filename is not an
+     * absolute path (i.e., it does not  begin with a "/"), then the
      * file is searched for in the following locations:
      *
      *     The LD_LIBRARY_PATH environment variable locations
      *     The library cache, /etc/ld.so.cache.
      *     /lib
      *     /usr/lib
-     * 
+     *
      * If there is an error, we can't go on, so set the error code and exit */
     strcpy(buf, prefix);                      /* the lengths are defined herein or have been */
     strcat(buf, cComponentName);  /* checked already, so strcpy and strcat are  */
@@ -213,7 +213,7 @@ OMX_ERRORTYPE OMX_GetHandle( OMX_HANDLETYPE* pHandle, OMX_STRING cComponentName,
         goto EXIT;
     }
 
-    /* Get a function pointer to the "OMX_ComponentInit" function.  If 
+    /* Get a function pointer to the "OMX_ComponentInit" function.  If
      * there is an error, we can't go on, so set the error code and exit */
     pComponentInit = dlsym(pModules[i], "OMX_ComponentInit");
     pErr = dlerror();
@@ -221,7 +221,7 @@ OMX_ERRORTYPE OMX_GetHandle( OMX_HANDLETYPE* pHandle, OMX_STRING cComponentName,
                 OMX_ErrorInvalidComponent, NULL);
 
     /* We now can access the dll.  So, we need to call the "OMX_ComponentInit"
-     * method to load up the "handle" (which is just a list of functions to 
+     * method to load up the "handle" (which is just a list of functions to
      * call) and we should be all set.*/
     *pHandle = malloc(sizeof(OMX_COMPONENTTYPE));
     CORE_assert((*pHandle != NULL), OMX_ErrorInsufficientResources,
@@ -229,7 +229,7 @@ OMX_ERRORTYPE OMX_GetHandle( OMX_HANDLETYPE* pHandle, OMX_STRING cComponentName,
 
     pComponents[i] = *pHandle;
     componentType = (OMX_COMPONENTTYPE*) *pHandle;
-    componentType->nSize = sizeof(OMX_COMPONENTTYPE);   
+    componentType->nSize = sizeof(OMX_COMPONENTTYPE);
 
     componentType->nVersion.s.nVersionMajor = 1;
     componentType->nVersion.s.nVersionMinor = 1;
@@ -242,7 +242,7 @@ OMX_ERRORTYPE OMX_GetHandle( OMX_HANDLETYPE* pHandle, OMX_STRING cComponentName,
         eError = (componentType->SetCallbacks)(*pHandle, pCallBacks, pAppData);
         CORE_assert(eError == OMX_ErrorNone, eError,
                     "Core: Error returned from component SetCallBack");
-    } 
+    }
     else {
        /* when the component fails to initialize, release the
        component handle structure */
@@ -254,21 +254,21 @@ OMX_ERRORTYPE OMX_GetHandle( OMX_HANDLETYPE* pHandle, OMX_STRING cComponentName,
        pComponents[i] = NULL;
         dlclose(pModules[i]);
        goto EXIT;
-    }   
+    }
     eError = OMX_ErrorNone;
 EXIT:
-    if(pthread_mutex_unlock(&mutex) != 0) 
+    if(pthread_mutex_unlock(&mutex) != 0)
     {
         TIMM_OSAL_Error("Core: Error in Mutex unlock");
-    } 
+    }
     return (eError);
 }
- 
+
 
 /******************************Public*Routine******************************\
 * OMX_FreeHandle()
 *
-* Description:This method will unload the OMX component pointed by 
+* Description:This method will unload the OMX component pointed by
 * OMX_HANDLETYPE. It is the responsibility of the calling method to ensure that
 * the Deinit method of the component has been called prior to unloading component
 *
@@ -287,7 +287,7 @@ OMX_ERRORTYPE OMX_FreeHandle (OMX_HANDLETYPE hComponent)
     OMX_COMPONENTTYPE *pHandle = (OMX_COMPONENTTYPE *)hComponent;
     int i;
 
-    if(pthread_mutex_lock(&mutex) != 0) 
+    if(pthread_mutex_lock(&mutex) != 0)
     {
         TIMM_OSAL_Error("Core: Error in Mutex lock");
     }
@@ -300,7 +300,7 @@ OMX_ERRORTYPE OMX_FreeHandle (OMX_HANDLETYPE hComponent)
     for(i=0; i< COUNTOF(pModules); i++) {
         if(pComponents[i] == hComponent) break;
     }
-    
+
     CORE_assert(i != COUNTOF(pModules), OMX_ErrorBadParameter, NULL);
 
     eError = pHandle->ComponentDeInit(hComponent);
@@ -315,13 +315,13 @@ OMX_ERRORTYPE OMX_FreeHandle (OMX_HANDLETYPE hComponent)
 
     pComponents[i] = NULL;
     eError = OMX_ErrorNone;
-   
+
 EXIT:
     /* The unload is now complete, so set the error code to pass and exit */
-    if(pthread_mutex_unlock(&mutex) != 0) 
+    if(pthread_mutex_unlock(&mutex) != 0)
     {
         TIMM_OSAL_Error("Core: Error in Mutex unlock");
-    } 
+    }
 
     return eError;
 }
@@ -329,7 +329,7 @@ EXIT:
 /******************************Public*Routine******************************\
 * OMX_DeInit()
 *
-* Description:This method will release the resources of the OMX Core.  It is the 
+* Description:This method will release the resources of the OMX Core.  It is the
 * responsibility of the application to call OMX_DeInit to ensure the clean up of these
 * resources.
 *
@@ -356,7 +356,7 @@ OMX_ERRORTYPE OMX_Deinit()
 
     if(pthread_mutex_lock(&mutex) != 0)
         TIMM_OSAL_Error("Core: Error in Mutex lock");
-        
+
     if(count == 0)
     {
         if(pthread_mutex_unlock(&mutex) != 0)
@@ -368,7 +368,7 @@ OMX_ERRORTYPE OMX_Deinit()
     else{
         if(pthread_mutex_unlock(&mutex) != 0)
             TIMM_OSAL_Error("Core: Error in Mutex unlock");
-    }            
+    }
 
 EXIT:
     eOsalError = TIMM_OSAL_MutexRelease(pCoreInitMutex);
@@ -420,17 +420,17 @@ OMX_API OMX_ERRORTYPE OMX_APIENTRY OMX_SetupTunnel(
     }
 
 
-    if (eError == OMX_ErrorNone && hInput) 
-    {  
+    if (eError == OMX_ErrorNone && hInput)
+    {
         pCompIn = (OMX_COMPONENTTYPE*)hInput;
         eError = pCompIn->ComponentTunnelRequest(hInput, nPortInput, hOutput, nPortOutput, &oTunnelSetup);
-        if (eError != OMX_ErrorNone && hOutput) 
+        if (eError != OMX_ErrorNone && hOutput)
         {
             /* cancel tunnel request on output port since input port failed */
             pCompOut->ComponentTunnelRequest(hOutput, nPortOutput, NULL, 0, NULL);
         }
     }
-  
+
     return eError;
 }
 
@@ -442,7 +442,7 @@ OMX_API OMX_ERRORTYPE OMX_APIENTRY OMX_SetupTunnel(
 *Parameters:
 * @param[out] cComponentName       The name of the component at nIndex
 * @param[in] nNameLength                The length of the component name
-* @param[in] nIndex                         The index number of the component 
+* @param[in] nIndex                         The index number of the component
 *
 * Returns:    OMX_NOERROR          Successful
 *
@@ -517,9 +517,9 @@ OMX_API OMX_ERRORTYPE OMX_GetRolesOfComponent (
         {
             i++;
         }
-    }   
+    }
     if (roles == NULL)
-    { 
+    {
         *pNumRoles = componentTable[i].nRoles;
         goto EXIT;
     }
@@ -527,7 +527,7 @@ OMX_API OMX_ERRORTYPE OMX_GetRolesOfComponent (
     {
         if (bFound && (*pNumRoles == componentTable[i].nRoles))
        {
-           for (j = 0; j<componentTable[i].nRoles; j++) 
+           for (j = 0; j<componentTable[i].nRoles; j++)
            {
                strcpy((OMX_STRING)roles[j], componentTable[i].pRoleArray[j]);
            }
@@ -552,7 +552,7 @@ OMX_API OMX_ERRORTYPE OMX_GetRolesOfComponent (
 * Note
 *
 **************************************************************************/
-OMX_API OMX_ERRORTYPE OMX_GetComponentsOfRole ( 
+OMX_API OMX_ERRORTYPE OMX_GetComponentsOfRole (
     OMX_IN      OMX_STRING role,
     OMX_INOUT   OMX_U32 *pNumComps,
     OMX_INOUT   OMX_U8  **compNames)
@@ -573,8 +573,8 @@ OMX_API OMX_ERRORTYPE OMX_GetComponentsOfRole (
 
     for (i = 0; i < tableCount; i++)
     {
-        for (j = 0; j<componentTable[i].nRoles; j++) 
-        { 
+        for (j = 0; j<componentTable[i].nRoles; j++)
+        {
             if (strcmp(componentTable[i].pRoleArray[j], role) == 0)
             {
                 /* the first call to this function should only count the number
@@ -604,7 +604,7 @@ OMX_API OMX_ERRORTYPE OMX_PrintComponentTable()
 {
     OMX_ERRORTYPE eError = OMX_ErrorNone;
     int i = 0;
-    int j = 0;    
+    int j = 0;
 
     TIMM_OSAL_Info("--------Component Table:: %d Components found-------------",
                    tableCount);
@@ -612,14 +612,14 @@ OMX_API OMX_ERRORTYPE OMX_PrintComponentTable()
     for (i = 0; i < tableCount; i++)
     {
         TIMM_OSAL_Info("%i:: %s", i, componentTable[i].name);
-       for (j = 0; j<componentTable[i].nRoles; j++) 
+       for (j = 0; j<componentTable[i].nRoles; j++)
        {
           TIMM_OSAL_Info("        %s", componentTable[i].pRoleArray[j]);
        }
      }
-       
+
    TIMM_OSAL_Info("-----------------End Component Table ------------------");
-   
+
    return eError;
 
 }
@@ -629,7 +629,7 @@ OMX_ERRORTYPE OMX_BuildComponentTable()
 {
     OMX_ERRORTYPE eError = OMX_ErrorNone;
     OMX_CALLBACKTYPE sCallbacks;
-#ifndef STATIC_TABLE    
+#ifndef STATIC_TABLE
     OMX_HANDLETYPE hComp  = 0;
     OMX_U8 cRole[MAXNAMESIZE];
     OMX_STRING tempName = NULL;
@@ -637,7 +637,7 @@ OMX_ERRORTYPE OMX_BuildComponentTable()
     static OMX_STRING namePrefix = "OMX";
     static OMX_STRING filePrefix = "libOMX.";
     static OMX_STRING suffix = ".so";
-#endif    
+#endif
     int j = 0;
     int numFiles = 0;
 	int i;
@@ -653,7 +653,7 @@ OMX_ERRORTYPE OMX_BuildComponentTable()
     compName = (OMX_STRING *) malloc(MAX_TABLE_SIZE * sizeof(OMX_STRING));
     sRoleArray = (OMX_STRING**) malloc(MAX_TABLE_SIZE * sizeof(OMX_STRING));
 	*/
-    
+
     /* scan the target/lib directory and create a list of files in the directory */
     numFiles= scandir(libdir, &namelist, 0, 0);
     tableCount = 0;
@@ -665,7 +665,7 @@ OMX_ERRORTYPE OMX_BuildComponentTable()
             tempName = (OMX_STRING) malloc(sizeof(namelist[numFiles]->d_name) + 1);   /* adding one ensures */
             memset(tempName, 0x00, sizeof(namelist[numFiles]->d_name) + 1);                  /*  that a null terminator will */
                                                                                                                                   /*  always be present */
-            /* copy only the name without the suffix */                                                                                                           
+            /* copy only the name without the suffix */
             strncpy(tempName, namelist[numFiles]->d_name,strlen(namelist[numFiles]->d_name) - strlen(suffix));
             /* set a pointer to be after the lib prefix, i.e the beginning of the component name */
             temp = strstr(tempName, namePrefix);
@@ -679,7 +679,7 @@ OMX_ERRORTYPE OMX_BuildComponentTable()
 
             /* get the handle for the component and query for the roles of each component */
             eError = OMX_GetHandle(&hComp, componentTable[tableCount].name, 0x0, &sCallbacks);
-            if (eError == OMX_ErrorNone){  
+            if (eError == OMX_ErrorNone){
                 j = 0;
                 while (eError != OMX_ErrorNoMore){
                     eError = ((OMX_COMPONENTTYPE *) hComp)->ComponentRoleEnum(hComp, cRole, j++);
@@ -691,17 +691,17 @@ OMX_ERRORTYPE OMX_BuildComponentTable()
                 nRoles = j-1;
                 componentTable[tableCount].nRoles = nRoles;
                 /* sRoleArray[tableCount] = (OMX_STRING *) malloc(nRoles * sizeof(OMX_STRING)); */
-                if (nRoles > 0){                
+                if (nRoles > 0){
                     /* sRoleArray[tableCount] = (OMX_STRING *) malloc(nRoles * sizeof(OMX_STRING)); */
                     for (j = 0; j<nRoles; j++) {
                         sRoleArray[tableCount][j] = (OMX_STRING) malloc( sizeof(OMX_U8) * MAXNAMESIZE);
                         ((OMX_COMPONENTTYPE *) hComp)->ComponentRoleEnum(hComp, (OMX_U8*)sRoleArray[tableCount][j], j);
                         componentTable[tableCount].pRoleArray[j] =sRoleArray[tableCount][j];
-                    }   
+                    }
                 }
                 else
                 {
-                    /* sRoleArray[tableCount] = (OMX_STRING *) malloc(sizeof(OMX_STRING));    */                            
+                    /* sRoleArray[tableCount] = (OMX_STRING *) malloc(sizeof(OMX_STRING));    */
                     sRoleArray[tableCount][j] = (OMX_STRING) malloc(sizeof(OMX_U8) * MAXNAMESIZE);
                     strcpy(sRoleArray[tableCount][j], EMPTY_STRING);
                     componentTable[tableCount].pRoleArray[j] = sRoleArray[tableCount][j];
@@ -724,7 +724,7 @@ OMX_ERRORTYPE OMX_BuildComponentTable()
 
         }
     }
- 
+
 #endif
 
 	for (i = 0, numFiles = 0; i < MAXCOMP; i ++) {

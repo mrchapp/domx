@@ -7,7 +7,7 @@
  * ==================================================================== */
 /*
 *  @file timm_osal_memory.h
-*  The osal header file defines 
+*  The osal header file defines
 *  @path
 *
 */
@@ -39,7 +39,7 @@ typedef enum TIMMOSAL_MEM_SEGMENTID {
 
    TIMMOSAL_MEM_SEGMENT_EXT = 0,
    TIMMOSAL_MEM_SEGMENT_INT,
-   TIMMOSAL_MEM_SEGMENT_UNCACHED 
+   TIMMOSAL_MEM_SEGMENT_UNCACHED
 
 }TIMMOSAL_MEM_SEGMENTID;
 
@@ -52,7 +52,7 @@ TIMM_OSAL_ERRORTYPE TIMM_OSAL_CreateMemoryPool (void);
 
 TIMM_OSAL_ERRORTYPE TIMM_OSAL_DeleteMemoryPool (void);
 
-TIMM_OSAL_PTR TIMM_OSAL_Malloc(TIMM_OSAL_U32 size, TIMM_OSAL_BOOL bBlockContiguous, 
+TIMM_OSAL_PTR TIMM_OSAL_Malloc(TIMM_OSAL_U32 size, TIMM_OSAL_BOOL bBlockContiguous,
                               TIMM_OSAL_U32 unBlockAlignment, TIMMOSAL_MEM_SEGMENTID tMemSegId );
 
 void TIMM_OSAL_Free (TIMM_OSAL_PTR pData);

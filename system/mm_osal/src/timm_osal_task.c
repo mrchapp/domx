@@ -116,7 +116,7 @@ TIMM_OSAL_ERRORTYPE TIMM_OSAL_CreateTask (TIMM_OSAL_PTR *pTask,
 		goto EXIT;
 	}
 	/* Updation of the priority and the stack size*/
-	
+
     if(SUCCESS != pthread_attr_getschedparam(&pHandle->ThreadAttr, &sched)){
 		/*TIMM_OSAL_Error("Task Init Get Sched Params failed!");*/
 		goto EXIT;
@@ -129,7 +129,7 @@ TIMM_OSAL_ERRORTYPE TIMM_OSAL_CreateTask (TIMM_OSAL_PTR *pTask,
 	}
 
     /*First get the default stack size*/
-    if(SUCCESS != pthread_attr_getstacksize(&pHandle->ThreadAttr, &stackSize)){        
+    if(SUCCESS != pthread_attr_getstacksize(&pHandle->ThreadAttr, &stackSize)){
 		/*TIMM_OSAL_Error("Task Init Set Stack Size failed!");*/
 		goto EXIT;
 	}

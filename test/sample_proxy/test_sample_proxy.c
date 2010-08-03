@@ -16,7 +16,7 @@
 ****************************************************************/
 /* ----- system and platform files ----------------------------*/
 #include <stdint.h>
-#include <string.h>  
+#include <string.h>
 #include <stdlib.h>
 #include <stdio.h>
 
@@ -38,7 +38,7 @@ extern HeapBuf_Handle heapHandle;
 #define OMX_SAMPLE_INPUT_PORT 0
 #define OMX_SAMPLE_OUTPUT_PORT 1
 
-#ifdef OMX_SAMPLE_TILER_TEST 
+#ifdef OMX_SAMPLE_TILER_TEST
 
 #include <memmgr.h>
 #include <mem_types.h>
@@ -53,12 +53,12 @@ extern HeapBuf_Handle heapHandle;
 */
  #define OMX_SAMPLE_IN_HEIGHT 6
  #define OMX_SAMPLE_IN_WIDTH 8
- 
+
  #define STRIDE_LINUX (4 * 1024)
- 
+
  #define OMX_SAMPLE_BUFFER_SIZE 48
- 
- 
+
+
 void Test_Util_Memcpy_1Dto2D(TIMM_OSAL_PTR pDst2D, TIMM_OSAL_PTR pSrc1D, TIMM_OSAL_U32 nSize1D, TIMM_OSAL_U32 nHeight2D, TIMM_OSAL_U32 nWidth2D, TIMM_OSAL_U32 nStride2D)
 {
     TIMM_OSAL_U8 *pInBuffer;
@@ -188,7 +188,7 @@ typedef struct SampleCompTestCtxt{
     OMX_PORT_PARAM_TYPE sPortParam[NUM_DOMAINS];
 }SampleCompTestCtxt;
 
-//this test compiles only for ducati SYS	
+//this test compiles only for ducati SYS
 typedef struct TestCtxt{
     OMX_HANDLETYPE hComp;
     OMX_STATETYPE eState ;
@@ -217,7 +217,7 @@ static OMX_U32 nOutBufCount = 0;
 //Semaphore_Params EBDsemParams;
 
 //Semaphore_Handle FBDSem;
-//Semaphore_Params FBDsemParams;	
+//Semaphore_Params FBDsemParams;
 /*========================================================*/
 /* @ fn OMX_TEST_ErrorToString :: ERROR  to  STRING   */
 /*========================================================*/
@@ -355,32 +355,32 @@ OMX_STRING OMX_TEST_ErrorToString (OMX_ERRORTYPE eError)
 OMX_STRING OMX_TEST_StateToString (OMX_STATETYPE eState)
 {
     OMX_STRING StateString;
-    
+
     switch (eState) {
-        case OMX_StateInvalid: 
+        case OMX_StateInvalid:
             StateString = "Invalid";
-            break;            
+            break;
         case OMX_StateLoaded:
-            StateString = "Loaded";        
-            break;            
+            StateString = "Loaded";
+            break;
         case OMX_StateIdle:
-            StateString = "Idle";        
-            break;            
+            StateString = "Idle";
+            break;
         case OMX_StateExecuting:
-            StateString = "Executing";        
-            break;            
+            StateString = "Executing";
+            break;
         case OMX_StatePause:
-            StateString = "Pause";        
-            break; 
+            StateString = "Pause";
+            break;
         case OMX_StateWaitForResources:
             StateString = "WaitForResources ";
             break;
-        default: 
-            StateString = "<unknown>";        
-            break;            
+        default:
+            StateString = "<unknown>";
+            break;
     }
-    
-    return StateString;    
+
+    return StateString;
 }
 
 /* Application callback Functions */
@@ -395,7 +395,7 @@ OMX_ERRORTYPE SampleTest_EventHandler(OMX_IN OMX_HANDLETYPE hComponent,
                            OMX_IN OMX_PTR pEventData)
 {
     SampleCompTestCtxt *pContext;
-    
+
     printf("\n___________ ENTERED CLIENT CALLBACK:%s", __FUNCTION__);
 
     if(pAppData == NULL) return OMX_ErrorNone;
@@ -419,11 +419,11 @@ OMX_ERRORTYPE SampleTest_EventHandler(OMX_IN OMX_HANDLETYPE hComponent,
              /* Nothing to do over here */
            } else if (OMX_CommandMarkBuffer == nData1) {
              /* Nothing to do over here */
-           } 
+           }
        break;
 
        case OMX_EventError:
-       printf("\nOMX EVENT ERROR!!!!!! \n"); 
+       printf("\nOMX EVENT ERROR!!!!!! \n");
        break;
 
        case OMX_EventMark:
@@ -464,20 +464,20 @@ OMX_ERRORTYPE SampleTest_EmptyBufferDone(OMX_IN OMX_HANDLETYPE hComponent,
     			OMX_IN OMX_BUFFERHEADERTYPE* pBuffer)
 {
     SampleCompTestCtxt *pContext;
-    
+
     printf("\n___________ ENTERED CLIENT CALLBACK:%s", __FUNCTION__);
 
     if(pAppData == NULL) return OMX_ErrorNone;
 
     pContext = (SampleCompTestCtxt *)pAppData;
     pContext->nBufDoneCalls++;
-#ifdef BUF_HEAP       
+#ifdef BUF_HEAP
 //AD try
 printf("\npBuffer SR after EBD = %x\n",pBuffer->pBuffer);
 pBuffer->pBuffer = SharedRegion_getPtr(pBuffer->pBuffer);
 printf("\npBuffer after EBD = %x\n",pBuffer->pBuffer);
-//AD try ends  
-#endif      
+//AD try ends
+#endif
     BUFFER_LIST_SET_ENTRY (pContext->pInBufferList, pBuffer);
     //Semaphore_post(EBDSem);
 
@@ -495,26 +495,26 @@ OMX_ERRORTYPE SampleTest_FillBufferDone(OMX_IN OMX_HANDLETYPE hComponent,
     			OMX_IN OMX_BUFFERHEADERTYPE* pBuffHeader)
 {
     SampleCompTestCtxt *pContext;
-    
+
     printf("\n___________ ENTERED CLIENT CALLBACK:%s", __FUNCTION__);
 
     if(pAppData == NULL) return OMX_ErrorNone;
 
     pContext = (SampleCompTestCtxt *)pAppData;
     pContext->nBufDoneCalls++;
-#ifdef BUF_HEAP       
+#ifdef BUF_HEAP
 //AD try
 printf("\npBuffer SR after FBD = %x\n",pBuffHeader->pBuffer);
 pBuffHeader->pBuffer = SharedRegion_getPtr(pBuffHeader->pBuffer);
 printf("\npBuffer after FBD = %x\n",pBuffHeader->pBuffer);
-//AD try ends  
-#endif 
+//AD try ends
+#endif
 	if (pContext->pOutputFile && gTest) {
 		printf (" writing to output file :: buffer cnt : %d\n", nOutBufCount);
 		nOutBufCount++;
 		fwrite (pBuffHeader->pBuffer, 1, pBuffHeader->nFilledLen, pContext->pOutputFile);
 	}
-	
+
     BUFFER_LIST_SET_ENTRY (pContext->pOutBufferList, pBuffHeader);
     //Semaphore_post(FBDSem);
 
@@ -543,9 +543,9 @@ static void SampleTest_ReadInputFile(SampleCompTestCtxt* pContext, OMX_PTR pData
    if (nReadSize != nBytes) {
        pContext->bEOS = OMX_TRUE;
    	}
-   
+
    printf (" Reading from file :: Buffer cont : %d \n", nInBufCount);
-   nInBufCount++; 
+   nInBufCount++;
 }
 
 /*========================================================*/
@@ -571,42 +571,42 @@ OMX_ERRORTYPE SampleTest_WriteInBuffers(SampleCompTestCtxt* pContext)
        if(pTmpBuffer == NULL)
            OMX_TEST_SET_ERROR_BAIL (OMX_ErrorInsufficientResources, "malloc failed \n");
        pOrigTmpBuffer = pTmpBuffer;
-           
+
        SampleTest_ReadInputFile (pContext, pTmpBuffer, OMX_SAMPLE_BUFFER_SIZE, pContext->pInputfile);
-  
-       Test_Util_Memcpy_1Dto2D(pBufHeader->pBuffer, pTmpBuffer, OMX_SAMPLE_BUFFER_SIZE, 
-                  OMX_SAMPLE_IN_HEIGHT, OMX_SAMPLE_IN_WIDTH, STRIDE_LINUX); 
-       pBufHeader->nFilledLen = OMX_SAMPLE_BUFFER_SIZE;   
-        
+
+       Test_Util_Memcpy_1Dto2D(pBufHeader->pBuffer, pTmpBuffer, OMX_SAMPLE_BUFFER_SIZE,
+                  OMX_SAMPLE_IN_HEIGHT, OMX_SAMPLE_IN_WIDTH, STRIDE_LINUX);
+       pBufHeader->nFilledLen = OMX_SAMPLE_BUFFER_SIZE;
+
        printf("\nBefore ETB pBufHeader->nInputPortIndex = %d\n", pBufHeader->nInputPortIndex);
-       
+
        TIMM_OSAL_Free(pOrigTmpBuffer);
-       
+
 #else
 	   SampleTest_ReadInputFile (pContext, pBufHeader->pBuffer, pBufHeader->nAllocLen, pContext->pInputfile);
 	   pBufHeader->nFilledLen = pBufHeader->nAllocLen;
-	   
-#endif	   
+
+#endif
        if(pContext->bEOS == OMX_TRUE){
           pBufHeader->nFlags |= OMX_BUFFERFLAG_EOS;
        }
 
-#ifdef BUF_HEAP       
+#ifdef BUF_HEAP
 //AD try
 printf("\npBuffer before ETB = %x\n",pBufHeader->pBuffer);
 pBufHeader->pBuffer = (char *)SharedRegion_getSRPtr(pBufHeader->pBuffer, 2);
 printf("\npBuffer SR before ETB = %x\n",pBufHeader->pBuffer);
-//AD try ends  
+//AD try ends
 #endif
-     
+
        eError = OMX_EmptyThisBuffer(pContext->hComp, pBufHeader);
-#ifdef BUF_HEAP       
+#ifdef BUF_HEAP
 //AD try
 printf("\npBuffer SR after ETB = %x\n",pBufHeader->pBuffer);
 pBufHeader->pBuffer = SharedRegion_getPtr(pBufHeader->pBuffer);
 printf("\npBuffer after ETB = %x\n",pBufHeader->pBuffer);
-//AD try ends  
-#endif       
+//AD try ends
+#endif
        OMX_TEST_BAIL_IF_ERROR (eError);
    }
 
@@ -632,20 +632,20 @@ OMX_ERRORTYPE SampleTest_ReadOutBuffers(SampleCompTestCtxt *pContext)
 
         BUFFERLIST_CLEAR_ENTRY(pList, pBufHeader);
 
-#ifdef BUF_HEAP       
+#ifdef BUF_HEAP
 //AD try
 pBufHeader->pBuffer = (char *)SharedRegion_getSRPtr(pBufHeader->pBuffer, 2);
-//AD try ends  
+//AD try ends
 #endif
-        
+
         eError = OMX_FillThisBuffer(pContext->hComp, pBufHeader);
 
-#ifdef BUF_HEAP       
+#ifdef BUF_HEAP
 //AD try
 pBufHeader->pBuffer = SharedRegion_getPtr(pBufHeader->pBuffer);
-//AD try ends  
+//AD try ends
 #endif
-        
+
         OMX_TEST_BAIL_IF_ERROR (eError);
 		if (pBufHeader->nFlags == OMX_BUFFERFLAG_EOS) {
 			pContext->nBufDoneCalls = OMX_TEST_BUFFERS_OF_TRAFFIC;
@@ -672,15 +672,15 @@ OMX_ERRORTYPE SampleTest_AllocateBuffers(SampleCompTestCtxt *pContext,
     OMX_BUFFERHEADERTYPE *pBufferHdr;
     OMX_U32 i = 100;
     OMX_COMPONENTTYPE *pComp;
-    
+
 #ifdef OMX_SAMPLE_TILER_TEST
     MemAllocBlock *pBlock = NULL;
     OMX_U32 nNumBlocks = 1;
-    
-/*For i/p port allocate 2D packed buffer, for o/p port allocate 1D buffer. 
+
+/*For i/p port allocate 2D packed buffer, for o/p port allocate 1D buffer.
 Ideally client should get this from GetParams but this is just a sample test so
-values are hardcoded*/    
-    
+values are hardcoded*/
+
     if(pPortDef->nPortIndex == OMX_SAMPLE_INPUT_PORT)
     {
         nNumBlocks = 2;
@@ -698,11 +698,11 @@ values are hardcoded*/
         pBlock = TIMM_OSAL_Malloc(sizeof(MemAllocBlock) * nNumBlocks, 0,0,0);
         pBlock[0].dim.len = OMX_SAMPLE_BUFFER_SIZE;
         pBlock[0].pixelFormat = PIXEL_FMT_PAGE;
-    }    
+    }
 #endif
 
     for(i=0; i < pPortDef->nBufferCountActual; i++) {
-        pBufferList = (BufferList *) TIMM_OSAL_Malloc(sizeof(BufferList), 
+        pBufferList = (BufferList *) TIMM_OSAL_Malloc(sizeof(BufferList),
                                      TIMM_OSAL_TRUE, 0, TIMMOSAL_MEM_SEGMENT_INT);
         if(!pBufferList) {
            OMX_TEST_SET_ERROR_BAIL (OMX_ErrorInsufficientResources, "malloc failed \n");
@@ -719,12 +719,12 @@ pBuffer = HeapBuf_alloc(heapHandle, pPortDef->nBufferSize, pPortDef->nBufferAlig
 //printf("\nIn client allocated pBuffer = %x\n",pBuffer);
 //AD try ends
 #elif defined(OMX_SAMPLE_TILER_TEST)
-/*For i/p port allocate 2D packed buffer, for o/p port allocate 1D buffer. 
+/*For i/p port allocate 2D packed buffer, for o/p port allocate 1D buffer.
 Ideally client should get this from GetParams but this is just a sample test so
 values are hardcoded*/
         pBuffer = MemMgr_Alloc(pBlock, nNumBlocks);
         printf("\nMemMgr allocated buffer = 0x%x\n", pBuffer);
-#else             
+#else
             pBuffer = (OMX_U8*)TIMM_OSAL_MallocaBuffer (pPortDef->nBufferSize,
                                            pPortDef->bBuffersContiguous,
                                            pPortDef->nBufferAlignment);
@@ -735,23 +735,23 @@ values are hardcoded*/
               OMX_TEST_SET_ERROR_BAIL (OMX_ErrorInsufficientResources, "malloc failed \n");
             }
 
-#ifdef BUF_HEAP       
+#ifdef BUF_HEAP
 //AD try
 printf("\npBuffer before UB = %x\n",pBuffer);
 pBuffer = (char *)SharedRegion_getSRPtr(pBuffer, 2);
 printf("\npBuffer SR before UB = %x\n",pBuffer);
-//AD try ends  
-#endif           
+//AD try ends
+#endif
 printf("\nCalling UseBuf on port %d\n",pPortDef->nPortIndex);
             eError = OMX_UseBuffer (pContext->hComp, &pBufferHdr, pPortDef->nPortIndex,
                                      0, pPortDef->nBufferSize, pBuffer);
-#ifdef BUF_HEAP       
+#ifdef BUF_HEAP
 //AD try
 printf("\npBuffer SR after UB = %x\n",pBufferHdr->pBuffer);
 pBufferHdr->pBuffer = SharedRegion_getPtr(pBufferHdr->pBuffer);
 printf("\npBuffer after UB = %x\n",pBufferHdr->pBuffer);
-//AD try ends  
-#endif                                        
+//AD try ends
+#endif
             OMX_TEST_BAIL_IF_ERROR (eError);
 
         } else {
@@ -759,8 +759,8 @@ printf("\npBuffer after UB = %x\n",pBufferHdr->pBuffer);
             pComp = (OMX_COMPONENTTYPE *)pContext->hComp;
             printf("\nCalling allocate buffer\n");
             eError = OMX_AllocateBuffer (pContext->hComp, &pBufferHdr, pPortDef->nPortIndex,
-                                           0, pPortDef->nBufferSize); 
-          
+                                           0, pPortDef->nBufferSize);
+
             OMX_TEST_BAIL_IF_ERROR (eError);
         }
 printf("\npBufferHdr->nOutputPortIndex = %d\n", pBufferHdr->nOutputPortIndex);
@@ -768,10 +768,10 @@ printf("\npBufferHdr->nInputPortIndex = %d\n", pBufferHdr->nInputPortIndex);
         pBufferList->pNextBuf = NULL;
         pBufferList->pBufHdr = pBufferHdr;
         pBufferList->pOrigBufHdr = pBufferHdr;
-        
+
         if (pPortDef->eDir == OMX_DirInput) {
 printf("\npBufferHdr->nOutputPortIndex = %d\n", pBufferHdr->nOutputPortIndex);
-printf("\npBufferHdr->nInputPortIndex = %d\n", pBufferHdr->nInputPortIndex);        
+printf("\npBufferHdr->nInputPortIndex = %d\n", pBufferHdr->nInputPortIndex);
             pBufferHdr->nOutputPortIndex = OMX_NOPORT;
             if(pContext->pInBufferList == NULL) {
                pContext->pInBufferList = pBufferList;
@@ -784,7 +784,7 @@ printf("\npBufferHdr->nInputPortIndex = %d\n", pBufferHdr->nInputPortIndex);
         } else {
             pBufferHdr->nInputPortIndex = OMX_NOPORT;
 printf("\npBufferHdr->nOutputPortIndex = %d\n", pBufferHdr->nOutputPortIndex);
-printf("\npBufferHdr->nInputPortIndex = %d\n", pBufferHdr->nInputPortIndex);            
+printf("\npBufferHdr->nInputPortIndex = %d\n", pBufferHdr->nInputPortIndex);
             if(pContext->pOutBufferList == NULL) {
                pContext->pOutBufferList = pBufferList;
             } else {
@@ -793,7 +793,7 @@ printf("\npBufferHdr->nInputPortIndex = %d\n", pBufferHdr->nInputPortIndex);
                      pTemp = pTemp->pNextBuf;
                pTemp->pNextBuf = pBufferList;
             }
-        } 
+        }
     }
 
 OMX_TEST_BAIL:
@@ -803,11 +803,11 @@ OMX_TEST_BAIL:
 #endif
     if(eError != OMX_ErrorNone) {
        if(pBufferList) {
-          TIMM_OSAL_Free (pBufferList); 
+          TIMM_OSAL_Free (pBufferList);
        }
-    } 
+    }
 
-    return eError;   
+    return eError;
 }
 
 /*========================================================*/
@@ -819,9 +819,9 @@ OMX_ERRORTYPE SampleTest_DeInitBuffers(SampleCompTestCtxt *pContext)
     OMX_U8 *pBuffer;
     BufferList *pBufferList;
     BufferList *pTemp;
-    
+
     OMX_U32 nRetVal = 0;
-    
+
     pTemp = pContext->pInBufferList;
 
     while(pTemp) {
@@ -835,7 +835,7 @@ OMX_ERRORTYPE SampleTest_DeInitBuffers(SampleCompTestCtxt *pContext)
 	   printf("\nSize = %d\n",pTemp->pOrigBufHdr->nAllocLen);
        HeapBuf_free(heapHandle, pBuffer, pTemp->pOrigBufHdr->nAllocLen);
 #elif defined(OMX_SAMPLE_TILER_TEST)
-       nRetVal = MemMgr_Free(pBuffer);       
+       nRetVal = MemMgr_Free(pBuffer);
        if(nRetVal)
        {
            printf("\nError in MemMgr free\n");
@@ -848,7 +848,7 @@ OMX_ERRORTYPE SampleTest_DeInitBuffers(SampleCompTestCtxt *pContext)
 
        printf("\nCalling Free Buffer on port no. %d\n", pTemp->pOrigBufHdr->nInputPortIndex);
 
-       eError = OMX_FreeBuffer (pContext->hComp, pTemp->pOrigBufHdr->nInputPortIndex, 
+       eError = OMX_FreeBuffer (pContext->hComp, pTemp->pOrigBufHdr->nInputPortIndex,
                                     pTemp->pOrigBufHdr);
        OMX_TEST_BAIL_IF_ERROR (eError);
 
@@ -856,7 +856,7 @@ OMX_ERRORTYPE SampleTest_DeInitBuffers(SampleCompTestCtxt *pContext)
        if(pBufferList)
          TIMM_OSAL_Free(pBufferList);
     }
-    
+
     pContext->pInBufferList = NULL;
 
     pTemp = pContext->pOutBufferList;
@@ -864,14 +864,14 @@ OMX_ERRORTYPE SampleTest_DeInitBuffers(SampleCompTestCtxt *pContext)
        pBufferList = (BufferList *)pTemp;
        pBuffer = (OMX_U8 *)pTemp->pOrigBufHdr->pBuffer;
        if(pContext->bClientAllocBuf){
-#ifdef BUF_HEAP 
+#ifdef BUF_HEAP
 	   printf("\nAbout to free buffer\n");
 	   printf("\nHeap handle = 0x%x\n",heapHandle);
 	   printf("\nBuffer = 0x%x\n",pBuffer);
 	   printf("\nSize = %d\n",pTemp->pOrigBufHdr->nAllocLen);
        HeapBuf_free(heapHandle, pBuffer, pTemp->pOrigBufHdr->nAllocLen);
 #elif defined(OMX_SAMPLE_TILER_TEST)
-       nRetVal = MemMgr_Free(pBuffer);       
+       nRetVal = MemMgr_Free(pBuffer);
        if(nRetVal)
        {
            printf("\nError in MemMgr free\n");
@@ -901,7 +901,7 @@ OMX_TEST_BAIL:
 
 /*========================================================*/
 /* @ fn SampleTest_TransitionWait ::   Waits for the transition to be completed ,
- *  incase of loaded to idle Allocates the Resources and while idle to loaded 
+ *  incase of loaded to idle Allocates the Resources and while idle to loaded
  *  destroys the resources */
 /*========================================================*/
 OMX_ERRORTYPE SampleTest_TransitionWait(OMX_STATETYPE eToState,
@@ -911,33 +911,33 @@ OMX_ERRORTYPE SampleTest_TransitionWait(OMX_STATETYPE eToState,
     OMX_PARAM_PORTDEFINITIONTYPE tPortDef;
     OMX_U32 i, j;
 
-    eError = OMX_SendCommand (pContext->hComp, OMX_CommandStateSet, 
+    eError = OMX_SendCommand (pContext->hComp, OMX_CommandStateSet,
                                      eToState, NULL);
     OMX_TEST_BAIL_IF_ERROR(eError);
 
     if ((eToState == OMX_StateIdle) && (pContext->eState == OMX_StateLoaded)) {
        for (i=0; i<NUM_DOMAINS; i++) {
-           for (j= pContext->sPortParam[i].nStartPortNumber; 
+           for (j= pContext->sPortParam[i].nStartPortNumber;
                 j < pContext->sPortParam[i].nStartPortNumber
                     + pContext->sPortParam[i].nPorts; j++) {
 
                     OMX_TEST_INIT_STRUCT (tPortDef, OMX_PARAM_PORTDEFINITIONTYPE);
                     tPortDef.nPortIndex = j;
 //printf("\nCalling GetParam before UseBuf on port %d\n",j);
-                    eError = OMX_GetParameter(pContext->hComp, 
+                    eError = OMX_GetParameter(pContext->hComp,
                                 OMX_IndexParamPortDefinition, (OMX_PTR)&tPortDef);
                     OMX_TEST_BAIL_IF_ERROR(eError);
 
 //                    if(tPortDef.bEnabled)//AD
                         eError = SampleTest_AllocateBuffers (pContext, &tPortDef);
-                        
-                    OMX_TEST_BAIL_IF_ERROR(eError);	
+
+                    OMX_TEST_BAIL_IF_ERROR(eError);
            }
        }
     } else if ((eToState == OMX_StateLoaded) && (pContext->eState == OMX_StateIdle)) {
 
          eError = SampleTest_DeInitBuffers (pContext);
-         OMX_TEST_BAIL_IF_ERROR(eError);  
+         OMX_TEST_BAIL_IF_ERROR(eError);
 
     }
     printf("\nWaiting for state set event\n");
@@ -966,13 +966,13 @@ void main (void )
     OMX_CALLBACKTYPE oCallbacks;
     SampleCompTestCtxt *pContext;
     SampleCompTestCtxt oAppData;
-	
+
     int i = 0;//AD
     int ch1,ch2;
     int pass;
     int while_pass=0,loc_diff=0;
     int setup;
-    
+
 
     pContext = &oAppData;
 
@@ -1000,16 +1000,16 @@ void main (void )
         subStr = strtok(NULL, " ");
     }
      */
-    
-    
+
+
     //RPC_InstanceInit(); //brings up the client instance
     //printf("\nRCM Client Successfully initialized: RETURNED TO TEST FILE\n");
-    
+
     memset(pContext, 0x0, sizeof(SampleCompTestCtxt));
 
     //strcpy (pContext->inFilePath, INPUT_FILE);
     //strcpy (pContext->outFilePath, NON_TUN_OUTPUT_FILE);
-    
+
     oCallbacks.EventHandler    = SampleTest_EventHandler;
     oCallbacks.EmptyBufferDone = SampleTest_EmptyBufferDone;
     oCallbacks.FillBufferDone  = SampleTest_FillBufferDone;
@@ -1051,39 +1051,39 @@ printf("\nInput file opened\n");
     if(OMX_StateLoaded != pContext->eState) {
        OMX_TEST_SET_ERROR_BAIL (OMX_ErrorUndefined, "not in loaded state \n");
     }
-    
+
     /* detect all Audio ports on the component */
     OMX_TEST_INIT_STRUCT (pContext->sPortParam[0], OMX_PORT_PARAM_TYPE);
-    eError = OMX_GetParameter (hComp, OMX_IndexParamAudioInit, 
+    eError = OMX_GetParameter (hComp, OMX_IndexParamAudioInit,
                                   (OMX_PTR)&pContext->sPortParam[0]);
     OMX_TEST_BAIL_IF_ERROR(eError);
 
     /* detect all video ports on the component */
     OMX_TEST_INIT_STRUCT (pContext->sPortParam[1], OMX_PORT_PARAM_TYPE);
-    eError = OMX_GetParameter (hComp, OMX_IndexParamVideoInit, 
+    eError = OMX_GetParameter (hComp, OMX_IndexParamVideoInit,
                                   (OMX_PTR)&pContext->sPortParam[1]);
     OMX_TEST_BAIL_IF_ERROR(eError);
 
     /* detect all image ports on the component */
     OMX_TEST_INIT_STRUCT (pContext->sPortParam[2], OMX_PORT_PARAM_TYPE);
-    eError = OMX_GetParameter (hComp, OMX_IndexParamImageInit, 
+    eError = OMX_GetParameter (hComp, OMX_IndexParamImageInit,
                                   (OMX_PTR)&pContext->sPortParam[2]);
     OMX_TEST_BAIL_IF_ERROR(eError);
 
     /* detect all other ports on the component */
     OMX_TEST_INIT_STRUCT (pContext->sPortParam[3], OMX_PORT_PARAM_TYPE);
-    eError = OMX_GetParameter (hComp, OMX_IndexParamOtherInit, 
+    eError = OMX_GetParameter (hComp, OMX_IndexParamOtherInit,
                                   (OMX_PTR)&pContext->sPortParam[3]);
     OMX_TEST_BAIL_IF_ERROR(eError);
 
-    pContext->nPorts = pContext->sPortParam[0].nPorts + 
+    pContext->nPorts = pContext->sPortParam[0].nPorts +
                        pContext->sPortParam[1].nPorts +
                        pContext->sPortParam[2].nPorts +
                        pContext->sPortParam[3].nPorts ;
-    
+
     /* Set the flag to TRUE in case if the client wants to allocate resources */
     //pContext->bClientAllocBuf = OMX_FALSE;
-/*    
+/*
     //AD
     for(i = 0; i < pContext->nPorts; i++)
     {
@@ -1093,7 +1093,7 @@ printf("\nInput file opened\n");
        TIMM_OSAL_SemaphoreObtain(pContext->hPortDisableEvent, TIMM_OSAL_SUSPEND);
     }
     //AD ends
-*/    
+*/
     pContext->bClientAllocBuf = OMX_SAMPLE_USEBUF;
 	if(pContext->bClientAllocBuf == OMX_TRUE) {
 	   printf (" Client does Allocation of buffers \n");
@@ -1114,7 +1114,7 @@ printf("\nInput file opened\n");
 
 	eError = SampleTest_WriteInBuffers (pContext);
        OMX_TEST_BAIL_IF_ERROR(eError);
-	   
+
 	   eError = SampleTest_ReadOutBuffers (pContext);
        OMX_TEST_BAIL_IF_ERROR(eError);
        while_pass++;
@@ -1124,15 +1124,15 @@ printf("\nInput file opened\n");
 
 	//Semaphore_pend(EBDSem, Semaphore_FOREVER);
        //Semaphore_pend(FBDSem, Semaphore_FOREVER);
-	   
+
    	}
 
 	gTest = 0;
-   
+
    /* Transition back to Idle state  */
    eError = SampleTest_TransitionWait (OMX_StateIdle, pContext);
    OMX_TEST_BAIL_IF_ERROR(eError);
-   
+
    /* Trasnition back to Loaded state */
    eError = SampleTest_TransitionWait(OMX_StateLoaded, pContext);
    OMX_TEST_BAIL_IF_ERROR(eError);
@@ -1158,10 +1158,10 @@ OMX_TEST_BAIL:
 
     /* emit the Test Result */
     if (OMX_ErrorNone != eError) {
-        printf (" TestCase Failed and returned an error:: %s \n", 
+        printf (" TestCase Failed and returned an error:: %s \n",
                          OMX_TEST_ErrorToString(eError));
-    } 
-	else 
+    }
+	else
 	{
         printf("\nTest case has ended, now comparing input and output files\n");
 		pContext->pInputfile = fopen (INPUT_FILE, "rb");
@@ -1226,7 +1226,7 @@ OMX_TEST_BAIL:
     RPC_DeInitialize(1); // 1 represensts client instance that needs to be deinit - 0 represents server instance that needs deinit
     printf("\nRPC shut down complete");
 */
-		
+
 }
 #if 0
 /* ###################################################### DOMX TEST 0001 ############################################ */
@@ -1235,8 +1235,8 @@ OMX_TEST_BAIL:
 void main()
 {
 
-  // RPC GetHandle call parameters 
-     
+  // RPC GetHandle call parameters
+
     RPC_OMX_HANDLE remoteHandle=0x00000; //initally filled with zeros
     OMX_STRING cComponentName = COMPONENT_NAME;
     OMX_PTR pAppData = NULL;
@@ -1260,10 +1260,10 @@ void main()
         printf("\nipc_setup failed\n");
     else
         printf("\nipc_setup successful\n");
-    
+
     printf("\nWait until RCM Server is created on other side. Press any key after that\n");
     getchar();
-    
+
     RPC_InstanceInit(); //brings up the client instance
     printf("\nRCM Client Successfully initialized: RETURNED TO TEST FILE");
     printf("\nSending RPC Gethandle call:");
@@ -1271,10 +1271,10 @@ void main()
     rpcError = RPC_GetHandle(&remoteHandle, cComponentName, pAppData, pCallBacks, eCoreType, &nCmdStatus);
     if(rpcError != 0)
       printf("\n Error in RPC_GetHandle\n");
-    
-    
+
+
     //PROXY WRAPPER + PROXY TEST
-    
+
     //omxErr = OMX_GetHandle (&hComp, (OMX_STRING)"OMX.TI.MISC.SAMPLE", pContext, &oCallbacks);
     printf("\n handle obtained locally of new component %x\n",hComp);
     //printf("\n handle obtained locally of new component %x\n",testComponent);
@@ -1283,7 +1283,7 @@ void main()
     {
     	printf("\nError Getting Handle: Error : %d\n", omxErr);
     }
-   
+
    //PROXY TEST
     printf("remote handle returned: %x",remoteHandle);
     printf("\n Deinitializing RPC service:");
@@ -1300,7 +1300,7 @@ void main()
 void DOMX_test_0002_main(void)
 {
     RPC_OMX_HANDLE remoteHandle = 0x88808880;
-    OMX_HANDLETYPE hComponent; 
+    OMX_HANDLETYPE hComponent;
     OMX_ERRORTYPE eError = OMX_ErrorNone;
     PROXY_COMPONENT_PRIVATE* pComponentPrivate=NULL;
     OMX_INDEXTYPE nParamIndex = 0;
@@ -1311,14 +1311,14 @@ void DOMX_test_0002_main(void)
     pComponentPrivate = (PROXY_COMPONENT_PRIVATE*)pHandle->pComponentPrivate;
 
     rpcError = RPC_GetParameter(remoteHandle,nParamIndex,pComponentParameterStructure, pComponentPrivate->realCore,&cmdStatus);
-    
+
     printf("\n_____________________________________________________________________________________\n");
     printf("\n");
 
     printf("\nremote handle modified by APP reflects: %x\n",remoteHandle);
     printf("\nEND OF GET PARAM TEST");
     printf("\n");printf("\n");printf("\n");printf("\n");printf("\n");
-    
+
     printf("\n Deinitializing RPC service:");
     printf("\n calling fxnexit to release testcase on appM3:");
     fxn_exit_caller();
@@ -1332,7 +1332,7 @@ void DOMX_test_0002_main(void)
 void DOMX_test_0003_main(void)
 {
     RPC_OMX_HANDLE remotehComp = 0x88808880;
-    RPC_OMX_HANDLE remotehTunnledComp = 0x89908990;	
+    RPC_OMX_HANDLE remotehTunnledComp = 0x89908990;
     OMX_U32 nPort,nTunneledPort;
     OMX_ERRORTYPE eError = OMX_ErrorNone;
     PROXY_COMPONENT_PRIVATE* pComponentPrivate=NULL;
@@ -1349,17 +1349,17 @@ void DOMX_test_0003_main(void)
    nTunneledPort = 0x54321;
 
     eError = RPC_ComponentTunnelRequest(remotehComp,nPort,remotehTunnledComp,nTunneledPort,&pTunnelSetup,&CmdStatus);
-   
+
     printf("\n_____________________________________________________________________________________\n");
     printf("\n");
 
     printf("\nremote handle modified by APP reflects: %x\n",remotehComp);
     printf("\nremote handle modified by APP reflects: %x\n",remotehTunnledComp);
 
-	
+
     printf("\nEND OF CTR TEST");
     printf("\n");printf("\n");printf("\n");printf("\n");printf("\n");
-    
+
     printf("\n Deinitializing RPC service:");
     printf("\n calling fxnexit to release testcase on appM3:");
     fxn_exit_caller();

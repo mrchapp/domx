@@ -142,7 +142,7 @@ TIMM_OSAL_ERRORTYPE TIMM_OSAL_SemaphoreObtain(TIMM_OSAL_PTR pSemaphore, TIMM_OSA
 		}
     }
     else {
-                /*Some delay in calling gettimeofday and sem_timedwait - cant 
+                /*Some delay in calling gettimeofday and sem_timedwait - cant
                   be avoided. Possibility of thread switch after gettimeofday
                   in which case time out will be less than expected*/
 		gettimeofday(&ltime_now, NULL);

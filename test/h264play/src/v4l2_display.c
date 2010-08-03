@@ -2,7 +2,7 @@
 *             Texas Instruments OMAP(TM) Platform Software
 *  (c) Copyright 2009 Texas Instruments Incorporated.  All Rights Reserved.
 *
-*  Use of this software is controlled by the terms and conditions found 
+*  Use of this software is controlled by the terms and conditions found
 *  in the license agreement under which this software has been supplied.
 * =========================================================================== */
 
@@ -228,15 +228,15 @@ int v4l2_init(int num_buffers, int width, int height, int pixfmt,
 }
 
 /**
- * Returns a displayed buffer from v4l2 within a timeout. 
- *  
- * Returns NULL if no buffers can be returned within the 
- * timeout.  This call blocks. 
- * 
+ * Returns a displayed buffer from v4l2 within a timeout.
+ *
+ * Returns NULL if no buffers can be returned within the
+ * timeout.  This call blocks.
+ *
  * @author a0194118 (9/30/2009)
- * 
+ *
  * @param timeout_ms  Timeout in ms.
- * 
+ *
  * @return pointer to video buffer data.
  */
 void *v4l2_get_displayed_buffer(int timeout_ms)
@@ -269,19 +269,19 @@ void *v4l2_get_displayed_buffer(int timeout_ms)
 }
 
 /**
- * Queues a buffer to v4l2, and returns a buffer that has been 
- * processed. 
- *  
- * If buffer is not queued, it is returned.  If it is 
+ * Queues a buffer to v4l2, and returns a buffer that has been
+ * processed.
+ *
+ * If buffer is not queued, it is returned.  If it is
  * successfully queued, another buffer is retrieved if possible.
- * If no buffer can be returned (as none is processed or due to 
- * errors), NULL is returned.  This call blocks. 
- * 
+ * If no buffer can be returned (as none is processed or due to
+ * errors), NULL is returned.  This call blocks.
+ *
  * @author a0194118 (9/30/2009)
- * 
+ *
  * @param pBuffer   pointer to video buffer data
- * 
- * @return pointer to a video buffer data that can be reused, or 
+ *
+ * @return pointer to a video buffer data that can be reused, or
  *         NULL if none can.
  */
 void *v4l2_display_buffer(void *pBuffer)
@@ -371,7 +371,7 @@ int v4l2_display_done()
     {
 #ifdef NV12_WORKAROUND
         if (v4l2_display_buffers[i].workaround)
-        {                
+        {
             MemMgr_Free(v4l2_display_buffers[i].start);
             v4l2_display_buffers[i].start = v4l2_display_buffers[i].workaround;
         }

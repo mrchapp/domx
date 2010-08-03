@@ -30,7 +30,7 @@
  *         This file contains methods that provides the functionality for
  *         the OpenMAX1.1 DOMX Framework OMX Common Proxy.
  *
- *  @path \WTSD_DucatiMMSW\framework\domx\omx_proxy_common\ 
+ *  @path \WTSD_DucatiMMSW\framework\domx\omx_proxy_common\
  *
  *  @rev 1.0
  */
@@ -42,7 +42,7 @@
  *!
  *! 19-August-2009 B Ravi Kiran ravi.kiran@ti.com: Initial Version
  *================================================================*/
- 
+
 #ifndef OMX_PROXY_H
 #define OMX_PROXY_H
 
@@ -55,7 +55,7 @@ extern "C" {
 /******************************************************************
  *   INCLUDE FILES
  ******************************************************************/
-/* ----- system and platform files ----------------------------*/ 
+/* ----- system and platform files ----------------------------*/
 #include <OMX_Core.h>
 /*-------program files ----------------------------------------*/
 #include "omx_rpc.h"
@@ -102,7 +102,7 @@ extern "C" {
 typedef OMX_ERRORTYPE (*PROXY_EMPTYBUFFER_DONE)(OMX_HANDLETYPE hComponent, OMX_U32 remoteBufHdr,
                                                  OMX_U32 nfilledLen, OMX_U32 nOffset,
                                                  OMX_U32 nFlags);
-                                                 
+
 typedef OMX_ERRORTYPE (*PROXY_FILLBUFFER_DONE)(OMX_HANDLETYPE hComponent, OMX_U32 remoteBufHdr,
                                             OMX_U32 nfilledLen, OMX_U32 nOffset,
                                             OMX_U32 nFlags,
@@ -118,7 +118,7 @@ typedef OMX_ERRORTYPE (*PROXY_EVENTHANDLER)(OMX_HANDLETYPE hComponent, OMX_PTR p
 * Structures
 *******************************************************************************/
 /*===============================================================*/
-/** PROXY_BUFFER_INFO        : This structure maintains a table of A9 and 
+/** PROXY_BUFFER_INFO        : This structure maintains a table of A9 and
  *                             Ducati side buffers and headers.
  *
  * @param pBufHeader         : This is a pointer to the A9 bufferheader.
@@ -133,13 +133,13 @@ typedef OMX_ERRORTYPE (*PROXY_EVENTHANDLER)(OMX_HANDLETYPE hComponent, OMX_PTR p
  *
  * @param pAlloc_localBuffCopy : Unknown. Remove?
  *
- * @param pBufferToBeMapped  : This is the pointer that will be used for 
+ * @param pBufferToBeMapped  : This is the pointer that will be used for
  *                             mapping the buffer to Ducati side. For TILER
  *                             buffers, this and pBufferActual will  be the
  *                             same. However for NON TILER buffers, this'll
- *                             be an intermediate pointer. This pointer should 
+ *                             be an intermediate pointer. This pointer should
  *                             not be used for r/w or cache operations. It can
- *                             only be used for mapping/unmapping to Ducati 
+ *                             only be used for mapping/unmapping to Ducati
  *                             space.
  * @param bRemoteAllocatedBuffer : True if buffer is allocated by remote core
  *                                 (as in AllocateBuffer case). This is needed
@@ -168,19 +168,19 @@ typedef struct PROXY_COMPONENT_PRIVATE {
     /* OMX Related Information */
     OMX_CALLBACKTYPE tCBFunc;
     OMX_PTR pILAppData;
-    RPC_OMX_HANDLE hRemoteComp; 
-    
+    RPC_OMX_HANDLE hRemoteComp;
+
     PROXY_BUFFER_INFO tBufList[MAX_NUM_PROXY_BUFFERS];
     OMX_U32 nTotalBuffers;
     OMX_U32 nAllocatedBuffers;
-    
+
     /* PROXY specific data - PROXY PRIVATE DATA */
     char *cCompName;
-    
+
     PROXY_EMPTYBUFFER_DONE proxyEmptyBufferDone;
     PROXY_FILLBUFFER_DONE proxyFillBufferDone;
     PROXY_EVENTHANDLER proxyEventHandler;
-    
+
     OMX_U32 nNumOfLines[PROXY_MAXNUMOFPORTS];
 }PROXY_COMPONENT_PRIVATE;
 

@@ -60,7 +60,7 @@ typedef   uint32_t  TIMM_OSAL_U32;	/*UINT32*/
 #define TIMM_OSAL_UINT32_MIN 0
 #define TIMM_OSAL_UINT32_MAX 0xFFFFFFFF
 
-         
+
 typedef char    TIMM_OSAL_CHAR;	/*CHAR*/
 
 typedef   void *  TIMM_OSAL_HANDLE;
@@ -70,7 +70,7 @@ typedef enum TIMM_OSAL_BOOL {
     TIMM_OSAL_FALSE = 0,
     TIMM_OSAL_TRUE = !TIMM_OSAL_FALSE,
     TIMM_OSAL_BOOL_MAX = 0x7FFFFFFF
-} TIMM_OSAL_BOOL; 
+} TIMM_OSAL_BOOL;
 
 #define TIMM_OSAL_SUSPEND     0xFFFFFFFFUL
 #define TIMM_OSAL_NO_SUSPEND  0x0

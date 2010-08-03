@@ -28,7 +28,7 @@
 /* ---------- Generic Debug Print Macros ---------- */
 
 /**
- * Use as: 
+ * Use as:
  *    P("val is %d", 5);
  *    ==> val is 5
  *    DP("val is %d", 15);
@@ -53,7 +53,7 @@
 /* ---------- Program Flow Debug Macros ---------- */
 
 /**
- * Use as: 
+ * Use as:
  *    int get5() {
  *      IN;
  *      return R_I(5);
@@ -106,7 +106,7 @@
 /* ---------- Assertion Debug Macros ---------- */
 
 /**
- * Use as: 
+ * Use as:
  *     int i = 5;
  *     // int j = i * 5;
  *     int j = A_I(i,==,3) * 5;
@@ -116,7 +116,7 @@
  *     ==> assert: i (=5) !== 3 at test.c:56:main()
  *     assert: i (=5) !<= 3 at test.c:58:main()
  *     j is 25
- *  
+ *
  */
 /* generic assertion check, A returns the value of exp, CHK return void */
 #ifdef __DEBUG_ASSERT__

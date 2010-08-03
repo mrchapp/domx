@@ -106,7 +106,7 @@ TIMM_OSAL_PTR TIMM_OSAL_Malloc(TIMM_OSAL_U32 size,
     if(0 != unBlockAlignment) {
 		TIMM_OSAL_Warning("Memory Allocation:Not done for specified nBufferAlignment. Alignment of 0 will be used");
 
-    } 
+    }
   		pData = malloc((size_t)size);	/*size_t is long long*/
 #endif
 		if (TIMM_OSAL_NULL == pData) {
@@ -115,7 +115,7 @@ TIMM_OSAL_PTR TIMM_OSAL_Malloc(TIMM_OSAL_U32 size,
 		   /* Memory Allocation was successfull */
 		   gMallocCounter++;
 		}
-	
+
 
     return pData;
 }

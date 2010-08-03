@@ -30,7 +30,7 @@
  *         This file contains methods that provides the functionality for
  *         the OpenMAX1.1 DOMX Framework RPC.
  *
- *  @path \WTSD_DucatiMMSW\framework\domx\omx_rpc\inc 
+ *  @path \WTSD_DucatiMMSW\framework\domx\omx_rpc\inc
  *
  *  @rev 1.0
  */
@@ -42,11 +42,11 @@
  *!
  *! 19-August-2009 B Ravi Kiran ravi.kiran@ti.com: Initial Version
  *================================================================*/
- 
- 
+
+
 #ifndef OMX_RPC_SKELH
 #define OMX_RPC_SKELH
- 
+
 #ifdef __cplusplus
 extern "C" {
 #endif /* __cplusplus */
@@ -54,12 +54,12 @@ extern "C" {
 /******************************************************************
  *   INCLUDE FILES
  ******************************************************************/
- 
+
 #include "../inc/omx_rpc_internal.h"
 #include "../inc/omx_rpc_stub.h"
 
-RPC_OMX_ERRORTYPE RPC_SKEL_EmptyBufferDone(UInt32 size, UInt32 *data); 
-RPC_OMX_ERRORTYPE RPC_SKEL_FillBufferDone(UInt32 size, UInt32 *data); 
+RPC_OMX_ERRORTYPE RPC_SKEL_EmptyBufferDone(UInt32 size, UInt32 *data);
+RPC_OMX_ERRORTYPE RPC_SKEL_FillBufferDone(UInt32 size, UInt32 *data);
 RPC_OMX_ERRORTYPE RPC_SKEL_EventHandler(UInt32 size, UInt32 *data);
 
 /*Empty SKEL*/

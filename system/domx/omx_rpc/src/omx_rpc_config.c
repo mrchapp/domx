@@ -30,7 +30,7 @@
  *         This file contains methods that provides the functionality for
  *         the OpenMAX1.1 DOMX Framework RPC.
  *
- *  @path \WTSD_DucatiMMSW\framework\domx\omx_rpc\src 
+ *  @path \WTSD_DucatiMMSW\framework\domx\omx_rpc\src
  *
  *  @rev 1.0
  */
@@ -45,7 +45,7 @@
  /******************************************************************
  *   INCLUDE FILES
  ******************************************************************/
- /* ----- system and platform files ----------------------------*/ 
+ /* ----- system and platform files ----------------------------*/
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
@@ -72,9 +72,9 @@ char rpcFxns[][MAX_FUNCTION_NAME_LENGTH]= {
           "RPC_SKEL_GetParameter",
           "RPC_SKEL_GetHandle",
           "RPC_SKEL_UseBuffer",
-          
+
           "RPC_SKEL_FreeHandle",
-          
+
           "RPC_SKEL_SetConfig",
           "RPC_SKEL_GetConfig",
           "RPC_SKEL_GetState",
@@ -84,14 +84,14 @@ char rpcFxns[][MAX_FUNCTION_NAME_LENGTH]= {
           "RPC_SKEL_FillThisBuffer",
           "RPC_SKEL_FillBufferDone",
           "RPC_SKEL_FreeBuffer",
-         
+
           "RPC_SKEL_EmptyThisBuffer",
           "RPC_SKEL_EmptyBufferDone",
           "RPC_SKEL_EventHandler",
           "RPC_SKEL_AllocateBuffer",
           "RPC_SKEL_ComponentTunnelRequest"
 };
-          
+
 rpcSkelArr rpcSkelFxns[] =
 {
           { RPC_SKEL_SetParameter },

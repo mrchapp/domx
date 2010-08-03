@@ -2,18 +2,18 @@
 *             Texas Instruments OMAP(TM) Platform Software
 *  (c) Copyright 2009 Texas Instruments Incorporated.  All Rights Reserved.
 *
-*  Use of this software is controlled by the terms and conditions found 
+*  Use of this software is controlled by the terms and conditions found
 *  in the license agreement under which this software has been supplied.
 * =========================================================================== */
-/*!  
+/*!
  *****************************************************************************
  * \file
- *	H264_ILClient.h														 
+ *	H264_ILClient.h
  *
- * \brief  
- *  This file contains methods that provides the functionality for the H264 
+ * \brief
+ *  This file contains methods that provides the functionality for the H264
  *  Video Decoder Test Application
- *	
+ *
  * \version 1.0
  *
  *****************************************************************************
@@ -53,7 +53,7 @@
 /* ========================================================================== */
 /** H264_Client is the structure definition for the H264 Decoder IL Client
 *
-* @param pHandle               OMX Handle  
+* @param pHandle               OMX Handle
 * @param pComponent            Component Data structure
 * @param pCb                   Callback function pointer
 * @param eState                Current OMX state
@@ -119,7 +119,7 @@ typedef struct H264_Decoder_TestCaseParamsType
     char OutFile[100];
     OMX_U32 width;
     OMX_U32 height;
-    OMX_COLOR_FORMATTYPE ColorFormat; 
+    OMX_COLOR_FORMATTYPE ColorFormat;
 
 }H264_Decoder_TestCaseParamsType;
 

@@ -32,7 +32,7 @@
 #include <stdlib.h> // for size_t
 
 #if OMX_DEBUG
-void* OMX_DebugMem_calloc(size_t num, size_t size, 
+void* OMX_DebugMem_calloc(size_t num, size_t size,
                            const char* file, const char* func, int line);
 void* OMX_DebugMem_malloc(size_t size,
                            const char* file, const char* func, int line);
@@ -60,7 +60,7 @@ void OMX_DebugMem_dump(const char *file, const char *func, int line);
 #else
     #define validate(x)
     #define dump()
-#endif    
+#endif
 
 
 #endif

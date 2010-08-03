@@ -68,14 +68,14 @@ typedef TIMM_OSAL_U32   TIMM_OSAL_ERRORTYPE;
    { type=(TIMM_OSAL_U32)((error)>>30);\
      compID=(TIMM_OSAL_U32)(((error)>>16)&0x003FFF);\
      (TIMM_OSAL_U32)(errorID=(error)&0x00FFFF); }
- 
-/* Component IDs */ 
+
+/* Component IDs */
 #define TIMM_OSAL_COMP_GENERAL      0x00
-#define TIMM_OSAL_COMP_MEMORY       0x01  
-#define TIMM_OSAL_COMP_PIPES        0x02  
-#define TIMM_OSAL_COMP_EVENTS       0x03  
-#define TIMM_OSAL_COMP_SEMAPHORES   0x04  
-#define TIMM_OSAL_COMP_TASK         0x05  
+#define TIMM_OSAL_COMP_MEMORY       0x01
+#define TIMM_OSAL_COMP_PIPES        0x02
+#define TIMM_OSAL_COMP_EVENTS       0x03
+#define TIMM_OSAL_COMP_SEMAPHORES   0x04
+#define TIMM_OSAL_COMP_TASK         0x05
 
 /* Definition of common error codes */
 /** there is no error*/
@@ -132,13 +132,13 @@ typedef TIMM_OSAL_U32   TIMM_OSAL_ERRORTYPE;
 	case _Case:\
 		TIMM_OSAL_Error(_ErrMsg);\
 		bReturnStatus = _ErrCode;\
-		break;									
+		break;
 
 #define SWITCH_DEFAULT_CASE(_ErrCode, _ErrMsg )\
 	default:\
 		TIMM_OSAL_Error(_ErrMsg);\
 		bReturnStatus = _ErrCode;\
-		break;									
+		break;
 
 
 

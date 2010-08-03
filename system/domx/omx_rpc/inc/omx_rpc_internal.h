@@ -30,7 +30,7 @@
  *         This file contains methods that provides the functionality for
  *         the OpenMAX1.1 DOMX Framework RPC.
  *
- *  @path \WTSD_DucatiMMSW\framework\domx\omx_rpc\inc 
+ *  @path \WTSD_DucatiMMSW\framework\domx\omx_rpc\inc
  *
  *  @rev 1.0
  */
@@ -42,7 +42,7 @@
  *!
  *! 19-August-2009 B Ravi Kiran ravi.kiran@ti.com: Initial Version
  *================================================================*/
- 
+
 
 #ifndef OMXRPC_INTERNAL_H
 #define OMXRPC_INTERNAL_H
@@ -54,7 +54,7 @@ extern "C" {
 /******************************************************************
  *   INCLUDE FILES
  ******************************************************************/
-/* ----- system and platform files ----------------------------*/ 
+/* ----- system and platform files ----------------------------*/
 #include <RcmClient.h>
 #include <OMX_Component.h>
 #include <OMX_Core.h>
@@ -77,7 +77,7 @@ extern "C" {
 
 /*This defines the maximum length the processor name can take - The is based on the component
 name based Target core retireval*/
-#define MAX_CORENAME_LENGTH 20 
+#define MAX_CORENAME_LENGTH 20
 
 #define MAX_SERVER_NAME_LENGTH 40
 
@@ -86,7 +86,7 @@ name based Target core retireval*/
 /*This defines the maximum number of remote functions that can be registered*/
 #define MAX_FUNCTION_LIST 19
 
-/*This defines the maximum number of characters a remote function name can take. 
+/*This defines the maximum number of characters a remote function name can take.
 This is used to define the length of maximum string length the symbol can be*/
 #define MAX_FUNCTION_NAME_LENGTH 80
 
@@ -120,13 +120,13 @@ typedef enum COREID
         CORE_SYSM3 = 2,
         CORE_CHIRON = 3,
         CORE_MAX = 4
-}COREID; 
+}COREID;
 
 /************************************* OMX RPC MESSAGE STRUCTURE ******************************/
 typedef struct RPC_MSG_HEADER
-{ 
+{
         RPC_OMX_ERRORTYPE     nRPCCmdStatus; // command status is for reflecting successful remote OMX return of call
-        OMX_ERRORTYPE         nOMXReturn; // omx error      
+        OMX_ERRORTYPE         nOMXReturn; // omx error
 }RPC_MSG_HEADER;
 
 typedef struct RPC_OMX_MESSAGE
@@ -146,8 +146,8 @@ typedef struct rpcSkelArr {
         OMX_PTR FxnPtr;
 } rpcSkelArr;
 
-/** 
-  *  @brief           Index for Remote Function Index Array. 
+/**
+  *  @brief           Index for Remote Function Index Array.
   */
 typedef enum rpc_fxn_list{
     RPC_OMX_FXN_IDX_SET_PARAMETER = 0,
@@ -181,7 +181,7 @@ typedef enum ProxyType {
 typedef enum pRcmClientType{
     RCM_DEFAULT_CLIENT = 0,
     RCM_ADDITIONAL_CLIENT = 1,
-    RCM_MAX_CLIENT = 2        
+    RCM_MAX_CLIENT = 2
 }pRcmClientType;
 
 typedef enum CacheType{
@@ -238,6 +238,6 @@ char cName[128]; /***like "OMX.TI.Video.encoder" **/
 OMX_VERSIONTYPE sVersion;
 OMX_VERSIONTYPE sSpecVersion;
 OMX_UUIDTYPE sUUID;
-} VERSION_INFO; 
+} VERSION_INFO;
 
 #endif

@@ -30,7 +30,7 @@
  *         This file contains methods that provides the functionality for
  *         the OpenMAX1.1 DOMX Framework RPC.
  *
- *  @path \WTSD_DucatiMMSW\framework\domx\omx_rpc\inc 
+ *  @path \WTSD_DucatiMMSW\framework\domx\omx_rpc\inc
  *
  *  @rev 1.0
  */
@@ -87,7 +87,7 @@ extern "C" {
 /******************************************************************
  *   MACROS
  ******************************************************************/
-#define RPC_UTIL_GETSTRUCTSIZE(PTR) *((OMX_U32*)PTR) 
+#define RPC_UTIL_GETSTRUCTSIZE(PTR) *((OMX_U32*)PTR)
 
 /******************************************************************
  *   MACROS - COMMON MARSHALLING UTILITIES

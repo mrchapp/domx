@@ -30,7 +30,7 @@
  *  @brief This file contains methods that provides the functionality for
  *         the OpenMAX1.1 DOMX Framework RPC.
  *
- *  @path \WTSD_DucatiMMSW\framework\domx\omx_rpc\ 
+ *  @path \WTSD_DucatiMMSW\framework\domx\omx_rpc\
  *
  *  @rev 1.0
  */
@@ -42,7 +42,7 @@
  *!
  *! 19-August-2009 B Ravi Kiran ravi.kiran@ti.com: Initial Version
  *================================================================*/
- 
+
 #ifndef OMXRPC_H
 #define OMXRPC_H
 
@@ -74,7 +74,7 @@ typedef OMX_U32          RPC_INDEX;
 //typedef OMX_PTR		     RPC_OMX_PTR;
 //typedef OMX_U32	         RPC_OMX_ARG;
 //typedef OMX_U32	         RPC_OMX_ID;
- 
+
  /*******************************************************************************
 * Enumerated Types
 *******************************************************************************/
@@ -103,26 +103,26 @@ typedef enum RPC_OMX_ERRORTYPE{
     RPC_OMX_RCM_ErrorTimeout = 0x70007,
     RPC_OMX_RCM_ServerFail = 0x70008,
     RPC_OMX_RCM_ClientFail = 0x70009,
-    
+
 }RPC_OMX_ERRORTYPE;
 
- 
+
 /****************************************************************
  * PUBLIC DECLARATIONS Defined here, used elsewhere
 
 ****************************************************************/
 /* ===========================================================================*/
 /**
- * @name RPC_InstanceInit() 
+ * @name RPC_InstanceInit()
  * @brief RPC instance init is used to bring up a instance of a client - this should be ideally invokable from any core
  *        For this the parameters it would require are
- *        Heap ID - this needs to be configured at startup (CFG) and indicates the heaps available for a RCM client to pick from 
- *        Server - this contains the RCM server name that the client should connect to 
+ *        Heap ID - this needs to be configured at startup (CFG) and indicates the heaps available for a RCM client to pick from
+ *        Server - this contains the RCM server name that the client should connect to
  *        rcmHndl - Contains the Client once the call is completed
- *        rcmParams - 
+ *        rcmParams -
  *        These values can be picked up from the RPC handle. But an unique identifier is required -Server
  * @param cComponentName  : Pointer to the Components Name that is requires the RCM client to be initialized
- * @return RPC_OMX_ErrorNone = Successful 
+ * @return RPC_OMX_ErrorNone = Successful
  * @sa TBD
  *
  */
@@ -131,23 +131,23 @@ RPC_OMX_ERRORTYPE RPC_InstanceInit(OMX_STRING cComponentName,RPC_OMX_HANDLE* phR
 
 /* ===========================================================================*/
 /**
- * @name RPC_ModInit() 
- * @brief This function Creates the Default RCM servers on current processor       
- * @param Void 
- * @return RPC_OMX_ErrorNone = Successful 
+ * @name RPC_ModInit()
+ * @brief This function Creates the Default RCM servers on current processor
+ * @param Void
+ * @return RPC_OMX_ErrorNone = Successful
  * @sa TBD
  *
  */
  /* ===========================================================================*/
 RPC_OMX_ERRORTYPE RPC_ModInit(void);
-    
+
 /* ===========================================================================*/
 /**
- * @name RPC_InstanceDeInit() 
- * @brief This function Removes or deinitializes RCM client instances. This also manages the number of active users    
+ * @name RPC_InstanceDeInit()
+ * @brief This function Removes or deinitializes RCM client instances. This also manages the number of active users
  *        of a given RCM client
  * @param cComponentName  : Pointer to the Components Name that is active user of the RCM client to be deinitialized
- * @return RPC_OMX_ErrorNone = Successful 
+ * @return RPC_OMX_ErrorNone = Successful
  * @sa TBD
  *
  */
@@ -156,11 +156,11 @@ RPC_OMX_ERRORTYPE RPC_InstanceDeInit(RPC_OMX_HANDLE hRPCCtx);
 
 /* ===========================================================================*/
 /**
- * @name RPC_ModDeInit() 
- * @brief This function Removes or deinitializes RCM client instances. This also manages the number of active users    
+ * @name RPC_ModDeInit()
+ * @brief This function Removes or deinitializes RCM client instances. This also manages the number of active users
  *        of a given RCM client
  * @param cComponentName  : Pointer to the Components Name that is active user of the RCM client to be deinitialized
- * @return RPC_OMX_ErrorNone = Successful 
+ * @return RPC_OMX_ErrorNone = Successful
  * @sa TBD
  *
  */
@@ -171,4 +171,4 @@ RPC_OMX_ERRORTYPE RPC_ModDeInit(void);
 RPC_UTIL_RetrieveOMXHandle()
 */
 
-#endif 
+#endif

@@ -7,7 +7,7 @@
  * ==================================================================== */
 /*
 *  @file timm_osal_task.h
-*  The osal header file defines 
+*  The osal header file defines
 *  @path
 *
 */
@@ -52,9 +52,9 @@ TIMM_OSAL_ERRORTYPE TIMM_OSAL_CreateTask (TIMM_OSAL_PTR *pTask,
                                           TIMM_OSAL_U32 uStackSize,
                                           TIMM_OSAL_U32 uPriority,
                                           TIMM_OSAL_S8 *pName);
-                                          
+
 TIMM_OSAL_ERRORTYPE TIMM_OSAL_DeleteTask (TIMM_OSAL_PTR pTask);
-                                          
+
 TIMM_OSAL_ERRORTYPE TIMM_OSAL_SleepTask (TIMM_OSAL_U32 mSec);
 
 #ifdef __cplusplus
