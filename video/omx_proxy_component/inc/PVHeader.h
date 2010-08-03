@@ -53,15 +53,15 @@
 /** Opencore specific, refer to OpenMax Call Sequences document section 3.2 **/
 typedef struct PV_OMXComponentCapabilityFlagsType
 {
-    ////////////////// OMX COMPONENT CAPABILITY RELATED MEMBERS
-    OMX_BOOL iIsOMXComponentMultiThreaded;
-    OMX_BOOL iOMXComponentSupportsExternalOutputBufferAlloc;
-    OMX_BOOL iOMXComponentSupportsExternalInputBufferAlloc;
-    OMX_BOOL iOMXComponentSupportsMovableInputBuffers;
-    OMX_BOOL iOMXComponentSupportsPartialFrames;
-    OMX_BOOL iOMXComponentUsesNALStartCodes;
-    OMX_BOOL iOMXComponentCanHandleIncompleteFrames;
-    OMX_BOOL iOMXComponentUsesFullAVCFrames;
+	////////////////// OMX COMPONENT CAPABILITY RELATED MEMBERS
+	OMX_BOOL iIsOMXComponentMultiThreaded;
+	OMX_BOOL iOMXComponentSupportsExternalOutputBufferAlloc;
+	OMX_BOOL iOMXComponentSupportsExternalInputBufferAlloc;
+	OMX_BOOL iOMXComponentSupportsMovableInputBuffers;
+	OMX_BOOL iOMXComponentSupportsPartialFrames;
+	OMX_BOOL iOMXComponentUsesNALStartCodes;
+	OMX_BOOL iOMXComponentCanHandleIncompleteFrames;
+	OMX_BOOL iOMXComponentUsesFullAVCFrames;
 } PV_OMXComponentCapabilityFlagsType;
 
 #endif //__PVHEADER__

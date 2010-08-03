@@ -47,8 +47,9 @@
 #define OMXRPC_H
 
 #ifdef __cplusplus
-extern "C" {
-#endif /* __cplusplus */
+extern "C"
+{
+#endif				/* __cplusplus */
 
 /******************************************************************
  *   INCLUDE FILES
@@ -58,53 +59,54 @@ extern "C" {
 #include <OMX_Core.h>
 
 #define TILER_BUFF
-extern OMX_U8 CHIRON_IPC_FLAG;
+	extern OMX_U8 CHIRON_IPC_FLAG;
 
 /******************************************************************
  *   DATA TYPES
  ******************************************************************/
 /* ************************* OMX RPC DATA TYPES *************************** */
-typedef OMX_PTR 	     RPC_OMX_HANDLE;
-typedef OMX_ERRORTYPE    RPC_OMX_CMD_STATUS;
-typedef OMX_U8  	     RPC_OMX_BYTE;
-typedef OMX_U32          RPC_INDEX;
+	typedef OMX_PTR RPC_OMX_HANDLE;
+	typedef OMX_ERRORTYPE RPC_OMX_CMD_STATUS;
+	typedef OMX_U8 RPC_OMX_BYTE;
+	typedef OMX_U32 RPC_INDEX;
 
 //typedef OMX_HANDLETYPE RPC_HANDLE_TYPE;
 //typedef OMX_U32          RPC_OMX_SIZE;
-//typedef OMX_PTR		     RPC_OMX_PTR;
-//typedef OMX_U32	         RPC_OMX_ARG;
-//typedef OMX_U32	         RPC_OMX_ID;
+//typedef OMX_PTR                    RPC_OMX_PTR;
+//typedef OMX_U32                RPC_OMX_ARG;
+//typedef OMX_U32                RPC_OMX_ID;
 
  /*******************************************************************************
 * Enumerated Types
 *******************************************************************************/
-typedef enum RPC_OMX_ERRORTYPE{
-    RPC_OMX_ErrorNone=0,
+	typedef enum RPC_OMX_ERRORTYPE
+	{
+		RPC_OMX_ErrorNone = 0,
 
-    /* OMX Error Mapped */
-    RPC_OMX_ErrorInsufficientResources=0x81000,
-    RPC_OMX_ErrorUndefined = 0x81001,
-    RPC_OMX_ErrorBadParameter=0x81005,
-    RPC_OMX_ErrorHardware = 0x81009,
-    RPC_OMX_ErrorUnsupportedIndex=0x8101A,
-    RPC_OMX_ErrorTimeout = 0x81011,
-    /* END OF OMX Error */
+		/* OMX Error Mapped */
+		RPC_OMX_ErrorInsufficientResources = 0x81000,
+		RPC_OMX_ErrorUndefined = 0x81001,
+		RPC_OMX_ErrorBadParameter = 0x81005,
+		RPC_OMX_ErrorHardware = 0x81009,
+		RPC_OMX_ErrorUnsupportedIndex = 0x8101A,
+		RPC_OMX_ErrorTimeout = 0x81011,
+		/* END OF OMX Error */
 
-    /* RPC Specific Error - to depricate */
-    RPC_OMX_ErrorUnknown=0x70000,
-    RPC_OMX_ErrorProccesorInit=0x70001,
-    RPC_OMX_InvalidRPCCmd = 0x70002,
-    RPC_OMX_ErrorHLOS=0x70003,
-    RPC_OMX_ErrorInvalidMsg = 0x70004,
+		/* RPC Specific Error - to depricate */
+		RPC_OMX_ErrorUnknown = 0x70000,
+		RPC_OMX_ErrorProccesorInit = 0x70001,
+		RPC_OMX_InvalidRPCCmd = 0x70002,
+		RPC_OMX_ErrorHLOS = 0x70003,
+		RPC_OMX_ErrorInvalidMsg = 0x70004,
 
-    /* RCM Specific */
-    RPC_OMX_RCM_ErrorExecFail = 0x70005,
-    RPC_OMX_RCM_ErrorExecDpcFail = 0x70006,
-    RPC_OMX_RCM_ErrorTimeout = 0x70007,
-    RPC_OMX_RCM_ServerFail = 0x70008,
-    RPC_OMX_RCM_ClientFail = 0x70009,
+		/* RCM Specific */
+		RPC_OMX_RCM_ErrorExecFail = 0x70005,
+		RPC_OMX_RCM_ErrorExecDpcFail = 0x70006,
+		RPC_OMX_RCM_ErrorTimeout = 0x70007,
+		RPC_OMX_RCM_ServerFail = 0x70008,
+		RPC_OMX_RCM_ClientFail = 0x70009,
 
-}RPC_OMX_ERRORTYPE;
+	} RPC_OMX_ERRORTYPE;
 
 
 /****************************************************************
@@ -127,7 +129,8 @@ typedef enum RPC_OMX_ERRORTYPE{
  *
  */
 /* ===========================================================================*/
-RPC_OMX_ERRORTYPE RPC_InstanceInit(OMX_STRING cComponentName,RPC_OMX_HANDLE* phRPCCtx);
+	RPC_OMX_ERRORTYPE RPC_InstanceInit(OMX_STRING cComponentName,
+	    RPC_OMX_HANDLE * phRPCCtx);
 
 /* ===========================================================================*/
 /**
@@ -138,8 +141,8 @@ RPC_OMX_ERRORTYPE RPC_InstanceInit(OMX_STRING cComponentName,RPC_OMX_HANDLE* phR
  * @sa TBD
  *
  */
- /* ===========================================================================*/
-RPC_OMX_ERRORTYPE RPC_ModInit(void);
+	/* =========================================================================== */
+	RPC_OMX_ERRORTYPE RPC_ModInit(void);
 
 /* ===========================================================================*/
 /**
@@ -152,7 +155,7 @@ RPC_OMX_ERRORTYPE RPC_ModInit(void);
  *
  */
 /* ===========================================================================*/
-RPC_OMX_ERRORTYPE RPC_InstanceDeInit(RPC_OMX_HANDLE hRPCCtx);
+	RPC_OMX_ERRORTYPE RPC_InstanceDeInit(RPC_OMX_HANDLE hRPCCtx);
 
 /* ===========================================================================*/
 /**
@@ -164,8 +167,8 @@ RPC_OMX_ERRORTYPE RPC_InstanceDeInit(RPC_OMX_HANDLE hRPCCtx);
  * @sa TBD
  *
  */
- /* ===========================================================================*/
-RPC_OMX_ERRORTYPE RPC_ModDeInit(void);
+	/* =========================================================================== */
+	RPC_OMX_ERRORTYPE RPC_ModDeInit(void);
 
 /*
 RPC_UTIL_RetrieveOMXHandle()

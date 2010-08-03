@@ -66,55 +66,58 @@ extern char Core_Array[MAX_PROC][MAX_CORENAME_LENGTH];
  *
  */
 /* ===========================================================================*/
-RPC_OMX_ERRORTYPE RPC_UTIL_GetTargetServerName(OMX_STRING ComponentName, OMX_STRING *ServerName)
+RPC_OMX_ERRORTYPE RPC_UTIL_GetTargetServerName(OMX_STRING ComponentName,
+    OMX_STRING * ServerName)
 {
-    OMX_U8 count=0;
-    OMX_U8 i=0;
-    OMX_U8 servertable_idx=0;
-    OMX_STRING str;
-    char Core[MAX_CORENAME_LENGTH];
+	OMX_U8 count = 0;
+	OMX_U8 i = 0;
+	OMX_U8 servertable_idx = 0;
+	OMX_STRING str;
+	char Core[MAX_CORENAME_LENGTH];
 
-    DOMX_ENTER("");
-    DOMX_DEBUG(" Calling Component Name %s", ComponentName);
+	DOMX_ENTER("");
+	DOMX_DEBUG(" Calling Component Name %s", ComponentName);
 
-    while(*ComponentName != '\0')
-    {
-        if(*ComponentName == '.')
-        {
-             count++;
-             if(count == 2)
-             {
-                  ComponentName++;
-                  str = ComponentName;
+	while (*ComponentName != '\0')
+	{
+		if (*ComponentName == '.')
+		{
+			count++;
+			if (count == 2)
+			{
+				ComponentName++;
+				str = ComponentName;
 
-                  while(*str!='.')
-                  {
-                       Core[i] = *str;
-                       i++;
-                       str++;
-                   }
-                   Core[i] = '\0';
-                   break;
-              }
+				while (*str != '.')
+				{
+					Core[i] = *str;
+					i++;
+					str++;
+				}
+				Core[i] = '\0';
+				break;
+			}
 
-        }
+		}
 
-        ComponentName++;
-    }
+		ComponentName++;
+	}
 
-    DOMX_DEBUG(" CORE NAME RECOVERED: %s", Core);
-    DOMX_DEBUG("____________________________________________________________");
-    DOMX_DEBUG("Recovering Server Table Index");
-       for(i=0;i<CORE_MAX;i++)
-       	{
+	DOMX_DEBUG(" CORE NAME RECOVERED: %s", Core);
+	DOMX_DEBUG
+	    ("____________________________________________________________");
+	DOMX_DEBUG("Recovering Server Table Index");
+	for (i = 0; i < CORE_MAX; i++)
+	{
 
-	   	if(strcmp(Core,Core_Array[i])==0) {
+		if (strcmp(Core, Core_Array[i]) == 0)
+		{
 			servertable_idx = i;
-			DOMX_DEBUG("Recovered Server table index = %d",i);
+			DOMX_DEBUG("Recovered Server table index = %d", i);
 			break;
-	   		}
-       	}
-	*ServerName = (OMX_STRING)rcmservertable[servertable_idx];
+		}
+	}
+	*ServerName = (OMX_STRING) rcmservertable[servertable_idx];
 	DOMX_DEBUG(" ServerName recovered = %s", *ServerName);
 
 	return RPC_OMX_ErrorNone;
@@ -129,16 +132,17 @@ RPC_OMX_ERRORTYPE RPC_UTIL_GetTargetServerName(OMX_STRING ComponentName, OMX_STR
  *
  */
 /* ===========================================================================*/
-RPC_OMX_ERRORTYPE RPC_UTIL_GetLocalServerName(OMX_STRING ComponentName, OMX_STRING * ServerName)
+RPC_OMX_ERRORTYPE RPC_UTIL_GetLocalServerName(OMX_STRING ComponentName,
+    OMX_STRING * ServerName)
 {
 /* Implementation returns only current core ID - But this is a place holder to abstract out the
 default server and other additional servers available on the current core. This additional servers
 should be available in the RPC global that is indexed using the calling component name*/
-    OMX_U8 servertable_idx=0;
+	OMX_U8 servertable_idx = 0;
 
-    servertable_idx = MultiProc_getId(NULL); //This can be replace with the mechanism to obtain new addition rcm servers
-    *ServerName = rcmservertable[servertable_idx];
-    return RPC_OMX_ErrorNone;
+	servertable_idx = MultiProc_getId(NULL);	//This can be replace with the mechanism to obtain new addition rcm servers
+	*ServerName = rcmservertable[servertable_idx];
+	return RPC_OMX_ErrorNone;
 }
 
 
@@ -174,11 +178,11 @@ RPC_OMX_ERRORTYPE RPC_GetTargetClient(OMX_STRING Default_RcmServer, OMX_STRING s
  *
  */
 /* ===========================================================================*/
-RPC_OMX_ERRORTYPE RPC_MapBuffer(OMX_U32 mappedBuffer )
+RPC_OMX_ERRORTYPE RPC_MapBuffer(OMX_U32 mappedBuffer)
 {
-    DOMX_ENTER("");
-    DOMX_DEBUG("Empty implementation ");
-    //PlaceHolder for Mapping Buffers - Cuurently no implementation here
+	DOMX_ENTER("");
+	DOMX_DEBUG("Empty implementation ");
+	//PlaceHolder for Mapping Buffers - Cuurently no implementation here
 	return RPC_OMX_ErrorNone;
 }
 
@@ -191,11 +195,11 @@ RPC_OMX_ERRORTYPE RPC_MapBuffer(OMX_U32 mappedBuffer )
  *
  */
 /* ===========================================================================*/
-RPC_OMX_ERRORTYPE RPC_UnMapBuffer(OMX_U32 mappedBuffer )
+RPC_OMX_ERRORTYPE RPC_UnMapBuffer(OMX_U32 mappedBuffer)
 {
-    DOMX_ENTER("");
-    DOMX_DEBUG("Empty implementation ");
-    //PlaceHolder for UnMapping Buffers - Cuurently no implementation here
+	DOMX_ENTER("");
+	DOMX_DEBUG("Empty implementation ");
+	//PlaceHolder for UnMapping Buffers - Cuurently no implementation here
 	return RPC_OMX_ErrorNone;
 }
 
@@ -208,38 +212,37 @@ RPC_OMX_ERRORTYPE RPC_UnMapBuffer(OMX_U32 mappedBuffer )
  *
  */
 /* ===========================================================================*/
-RPC_OMX_ERRORTYPE RPC_FlushBuffer(OMX_U8 * pBuffer, OMX_U32 size )
-
+RPC_OMX_ERRORTYPE RPC_FlushBuffer(OMX_U8 * pBuffer, OMX_U32 size)
 {
 	DOMX_ENTER("");
-    RPC_OMX_ERRORTYPE eError = RPC_OMX_ErrorNone;
-    OMX_S32 nStatus = 0;
+	RPC_OMX_ERRORTYPE eError = RPC_OMX_ErrorNone;
+	OMX_S32 nStatus = 0;
 
-   	DOMX_DEBUG("About to flush %d bytes", size);
+	DOMX_DEBUG("About to flush %d bytes", size);
 
-	nStatus = ProcMgr_flushMemory((OMX_PTR)pBuffer, size);
-    if (nStatus < 0)
-    {
-        eError = RPC_OMX_ErrorUndefined;
-        TIMM_OSAL_Error("Cache flush failed");
-    }
+	nStatus = ProcMgr_flushMemory((OMX_PTR) pBuffer, size);
+	if (nStatus < 0)
+	{
+		eError = RPC_OMX_ErrorUndefined;
+		TIMM_OSAL_Error("Cache flush failed");
+	}
 
-    return eError;
+	return eError;
 }
 
 
 
 RPC_OMX_ERRORTYPE RPC_InvalidateBuffer(OMX_U8 * pBuffer, OMX_U32 size)
 {
-    RPC_OMX_ERRORTYPE eError = RPC_OMX_ErrorNone;
-    OMX_S32 nStatus = 0;
-    DOMX_ENTER("");
-    DOMX_DEBUG("About to invalidate %d bytes", size);
-    nStatus = ProcMgr_invalidateMemory((OMX_PTR)pBuffer, size);
-    if (nStatus < 0)
-    {
-        eError = RPC_OMX_ErrorUndefined;
-        TIMM_OSAL_Error("Cache invalidate failed");
-    }
-    return eError;
+	RPC_OMX_ERRORTYPE eError = RPC_OMX_ErrorNone;
+	OMX_S32 nStatus = 0;
+	DOMX_ENTER("");
+	DOMX_DEBUG("About to invalidate %d bytes", size);
+	nStatus = ProcMgr_invalidateMemory((OMX_PTR) pBuffer, size);
+	if (nStatus < 0)
+	{
+		eError = RPC_OMX_ErrorUndefined;
+		TIMM_OSAL_Error("Cache invalidate failed");
+	}
+	return eError;
 }
