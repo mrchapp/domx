@@ -1902,7 +1902,7 @@ OMX_ERRORTYPE RPC_PrepareBuffer_Chiron(PROXY_COMPONENT_PRIVATE * pCompPrv,
 
       EXIT:
 	DOMX_EXIT("eError: %d", eError);
-	return OMX_ErrorNone;
+	return eError;
 }
 
 
@@ -1965,7 +1965,7 @@ OMX_ERRORTYPE RPC_PrepareBuffer_Remote(PROXY_COMPONENT_PRIVATE * pCompPrv,
 
       EXIT:
 	DOMX_EXIT("eError: %d", eError);
-	return OMX_ErrorNone;
+	return eError;
 }
 
 /* ===========================================================================*/
