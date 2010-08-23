@@ -80,7 +80,7 @@ extern "C"
 name based Target core retireval*/
 #define MAX_CORENAME_LENGTH 20
 
-#define MAX_SERVER_NAME_LENGTH 40
+#define MAX_SERVER_NAME_LENGTH 32
 
 #define MAX_NUM_OF_RPC_USERS 5
 
@@ -100,10 +100,11 @@ This is used to define the length of maximum string length the symbol can be*/
 /*Used to define the length of the Heap Id array which contains all
  the statically registered heaps used for RCM buffers*/
 #define MAX_NUMBER_OF_HEAPS 4
-
+#define PACKET_SIZE 0x90
+/*
 #define CHIRON_PACKET_SIZE 0x90
 #define DUCATI_PACKET_SIZE 0x100
-
+*/
 /**NEW**/
 #define MAX_PROC 4
 #define APPM3_PROC 1

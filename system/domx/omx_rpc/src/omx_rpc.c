@@ -78,7 +78,7 @@
 /*The version nos. start with 1 and keep on incrementing every time there is a
 protocol change in DOMX. This is just a marker to ensure that A9-Ducati DOMX
 versions are in sync and does not indicate anything else*/
-#define DOMX_VERSION 2
+#define DOMX_VERSION 3
 /* ******************************* EXTERNS ********************************* */
 extern char rpcFxns[][MAX_FUNCTION_NAME_LENGTH];
 extern rpcSkelArr rpcSkelFxns[];
@@ -95,12 +95,8 @@ RPC_Object rpcHndl[CORE_MAX];
 RcmClient_Handle rcmHndl = NULL;
 RcmServer_Handle rcmSrvHndl = NULL;
 
-char *RCM_SERVER_NAME;
-char *RCM_SERVER_NAME_LOCAL;
-
 COREID TARGET_CORE_ID = CORE_MAX;	//Should be configured in the CFG or header file for SYS APP split header.
 COREID LOCAL_CORE_ID = CORE_MAX;
-OMX_U32 PACKET_SIZE;		// different packet sizes required for INTER-M3 case and MPU-APPM3
 
 //Counter to reflect no. of users
 static OMX_U32 nInstanceCount = 0;
@@ -173,6 +169,13 @@ RPC_OMX_ERRORTYPE RPC_InstanceInit(OMX_STRING cComponentName,
 		eRPCError = _RPC_IpcSetup();
 		RPC_assert(eRPCError == RPC_OMX_ErrorNone, eRPCError,
 		    "Basic ipc setup failed");
+
+		LOCAL_CORE_ID = MultiProc_getId(NULL);
+		/*Extract target core id from component name */
+		eRPCError = RPC_UTIL_GetTargetCore(cComponentName,
+		    (OMX_U32 *) (&TARGET_CORE_ID));
+		RPC_assert(eRPCError == RPC_OMX_ErrorNone, eRPCError,
+		    "Target core id could not be retrieved");
 
 		eRPCError = RPC_ModInit();
 		RPC_assert(eRPCError == RPC_OMX_ErrorNone, eRPCError,
@@ -357,48 +360,19 @@ RPC_OMX_ERRORTYPE RPC_ModInit(void)
 	OMX_S32 status = 0;
 	RcmServer_Params rcmSrvParams;
 	OMX_BOOL bCallDestroyIfErr = OMX_FALSE;
+	OMX_S8 cRcmServerNameLocal[MAX_SERVER_NAME_LENGTH];
 
 	DOMX_ENTER("");
 
-	/*Fetching RCM server name - This needs to be fetched from the default
-	   RCM server table */
-	RCM_SERVER_NAME_LOCAL = rcmservertable[MultiProc_getId(NULL)];
+	/*Generate a name for the server */
+	eRPCError =
+	    RPC_UTIL_GenerateLocalServerName((OMX_STRING)
+	    cRcmServerNameLocal);
+	RPC_assert(eRPCError == RPC_OMX_ErrorNone,
+	    RPC_OMX_ErrorInsufficientResources,
+	    "Server name generation failed");
 
-	DOMX_DEBUG("In ModInit, MP getId = %d", MultiProc_getId(NULL));
-	DOMX_DEBUG("rcmservertable[0] = %s", rcmservertable[0]);
-	DOMX_DEBUG("rcmservertable[MultiProc_getId(NULL)] = %s",
-	    rcmservertable[MultiProc_getId(NULL)]);
-	DOMX_DEBUG("RCM_SERVER_NAME_LOCAL = %s", RCM_SERVER_NAME_LOCAL);
-
-	if (CHIRON_IPC_FLAG)
-	{
-		if (MultiProc_getId(NULL) == APPM3_PROC)
-		{
-			// This Value needs to be parsed from the Component Name
-			TARGET_CORE_ID = CORE_CHIRON;
-			LOCAL_CORE_ID = CORE_APPM3;
-		} else
-		{
-			// This Value needs to be parsed from the Component Name
-			TARGET_CORE_ID = CORE_APPM3;
-			LOCAL_CORE_ID = CORE_CHIRON;
-		}
-		PACKET_SIZE = CHIRON_PACKET_SIZE;
-	} else
-	{
-		if (MultiProc_getId(NULL) == SYSM3_PROC)
-		{
-			// This Value needs to be parsed from the Component Name
-			TARGET_CORE_ID = CORE_APPM3;
-			LOCAL_CORE_ID = CORE_SYSM3;
-		} else
-		{
-			// This Value needs to be parsed from the Component Name
-			TARGET_CORE_ID = CORE_SYSM3;
-			LOCAL_CORE_ID = CORE_APPM3;
-		}
-		PACKET_SIZE = DUCATI_PACKET_SIZE;
-	}
+	DOMX_DEBUG("RCM Server Name = %s", cRcmServerNameLocal);
 
 	for (i = 0; i < CORE_MAX; i++)
 	{
@@ -422,8 +396,8 @@ RPC_OMX_ERRORTYPE RPC_ModInit(void)
 	RPC_assert(status >= 0, RPC_OMX_RCM_ServerFail,
 	    "Server_setup failed");
 
-	DOMX_DEBUG("RCM Server Name: = %s", RCM_SERVER_NAME_LOCAL);
-	status = RcmServer_create(RCM_SERVER_NAME_LOCAL, &rcmSrvParams,
+	DOMX_DEBUG("RCM Server Name = %s", cRcmServerNameLocal);
+	status = RcmServer_create((char *)cRcmServerNameLocal, &rcmSrvParams,
 	    &rcmSrvHndl);
 	RPC_assert(status >= 0, RPC_OMX_RCM_ServerFail,
 	    "Server_create failed");
@@ -699,18 +673,19 @@ RPC_OMX_ERRORTYPE _RPC_ClientCreate(OMX_STRING cComponentName)
 	RPC_OMX_ERRORTYPE eRPCError = RPC_OMX_ErrorNone,
 	    eTmpError = RPC_OMX_ErrorNone;
 	RcmClient_Params rcmParams;
-	OMX_STRING rcmServerName = NULL;
+	OMX_S8 cRcmServerNameTarget[MAX_SERVER_NAME_LENGTH];;
 	OMX_S32 status = 0;
 	OMX_U32 i = 0;
 	OMX_BOOL bCallDestroyIfErr = OMX_FALSE;
 	OMX_U32 nVer = 0;
 	OMX_U32 nGetDOMXVersionIdx = 0;
 
-	eRPCError =
-	    RPC_UTIL_GetTargetServerName(cComponentName, &rcmServerName);
+	eRPCError = RPC_UTIL_GetTargetServerName(cComponentName,
+	    (OMX_STRING) cRcmServerNameTarget);
 	RPC_assert(eRPCError == RPC_OMX_ErrorNone, eRPCError,
 	    "Get target server name failed");
-	DOMX_DEBUG(" RCM Server Name To connected to: %s", rcmServerName);
+	DOMX_DEBUG(" RCM Server Name To connected to: %s",
+	    cRcmServerNameTarget);
 
 	/* RCM client configuration */
 	RcmClient_init();
@@ -730,12 +705,11 @@ RPC_OMX_ERRORTYPE _RPC_ClientCreate(OMX_STRING cComponentName)
 	}
 	DOMX_DEBUG(" Heap ID configured : %d", rcmParams.heapId);
 
-	/* Component Name based Server Name */
-	RCM_SERVER_NAME = rcmServerName;
-
 	DOMX_DEBUG("Calling client create with server name = %s",
-	    RCM_SERVER_NAME);
-	status = RcmClient_create(RCM_SERVER_NAME, &rcmParams, &rcmHndl);
+	    cRcmServerNameTarget);
+	status =
+	    RcmClient_create((char *)cRcmServerNameTarget, &rcmParams,
+	    &rcmHndl);
 	RPC_assert(status >= 0, RPC_OMX_RCM_ClientFail,
 	    "RCM ClientCreate failed. Cannot Establish the connection");
 	DOMX_DEBUG("Client created. Connected to Server");

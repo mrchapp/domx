@@ -67,7 +67,7 @@ extern char Core_Array[MAX_PROC][MAX_CORENAME_LENGTH];
  */
 /* ===========================================================================*/
 RPC_OMX_ERRORTYPE RPC_UTIL_GetTargetServerName(OMX_STRING ComponentName,
-    OMX_STRING * ServerName)
+    OMX_STRING ServerName)
 {
 	OMX_U8 count = 0;
 	OMX_U8 i = 0;
@@ -117,8 +117,9 @@ RPC_OMX_ERRORTYPE RPC_UTIL_GetTargetServerName(OMX_STRING ComponentName,
 			break;
 		}
 	}
-	*ServerName = (OMX_STRING) rcmservertable[servertable_idx];
-	DOMX_DEBUG(" ServerName recovered = %s", *ServerName);
+	strncpy(ServerName, (OMX_STRING) rcmservertable[servertable_idx],
+	    MAX_SERVER_NAME_LENGTH);
+	DOMX_DEBUG(" ServerName recovered = %s", ServerName);
 
 	return RPC_OMX_ErrorNone;
 }
@@ -144,6 +145,83 @@ should be available in the RPC global that is indexed using the calling componen
 	*ServerName = rcmservertable[servertable_idx];
 	return RPC_OMX_ErrorNone;
 }
+
+
+
+/* ===========================================================================*/
+/**
+ * @name RPC_UTIL_GenerateLocalServerName()
+ * @brief This function generates a server name to be used while creating the
+ *        RCM server. The name is based on the pid so that eacj process gets a
+ *        unique server name.
+ * @param cServerName - This is filled in and returned with a valid value.
+ * @return RPC_OMX_ErrorNone = Successful
+ * @sa TBD
+ *
+ */
+/* ===========================================================================*/
+RPC_OMX_ERRORTYPE RPC_UTIL_GenerateLocalServerName(OMX_STRING cServerName)
+{
+	RPC_OMX_ERRORTYPE eRPCError = RPC_OMX_ErrorNone;
+	OMX_S32 pid = 0;
+	OMX_U32 nProcId = 0;
+
+	pid = getpid();
+	/*Using pid as the server name, thus limiting to only 1 server per process.
+	   This limitaion is partly enforce by syslink as well since max size of server
+	   name is 32 so only pid can fit into the name */
+	sprintf(cServerName, "%ld", pid);
+
+	nProcId = MultiProc_getId(NULL);
+	/*Fill the server table with the newly generated name */
+	strncpy(rcmservertable[nProcId], cServerName, MAX_SERVER_NAME_LENGTH);
+
+	return eRPCError;
+}
+
+
+
+/* ===========================================================================*/
+/**
+ * @name RPC_UTIL_GetTargetCore()
+ * @brief This function gets the target core id by parsing the component name.
+ *        It is assumed that component names follow the convention
+ *        <OMX>.<Company Name>.<Core Name>.<Domain>.<Component Details> with
+ *        all characters in upper case for e.g. OMX.TI.DUCATI1.VIDEO.H264E
+ * @param cComponentName - Name of the component.
+ * @param nCoreId - Core ID, this is filled in and returned.
+ * @return RPC_OMX_ErrorNone = Successful
+ * @sa TBD
+ *
+ */
+/* ===========================================================================*/
+RPC_OMX_ERRORTYPE RPC_UTIL_GetTargetCore(OMX_STRING cComponentName,
+    OMX_U32 * nCoreId)
+{
+	RPC_OMX_ERRORTYPE eRPCError = RPC_OMX_ErrorNone;
+	OMX_S8 cCoreName[MAX_SERVER_NAME_LENGTH] = { 0 };
+	OMX_S32 ret = 0;
+	OMX_U32 i = 0;
+
+	ret =
+	    sscanf(cComponentName, "%*[^'.'].%*[^'.'].%[^'.'].%*s",
+	    cCoreName);
+	RPC_assert(ret == 1, RPC_OMX_ErrorBadParameter,
+	    "Incorrect component name");
+
+	for (i = 0; i < CORE_MAX; i++)
+	{
+		if (strcmp((char *)cCoreName, Core_Array[i]) == 0)
+			break;
+	}
+	RPC_assert(i < CORE_MAX, RPC_OMX_ErrorBadParameter,
+	    "Unknown core name");
+	*nCoreId = i;
+
+      EXIT:
+	return eRPCError;
+}
+
 
 
 /* ===========================================================================*/

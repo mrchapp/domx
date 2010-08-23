@@ -61,7 +61,6 @@
 /******************************************************************
  *   EXTERNS
  ******************************************************************/
-extern OMX_U32 PACKET_SIZE;	// different packet sizes required for INTER-M3 case and MPU-APPM3
 extern RPC_Object rpcHndl[CORE_MAX];
 extern COREID TARGET_CORE_ID;
 

@@ -141,8 +141,12 @@ PTR = (TYPE *) (MSGBODY+OFFSET);
 	    OMX_U32 size);
 
 	RPC_OMX_ERRORTYPE RPC_UTIL_GetTargetServerName(OMX_STRING
-	    ComponentName, OMX_STRING * ServerName);
+	    ComponentName, OMX_STRING ServerName);
 	RPC_OMX_ERRORTYPE RPC_UTIL_GetLocalServerName(OMX_STRING
 	    ComponentName, OMX_STRING * ServerName);
+	RPC_OMX_ERRORTYPE RPC_UTIL_GenerateLocalServerName(OMX_STRING
+	    cServerName);
+	RPC_OMX_ERRORTYPE RPC_UTIL_GetTargetCore(OMX_STRING cComponentName,
+	    OMX_U32 * nCoreId);
 
 #endif
