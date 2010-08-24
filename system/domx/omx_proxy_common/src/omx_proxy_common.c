@@ -93,6 +93,8 @@ static OMX_ERRORTYPE RPC_UnMapMetaData_Host(OMX_BUFFERHEADERTYPE * pBufHdr);
 
 #define LINUX_PAGE_SIZE (4 * 1024)
 
+extern COREID TARGET_CORE_ID;
+
 /* ===========================================================================*/
 /**
  * @name PROXY_EventHandler()
@@ -316,7 +318,7 @@ static OMX_ERRORTYPE PROXY_FillBufferDone(OMX_HANDLETYPE hComponent,
 			{
 				eRPCError =
 				    RPC_InvalidateBuffer(pBufHdr->pBuffer,
-				    pBufHdr->nAllocLen);
+				    pBufHdr->nAllocLen, TARGET_CORE_ID);
 				if (eRPCError != RPC_OMX_ErrorNone)
 				{
 					TIMM_OSAL_Error
@@ -450,7 +452,9 @@ static OMX_ERRORTYPE PROXY_EmptyThisBuffer(OMX_HANDLETYPE hComponent,
 	if (pCompPrv->tBufList[count].pBufferActual !=
 	    pCompPrv->tBufList[count].pBufferToBeMapped)
 	{
-		eRPCError = RPC_FlushBuffer(pBuffer, pBufferHdr->nAllocLen);
+		eRPCError =
+		    RPC_FlushBuffer(pBuffer, pBufferHdr->nAllocLen,
+		    TARGET_CORE_ID);
 		PROXY_assert(eRPCError == RPC_OMX_ErrorNone,
 		    OMX_ErrorHardware, "Flush Buffer failed");
 	}
@@ -606,7 +610,9 @@ static OMX_ERRORTYPE PROXY_FillThisBuffer(OMX_HANDLETYPE hComponent,
 	if (pCompPrv->tBufList[count].pBufferActual !=
 	    pCompPrv->tBufList[count].pBufferToBeMapped)
 	{
-		eRPCError = RPC_FlushBuffer(pBuffer, pBufferHdr->nAllocLen);
+		eRPCError =
+		    RPC_FlushBuffer(pBuffer, pBufferHdr->nAllocLen,
+		    TARGET_CORE_ID);
 		PROXY_assert(eRPCError == RPC_OMX_ErrorNone,
 		    OMX_ErrorHardware, "Flush Buffer failed");
 	}

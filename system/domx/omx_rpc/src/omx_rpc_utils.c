@@ -284,43 +284,59 @@ RPC_OMX_ERRORTYPE RPC_UnMapBuffer(OMX_U32 mappedBuffer)
 /* ===========================================================================*/
 /**
  * @name RPC_FlushBuffer
- * @brief
- * @param
- * @return
- *
+ * @brief Used to flush buffers from cache to memory. Used when buffers are
+ *        being transferred across processor boundaries.
+ * @param pBuffer       : Pointer to the data that has to be flushed.
+ *        size          : Size of the data to be flushed.
+ *        nTargetCoreId : Core to which buffer is being transferred.
+ * @return RPC_OMX_ErrorNone      : Success.
+ *         RPC_OMX_ErrorUndefined : Flush operation failed.
  */
 /* ===========================================================================*/
-RPC_OMX_ERRORTYPE RPC_FlushBuffer(OMX_U8 * pBuffer, OMX_U32 size)
+RPC_OMX_ERRORTYPE RPC_FlushBuffer(OMX_U8 * pBuffer, OMX_U32 size,
+    OMX_U32 nTargetCoreId)
 {
 	DOMX_ENTER("");
-	RPC_OMX_ERRORTYPE eError = RPC_OMX_ErrorNone;
+	RPC_OMX_ERRORTYPE eRPCError = RPC_OMX_ErrorNone;
 	OMX_S32 nStatus = 0;
 
 	DOMX_DEBUG("About to flush %d bytes", size);
+	nStatus = ProcMgr_flushMemory((OMX_PTR) pBuffer, size,
+	    (ProcMgr_ProcId) nTargetCoreId);
+	RPC_assert(nStatus >= 0, RPC_OMX_ErrorUndefined,
+	    "Cache flush failed");
 
-	nStatus = ProcMgr_flushMemory((OMX_PTR) pBuffer, size);
-	if (nStatus < 0)
-	{
-		eError = RPC_OMX_ErrorUndefined;
-		TIMM_OSAL_Error("Cache flush failed");
-	}
-
-	return eError;
+      EXIT:
+	return eRPCError;
 }
 
 
 
-RPC_OMX_ERRORTYPE RPC_InvalidateBuffer(OMX_U8 * pBuffer, OMX_U32 size)
+/* ===========================================================================*/
+/**
+ * @name RPC_InvalidateBuffer
+ * @brief Used to flush buffers from cache to memory. Used when buffers are
+ *        being transferred across processor boundaries.
+ * @param pBuffer       : Pointer to the data that has to be flushed.
+ *        size          : Size of the data to be flushed.
+ *        nTargetCoreId : Core to which buffer is being transferred.
+ * @return RPC_OMX_ErrorNone      : Success.
+ *         RPC_OMX_ErrorUndefined : Invalidate operation failed.
+ */
+/* ===========================================================================*/
+RPC_OMX_ERRORTYPE RPC_InvalidateBuffer(OMX_U8 * pBuffer, OMX_U32 size,
+    OMX_U32 nTargetCoreId)
 {
-	RPC_OMX_ERRORTYPE eError = RPC_OMX_ErrorNone;
+	RPC_OMX_ERRORTYPE eRPCError = RPC_OMX_ErrorNone;
 	OMX_S32 nStatus = 0;
 	DOMX_ENTER("");
+
 	DOMX_DEBUG("About to invalidate %d bytes", size);
-	nStatus = ProcMgr_invalidateMemory((OMX_PTR) pBuffer, size);
-	if (nStatus < 0)
-	{
-		eError = RPC_OMX_ErrorUndefined;
-		TIMM_OSAL_Error("Cache invalidate failed");
-	}
-	return eError;
+	nStatus = ProcMgr_invalidateMemory((OMX_PTR) pBuffer, size,
+	    (ProcMgr_ProcId) nTargetCoreId);
+	RPC_assert(nStatus >= 0, RPC_OMX_ErrorUndefined,
+	    "Cache invalidate failed");
+
+      EXIT:
+	return eRPCError;
 }
