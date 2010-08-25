@@ -27,7 +27,6 @@ LOCAL_SHARED_LIBRARIES := \
 		libipc \
 		librcm \
 		libnotify \
-		libsysmemmgr \
 		libc \
 		liblog	\
 		libmemmgr \

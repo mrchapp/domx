@@ -19,7 +19,6 @@ LOCAL_SHARED_LIBRARIES := \
 		libipc \
 		librcm \
 		libnotify \
-		libsysmemmgr \
 		libc \
 		libOMX_Core \
 		liblog	\
