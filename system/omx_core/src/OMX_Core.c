@@ -69,15 +69,20 @@ char *sRoleArray[60][20];
 char compName[60][200];
 
 
-char *tComponentName[MAXCOMP][2] = {
+char *tComponentName[MAXCOMP][MAX_ROLES] = {
 	/*video and image components */
-	{"OMX.TI.DUCATI1.VIDEO.H264D", "video_decoder.avc"},
-	{"OMX.TI.DUCATI1.VIDEO.H264E", "video_encoder.avc"},
-	{"OMX.TI.DUCATI1.VIDEO.MPEG4D", "video_decoder.mpeg4"},
-	{"OMX.TI.DUCATI1.VIDEO.MPEG4E", "video_encoder.mpeg4"},
-	{"OMX.TI.DUCATI1.VIDEO.VP6D", "video_decoder.vp6"},
-	{"OMX.TI.DUCATI1.VIDEO.VP7D", "video_decoder.vp7"},
-	{"OMX.TI.DUCATI1.IMAGE.JPEGD", "jpeg_decoder.jpeg"},
+	{"OMX.TI.DUCATI1.VIDEO.H264D", "video_decoder.avc", NULL},
+	{"OMX.TI.DUCATI1.VIDEO.H264E", "video_encoder.avc", NULL},
+	{"OMX.TI.DUCATI1.VIDEO.MPEG4D", "video_decoder.mpeg4", NULL},
+	{"OMX.TI.DUCATI1.VIDEO.MPEG4E", "video_encoder.mpeg4", NULL},
+	{"OMX.TI.DUCATI1.VIDEO.VP6D", "video_decoder.vp6", NULL},
+	{"OMX.TI.DUCATI1.VIDEO.VP7D", "video_decoder.vp7", NULL},
+	{"OMX.TI.DUCATI1.IMAGE.JPEGD", "jpeg_decoder.jpeg", NULL},
+	{"OMX.TI.DUCATI1.VIDEO.DECODER", "video_decoder.mpeg4",
+		    "video_decoder.avc",
+		    "video_decoder.wmv",
+		    "video_decoder.vp6",
+		    "video_decoder.vp7", NULL},
 	/* terminate the table */
 	{NULL, NULL},
 };
@@ -652,7 +657,8 @@ OMX_ERRORTYPE OMX_BuildComponentTable()
 #endif
 	int j = 0;
 	int numFiles = 0;
-	int i;
+	int i, k;
+	int componentfound = 0;
 
 	/* set up dummy call backs */
 	sCallbacks.EventHandler = ComponentTable_EventHandler;
@@ -783,26 +789,25 @@ OMX_ERRORTYPE OMX_BuildComponentTable()
 			if (!strcmp(componentTable[j].name,
 				tComponentName[i][0]))
 			{
-				/* insert the role */
-				if (tComponentName[i][1] != NULL)
-				{
-					componentTable[j].
-					    pRoleArray[componentTable[j].
-					    nRoles] = tComponentName[i][1];
-					componentTable[j].nRoles++;
-				}
+				componentfound = 1;
 				break;
 			}
+		}
+		if (componentfound == 1)
+		{
+			continue;
 		}
 
 		if (j == numFiles)
 		{		/* new component */
-			if (tComponentName[i][1] != NULL)
+			k = 1;
+			while (tComponentName[i][k] != NULL)
 			{
-				componentTable[numFiles].pRoleArray[0] =
-				    tComponentName[i][1];
-				componentTable[numFiles].nRoles = 1;
+				componentTable[numFiles].pRoleArray[k - 1] =
+				    tComponentName[i][k];
+				k++;
 			}
+			componentTable[numFiles].nRoles = k - 1;
 			strcpy(compName[numFiles], tComponentName[i][0]);
 			componentTable[numFiles].name = compName[numFiles];
 			numFiles++;
