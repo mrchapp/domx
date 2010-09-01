@@ -105,7 +105,7 @@ static RPC_OMX_ERRORTYPE ComponentPrivateGetParameters(OMX_IN OMX_HANDLETYPE
 		pPVCapaFlags->iOMXComponentSupportsPartialFrames = OMX_FALSE;
 		pPVCapaFlags->iOMXComponentCanHandleIncompleteFrames =
 		    OMX_FALSE;
-#ifdef __H264_DEC__
+#if defined(__H264_DEC__) || defined(__VID_DEC__)
 		pPVCapaFlags->iOMXComponentUsesNALStartCodes = OMX_TRUE;
 #else
 		pPVCapaFlags->iOMXComponentUsesNALStartCodes = OMX_FALSE;
@@ -151,9 +151,9 @@ static RPC_OMX_ERRORTYPE ComponentPrivateGetParameters(OMX_IN OMX_HANDLETYPE
 				DOMX_DEBUG("Update WxH %dx%d size %d\n",
 				    pRectType.nWidth, pRectType.nHeight,
 				    pPortdef->nBufferSize);
-				pPortdef->nBufferSize =
-				    (pRectType.nWidth * pRectType.nHeight *
-				    3) / 2;
+				//pPortdef->nBufferSize =
+				//    (pRectType.nWidth * pRectType.nHeight *
+				//    3) / 2;
 				DOMX_DEBUG("GetParameter Done\n");
 			}
 		}
