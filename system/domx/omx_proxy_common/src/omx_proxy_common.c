@@ -1998,8 +1998,7 @@ OMX_ERRORTYPE RPC_PrepareBuffer_Remote(PROXY_COMPONENT_PRIVATE * pCompPrv,
 		eError =
 		    RPC_MapBuffer_Ducati(pBuffer, nSizeBytes, nNumOfLines,
 		    &(pChironBuf->pBuffer), pBufToBeMapped);
-		PROXY_assert(eError == OMX_ErrorNone, OMX_ErrorUndefined,
-		    "Map failed");
+		PROXY_assert(eError == OMX_ErrorNone, eError, "Map failed");
 	} else
 	{
 		if (!(pCompPrv->nNumOfLines[nPortIndex]))
@@ -2007,8 +2006,7 @@ OMX_ERRORTYPE RPC_PrepareBuffer_Remote(PROXY_COMPONENT_PRIVATE * pCompPrv,
 			eError =
 			    RPC_UTIL_GetNumLines(hRemoteComp, nPortIndex,
 			    &nNumOfLines);
-			PROXY_assert((eError == OMX_ErrorNone),
-			    OMX_ErrorUndefined,
+			PROXY_assert((eError == OMX_ErrorNone), eError,
 			    "ERROR WHILE GETTING FRAME HEIGHT");
 
 			pCompPrv->nNumOfLines[nPortIndex] = nNumOfLines;
@@ -2024,8 +2022,7 @@ OMX_ERRORTYPE RPC_PrepareBuffer_Remote(PROXY_COMPONENT_PRIVATE * pCompPrv,
 		eError =
 		    RPC_MapBuffer_Ducati(pBuffer, LINUX_PAGE_SIZE,
 		    nNumOfLines, &(pChironBuf->pBuffer), pBufToBeMapped);
-		PROXY_assert(eError == OMX_ErrorNone, OMX_ErrorUndefined,
-		    "Map failed");
+		PROXY_assert(eError == OMX_ErrorNone, eError, "Map failed");
 		eError =
 		    RPC_MapBuffer_Ducati((OMX_U8 *) ((OMX_U32) pBuffer +
 			nNumOfLines * LINUX_PAGE_SIZE), LINUX_PAGE_SIZE,
@@ -2033,8 +2030,7 @@ OMX_ERRORTYPE RPC_PrepareBuffer_Remote(PROXY_COMPONENT_PRIVATE * pCompPrv,
 		    (OMX_U8 **) (&((OMX_TI_PLATFORMPRIVATE
 				*) (pChironBuf->pPlatformPrivate))->pAuxBuf1),
 		    pBufToBeMapped);
-		PROXY_assert(eError == OMX_ErrorNone, OMX_ErrorUndefined,
-		    "Map failed");
+		PROXY_assert(eError == OMX_ErrorNone, eError, "Map failed");
 		*(OMX_U32 *) pBufToBeMapped = (OMX_U32) pBuffer;
 	}
 
