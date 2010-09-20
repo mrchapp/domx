@@ -72,6 +72,14 @@ extern COREID TARGET_CORE_ID;
 /******************************************************************
  *   MACROS - LOCAL
  ******************************************************************/
+
+/* When this is defined ETB/FTB calls are made in sync mode. Undefining will
+ * result in these calls being sent via async mode. Sync mode leads to correct
+ * functionality as per OMX spec but has a slight performance penalty. Async
+ * mode sacrifices strict adherence to spec for some gain in performance. */
+#define RPC_SYNC_MODE
+
+
 #define RPC_getPacket(HRCM, nPacketSize, pPacket) do { \
     status = RcmClient_alloc(HRCM, nPacketSize, &pPacket); \
     RPC_assert(status >= 0, RPC_OMX_ErrorInsufficientResources, \
@@ -1035,8 +1043,10 @@ RPC_OMX_ERRORTYPE RPC_EmptyThisBuffer(RPC_OMX_HANDLE hRPCCtx,
 	OMX_S16 status;
 	RPC_OMX_CONTEXT *hCtx = hRPCCtx;
 	RPC_OMX_HANDLE hComp = hCtx->remoteHandle;
-
 	OMX_U8 *pAuxBuf1 = NULL;
+#ifdef RPC_SYNC_MODE
+	RcmClient_Message *pRetPacket = NULL;
+#endif
 
 	DOMX_ENTER("");
 
@@ -1078,10 +1088,21 @@ RPC_OMX_ERRORTYPE RPC_EmptyThisBuffer(RPC_OMX_HANDLE hRPCCtx,
 	DOMX_DEBUG(" pBufferHdr = %x BufHdrRemote %x", pBufferHdr,
 	    BufHdrRemote);
 
+#ifdef RPC_SYNC_MODE
+	RPC_sendPacket_sync(hCtx->ClientHndl[RCM_DEFAULT_CLIENT], pPacket,
+	    fxnIdx, pRetPacket);
+	pRPCMsg = (RPC_OMX_MESSAGE *) (&pRetPacket->data);
+	pMsgBody = &pRPCMsg->msgBody[0];
+
+	*eCompReturn = pRPCMsg->msgHeader.nOMXReturn;
+
+	RPC_freePacket(hCtx->ClientHndl[RCM_DEFAULT_CLIENT], pRetPacket);
+#else
 	RPC_sendPacket_async(hCtx->ClientHndl[RCM_DEFAULT_CLIENT], pPacket,
 	    fxnIdx);
 
-	*eCompReturn = OMX_ErrorNone;	//pRPCMsg->msgHeader.nOMXReturn;
+	*eCompReturn = OMX_ErrorNone;
+#endif
 
       EXIT:
 	DOMX_EXIT("");
@@ -1114,8 +1135,10 @@ RPC_OMX_ERRORTYPE RPC_FillThisBuffer(RPC_OMX_HANDLE hRPCCtx,
 	OMX_S16 status;
 	RPC_OMX_CONTEXT *hCtx = hRPCCtx;
 	RPC_OMX_HANDLE hComp = hCtx->remoteHandle;
-
 	OMX_U8 *pAuxBuf1 = NULL;
+#ifdef RPC_SYNC_MODE
+	RcmClient_Message *pRetPacket = NULL;
+#endif
 
 	DOMX_ENTER("");
 
@@ -1153,10 +1176,21 @@ RPC_OMX_ERRORTYPE RPC_FillThisBuffer(RPC_OMX_HANDLE hRPCCtx,
 	DOMX_DEBUG(" pBufferHdr = %x BufHdrRemote %x", pBufferHdr,
 	    BufHdrRemote);
 
+#ifdef RPC_SYNC_MODE
+	RPC_sendPacket_sync(hCtx->ClientHndl[RCM_DEFAULT_CLIENT], pPacket,
+	    fxnIdx, pRetPacket);
+	pRPCMsg = (RPC_OMX_MESSAGE *) (&pRetPacket->data);
+	pMsgBody = &pRPCMsg->msgBody[0];
+
+	*eCompReturn = pRPCMsg->msgHeader.nOMXReturn;
+
+	RPC_freePacket(hCtx->ClientHndl[RCM_DEFAULT_CLIENT], pRetPacket);
+#else
 	RPC_sendPacket_async(hCtx->ClientHndl[RCM_DEFAULT_CLIENT], pPacket,
 	    fxnIdx);
 
-	*eCompReturn = OMX_ErrorNone;	//pRPCMsg->msgHeader.nOMXReturn;
+	*eCompReturn = OMX_ErrorNone;
+#endif
 
       EXIT:
 	DOMX_EXIT("");
