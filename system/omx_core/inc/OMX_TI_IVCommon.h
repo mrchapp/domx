@@ -469,6 +469,7 @@ typedef enum OMX_CAMOPERATINGMODETYPE {
         OMX_CaptureVideo,
         OMX_CaptureHighSpeedVideo,
         OMX_CaptureVideoMemoryInput,
+        OMX_TI_CaptureDummy,
         OMX_CamOperatingModeMax = 0x7fffffff
 } OMX_CAMOPERATINGMODETYPE;
 /**
