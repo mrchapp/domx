@@ -29,6 +29,7 @@ extern "C" {
 #include <OMX_Image.h>
 
 
+#define MAX_URI_LENGTH      (OMX_MAX_STRINGNAME_SIZE)
 
 /*======================================================================= */
 /* Enumerated values for operation mode for compressed image
@@ -1549,6 +1550,38 @@ typedef struct OMX_PARAM_ISONOISEFILTERTYPE {
     OMX_ISONOISEFILTERMODETYPE eMode;
 } OMX_PARAM_ISONOISEFILTERTYPE;
 
+/**
+ * Structure used to to call OMX_GetParams() for each
+ * increment of "Index" starting with "0"
+ *
+ * STRUCT MEMBERS:
+ * nSize            : Size of the structure in bytes
+ * nVersion         : OMX specification version information
+ * nIndex           : Index of the sDCCURI 0..MAX_URI_LENGTH
+ * sDCCURI          : Look-up table containing strings. Ends with '\0'
+ */
+typedef struct OMX_TI_PARAM_DCCURIINFO {
+    OMX_U32 nSize;
+    OMX_VERSIONTYPE nVersion;
+    OMX_U32 nIndex;
+    OMX_S8 sDCCURI[MAX_URI_LENGTH];
+} OMX_TI_PARAM_DCCURIINFO;
+
+/**
+ * Structure used to configure DCC buffer
+ *
+ * STRUCT MEMBERS:
+ * nSize            : Size of the structure in bytes
+ * nVersion         : OMX specification version information
+ * nDCCURIBuffSize  : Size of the pDCCURIBuff in bytes
+ * pDCCURIBuff      : Pointer to a buffer
+ */
+typedef struct OMX_TI_PARAM_DCCURIBUFFER {
+    OMX_U32 nSize;
+    OMX_VERSIONTYPE nVersion;
+    OMX_U32 nDCCURIBuffSize;
+    OMX_U8 *pDCCURIBuff;
+} OMX_TI_PARAM_DCCURIBUFFER;
 
 /**
  * Manual White Balance color temperature
