@@ -132,6 +132,7 @@ typedef struct OMX_IMAGE_PARAM_DECODE_SUBREGION{
 typedef enum OMX_SENSORSELECT{
         OMX_PrimarySensor = 0,
         OMX_SecondarySensor,
+        OMX_TI_StereoSensor,
         OMX_SensorTypeMax = 0x7fffffff
 }OMX_SENSORSELECT;
 
