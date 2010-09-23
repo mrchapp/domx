@@ -72,7 +72,7 @@ typedef enum OMX_TI_INDEXTYPE {
 
 
     /* Camera Indices */
-    OMX_IndexParamSensorSelect,                 /**< reference: OMX_CONFIG_SENSORSELECTTYPE */
+    OMX_TI_IndexConfigSensorSelect,             /**< reference: OMX_CONFIG_SENSORSELECTTYPE */
     OMX_IndexConfigFlickerCancel,               /**< reference: OMX_CONFIG_FLICKERCANCELTYPE */
     OMX_IndexConfigSensorCal,                   /**< reference: OMX_CONFIG_SENSORCALTYPE */
 	OMX_IndexConfigISOSetting, /**< reference: OMX_CONFIG_ISOSETTINGTYPE */
