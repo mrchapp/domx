@@ -471,7 +471,8 @@ typedef struct OMX_VIDEO_CONFIG_QPSETTINGSTYPE{
 typedef enum OMX_TI_VIDEO_CODINGTYPE {
 	OMX_VIDEO_CodingVP6 =
 		(OMX_VIDEO_CODINGTYPE) OMX_VIDEO_CodingVendorStartUnused +1,  /* VP6 */
-	OMX_VIDEO_CodingVP7 /* VP7 */
+	OMX_VIDEO_CodingVP7, /* VP7 */
+	OMX_TI_VIDEO_CodingSORENSONSPK   /* Sorenson Spark */
 }OMX_TI_VIDEO_CODINGTYPE;
 
 
