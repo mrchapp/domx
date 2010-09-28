@@ -229,7 +229,16 @@ typedef enum OMX_SCENEMODETYPE{
         OMX_SuperNight, /**< for video */
         OMX_Cine, /**< for video */
         OMX_OldFilm, /**< for video */
-
+        OMX_TI_Action,
+        OMX_TI_Beach,
+        OMX_TI_Candlelight,
+        OMX_TI_Night,
+        OMX_TI_Party,
+        OMX_TI_Portrait,
+        OMX_TI_Snow,
+        OMX_TI_Steadyphoto,
+        OMX_TI_Sunset,
+        OMX_TI_Theatre,
         OMX_SceneModeMax = 0x7fffffff
 }OMX_SCENEMODETYPE;
 
@@ -389,7 +398,12 @@ typedef enum OMX_EXTIMAGEFILTERTYPE {
     OMX_ImageFilterOutOfFocus,
     OMX_ImageFilterWaterColour,
     OMX_ImageFilterPastel,
-    OMX_ImageFilterFilm
+    OMX_ImageFilterFilm,
+    OMX_TI_ImageFilterBlackWhite,
+    OMX_TI_ImageFilterWhiteBoard,
+    OMX_TI_ImageFilterBlackBoard,
+    OMX_TI_ImageFilterAqua,
+    OMX_TI_ImageFilterPosterize
 } OMX_EXTIMAGEFILTERTYPE;
 
 
@@ -815,8 +829,11 @@ OMX_BOOL bAuto;
  *
  */
 typedef enum OMX_EXTWHITEBALCONTROLTYPE {
-    OMX_WhiteBalControlFacePriorityMode = 0x7F000001 /**<  */
-
+    OMX_WhiteBalControlFacePriorityMode = OMX_WhiteBalControlVendorStartUnused + 1, /**<  */
+    OMX_TI_WhiteBalControlSunset,
+    OMX_TI_WhiteBalControlShade,
+    OMX_TI_WhiteBalControlTwilight,
+    OMX_TI_WhiteBalControlWarmFluorescent
 } OMX_EXTWHITEBALCONTROLTYPE;
 
 /**
@@ -1655,6 +1672,13 @@ typedef struct OMX_TI_CONFIG_FOCUSSPOTWEIGHTINGTYPE {
     OMX_U32 nPortIndex;
     OMX_TI_CONFIG_FOCUSSPOTMODETYPE eMode;
 } OMX_TI_CONFIG_FOCUSSPOTWEIGHTINGTYPE;
+
+/**
+ * Enumeration of possible Exposure control types for OMX_EXPOSURECONTROLTYPE
+ */
+typedef enum OMX_TI_EXTEXPOSURECONTROLTYPE {
+    OMX_TI_ExposureControlVeryLong = OMX_ExposureControlVendorStartUnused + 1
+} OMX_TI_EXTEXPOSURECONTROLTYPE;
 
 #ifdef __cplusplus
 }
