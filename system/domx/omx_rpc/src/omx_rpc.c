@@ -150,9 +150,10 @@ RPC_OMX_ERRORTYPE RPC_InstanceInit(OMX_STRING cComponentName,
     RPC_OMX_HANDLE * phRPCCtx)
 {
 	RPC_OMX_ERRORTYPE eRPCError = RPC_OMX_ErrorNone;
+	RPC_OMX_ERRORTYPE eTmpError = RPC_OMX_ErrorNone;
 	RPC_OMX_CONTEXT *pRPCCtx = NULL;
 	TIMM_OSAL_ERRORTYPE eError = TIMM_OSAL_ERR_NONE;
-	OMX_BOOL bMutex = OMX_FALSE;
+	OMX_BOOL bMutex = OMX_FALSE, bModInit = OMX_FALSE, bIpcSet = OMX_FALSE;
 
 	pRPCCtx =
 	    (RPC_OMX_CONTEXT *) TIMM_OSAL_Malloc(sizeof(RPC_OMX_CONTEXT),
@@ -174,6 +175,7 @@ RPC_OMX_ERRORTYPE RPC_InstanceInit(OMX_STRING cComponentName,
 		eRPCError = _RPC_IpcSetup();
 		RPC_assert(eRPCError == RPC_OMX_ErrorNone, eRPCError,
 		    "Basic ipc setup failed");
+		bIpcSet = OMX_TRUE;
 
 		LOCAL_CORE_ID = MultiProc_getId(NULL);
 		/*Extract target core id from component name */
@@ -185,6 +187,7 @@ RPC_OMX_ERRORTYPE RPC_InstanceInit(OMX_STRING cComponentName,
 		eRPCError = RPC_ModInit();
 		RPC_assert(eRPCError == RPC_OMX_ErrorNone, eRPCError,
 		    "ModInit failed");
+		bModInit = OMX_TRUE;
 
 		/*This will fill in the global rcmHndl */
 		eRPCError = _RPC_ClientCreate(cComponentName);
@@ -198,6 +201,22 @@ RPC_OMX_ERRORTYPE RPC_InstanceInit(OMX_STRING cComponentName,
       EXIT:
 	if (eRPCError != RPC_OMX_ErrorNone)
 	{
+		if (bModInit)
+		{
+			eTmpError = RPC_ModDeInit();
+			if (eTmpError != RPC_OMX_ErrorNone)
+			{
+				DOMX_ERROR("RPC ModDeInit failed");
+			}
+		}
+		if (bIpcSet)
+		{
+			eTmpError = _RPC_IpcDestroy();
+			if (eTmpError != RPC_OMX_ErrorNone)
+			{
+				DOMX_ERROR("RPC Ipc Destroy failed");
+			}
+		}
 		if (bMutex)
 		{
 			nInstanceCount--;
