@@ -3027,7 +3027,7 @@ static OMX_ERRORTYPE test_OMX_CAM_SetParams(test_OMX_CAM_AppData_t * appData)
 		dprintf(3, "\n D (8) n");
 		tSenSelect.eSensor = appData->eSenSelect;
 		eError =
-		    OMX_SetParameter(pHandle, OMX_IndexParamSensorSelect,
+		    OMX_SetParameter(pHandle, OMX_TI_IndexConfigSensorSelect,
 		    &tSenSelect);
 		GOTO_EXIT_IF((eError != OMX_ErrorNone), eError);
 

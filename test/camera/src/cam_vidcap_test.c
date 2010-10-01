@@ -811,7 +811,7 @@ static int SetFormat(int width, int height, const char *image_fmt)
 
 	tSenSelect.eSensor = OMX_PrimarySensor;
 	eError = OMX_SetParameter(pHandle,
-	    OMX_IndexParamSensorSelect, &tSenSelect);
+	    OMX_TI_IndexConfigSensorSelect, &tSenSelect);
 	OMX_TEST_BAIL_IF_ERROR(eError);
 
 	eError = OMX_SetConfig(pHandle,
