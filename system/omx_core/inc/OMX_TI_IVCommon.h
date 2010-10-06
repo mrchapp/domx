@@ -465,7 +465,7 @@ typedef struct OMX_CONFIG_BRACKETINGTYPE {
     OMX_U32 nPortIndex;
     OMX_BRACKETMODETYPE eBracketMode;
     OMX_U32 nNbrBracketingValues;
-    OMX_U32 nBracketValues[10]; /**< 10 can be assumed */
+    OMX_S32 nBracketValues[10]; /**< 10 can be assumed */
 } OMX_CONFIG_BRACKETINGTYPE;
 
 
