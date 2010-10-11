@@ -191,7 +191,10 @@ typedef enum OMX_TI_INDEXTYPE {
     OMX_TI_IndexConfigFocusSpotWeighting,               /**< reference: OMX_TI_CONFIG_FOCUSSPOTWEIGHTINGTYPE */
     OMX_TI_IndexParamSensorOverClockMode,               /**< reference: OMX_CONFIG_BOOLEANTYPE */
     OMX_TI_IndexParamDccUriInfo,                        /**< reference: OMX_TI_PARAM_DCCURIINFO */
-    OMX_TI_IndexParamDccUriBuffer                       /**< reference: OMX_TI_PARAM_DCCURIBUFFER */
+    OMX_TI_IndexParamDccUriBuffer,                      /**< reference: OMX_TI_PARAM_DCCURIBUFFER */
+
+    /* MPEG4 and H264 encoder specific Indices */
+    OMX_TI_IndexParamVideoIntraRefresh          /**< reference: OMX_TI_VIDEO_PARAM_INTRAREFRESHTYPE */
 } OMX_TI_INDEXTYPE;
 
 

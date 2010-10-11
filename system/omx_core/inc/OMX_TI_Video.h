@@ -489,5 +489,35 @@ typedef enum OMX_TI_VIDEO_MPEG4LEVELTYPE {
 } OMX_TI_VIDEO_MPEG4LEVELTYPE;
 
 
+
+/**
+ *	@brief	 Specifies various intra refresh methods
+ */
+typedef enum OMX_TI_VIDEO_INTRAREFRESHTYPE {
+    OMX_TI_VIDEO_IntraRefreshNone = 0,
+    OMX_TI_VIDEO_IntraRefreshCyclicMbs,
+    OMX_TI_VIDEO_IntraRefreshCyclicRows,
+    OMX_TI_VIDEO_IntraRefreshMandatory,
+    OMX_TI_VIDEO_IntraRefreshMax = 0x7FFFFFFF
+} OMX_TI_VIDEO_INTRAREFRESHTYPE;
+
+
+/* ========================================================================== */
+/*!
+ @brief OMX_TI_VIDEO_PARAM_INTRAREFRESHTYPE  : Configuration parameters for
+                                               intra refresh settings
+ @param  eRefreshMode		Various refresh modes supported
+ @param  nIntraRefreshRate 	Intra refresh rate
+*/
+/* ==========================================================================*/
+
+typedef struct OMX_TI_VIDEO_PARAM_INTRAREFRESHTYPE {
+    OMX_U32 nSize;
+    OMX_VERSIONTYPE nVersion;
+    OMX_U32 nPortIndex;
+    OMX_TI_VIDEO_INTRAREFRESHTYPE eRefreshMode;
+    OMX_U32 nIntraRefreshRate;
+} OMX_TI_VIDEO_PARAM_INTRAREFRESHTYPE;
+
 #endif /* OMX_TI_VIDEO_H */
 
