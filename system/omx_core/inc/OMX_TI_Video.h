@@ -476,6 +476,18 @@ typedef enum OMX_TI_VIDEO_CODINGTYPE {
 }OMX_TI_VIDEO_CODINGTYPE;
 
 
+/* ========================================================================= */
+/*!
+ @brief OMX_TI_VIDEO_MPEG4LEVELTYPE:
+        Extension to MPEG-4 level to cater to level 6
+ @param
+*/
+/* ==========================================================================*/
+typedef enum OMX_TI_VIDEO_MPEG4LEVELTYPE {
+        OMX_TI_VIDEO_MPEG4Level6  =
+            (OMX_VIDEO_MPEG4LEVELTYPE) OMX_VIDEO_MPEG4LevelVendorStartUnused + 1
+} OMX_TI_VIDEO_MPEG4LEVELTYPE;
+
 
 #endif /* OMX_TI_VIDEO_H */
 
