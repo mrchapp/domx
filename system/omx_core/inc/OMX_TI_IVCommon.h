@@ -1680,6 +1680,11 @@ typedef enum OMX_TI_EXTEXPOSURECONTROLTYPE {
     OMX_TI_ExposureControlVeryLong = OMX_ExposureControlVendorStartUnused + 1
 } OMX_TI_EXTEXPOSURECONTROLTYPE;
 
+typedef enum OMX_TI_COLOR_FORMATTYPE {
+	OMX_TI_COLOR_FormatYUV420PackedSemiPlanarInterlaced =
+		(OMX_COLOR_FORMATTYPE) OMX_COLOR_FormatVendorStartUnused + 1
+} OMX_TI_COLOR_FORMATTYPE;
+
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */
