@@ -81,7 +81,6 @@ typedef enum OMX_TI_INDEXTYPE {
 
     /* H264 Encoder Indices*/
 	OMX_TI_IndexParamVideoDataSyncMode, //!< Refer to OMX_VIDEO_PARAM_DATASYNCMODETYPE structure
-	OMX_TI_IndexParamVideoBitStreamFormatSelect,	//!< use OMX_VIDEO_PARAM_AVCBITSTREAMFORMATTYPE to specify the stream format type
 	OMX_TI_IndexParamVideoNALUsettings,	//!< use OMX_VIDEO_PARAM_AVCNALUCONTROLTYPE to configure the type os NALU to send along with the Different Frame Types
 	OMX_TI_IndexParamVideoMEBlockSize,	//!< use OMX_VIDEO_PARAM_MEBLOCKSIZETYPE to specify the minimum block size used for motion estimation
 	OMX_TI_IndexParamVideoIntraPredictionSettings,	//!< use OMX_VIDEO_PARAM_INTRAPREDTYPE to configure the intra prediction modes used for different block sizes

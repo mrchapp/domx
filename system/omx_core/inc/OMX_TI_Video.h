@@ -144,29 +144,6 @@ typedef struct OMX_VIDEO_CONFIG_PIXELINFOTYPE  {
 	OMX_U32 nHeight;
 } OMX_VIDEO_CONFIG_PIXELINFOTYPE;
 
-/**
- *	@brief	bit stream format type selection for the encoded bit stream
- */
-typedef enum OMX_VIDEO_AVCBITSTREAMFORMATTYPE{
-	OMX_Video_BitStreamFormatByte=0,	//!<  BYTE stream Format
-	OMX_Video_BitStreamFormatNAL=1,	//!<  NAL Unit Format
-    OMX_Video_BitStreamFormatNAL_MAX =  0X7FFFFFFF
-}OMX_VIDEO_AVCBITSTREAMFORMATTYPE;
-
-/* ========================================================================== */
-/*!
- @brief OMX_VIDEO_PARAM_BITSTREAMFORMATTYPE  :to select the bit stream format for the encoded data
- @param  eStreamFormat 	 to specify bit stream format type
- 							@sa  OMX_VIDEO_AVCBITSTREAMFORMATTYPE
-*/
-/* ==========================================================================*/
-typedef struct OMX_VIDEO_PARAM_AVCBITSTREAMFORMATTYPE {
-	OMX_U32	 nSize;
-	OMX_VERSIONTYPE nVersion;
-	OMX_U32	 nPortIndex;
-	OMX_VIDEO_AVCBITSTREAMFORMATTYPE	eStreamFormat;
-}OMX_VIDEO_PARAM_AVCBITSTREAMFORMATTYPE;
-
 /* ========================================================================== */
 /*!
  @brief OMX_VIDEO_PARAM_AVCNALUCONTROLTYPE : to configure what NALU  need to send along the frames of different types (Intra,IDR...etc)
