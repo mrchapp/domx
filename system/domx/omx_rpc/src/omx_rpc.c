@@ -74,6 +74,10 @@
 #include "omx_rpc_internal.h"
 #include "omx_rpc_utils.h"
 
+/*-------tiler include ----------------------------------------*/
+#include <memmgr.h>
+#include <tilermgr.h>
+
 /* **************************** MACROS DEFINES *************************** */
 
 /*For ipc setup*/
@@ -83,7 +87,7 @@
 /*The version nos. start with 1 and keep on incrementing every time there is a
 protocol change in DOMX. This is just a marker to ensure that A9-Ducati DOMX
 versions are in sync and does not indicate anything else*/
-#define DOMX_VERSION 6
+#define DOMX_VERSION 7
 /* ******************************* EXTERNS ********************************* */
 extern char rpcFxns[][MAX_FUNCTION_NAME_LENGTH];
 extern rpcSkelArr rpcSkelFxns[];
@@ -357,6 +361,14 @@ RPC_OMX_ERRORTYPE RPC_ModDeInit(void)
 			eRPCError = RPC_OMX_RCM_ServerFail;
 		}
 		rcmSrvHndl = NULL;
+
+		status = TilerMgr_Close();
+		if (status < 0)
+		{
+			DOMX_ERROR
+			    ("Error in TilerMgr_Close, status = %d", status);
+			eRPCError = RPC_OMX_ErrorUnknown;
+		}
 	}
 
 	RcmServer_exit();
@@ -457,6 +469,9 @@ RPC_OMX_ERRORTYPE RPC_ModInit(void)
 	RcmServer_start(rcmSrvHndl);
 	DOMX_DEBUG("Running RcmServer");
 
+	status = TilerMgr_Open();
+	RPC_assert((status >= 0), RPC_OMX_ErrorUnknown,
+	    "Error in TilerMgr_Close");
       EXIT:
 	DOMX_EXIT("");
 	if (eRPCError != RPC_OMX_ErrorNone && bCallDestroyIfErr)

@@ -90,7 +90,7 @@ name based Target core retireval*/
 #define MAX_NUM_OF_RPC_USERS 5
 
 /*This defines the maximum number of remote functions that can be registered*/
-#define MAX_FUNCTION_LIST 19
+#define MAX_FUNCTION_LIST 24
 
 /*This defines the maximum number of characters a remote function name can take.
 This is used to define the length of maximum string length the symbol can be*/
@@ -179,7 +179,7 @@ This is used to define the length of maximum string length the symbol can be*/
 		RPC_OMX_FXN_IDX_EVENTHANDLER = 16,
 		RPC_OMX_FXN_IDX_ALLOCATE_BUFFER = 17,
 		RPC_OMX_FXN_IDX_COMP_TUNNEL_REQUEST = 18,
-		RPC_OMX_FXN_IDX_MAX = 19
+		RPC_OMX_FXN_IDX_MAX = MAX_FUNCTION_LIST
 	} rpc_fxn_list;
 
 /**************************** MISC ENUM **********************/

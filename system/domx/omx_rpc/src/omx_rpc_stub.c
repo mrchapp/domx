@@ -152,6 +152,8 @@ RPC_OMX_ERRORTYPE RPC_GetHandle(RPC_OMX_HANDLE hRPCCtx,
 	RPC_INDEX fxnIdx;
 	OMX_STRING CallingCorercmServerName;
 
+	OMX_S32 pid = 0;	//For TILER memory allocation changes
+
 	DOMX_ENTER("");
 	DOMX_DEBUG("RPC_GetHandle: Recieved GetHandle request from %s",
 	    cComponentName);
@@ -171,11 +173,13 @@ RPC_OMX_ERRORTYPE RPC_GetHandle(RPC_OMX_HANDLE hRPCCtx,
 	pRPCMsg = (RPC_OMX_MESSAGE *) (&pPacket->data);
 	pMsgBody = &pRPCMsg->msgBody[0];
 
-	//Marshalled:[>offset(cParameterName)|>pAppData|>offset(CallingCorercmServerName)|
+	//Marshalled:[>offset(cParameterName)|>pAppData|>offset(CallingCorercmServerName)|>pid|
 	//>--cComponentName--|>--CallingCorercmServerName--|
 	//<hComp]
 
-	dataOffset = sizeof(OMX_U32) + sizeof(OMX_PTR) + sizeof(OMX_U32);
+	dataOffset =
+	    sizeof(OMX_U32) + sizeof(OMX_PTR) + sizeof(OMX_U32) +
+	    sizeof(OMX_S32);
 	RPC_SETFIELDOFFSET(pMsgBody, nPos, dataOffset, OMX_U32);
 	//To update with RPC macros
 	strcpy((char *)(pMsgBody + dataOffset), cComponentName);
@@ -186,6 +190,10 @@ RPC_OMX_ERRORTYPE RPC_GetHandle(RPC_OMX_HANDLE hRPCCtx,
 	RPC_SETFIELDOFFSET(pMsgBody, nPos, dataOffset2, OMX_U32);
 	//To update with RPC macros
 	strcpy((char *)(pMsgBody + dataOffset2), CallingCorercmServerName);
+
+	//Towards TILER memory allocation changes
+	pid = getpid();
+	RPC_SETFIELDVALUE(pMsgBody, nPos, pid, OMX_S32);
 
 	RPC_sendPacket_sync(hCtx->ClientHndl[RCM_DEFAULT_CLIENT], pPacket,
 	    fxnIdx, pRetPacket);
