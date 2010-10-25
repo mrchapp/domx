@@ -78,6 +78,7 @@
 #define COMPONENT_NAME "OMX.TI.DUCATI1.VIDEO.CAMERA"
 /*Needs to be specific for every configuration wrapper*/
 
+#define DEFAULT_DCC 1
 #ifdef _Android
 #define DCC_PATH  "/system/etc/omapcam/"
 #else
@@ -97,6 +98,7 @@
 /* Incase of multiple instance, making sure DCC is initialized only for
    first instance */
 static OMX_S16 numofInstance = 0;
+int dcc_flag = 0;
 TIMM_OSAL_PTR cam_mutex = NULL;
 
 /* Ducati Mapped Addr  */
@@ -115,21 +117,25 @@ static OMX_ERRORTYPE ComponentPrivateDeInit(OMX_IN OMX_HANDLETYPE hComponent)
 	OMX_ERRORTYPE eError = OMX_ErrorNone;
 	TIMM_OSAL_ERRORTYPE eOsalError = TIMM_OSAL_ERR_NONE;
 
-	eOsalError = TIMM_OSAL_MutexObtain(cam_mutex, TIMM_OSAL_SUSPEND);
-	if (eOsalError != TIMM_OSAL_ERR_NONE)
+	if (dcc_flag)
 	{
-		TIMM_OSAL_Error("Mutex Obtain failed");
-	}
+		eOsalError =
+		    TIMM_OSAL_MutexObtain(cam_mutex, TIMM_OSAL_SUSPEND);
+		if (eOsalError != TIMM_OSAL_ERR_NONE)
+		{
+			TIMM_OSAL_Error("Mutex Obtain failed");
+		}
 
-	if (numofInstance == 1)
-	{
-		DCC_DeInit();
-	}
-	numofInstance = numofInstance - 1;
+		if (numofInstance == 1)
+		{
+			DCC_DeInit();
+		}
+		numofInstance = numofInstance - 1;
 
-	eOsalError = TIMM_OSAL_MutexRelease(cam_mutex);
-	PROXY_assert(eOsalError == TIMM_OSAL_ERR_NONE,
-	    OMX_ErrorInsufficientResources, "Mutex release failed");
+		eOsalError = TIMM_OSAL_MutexRelease(cam_mutex);
+		PROXY_assert(eOsalError == TIMM_OSAL_ERR_NONE,
+		    OMX_ErrorInsufficientResources, "Mutex release failed");
+	}
 
 	eError = PROXY_ComponentDeInit(hComponent);
 
@@ -177,32 +183,39 @@ OMX_ERRORTYPE OMX_ComponentInit(OMX_HANDLETYPE hComponent)
 
 	pHandle->ComponentDeInit = ComponentPrivateDeInit;
 
-	eOsalError = TIMM_OSAL_MutexObtain(cam_mutex, TIMM_OSAL_SUSPEND);
-	PROXY_assert(eOsalError == TIMM_OSAL_ERR_NONE,
-	    OMX_ErrorInsufficientResources, "Mutex lock failed");
+	char *val = getenv("SET_DCC");
+	dcc_flag = val ? strtol(val, NULL, 0) : DEFAULT_DCC;
+	DOMX_DEBUG(" DCC: 0 - disabled 1 - enabled : val: %d", dcc_flag);
 
-	if (numofInstance == 0)
+	if (dcc_flag)
 	{
-		eError = DCC_Init(hComponent);
+		eOsalError =
+		    TIMM_OSAL_MutexObtain(cam_mutex, TIMM_OSAL_SUSPEND);
+		PROXY_assert(eOsalError == TIMM_OSAL_ERR_NONE,
+		    OMX_ErrorInsufficientResources, "Mutex lock failed");
+
+		if (numofInstance == 0)
+		{
+			eError = DCC_Init(hComponent);
+			if (eError != OMX_ErrorNone)
+			{
+				DOMX_DEBUG(" Error in DCC Init");
+			}
+		}
+
+		numofInstance = numofInstance + 1;
+
+		eError = send_DCCBufPtr(hComponent);
 		if (eError != OMX_ErrorNone)
 		{
-			DOMX_DEBUG(" Error in DCC Init");
+			DOMX_DEBUG(" Error in Sending DCC Buf ptr");
 		}
+
+
+		eOsalError = TIMM_OSAL_MutexRelease(cam_mutex);
+		PROXY_assert(eOsalError == TIMM_OSAL_ERR_NONE,
+		    OMX_ErrorInsufficientResources, "Mutex release failed");
 	}
-
-	numofInstance = numofInstance + 1;
-
-	eError = send_DCCBufPtr(hComponent);
-	if (eError != OMX_ErrorNone)
-	{
-		DOMX_DEBUG(" Error in Sending DCC Buf ptr");
-	}
-
-
-	eOsalError = TIMM_OSAL_MutexRelease(cam_mutex);
-	PROXY_assert(eOsalError == TIMM_OSAL_ERR_NONE,
-	    OMX_ErrorInsufficientResources, "Mutex release failed");
-
       EXIT:
 	return eError;
 }
