@@ -146,6 +146,7 @@ static OMX_ERRORTYPE ComponentPrivateDeInit(OMX_IN OMX_HANDLETYPE hComponent)
 OMX_ERRORTYPE OMX_ComponentInit(OMX_HANDLETYPE hComponent)
 {
 	OMX_ERRORTYPE eError = OMX_ErrorNone;
+	OMX_ERRORTYPE dcc_eError = OMX_ErrorNone;
 	OMX_COMPONENTTYPE *pHandle = NULL;
 	PROXY_COMPONENT_PRIVATE *pComponentPrivate;
 	pHandle = (OMX_COMPONENTTYPE *) hComponent;
@@ -196,8 +197,8 @@ OMX_ERRORTYPE OMX_ComponentInit(OMX_HANDLETYPE hComponent)
 
 		if (numofInstance == 0)
 		{
-			eError = DCC_Init(hComponent);
-			if (eError != OMX_ErrorNone)
+			dcc_eError = DCC_Init(hComponent);
+			if (dcc_eError != OMX_ErrorNone)
 			{
 				DOMX_DEBUG(" Error in DCC Init");
 			}
@@ -205,12 +206,16 @@ OMX_ERRORTYPE OMX_ComponentInit(OMX_HANDLETYPE hComponent)
 
 		numofInstance = numofInstance + 1;
 
-		eError = send_DCCBufPtr(hComponent);
-		if (eError != OMX_ErrorNone)
+		/* Configure Ducati to use DCC buffer from A9 side
+		   *ONLY* if DCC_Init is successful. */
+		if (dcc_eError == OMX_ErrorNone)
 		{
-			DOMX_DEBUG(" Error in Sending DCC Buf ptr");
+			dcc_eError = send_DCCBufPtr(hComponent);
+			if (dcc_eError != OMX_ErrorNone)
+			{
+				DOMX_DEBUG(" Error in Sending DCC Buf ptr");
+			}
 		}
-
 
 		eOsalError = TIMM_OSAL_MutexRelease(cam_mutex);
 		PROXY_assert(eOsalError == TIMM_OSAL_ERR_NONE,
