@@ -85,9 +85,6 @@
 #define DCC_PATH  "/usr/share/omapcam/"
 #endif
 
-/* 4Mb buffer, each Sensor need ~1.2Mb */
-#define DCC_BUF_SIZE 4194304
-
 #define _PROXY_OMX_INIT_PARAM(param,type) do {		\
 	TIMM_OSAL_Memset((param), 0, sizeof (type));	\
 	(param)->nSize = sizeof (type);			\
@@ -101,12 +98,15 @@ static OMX_S16 numofInstance = 0;
 int dcc_flag = 0;
 TIMM_OSAL_PTR cam_mutex = NULL;
 
+/* To store DCC buffer size */
+OMX_S32 dccbuf_size = 0;
+
 /* Ducati Mapped Addr  */
 unsigned int pMappedBuf;
 MemAllocBlock *MemReqDescTiler;
 OMX_PTR TilerAddr = NULL;
 
-OMX_S16 copy_DCCintobuffer(OMX_PTR, OMX_STRING *, OMX_U16);
+OMX_S32 read_DCCdir(OMX_PTR, OMX_STRING *, OMX_U16);
 OMX_ERRORTYPE DCC_Init(OMX_HANDLETYPE);
 OMX_ERRORTYPE send_DCCBufPtr(OMX_HANDLETYPE hComponent);
 void DCC_DeInit();
@@ -246,7 +246,6 @@ OMX_ERRORTYPE DCC_Init(OMX_HANDLETYPE hComponent)
 	OMX_S32 status = 0;
 	OMX_STRING dcc_dir[200];
 	OMX_U16 i;
-	OMX_S16 ret_error = 0;
 	_PROXY_OMX_INIT_PARAM(&param, OMX_TI_PARAM_DCCURIINFO);
 
 	DOMX_ENTER("ENTER");
@@ -284,6 +283,11 @@ OMX_ERRORTYPE DCC_Init(OMX_HANDLETYPE hComponent)
 		eError = OMX_ErrorNone;
 	}
 
+	dccbuf_size = read_DCCdir(NULL, dcc_dir, nIndex);
+
+	PROXY_assert(dccbuf_size > 0, OMX_ErrorInsufficientResources,
+	    "No DCC files found, switching back to default DCC");
+
 	MemReqDescTiler =
 	    (MemAllocBlock *) TIMM_OSAL_Malloc((sizeof(MemAllocBlock) * 2),
 	    TIMM_OSAL_TRUE, 0, TIMMOSAL_MEM_SEGMENT_EXT);
@@ -292,21 +296,21 @@ OMX_ERRORTYPE DCC_Init(OMX_HANDLETYPE hComponent)
 
 	/* Allocate 1D Tiler buffer for 'N'DCC files  */
 	MemReqDescTiler[0].pixelFormat = PIXEL_FMT_PAGE;
-	MemReqDescTiler[0].dim.len = DCC_BUF_SIZE;
+	MemReqDescTiler[0].dim.len = dccbuf_size;
 	MemReqDescTiler[0].stride = 0;
 	TilerAddr = MemMgr_Alloc(MemReqDescTiler, 1);
 	PROXY_assert(TilerAddr != NULL,
 	    OMX_ErrorInsufficientResources, "ERROR Allocating 1D TILER BUF");
 
 	ptempbuf = TilerAddr;
-	ret_error = copy_DCCintobuffer(ptempbuf, dcc_dir, nIndex);
+	dccbuf_size = read_DCCdir(ptempbuf, dcc_dir, nIndex);
 
-	PROXY_assert(ret_error >= 0, ret_error,
+	PROXY_assert(dccbuf_size > 0, OMX_ErrorInsufficientResources,
 	    "ERROR in copy DCC files into buffer");
 
 	mapType = ProcMgr_MapType_Tiler;
 	MpuAddr_list_1D.mpuAddr = ((OMX_U32) TilerAddr);
-	MpuAddr_list_1D.size = DCC_BUF_SIZE;
+	MpuAddr_list_1D.size = dccbuf_size;
 	status = SysLinkMemUtils_map(&MpuAddr_list_1D, 1,
 	    &pMappedBuf, mapType, PROC_APPM3);
 
@@ -350,7 +354,7 @@ OMX_ERRORTYPE send_DCCBufPtr(OMX_HANDLETYPE hComponent)
 	PROXY_assert(eError == OMX_ErrorNone, eError,
 	    "Error in GetParam for Dcc URI Buffer");
 
-	uribufparam.nDCCURIBuffSize = DCC_BUF_SIZE;
+	uribufparam.nDCCURIBuffSize = dccbuf_size;
 	uribufparam.pDCCURIBuff = (OMX_U8 *) pMappedBuf;
 
 	DOMX_DEBUG("SYSLINK MAPPED ADDR:  0x%x sizeof buffer %d",
@@ -371,19 +375,21 @@ OMX_ERRORTYPE send_DCCBufPtr(OMX_HANDLETYPE hComponent)
 
 /* ===========================================================================*/
 /**
- * @name copy_DCCintobuffer()
+ * @name read_DCCdir()
  * @brief : copies all the dcc profiles into the allocated 1D-Tiler buffer
- * @param void
- * @return return = 0 is successful
+ *          and returns the size of the buffer.
+ * @param void : OMX_PTR is null then returns the size of the DCC directory
+ * @return return = size of the DCC directory or error in case of any failures
+ *		    in file read or open
  * @sa TBD
  *
  */
 /* ===========================================================================*/
-OMX_S16 copy_DCCintobuffer(OMX_PTR buffer, OMX_STRING * dir_path,
-    OMX_U16 numofURI)
+OMX_S32 read_DCCdir(OMX_PTR buffer, OMX_STRING * dir_path, OMX_U16 numofURI)
 {
 	FILE *pFile;
 	OMX_S32 lSize;
+	OMX_S32 dcc_buf_size = 0;
 	size_t result;
 	OMX_STRING filename;
 	char temp[200];
@@ -391,7 +397,7 @@ OMX_S16 copy_DCCintobuffer(OMX_PTR buffer, OMX_STRING * dir_path,
 	DIR *d;
 	struct dirent *dir;
 	OMX_U16 i = 0;
-	OMX_S16 ret = 0;
+	OMX_S32 ret = 0;
 
 	DOMX_ENTER("ENTER");
 	for (i = 0; i < numofURI - 1; i++)
@@ -420,18 +426,26 @@ OMX_S16 copy_DCCintobuffer(OMX_PTR buffer, OMX_STRING * dir_path,
 						fseek(pFile, 0, SEEK_END);
 						lSize = ftell(pFile);
 						rewind(pFile);
-
-						// copy file into the buffer:
-						result =
-						    fread(buffer, 1, lSize,
-						    pFile);
-						if (result != lSize)
+						/* buffer is not NULL then copy all the DCC profiles into buffer
+						   else return the size of the DCC directory */
+						if (buffer)
 						{
-							DOMX_ERROR
-							    ("fread: Reading error");
-							ret = -1;
+							// copy file into the buffer:
+							result =
+							    fread(buffer, 1,
+							    lSize, pFile);
+							if (result != lSize)
+							{
+								DOMX_ERROR
+								    ("fread: Reading error");
+								ret = -1;
+							}
+							buffer =
+							    buffer + lSize;
 						}
-						buffer = buffer + lSize;
+						/* getting the size of the total dcc files available in FS */
+						dcc_buf_size =
+						    dcc_buf_size + lSize;
 					}
 					// terminate
 					fclose(pFile);
@@ -440,6 +454,9 @@ OMX_S16 copy_DCCintobuffer(OMX_PTR buffer, OMX_STRING * dir_path,
 			closedir(d);
 		}
 	}
+	if (ret == 0)
+		ret = dcc_buf_size;
+
 	DOMX_EXIT("return %d", ret);
 	return ret;
 }
