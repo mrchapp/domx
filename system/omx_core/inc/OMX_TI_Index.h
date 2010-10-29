@@ -85,7 +85,7 @@ typedef enum OMX_TI_INDEXTYPE {
 	OMX_TI_IndexParamVideoMEBlockSize,	//!< use OMX_VIDEO_PARAM_MEBLOCKSIZETYPE to specify the minimum block size used for motion estimation
 	OMX_TI_IndexParamVideoIntraPredictionSettings,	//!< use OMX_VIDEO_PARAM_INTRAPREDTYPE to configure the intra prediction modes used for different block sizes
 	OMX_TI_IndexParamVideoEncoderPreset,	//!< use OMX_VIDEO_PARAM_ENCODER_PRESETTYPE to select the encoding mode & rate control preset
-	OMX_TI_IndexParamVideoFrameDataContentSettings,	//!< use OMX_VIDEO_PARAM_FRAMEDATACONTENTTYPE to configure the data content tpye
+	OMX_TI_IndexParamVideoFrameDataContentSettings,	//!< use OMX_TI_VIDEO_PARAM_FRAMEDATACONTENTTYPE to configure the data content tpye
 	OMX_TI_IndexParamVideoTransformBlockSize,	//!< use OMX_VIDEO_PARAM_TRANSFORM_BLOCKSIZETYPE to specify the block size used for ttransformation
 	OMX_TI_IndexParamVideoVUIsettings, //!use OMX_VIDEO_PARAM_VUIINFOTYPE
 	OMX_TI_IndexParamVideoAdvancedFMO,
@@ -93,6 +93,9 @@ typedef enum OMX_TI_INDEXTYPE {
 	OMX_TI_IndexConfigVideoMESearchRange,	//!< use OMX_VIDEO_CONFIG_MESEARCHRANGETYPE to specify the ME Search settings
 	OMX_TI_IndexConfigVideoQPSettings,	//!< use OMX_TI_VIDEO_CONFIG_QPSETTINGS to specify the ME Search settings
 	OMX_TI_IndexConfigSliceSettings,		//!<use OMX_VIDEO_CONFIG_SLICECODINGTYPE to specify the ME Search settings
+	OMX_TI_IndexParamAVCInterlaceSettings,            //!< use OMX_TI_VIDEO_PARAM_AVCINTERLACECODING to specify the ME Search settings
+	OMX_TI_IndexParamStereoInfo2004Settings,          //!< use OMX_TI_VIDEO_AVCENC_STEREOINFO2004 to specify the 2004 SEI for AVC Encoder
+	OMX_TI_IndexParamStereoFramePacking2010Settings,  //!< use OMX_TI_VIDEO_AVCENC_FRAMEPACKINGINFO2010 to specify 2010 SEI for AVC Encoder
 
 
     /* Camera Indices */
