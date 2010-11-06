@@ -1275,7 +1275,7 @@ typedef struct OMX_FACEATTRIBUTE {
  *
  *
  */
-typedef struct OMX_FACEDETECTIONTYPE {
+typedef struct OMX_TI_FACERESULT {
     OMX_U32 nSize;
     OMX_VERSIONTYPE nVersion;
     OMX_U32 nPortIndex;
@@ -1289,6 +1289,21 @@ OMX_S32 nOrientationYaw;
 OMX_S32 nOrientationPitch;
 OMX_U32 nPriority;
 OMX_FACEATTRIBUTE nFaceAttr;
+} OMX_TI_FACERESULT;
+
+
+/**
+ * Face detection data
+ * The extra data having face detection data is described with the following structure.
+ * The parser should only assume that the first tFacePosition[ulFaceCount] of the 35 elements
+ * of the array should contain valid data.
+ */
+typedef struct OMX_FACEDETECTIONTYPE {
+    OMX_U32 nSize;
+    OMX_VERSIONTYPE nVersion;
+    OMX_U32 nPortIndex;
+    OMX_U16 ulFaceCount;
+    OMX_TI_FACERESULT tFacePosition[35];// 35 is max faces supported by FDIF
 } OMX_FACEDETECTIONTYPE;
 
 
