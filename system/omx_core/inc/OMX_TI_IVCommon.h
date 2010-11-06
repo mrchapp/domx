@@ -1013,6 +1013,82 @@ typedef struct OMX_HISTOGRAMTYPE {
     OMX_U8  data[1];
 } OMX_HISTOGRAMTYPE;
 
+#define OMX_OTHER_EXTRADATATYPE_SIZE ( (OMX_U32)(((OMX_OTHER_EXTRADATATYPE*)0x0)->data) ) /**< Size of OMX_OTHER_EXTRADATATYPE
+/**
+ * The extra data having ancillary data is described with the following structure.
+ * This data contains single flags and values
+ * (not arrays) that have general usage for camera applications.
+ */
+typedef  struct OMX_TI_ANCILLARYDATATYPE {
+    OMX_U32             nSize;
+    OMX_VERSIONTYPE     nVersion;
+    OMX_U32             nPortIndex;
+    OMX_TI_CAMERAVIEWTYPE       eCameraView;
+    OMX_U32             nAncillaryDataVersion;
+    OMX_U32             nFrameNumber;
+    OMX_U32             nShotNumber;
+    OMX_U16             nInputImageHeight;
+    OMX_U16             nInputImageWidth;
+    OMX_U16             nOutputImageHeight;
+    OMX_U16             nOutputImageWidth;
+    OMX_U16             nDigitalZoomFactor;
+    OMX_S16             nCropCenterColumn;
+    OMX_S16             nCropCenterRow;
+    OMX_U16             nOpticalZoomValue;
+    OMX_U8              nFlashConfiguration;
+    OMX_U8              nFlashUsage;
+    OMX_U32             nFlashStatus;
+    OMX_U8              nAFStatus;
+    OMX_U8              nAWBStatus;
+    OMX_U8              nAEStatus;
+    OMX_U32             nExposureTime;
+    OMX_U16             nEVCompensation;
+    OMX_U8              nDigitalGainValue;
+    OMX_U8              nAnalogGainValue;
+    OMX_U16             nCurrentISO;
+    OMX_U16             nReferenceISO;
+    OMX_U8              nApertureValue;
+    OMX_U8              nPixelRange;
+    OMX_U16             nPixelAspectRatio;
+    OMX_U8              nCameraShake;
+    OMX_U16             nFocalDistance;
+    OMX_U64             nParameterChangeFlags;
+    OMX_U8              nNumFacesDetected;
+    OMX_U8              nConvergenceMode;
+    OMX_U8              nConvergenceStatus;
+    OMX_U8              nDCCStatus;
+} OMX_TI_ANCILLARYDATATYPE;
+
+typedef struct OMX_TI_WHITEBALANCERESULTTYPE {
+    OMX_U32             nSize;          /**< Size */
+    OMX_VERSIONTYPE     nVersion;       /**< Version */
+    OMX_U32             nPortIndex;     /**< Port Index */
+    OMX_TI_CAMERAVIEWTYPE eCameraView;
+    OMX_U16             nColorTemperature;      /**< White Balance Color Temperature in Kelvins */
+    OMX_U16             nGainR;         /**< Bayer applied R color channel gain in (U13Q9) */
+    OMX_U16             nGainGR;        /**< Bayer applied Gr color channel gain in (U13Q9) */
+    OMX_U16             nGainGB;        /**< Bayer applied Gb color channel gain in (U13Q9) */
+    OMX_U16             nGainB;         /**< Bayer applied B color channel gain in (U13Q9) */
+    OMX_S16             nOffsetR;       /**< Bayer applied R color channel offset */
+    OMX_S16             nOffsetGR;      /**< Bayer applied Gr color channel offset */
+    OMX_S16             nOffsetGB;      /**< Bayer applied Gb color channel offset */
+    OMX_S16             nOffsetB;       /**< Bayer applied B color channel offset */
+} OMX_TI_WHITEBALANCERESULTTYPE;
+
+/**
+ * Unsaturated Regions data
+ * The extra data having unsaturated regions data is
+ * described with the following structure..
+ */
+typedef struct OMX_TI_UNSATURATEDREGIONSTYPE {
+    OMX_U32             nSize;          /**< Size */
+    OMX_VERSIONTYPE     nVersion;       /**< Version */
+    OMX_U32             nPortIndex;     /**< Port Index */
+    OMX_U16             nPaxelsX;       /**< The number of paxels in the horizontal direction */
+    OMX_U16             nPaxelsY;       /**< The number of paxels in the vertical direction */
+    OMX_U16             data[1];        /**< the first value of an array of values that represent */
+} OMX_TI_UNSATURATEDREGIONSTYPE;
+
 /**
  * OMX_BARCODETYPE
  */
@@ -1326,6 +1402,23 @@ typedef struct OMX_FACEDETECTIONTYPE {
     OMX_TI_FACERESULT tFacePosition[35];// 35 is max faces supported by FDIF
 } OMX_FACEDETECTIONTYPE;
 
+/**
+ * MTIS Vendor Specific Motion estimation
+ * The extra data having MTIS motion estimation data is
+ * described with the following structure.
+ */
+typedef struct OMX_TI_MTISTYPE {
+    OMX_U32 nSize;
+    OMX_VERSIONTYPE nVersion;
+    OMX_U32 nPortIndex;
+    OMX_TI_CAMERAVIEWTYPE eCameraView;
+    OMX_S32 nMaxMVh;            /**< The maximum MV for horizontal direction */
+    OMX_S32 nMaxMVv;            /**< The maximum MV for vertical direction */
+    OMX_U16 nMVRelY[9];         /**< The mask for MV reliability */
+    OMX_U16 nMVRelX[9];         /**< The mask for MV reliability */
+    OMX_S32 nMVh[9];            /**< The MVs for horizontal direction */
+    OMX_S32 nMVv[9];            /**< The MVs for vertical direction */
+} OMX_TI_MTISTYPE;
 
 /**
  * The OMX_EXTRADATATYPE enumeration is used to define the
@@ -1334,13 +1427,18 @@ typedef struct OMX_FACEDETECTIONTYPE {
 typedef enum OMX_EXT_EXTRADATATYPE
 {
    OMX_ExifAttributes = 0x7F000001, /**< Reserved region for introducing Vendor Extensions */
+   OMX_AncillaryData,                   /**< 0x7F000002 ancillary data */
+   OMX_WhiteBalance,                    /**< 0x7F000003 white balance resultant data */
+   OMX_UnsaturatedRegions,              /**< 0x7F000004 unsaturated regions data */
    OMX_FaceDetection, /**< face detect data */
    OMX_BarcodeDetection, /**< bar-code detct data */
    OMX_FrontObjectDetection, /**< Front object detection data */
    OMX_MotionEstimation, /**< motion Estimation data */
+   OMX_TI_MTISType,                     /**< 0x7F000009 MTIS motion Estimation data */
    OMX_DistanceEstimation, /**< disctance estimation */
    OMX_Histogram, /**< histogram */
    OMX_FocusRegion, /**< focus region data */
+   OMX_ExtraDataPanAndScan,             /**< 0x7F00000D pan and scan data */
    OMX_RawFormat, /**< custom RAW data format */
    OMX_SensorType, /**< vendor & model of the sensor being used */
    OMX_SensorCustomDataLength, /**< vendor specific custom data length */
