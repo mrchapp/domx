@@ -660,7 +660,7 @@ typedef enum OMX_IMAGE_EXTFOCUSCONTROLTYPE {
     OMX_IMAGE_FocusControAutoMacro = 0x7F000001, /**< Reserved region for introducing Vendor Extensions */
     OMX_IMAGE_FocusControlAutoInfinity,
     OMX_IMAGE_FocusFacePriorityMode,
-    OMX_TI_IMAGE_FocusRegionPriorityMode,
+    OMX_IMAGE_FocusRegionPriorityMode,
     OMX_IMAGE_FocusControlHyperfocal,
     OMX_IMAGE_FocusControlPortrait, /**< from Xena */
     OMX_IMAGE_FocusControlExtended, /**< from Xena */
