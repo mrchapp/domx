@@ -982,6 +982,18 @@ typedef enum OMX_HISTCOMPONENTTYPE{
         OMX_HISTCOMP_Cr /**< Chroma red histogram component (Cr) */
 }OMX_HISTCOMPONENTTYPE;
 
+ /**
+ * The OMX_TI_CAMERAVIEWTYPE enumeration is used to identify the
+ * particular camera view that the rest of the data in the structure is
+ * associated with.
+ */
+typedef enum OMX_TI_CAMERAVIEWTYPE
+{
+    OMX_2D,     /**< Camera view in 2D sensor configuration */
+    OMX_Left,   /**< Left camera view in stereo sensor configuration */
+    OMX_Right,  /**< Right camera view in stereo sensor configuration */
+    OMX_TI_CAMERAVIEWTYPE_32BIT_PATCH = 0x7FFFFFFF
+} OMX_TI_CAMERAVIEWTYPE;
 /**
  *  nSize is the size of the structure including the length of data field containing
  *  the histogram data.
@@ -995,6 +1007,7 @@ typedef struct OMX_HISTOGRAMTYPE {
     OMX_U32 nSize;
     OMX_VERSIONTYPE nVersion;
     OMX_U32 nPortIndex;
+    OMX_TI_CAMERAVIEWTYPE eCameraView;
     OMX_U32 nBins;
     OMX_HISTCOMPONENTTYPE eComponentType;
     OMX_U8  data[1];
@@ -1020,6 +1033,7 @@ typedef struct OMX_BARCODEDETECTIONTYPE {
 	OMX_U32 nSize;
 	OMX_VERSIONTYPE nVersion;
 	OMX_U32 nPortIndex;
+	OMX_TI_CAMERAVIEWTYPE eCameraView;
 	OMX_S32 nLeft;
 	OMX_S32 nTop;
 	OMX_U32 nWidth;
@@ -1039,6 +1053,7 @@ typedef struct OMX_FRONTOBJDETECTIONTYPE {
     OMX_U32 nSize;
     OMX_VERSIONTYPE nVersion;
     OMX_U32 nPortIndex;
+    OMX_TI_CAMERAVIEWTYPE eCameraView;
     OMX_S32 nLeft;
     OMX_S32 nTop;
     OMX_U32 nWidth;
@@ -1054,6 +1069,7 @@ typedef struct OMX_DISTANCEESTIMATIONTYPE {
     OMX_U32 nSize;
     OMX_VERSIONTYPE nVersion;
     OMX_U32 nPortIndex;
+    OMX_TI_CAMERAVIEWTYPE eCameraView;
     OMX_U32 nDistance;
     OMX_U32 nLargestDiscrepancy;
 } OMX_DISTANCEESTIMATIONTYPE;
@@ -1068,6 +1084,7 @@ typedef struct OMX_MOTIONESTIMATIONTYPE {
     OMX_U32 nSize;
     OMX_VERSIONTYPE nVersion;
     OMX_U32 nPortIndex;
+    OMX_TI_CAMERAVIEWTYPE eCameraView;
     OMX_S32 nPanX;
     OMX_S32 nPanY;
 } OMX_MOTIONESTIMATIONTYPE;
@@ -1086,6 +1103,7 @@ typedef struct OMX_FOCUSREGIONTYPE {
     OMX_U32 nSize;
     OMX_VERSIONTYPE nVersion;
     OMX_U32 nPortIndex;
+    OMX_TI_CAMERAVIEWTYPE eCameraView;
     OMX_U32 nRefPortIndex;
     OMX_S32 nLeft;
     OMX_S32 nTop;
@@ -1279,6 +1297,7 @@ typedef struct OMX_TI_FACERESULT {
     OMX_U32 nSize;
     OMX_VERSIONTYPE nVersion;
     OMX_U32 nPortIndex;
+    OMX_TI_CAMERAVIEWTYPE eCameraView;
     OMX_U32 nScore;
     OMX_S32 nLeft;
     OMX_S32 nTop;
@@ -1302,6 +1321,7 @@ typedef struct OMX_FACEDETECTIONTYPE {
     OMX_U32 nSize;
     OMX_VERSIONTYPE nVersion;
     OMX_U32 nPortIndex;
+    OMX_TI_CAMERAVIEWTYPE    eCameraView;
     OMX_U16 ulFaceCount;
     OMX_TI_FACERESULT tFacePosition[35];// 35 is max faces supported by FDIF
 } OMX_FACEDETECTIONTYPE;
@@ -1346,6 +1366,7 @@ typedef struct OMX_CONFIG_EXTRADATATYPE {
     OMX_VERSIONTYPE nVersion;
     OMX_U32 nPortIndex;
     OMX_EXT_EXTRADATATYPE eExtraDataType;
+    OMX_TI_CAMERAVIEWTYPE eCameraView;
     OMX_BOOL bEnable;
 } OMX_CONFIG_EXTRADATATYPE;
 
