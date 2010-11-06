@@ -1093,8 +1093,8 @@ typedef struct OMX_TI_UNSATURATEDREGIONSTYPE {
  * OMX_BARCODETYPE
  */
 typedef enum OMX_BARCODETYPE{
-        OMX_Barcode1D = 0, /**< 1D barcode */
-        OMX_Barcode2D,	/**< 2D barcode */
+        OMX_BARCODE1D = 0,      /**< 1D barcode */
+        OMX_BARCODE2D,          /**< 2D barcode */
 }OMX_BARCODETYPE;
 /**
  * Brcode detection data
