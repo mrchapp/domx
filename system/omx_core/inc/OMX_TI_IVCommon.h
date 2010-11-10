@@ -277,10 +277,10 @@ typedef struct OMX_CONFIG_EXTCAPTURING {
  *  nVersion   : OMX specification version information
  *  nPortIndex : Port that this structure applies to
  *  nDigitalZoomSpeed      :  Optical zoom speed level. Special values:
- *      0 – stop current movement
+ *      0 - stop current movement
  *      values from 1 to 254 are mapped proportionally to supported zoom speeds inside optical zoom driver.
  *      So 1 is slowest available optical zoom speed and 254 is fastest available optical zoom speed
- *      255 – default optical zoom speed value
+ *      255 - default optical zoom speed value
  */
 typedef struct OMX_CONFIG_DIGITALZOOMSPEEDTYPE {
    OMX_U32 nSize;
@@ -583,7 +583,7 @@ typedef struct OMX_CONFIG_EXTFOCUSREGIONTYPE {
  *  nVersion     : OMX specification version information
  *  nPortIndex   : Port that this structure applies to
  *  bDigitalFlash : Digital flash type Enable/Disable -
- * Specifies whether the ‘digital flash’ algorithm is enabled or disabled. This overrides the contrast and brightness settings.
+ * Specifies whether the digital flash algorithm is enabled or disabled. This overrides the contrast and brightness settings.
  */
 typedef struct OMX_CONFIG_DIGITALFLASHTYPE {
     OMX_U32 nSize;
@@ -604,7 +604,7 @@ typedef struct OMX_CONFIG_DIGITALFLASHTYPE {
  *        Specifies whether the flash should be used to indicate image or video capture. When flash is not used for exposure,
  *        flash will be activated after exposure to indicate image capture.
  *        If video light is not used, the flash can be blinking or constant at low intensity to indicate capture but not affect exposure.
- *        Specifies whether the ‘digital flash’ algorithm is enabled or disabled. This overrides the contrast and brightness settings.
+ *        Specifies whether the digital flash algorithm is enabled or disabled. This overrides the contrast and brightness settings.
  */
 typedef struct OMX_CONFIG_PRIVACYINDICATOR {
     OMX_U32 nSize;
@@ -638,8 +638,8 @@ typedef struct OMX_CONFIG_TORCHMODETYPE {
 
 /**
  * Privacy Indicator Enable/Disable
- * DISABLE – Fire the xenon flash in the usual manner
- * ENABLE – Reduce the light intensity of the main flash (ex 1EV)
+ * DISABLE - Fire the xenon flash in the usual manner
+ * ENABLE - Reduce the light intensity of the main flash (ex 1EV)
  *
  * STRUCT MEMBERS:
  *  nSize        : Size of the structure in bytes
@@ -677,7 +677,7 @@ typedef enum OMX_IMAGE_EXTFOCUSCONTROLTYPE {
 
 /**
  * Specifies whether the LED can be used to assist in autofocus, due to low lighting conditions.
- * ‘ENABLE’ means use as determined by the auto exposure algorithm.
+ * ENABLE means use as determined by the auto exposure algorithm.
  *
  * STRUCT MEMBERS:
  *  nSize        : Size of the structure in bytes
