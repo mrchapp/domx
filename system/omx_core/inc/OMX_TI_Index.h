@@ -103,7 +103,7 @@ typedef enum OMX_TI_INDEXTYPE {
     OMX_IndexConfigFlickerCancel,               /**< reference: OMX_CONFIG_FLICKERCANCELTYPE */
     OMX_IndexConfigSensorCal,                   /**< reference: OMX_CONFIG_SENSORCALTYPE */
 	OMX_IndexConfigISOSetting, /**< reference: OMX_CONFIG_ISOSETTINGTYPE */
-    OMX_IndexParamSceneMode,                    /**< reference: OMX_CONFIG_SCENEMODETYPE */
+    OMX_TI_IndexConfigSceneMode,                /**< reference: OMX_CONFIG_SCENEMODETYPE */
 
     OMX_IndexConfigDigitalZoomSpeed,            /**< reference: OMX_CONFIG_DIGITALZOOMSPEEDTYPE */
     OMX_IndexConfigDigitalZoomTarget,           /**< reference: OMX_CONFIG_DIGITALZOOMTARGETTYPE */
