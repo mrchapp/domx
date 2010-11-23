@@ -1447,6 +1447,12 @@ typedef enum OMX_EXT_EXTRADATATYPE
    OMX_SensorCustomDataLength, /**< vendor specific custom data length */
    OMX_SensorCustomData, /**< vendor specific data */
    OMX_TI_FrameLayout,                  /**< 0x7F000012 vendor specific data */
+   OMX_TI_SEIinfo2004Frame1,    /**< 0x7F000013 Used for 2004 SEI message to be provided by video decoders */
+   OMX_TI_SEIinfo2004Frame2,    /**< 0x7F000014 Used for 2004 SEI message to be provided by video decoders */
+   OMX_TI_SEIinfo2010Frame1,    /**< 0x7F000015 Used for 2010 SEI message to be provided by video decoders */
+   OMX_TI_SEIinfo2010Frame2,    /**< 0x7F000016 Used for 2010 SEI message to be provided by video decoders */
+   OMX_TI_RangeMappingInfo,     /**< 0x7F000017 Used for Range mapping info provided by Video Decoders */
+   OMX_TI_RescalingInfo,        /**< 0x7F000018 Used for width/height rescaling info provided by Video Decoders */
 } OMX_EXT_EXTRADATATYPE;
 
 
