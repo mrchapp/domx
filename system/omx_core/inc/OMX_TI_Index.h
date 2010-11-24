@@ -201,7 +201,8 @@ typedef enum OMX_TI_INDEXTYPE {
     OMX_TI_IndexConfigShutterCallback,          /**< reference: OMX_CONFIG_BOOLEANTYPE */
     OMX_TI_IndexParamVarFrameRate,              /**< reference: OMX_PARAM_VARFARAMERATETYPE */
     OMX_TI_IndexConfigAutoConvergence,          /**< reference: OMX_TI_CONFIG_CONVERGENCETYPE */
-    OMX_TI_IndexConfigRightExposureValue        /**< reference: OMX_TI_CONFIG_EXPOSUREVALUERIGHTTYPE */
+    OMX_TI_IndexConfigRightExposureValue,       /**< reference: OMX_TI_CONFIG_EXPOSUREVALUERIGHTTYPE */
+    OMX_TI_IndexConfigExifTags                  /**< reference: OMX_TI_CONFIG_SHAREDBUFFER */
 } OMX_TI_INDEXTYPE;
 
 

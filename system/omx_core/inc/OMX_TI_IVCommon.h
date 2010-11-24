@@ -1943,6 +1943,305 @@ typedef enum OMX_TI_COLOR_FORMATTYPE {
 	    OMX_COLOR_FormatVendorStartUnused + 2 /**< 10 bit raw for stereo */
 } OMX_TI_COLOR_FORMATTYPE;
 
+/**
+ * The OMX_TI_EXIFTAGSTATUS enumeration is used to define the
+ * tag status types.
+ */
+typedef enum OMX_TI_EXIFTAGSTATUS {
+	OMX_TI_TagReadOnly,     /**< implies this tag is generated within omx-camera >*/
+	OMX_TI_TagReadWrite,    /**< implies this tag can be overwritten by client >*/
+	OMX_TI_TagUpdated,      /**< client has to use this to indicate the specific tag is overwritten >*/
+	OMX_TI_ExifStatus_Max = 0x7fffffff
+} OMX_TI_EXIFTAGSTATUS;
+
+typedef struct OMX_TI_CONFIG_EXIF_TAGS {
+	OMX_U32                 nSize;
+	OMX_VERSIONTYPE         nVersion;
+	OMX_U32                 nPortIndex;
+	OMX_TI_EXIFTAGSTATUS    eStatusImageWidth;
+	OMX_U32                 ulImageWidth;
+	OMX_TI_EXIFTAGSTATUS    eStatusImageHeight;
+	OMX_U32                 ulImageHeight;
+	OMX_TI_EXIFTAGSTATUS    eStatusBitsPerSample;
+	OMX_U16                 usBitsPerSample[3];
+	OMX_TI_EXIFTAGSTATUS    eStatusCompression;
+	OMX_U16                 usCompression;
+	OMX_TI_EXIFTAGSTATUS    eStatusPhotometricInterpretation;
+	OMX_U16                 usPhotometricInterpretation;
+	OMX_TI_EXIFTAGSTATUS    eStatusOrientation;
+	OMX_U16                 usOrientation;
+	OMX_TI_EXIFTAGSTATUS    eStatusSamplesPerPixel;
+	OMX_U16                 usSamplesPerPixel;
+	OMX_TI_EXIFTAGSTATUS    eStatusPlanarConfiguration;
+	OMX_U16                 usPlanarConfiguration;
+	OMX_TI_EXIFTAGSTATUS    eStatusYCbCrSubSampling;
+	OMX_U16                 usYCbCrSubSampling[2];
+	OMX_TI_EXIFTAGSTATUS    eStatusYCbCrPositioning;
+	OMX_U16                 usYCbCrPositioning;
+	OMX_TI_EXIFTAGSTATUS    eStatusXResolution;
+	OMX_U32                 ulXResolution[2];
+	OMX_TI_EXIFTAGSTATUS    eStatusYResolution;
+	OMX_U32                 ulYResolution[2];
+	OMX_TI_EXIFTAGSTATUS    eStatusResolutionUnit;
+	OMX_U16                 usResolutionUnit;
+
+	OMX_TI_EXIFTAGSTATUS    eStatusRowsPerStrip;
+	OMX_U32                 ulRowsPerStrip;
+	OMX_TI_EXIFTAGSTATUS    eStatusDataSize;
+	OMX_U32                 ulDataSize;
+
+	OMX_TI_EXIFTAGSTATUS    eStatusTransferFunction;
+	OMX_U16                 usTransferFunction[3*256];
+	OMX_TI_EXIFTAGSTATUS    eStatusWhitePoint;
+	OMX_U32                 ulWhitePoint[4]; //2x2
+	OMX_TI_EXIFTAGSTATUS    eStatusPrimaryChromaticities;
+	OMX_U32                 ulPrimaryChromaticities[12]; //2x6
+	OMX_TI_EXIFTAGSTATUS    eStatusYCbCrCoefficients;
+	OMX_U32                 ulYCbCrCoefficients[6]; //2x3
+	OMX_TI_EXIFTAGSTATUS    eStatusReferenceBlackWhite;
+	OMX_U32                 ulReferenceBlackWhite[12]; //2x6
+	OMX_TI_EXIFTAGSTATUS    eStatusDateTime;
+	OMX_S8*                 pDateTimeBuff;
+	OMX_U32                 ulDateTimeBuffSizeBytes;
+	OMX_TI_EXIFTAGSTATUS    eStatusImageDescription;
+	OMX_S8*                 pImageDescriptionBuff;
+	OMX_U32                 ulImageDescriptionBuffSizeBytes;
+	OMX_TI_EXIFTAGSTATUS    eStatusMake;
+	OMX_S8*                 pMakeBuff;
+	OMX_U32                 ulMakeBuffSizeBytes;
+	OMX_TI_EXIFTAGSTATUS    eStatusModel;
+	OMX_S8*                 pModelBuff;
+	OMX_U32                 ulModelBuffSizeBytes;
+	OMX_TI_EXIFTAGSTATUS    eStatusSoftware;
+	OMX_S8*                 pSoftwareBuff;
+	OMX_U32                 ulSoftwareBuffSizeBytes;
+	OMX_TI_EXIFTAGSTATUS    eStatusArtist;
+	OMX_S8*                 pArtistBuff;
+	OMX_U32                 ulArtistBuffSizeBytes;
+	OMX_TI_EXIFTAGSTATUS    eStatusCopyright;
+	OMX_S8*                 pCopyrightBuff;
+	OMX_U32                 ulCopyrightBuffSizeBytes;
+
+	OMX_TI_EXIFTAGSTATUS    eStatusSensorTagsAvailable;
+	OMX_BOOL                bSensorTagsAvailable;
+	OMX_TI_EXIFTAGSTATUS    eStatusExifVersion;
+	OMX_S8                  cExifVersion[4];
+	OMX_TI_EXIFTAGSTATUS    eStatusFlashpixVersion;
+	OMX_S8                  cFlashpixVersion[4];
+	OMX_TI_EXIFTAGSTATUS    eStatusColorSpace;
+	OMX_U16                 usColorSpace;
+	OMX_TI_EXIFTAGSTATUS    eStatusComponentsConfiguration;
+	OMX_S8                  cComponentsConfiguration[4];
+	OMX_TI_EXIFTAGSTATUS    eStatusCompressedBitsPerPixel;
+	OMX_U32                 ulCompressedBitsPerPixel[2];
+	OMX_TI_EXIFTAGSTATUS    eStatusPixelXDimension;
+	OMX_U32                 ulPixelXDimension;
+	OMX_TI_EXIFTAGSTATUS    eStatusPixelYDimension;
+	OMX_U32                 ulPixelYDimension;
+	OMX_TI_EXIFTAGSTATUS    eStatusMakerNote;
+	OMX_S8*                 pMakerNoteBuff;
+	OMX_U32                 ulMakerNoteBuffSizeBytes;
+	OMX_TI_EXIFTAGSTATUS    eStatusUserComment;
+	OMX_S8*                 pUserCommentBuff;
+	OMX_U32                 ulUserCommentBuffSizeBytes;
+	OMX_TI_EXIFTAGSTATUS    eStatusRelatedSoundFile;
+	OMX_S8                  cRelatedSoundFile[13];
+	OMX_TI_EXIFTAGSTATUS    eStatusDateTimeOriginal;
+	OMX_S8*                 pDateTimeOriginalBuff;
+	OMX_U32                 ulDateTimeOriginalBuffSizeBytes;
+	OMX_TI_EXIFTAGSTATUS    eStatusDateTimeDigitized;
+	OMX_S8*                 pDateTimeDigitizedBuff;
+	OMX_U32                 ulDateTimeDigitizedBuffSizeBytes;
+	OMX_TI_EXIFTAGSTATUS    eStatusSubSecTime;
+	OMX_S8*                 pSubSecTimeBuff;
+	OMX_U32                 ulSubSecTimeBuffSizeBytes;
+	OMX_TI_EXIFTAGSTATUS    eStatusSubSecTimeOriginal;
+	OMX_S8*                 pSubSecTimeOriginalBuff;
+	OMX_U32                 ulSubSecTimeOriginalBuffSizeBytes;
+	OMX_TI_EXIFTAGSTATUS    eStatusSubSecTimeDigitized;
+	OMX_S8*                 pSubSecTimeDigitizedBuff;
+	OMX_U32                 ulSubSecTimeDigitizedBuffSizeBytes;
+
+	OMX_TI_EXIFTAGSTATUS    eStatusExposureTime;
+	OMX_U32                 ulExposureTime[2];
+	OMX_TI_EXIFTAGSTATUS    eStatusFNumber;
+	OMX_U32                 ulFNumber[2];
+	OMX_TI_EXIFTAGSTATUS    eStatusExposureProgram;
+	OMX_U16                 usExposureProgram;
+	OMX_TI_EXIFTAGSTATUS    eStatusSpectralSensitivity;
+	OMX_S8*                 pSpectralSensitivityBuff;
+	OMX_U32                 ulSpectralSensitivityBuffSizeBytes;
+	OMX_TI_EXIFTAGSTATUS    eStatusISOCount;
+	OMX_U16                 usISOCount;
+	OMX_TI_EXIFTAGSTATUS    eStatusISOSpeedRatings;
+	OMX_U16*                pISOSpeedRatings;
+	OMX_TI_EXIFTAGSTATUS    eStatusOECF;
+	OMX_S8*                 pOECFBuff;
+	OMX_U32                 ulOECFBuffSizeBytes;
+	OMX_TI_EXIFTAGSTATUS    eStatusShutterSpeedValue;
+	OMX_U16                 usShutterSpeedValue[5];
+	OMX_TI_EXIFTAGSTATUS    eStatusApertureValue;
+	OMX_U32                 ulApertureValue[2];
+	OMX_TI_EXIFTAGSTATUS    eStatusBrightnessValue;
+	OMX_U16                 usBrightnessValue[5];
+	OMX_TI_EXIFTAGSTATUS    eStatusExposureBiasValue;
+	OMX_U16                 usExposureBiasValue[5];
+	OMX_TI_EXIFTAGSTATUS    eStatusMaxApertureValue;
+	OMX_U32                 ulMaxApertureValue[2];
+	OMX_TI_EXIFTAGSTATUS    eStatusSubjectDistance;
+	OMX_U32                 ulSubjectDistance[2];
+	OMX_TI_EXIFTAGSTATUS    eStatusMeteringMode;
+	OMX_U16                 usMeteringMode;
+	OMX_TI_EXIFTAGSTATUS    eStatusLightSource;
+	OMX_U16                 usLightSource;
+	OMX_TI_EXIFTAGSTATUS    eStatusFlash;
+	OMX_U16                 usFlash;
+	OMX_TI_EXIFTAGSTATUS    eStatusFocalLength;
+	OMX_U32                 ulFocalLength[2];
+	OMX_TI_EXIFTAGSTATUS    eStatusSubjectArea;
+	OMX_U16                 usSubjectArea[4];
+	OMX_TI_EXIFTAGSTATUS    eStatusFlashEnergy;
+	OMX_U32                 ulFlashEnergy[2];
+	OMX_TI_EXIFTAGSTATUS    eStatusSpatialFrequencyResponse;
+	OMX_S8*                 pSpatialFrequencyResponseBuff;
+	OMX_U32                 ulSpatialFrequencyResponseBuffSizeBytes;
+	OMX_TI_EXIFTAGSTATUS    eStatusFocalPlaneXResolution;
+	OMX_U32                 ulFocalPlaneXResolution[2];
+	OMX_TI_EXIFTAGSTATUS    eStatusFocalPlaneYResolution;
+	OMX_U32                 ulFocalPlaneYResolution[2];
+	OMX_TI_EXIFTAGSTATUS    eStatusFocalPlaneResolutionUnit;
+	OMX_U16                 usFocalPlaneResolutionUnit;
+	OMX_TI_EXIFTAGSTATUS    eStatusSubjectLocation;
+	OMX_U16                 usSubjectLocation[2];
+	OMX_TI_EXIFTAGSTATUS    eStatusExposureIndex;
+	OMX_U32                 ulExposureIndex[2];
+	OMX_TI_EXIFTAGSTATUS    eStatusSensingMethod;
+	OMX_U16                 usSensingMethod;
+	OMX_TI_EXIFTAGSTATUS    eStatusFileSource;
+	OMX_S8                  cFileSource;
+	OMX_TI_EXIFTAGSTATUS    eStatusSceneType;
+	OMX_S8                  cSceneType;
+	OMX_TI_EXIFTAGSTATUS    eStatusCFAPattern;
+	OMX_S8*                 pCFAPatternBuff;
+	OMX_U32                 ulCFAPatternBuffSizeBytes;
+	OMX_TI_EXIFTAGSTATUS    eStatusCustomRendered;
+	OMX_U16                 usCustomRendered;
+	OMX_TI_EXIFTAGSTATUS    eStatusExposureMode;
+	OMX_U16                 usExposureMode;
+	OMX_TI_EXIFTAGSTATUS    eStatusWhiteBalance;
+	OMX_U16                 usWhiteBalance;
+	OMX_TI_EXIFTAGSTATUS    eStatusDigitalZoomRatio;
+	OMX_U32                 ulDigitalZoomRatio[2];
+	OMX_TI_EXIFTAGSTATUS    eStatusFocalLengthIn35mmFilm;
+	OMX_U16                 usFocalLengthIn35mmFilm;
+	OMX_TI_EXIFTAGSTATUS    eStatusSceneCaptureType;
+	OMX_U16                 usSceneCaptureType;
+	OMX_TI_EXIFTAGSTATUS    eStatusGainControl;
+	OMX_U16                 usGainControl;
+	OMX_TI_EXIFTAGSTATUS    eStatusContrast;
+	OMX_U16                 usContrast;
+	OMX_TI_EXIFTAGSTATUS    eStatusSaturation;
+	OMX_U16                 usSaturation;
+	OMX_TI_EXIFTAGSTATUS    eStatusSharpness;
+	OMX_U16                 usSharpness;
+	OMX_TI_EXIFTAGSTATUS    eStatusDeviceSettingDescription;
+	OMX_S8*                 pDeviceSettingDescriptionBuff;
+	OMX_U32                 ulDeviceSettingDescriptionBuffSizeBytes;
+	OMX_TI_EXIFTAGSTATUS    eStatusSubjectDistanceRange;
+	OMX_U16                 usSubjectDistanceRange;
+
+	OMX_TI_EXIFTAGSTATUS    eStatusImageUniqueID;
+	OMX_S8                  cImageUniqueID[33];
+	OMX_U8*                 pPrivateNextIFDPointer;    //Should not be used by the application
+	OMX_U8*                 pPrivateThumbnailSize;     //Should not be used by the application
+	OMX_U8*                 pPrivateTiffHeaderPointer; //Should not be used by the application
+
+	OMX_TI_EXIFTAGSTATUS    eStatusGpsVersionId;
+	OMX_U8                  usGpsVersionId[4];
+	OMX_TI_EXIFTAGSTATUS    eStatusGpslatitudeRef;
+	OMX_S8                  cGpslatitudeRef[2];
+	OMX_TI_EXIFTAGSTATUS    eStatusGpsLatitude;
+	OMX_U32                 ulGpsLatitude[6];
+	OMX_TI_EXIFTAGSTATUS    eStatusGpsLongitudeRef;
+	OMX_S8                  cGpsLongitudeRef[2];
+	OMX_TI_EXIFTAGSTATUS    eStatusGpsLongitude;
+	OMX_U32                 ulGpsLongitude[6];
+	OMX_TI_EXIFTAGSTATUS    eStatusGpsAltitudeRef;
+	OMX_U8                  usGpsAltitudeRef;
+	OMX_TI_EXIFTAGSTATUS    eStatusGpsAltitude;
+	OMX_U32                 ulGpsAltitude[2];
+	OMX_TI_EXIFTAGSTATUS    eStatusGpsTimeStamp;
+	OMX_U32                 ulGpsTimeStamp[6];
+	OMX_TI_EXIFTAGSTATUS    eStatusGpsSatellites;
+	OMX_S8*                 pGpsSatellitesBuff;
+	OMX_U32                 ulGpsSatellitesBuffSizeBytes;
+	OMX_TI_EXIFTAGSTATUS    eStatusGpsStatus;
+	OMX_S8                  cGpsStatus[2];
+	OMX_TI_EXIFTAGSTATUS    eStatusGpsMeasureMode;
+	OMX_S8                  cGpsMeasureMode[2];
+	OMX_TI_EXIFTAGSTATUS    eStatusGpsDop;
+	OMX_U32                 ulGpsDop[2];
+	OMX_TI_EXIFTAGSTATUS    eStatusGpsSpeedRef;
+	OMX_S8                  cGpsSpeedRef[2];
+	OMX_TI_EXIFTAGSTATUS    eStatusGpsSpeed;
+	OMX_U32                 ulGpsSpeed[2];
+	OMX_TI_EXIFTAGSTATUS    eStatusGpsTrackRef;
+	OMX_S8                  cGpsTrackRef[2];
+	OMX_TI_EXIFTAGSTATUS    eStatusGpsTrack;
+	OMX_U32                 ulGpsTrack[2];
+	OMX_TI_EXIFTAGSTATUS    eStatusGpsImgDirectionRef;
+	OMX_S8                  cGpsImgDirectionRef[2];
+	OMX_TI_EXIFTAGSTATUS    eStatusGpsImgDirection;
+	OMX_U32                 ulGpsImgDirection[2];
+	OMX_TI_EXIFTAGSTATUS    eStatusGpsMapDatum;
+	OMX_S8*                 pGpsMapDatumBuff;
+	OMX_U32                 ulGpsMapDatumBuffSizeBytes;
+	OMX_TI_EXIFTAGSTATUS    eStatusGpsDestLatitudeRef;
+	OMX_S8                  cGpsDestLatitudeRef[2];
+	OMX_TI_EXIFTAGSTATUS    eStatusGpsDestLatitude;
+	OMX_U32                 ulGpsDestLatitude[6];
+	OMX_TI_EXIFTAGSTATUS    eStatusGpsDestLongitudeRef;
+	OMX_S8                  cGpsDestLongitudeRef[2];
+	OMX_TI_EXIFTAGSTATUS    eStatusGpsDestLongitude;
+	OMX_U32                 ulGpsDestLongitude[6];
+	OMX_TI_EXIFTAGSTATUS    eStatusGpsDestBearingRef;
+	OMX_S8                  cGpsDestBearingRef[2];
+	OMX_TI_EXIFTAGSTATUS    eStatusGpsDestBearing;
+	OMX_U32                 ulGpsDestBearing[2];
+	OMX_TI_EXIFTAGSTATUS    eStatusGpsDestDistanceRef;
+	OMX_S8                  cGpsDestDistanceRef[2];
+	OMX_TI_EXIFTAGSTATUS    eStatusGpsDestDistance;
+	OMX_U32                 ulGpsDestDistance[2];
+	OMX_TI_EXIFTAGSTATUS    eStatusGpsProcessingMode;
+	OMX_S8*                 pGpsProcessingModeBuff;
+	OMX_U32                 ulGpsProcessingModeBuffSizeBytes;
+	OMX_TI_EXIFTAGSTATUS    eStatusGpsAreaInformation;
+	OMX_S8*                 pGpsAreaInformationBuff;
+	OMX_U32                 ulGpsAreaInformationBuffSizeBytes;
+	OMX_TI_EXIFTAGSTATUS    eStatusGpsDateStamp;
+	OMX_S8                  cGpsDateStamp[11];
+	OMX_TI_EXIFTAGSTATUS    eStatusGpsDifferential;
+	OMX_U16                 usGpsDifferential;
+} OMX_TI_CONFIG_EXIF_TAGS;
+
+/**
+ * Structure used to configure current OMX_TI_CONFIG_SHAREDBUFFER
+ *
+ * STRUCT MEMBERS:
+ * nSize            : Size of the structure in bytes
+ * nVersion         : OMX specification version information
+ * nPortIndex       : Port that this structure applies to
+ * nSharedBuffSize  : Size of the pSharedBuff in bytes
+ * pSharedBuff      : Pointer to a buffer
+ */
+typedef struct OMX_TI_CONFIG_SHAREDBUFFER {
+	OMX_U32 nSize;
+	OMX_VERSIONTYPE nVersion;
+	OMX_U32 nPortIndex;
+	OMX_U32 nSharedBuffSize;
+	OMX_U8* pSharedBuff;
+} OMX_TI_CONFIG_SHAREDBUFFER;
+
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */
