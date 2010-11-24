@@ -1925,11 +1925,14 @@ typedef enum OMX_TI_STEREOFRAMELAYOUTTYPE {
  *
  * STRUCT MEMBERS:
  *  eFrameLayout    : frame layout
- *  nSubsapmleRatio : subsapmle ratio
+ *  nSubsampleRatio : subsample ratio
  */
 typedef struct OMX_TI_FRAMELAYOUTTYPE {
+	OMX_U32 nSize;
+	OMX_VERSIONTYPE nVersion;
+	OMX_U32 nPortIndex;
 	OMX_TI_STEREOFRAMELAYOUTTYPE eFrameLayout;
-	OMX_U32  nSubsapmleRatio; /**  Subsampling ratio, Q15.7 */
+	OMX_U32 nSubsampleRatio; /**  Subsampling ratio, Q15.7 */
 } OMX_TI_FRAMELAYOUTTYPE;
 
 /**
