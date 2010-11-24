@@ -2242,6 +2242,46 @@ typedef struct OMX_TI_CONFIG_SHAREDBUFFER {
 	OMX_U8* pSharedBuff;
 } OMX_TI_CONFIG_SHAREDBUFFER;
 
+/**
+ * Defines 3A Face priority mode.
+ *
+ * STRUCT MEMBERS:
+ *  nSize               : Size of the structure in bytes
+ *  nVersion            : OMX specification version information
+ *  nPortIndex          : Port that this structure applies to
+ *  bAwbFaceEnable      : Enable Face priority for Auto White Balance
+ *  bAeFaceEnable       : Enable Face priority for Auto Exposure
+ *  bAfFaceEnable       : Enable Face priority for Auto Focus
+ */
+typedef struct OMX_TI_CONFIG_3A_FACE_PRIORITY {
+	OMX_U32 nSize;
+	OMX_VERSIONTYPE nVersion;
+	OMX_U32 nPortIndex;
+	OMX_BOOL bAwbFaceEnable;
+	OMX_BOOL bAeFaceEnable;
+	OMX_BOOL bAfFaceEnable;
+} OMX_TI_CONFIG_3A_FACE_PRIORITY;
+
+/**
+ * Defines 3A Region priority mode.
+ *
+ * STRUCT MEMBERS:
+ *  nSize               : Size of the structure in bytes
+ *  nVersion            : OMX specification version information
+ *  nPortIndex          : Port that this structure applies to
+ *  bAwbFaceEnable      : Enable Region priority for Auto White Balance
+ *  bAeFaceEnable       : Enable Region priority for Auto Exposure
+ *  bAfFaceEnable       : Enable Region priority for Auto Focus
+ */
+typedef struct OMX_TI_CONFIG_3A_REGION_PRIORITY {
+	OMX_U32 nSize;
+	OMX_VERSIONTYPE nVersion;
+	OMX_U32 nPortIndex;
+	OMX_BOOL bAwbRegionEnable;
+	OMX_BOOL bAeRegionEnable;
+	OMX_BOOL bAfRegionEnable;
+} OMX_TI_CONFIG_3A_REGION_PRIORITY;
+
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */
