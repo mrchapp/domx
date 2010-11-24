@@ -2244,6 +2244,112 @@ typedef struct OMX_TI_CONFIG_SHAREDBUFFER {
 } OMX_TI_CONFIG_SHAREDBUFFER;
 
 /**
+ * Structure used to configure current OMX_TI_CAPRESTYPE
+ *
+ * STRUCT MEMBERS:
+ * nSize            : Size of the structure in bytes
+ * nVersion         : OMX specification version information
+ * nPortIndex       : Port that this structure applies to
+ * nWidthMin        : Number of the smallest width supported
+ * nHeightMin       : Number of the smallest height supported
+ * nWidthMax        : Number of the biggest width supported
+ * nHeightMax       : Number of the biggest height supported
+ */
+typedef struct OMX_TI_CAPRESTYPE {
+	OMX_U32         nSize;
+	OMX_VERSIONTYPE nVersion;
+	OMX_U32         nPortIndex;
+	OMX_U32         nWidthMin;  // smallest width supported
+	OMX_U32         nHeightMin; // smallest height supported
+	OMX_U32         nWidthMax;  // biggest width supported
+	OMX_U32         nHeightMax; // biggest height supported
+} OMX_TI_CAPRESTYPE;
+
+/**
+ * Structure used to configure current OMX_TI_CAPTYPE
+ *
+ * STRUCT MEMBERS:
+ * nSize                                : Size of the structure in bytes
+ * nVersion                             : OMX specification version information
+ * nPortIndex                           : Port that this structure applies to
+ * ulPreviewFormatCount                 : Number of the supported preview pixelformat count
+ * ePreviewFormats                      : Array containing the supported preview pixelformat count
+ * ulImageFormatCount                   : Number of the supported image pixelformat count
+ * eImageFormats                        : Array containing the supported image pixelformat count
+ * tPreviewResRange                     : Supported preview resolution range
+ * tImageResRange                       : Supported image resolution range
+ * tThumbResRange                       : Supported thumbnail resolution range
+ * ulWhiteBalanceCount                  : Supported whitebalance mode count
+ * eWhiteBalanceModes                   : Array containing the whitebalance modes
+ * ulColorEffectCount                   : Supported effects count
+ * eColorEffects                        : Array containing the supported effects
+ * xMaxWidthZoom                        : Fixed point value stored as Q16 representing the maximum value for the Zoom allowed on Width
+ * xMaxHeightZoom                       : Fixed point value stored as Q16 representing the maximum value for the Zoom allowed on Height
+ * ulFlickerCount                       : Number of the supported anti-flicker modes
+ * eFlicker                             : Array containing the supported anti-flicker modes
+ * ulExposureModeCount                  : Number of the supported exposure modes
+ * eExposureModes                       : Array containing the supported exposure modes
+ * bLensDistortionCorrectionSupported   : Flag for Lens Distortion Correction Algorithm support
+ * bISONoiseFilterSupported             : Flag for Noise Filter Algorithm support
+ * xEVCompensationMin                   : Fixed point value stored as Q16 representing the EVCompensation minumum allowed value
+ * xEVCompensationMax                   : Fixed point value stored as Q16 representing the EVCompensation maximum allowed value
+ * nSensitivityMax                      : nSensitivityMax = 100 implies maximum supported equal to "ISO 100"
+ * ulFocusModeCount                     : Number of the supported focus modes
+ * eFocusModes                          : Array containing the supported focus modes
+ * ulSceneCount                         : Number of the supported scenes
+ * eSceneModes                          : Array containing the supported scenes
+ * ulFlashCount                         : Number of the supported flash modes
+ * eFlashModes                          : Array containing the supported flash modes
+ * xFramerateMin                        : Fixed point value stored as Q16 representing the minimum framerate allowed
+ * xFramerateMax                        : Fixed point value stored as Q16 representing the maximum framerate allowed
+ * bContrastSupported                   : Flag showing if the contrast is supported
+ * bSaturationSupported                 : Flag showing if the saturation is supported
+ * bBrightnessSupported                 : Flag showing if the brightness is supported
+ * bProcessingLevelSupported            : Flag showing if the processing level is supported
+ * bQFactorSupported                    : Flag showing if the QFactor is supported
+ */
+typedef struct OMX_TI_CAPTYPE {
+	OMX_U32                 nSize;
+	OMX_VERSIONTYPE         nVersion;
+	OMX_U32                 nPortIndex;
+	OMX_U16                 ulPreviewFormatCount;   // supported preview pixelformat count
+	OMX_COLOR_FORMATTYPE    ePreviewFormats[100];
+	OMX_U16                 ulImageFormatCount;     // supported image pixelformat count
+	OMX_COLOR_FORMATTYPE    eImageFormats[100];
+	OMX_TI_CAPRESTYPE       tPreviewResRange;       // supported preview resolution range
+	OMX_TI_CAPRESTYPE       tImageResRange;         // supported image resolution range
+	OMX_TI_CAPRESTYPE       tThumbResRange;         // supported thumbnail resolution range
+	OMX_U16                 ulWhiteBalanceCount;    // supported whitebalance mode count
+	OMX_WHITEBALCONTROLTYPE eWhiteBalanceModes[100];
+	OMX_U16                 ulColorEffectCount;     // supported effects count
+	OMX_IMAGEFILTERTYPE     eColorEffects[100];
+	OMX_S32                 xMaxWidthZoom;          // Fixed point value stored as Q16
+	OMX_S32                 xMaxHeightZoom;         // Fixed point value stored as Q16
+	OMX_U16                 ulFlickerCount;         // supported anti-flicker mode count
+	OMX_COMMONFLICKERCANCELTYPE     eFlicker[100];
+	OMX_U16                 ulExposureModeCount;    // supported exposure mode count
+	OMX_EXPOSURECONTROLTYPE eExposureModes[100];
+	OMX_BOOL                bLensDistortionCorrectionSupported;
+	OMX_BOOL                bISONoiseFilterSupported;
+	OMX_S32                 xEVCompensationMin;     // Fixed point value stored as Q16
+	OMX_S32                 xEVCompensationMax;     // Fixed point value stored as Q16
+	OMX_U32                 nSensitivityMax;        // nSensitivityMax = 100 implies maximum supported equal to "ISO 100"
+	OMX_U16                 ulFocusModeCount;       // supported focus mode count
+	OMX_IMAGE_FOCUSCONTROLTYPE      eFocusModes[100];
+	OMX_U16                 ulSceneCount;           // supported scene count
+	OMX_SCENEMODETYPE       eSceneModes[100];
+	OMX_U16                 ulFlashCount;           // supported flash modes count
+	OMX_IMAGE_FLASHCONTROLTYPE      eFlashModes[100];
+	OMX_U32                 xFramerateMin;          // Fixed point value stored as Q16
+	OMX_U32                 xFramerateMax;          // Fixed point value stored as Q16
+	OMX_BOOL                bContrastSupported;
+	OMX_BOOL                bSaturationSupported;
+	OMX_BOOL                bBrightnessSupported;
+	OMX_BOOL                bProcessingLevelSupported;
+	OMX_BOOL                bQFactorSupported;
+} OMX_TI_CAPTYPE;
+
+/**
  * Defines 3A Face priority mode.
  *
  * STRUCT MEMBERS:
@@ -2314,7 +2420,6 @@ typedef struct OMX_TI_CONFIG_AAASKIPBUFFERTYPE {
 	OMX_U32 AAAskipBuffId;
 	OMX_U32 AAAskipBuffSize;
 } OMX_TI_CONFIG_AAASKIPBUFFERTYPE;
-
 
 #ifdef __cplusplus
 }
