@@ -623,5 +623,40 @@ typedef struct OMX_TI_VIDEO_RESCALINGMATRIX {
 } OMX_TI_VIDEO_RESCALINGMATRIX;
 
 
+/*==========================================================================*/
+/*!
+ @brief OMX_TI_PARAM_PAYLOADHEADERFLAG : To specify the payload headerflag
+                                         for VP6/VP7 decoder.
+ @param bPayloadHeaderFlag      Flag - TRUE indicates that frame length and
+                                timestamp(for IVF format) will be part of
+                                frame input buffer.
+                                Flag - FALSE indecates that frame length and
+                                timestamp(for IVF format) will not be part of
+                                the input buffer.
+*/
+/*==========================================================================*/
+
+typedef struct OMX_TI_PARAM_PAYLOADHEADERFLAG {
+	OMX_U32 nSize;
+	OMX_VERSIONTYPE nVersion;
+	OMX_BOOL bPayloadHeaderFlag;
+} OMX_TI_PARAM_PAYLOADHEADERFLAG;
+
+
+/*==========================================================================*/
+/*!
+@brief OMX_TI_PARAM_IVFFLAG : Suport added to handle IVF header Decoding Mode
+@param bIvfFlag               TRUE enables IVF decoding mode.
+                              FALSE indicates bitstream format is non-IVF.
+*/
+/*==========================================================================*/
+
+typedef struct OMX_TI_PARAM_IVFFLAG {
+	OMX_U32 nSize;
+	OMX_VERSIONTYPE nVersion;
+	OMX_BOOL bIvfFlag;
+} OMX_TI_PARAM_IVFFLAG;
+
+
 #endif /* OMX_TI_VIDEO_H */
 
