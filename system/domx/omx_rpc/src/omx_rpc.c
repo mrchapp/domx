@@ -74,10 +74,6 @@
 #include "omx_rpc_internal.h"
 #include "omx_rpc_utils.h"
 
-/*-------tiler include ----------------------------------------*/
-#include <memmgr.h>
-#include <tilermgr.h>
-
 /* **************************** MACROS DEFINES *************************** */
 
 /*For ipc setup*/
@@ -401,14 +397,6 @@ RPC_OMX_ERRORTYPE RPC_ModDeInit(void)
 			eRPCError = RPC_OMX_RCM_ServerFail;
 		}
 		rcmSrvHndl = NULL;
-
-		status = TilerMgr_Close();
-		if (status < 0)
-		{
-			DOMX_ERROR
-			    ("Error in TilerMgr_Close, status = %d", status);
-			eRPCError = RPC_OMX_ErrorUnknown;
-		}
 	}
 
 	RcmServer_exit();
@@ -520,9 +508,6 @@ RPC_OMX_ERRORTYPE RPC_ModInit(void)
 	RcmServer_start(rcmSrvHndl);
 	DOMX_DEBUG("Running RcmServer");
 
-	status = TilerMgr_Open();
-	RPC_assert((status >= 0), RPC_OMX_ErrorUnknown,
-	    "Error in TilerMgr_Close");
       EXIT:
 	DOMX_EXIT("");
 	if (eRPCError != RPC_OMX_ErrorNone && bCallDestroyIfErr)

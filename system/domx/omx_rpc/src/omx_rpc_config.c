@@ -70,7 +70,6 @@
 #include "omx_rpc_skel.h"
 #include "omx_rpc_internal.h"
 #include "omx_rpc_utils.h"
-#include <memmgr_rpc.h>
 
 /* contains configurations or structures to be passed to omx_rpc layer */
 char rpcFxns[][MAX_FUNCTION_NAME_LENGTH] = {
@@ -96,12 +95,6 @@ char rpcFxns[][MAX_FUNCTION_NAME_LENGTH] = {
 	"RPC_SKEL_EventHandler",
 	"RPC_SKEL_AllocateBuffer",
 	"RPC_SKEL_ComponentTunnelRequest",
-
-	"MemMgr_Alloc",
-	"MemMgr_Free",
-	"MemMgr_Debug",
-	"TilerMem_ConvertToTilerSpace",
-	"TilerMem_ConvertPageModeToTilerSpace"
 };
 
 rpcSkelArr rpcSkelFxns[] = {
@@ -124,9 +117,4 @@ rpcSkelArr rpcSkelFxns[] = {
 	{RPC_SKEL_EventHandler},
 	{RPC_SKEL_AllocateBuffer},
 	{RPC_SKEL_ComponentTunnelRequest},
-	{fxnMemMgr_Alloc},
-	{fxnMemMgr_Free},
-	{fxnMemMgr_Debug},
-	{fxnTilerMem_ConvertToTilerSpace},
-	{fxnTilerMem_ConvertPageModeToTilerSpace}
 };
