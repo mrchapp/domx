@@ -1265,7 +1265,7 @@ OMX_ERRORTYPE PROXY_GetParameter(OMX_IN OMX_HANDLETYPE hComponent,
  *
  */
 /* ===========================================================================*/
-static OMX_ERRORTYPE PROXY_GetConfig(OMX_HANDLETYPE hComponent,
+OMX_ERRORTYPE PROXY_GetConfig(OMX_HANDLETYPE hComponent,
     OMX_INDEXTYPE nConfigIndex, OMX_PTR pConfigStruct)
 {
 
@@ -1315,7 +1315,7 @@ static OMX_ERRORTYPE PROXY_GetConfig(OMX_HANDLETYPE hComponent,
  *
  */
 /* ===========================================================================*/
-static OMX_ERRORTYPE PROXY_SetConfig(OMX_IN OMX_HANDLETYPE hComponent,
+OMX_ERRORTYPE PROXY_SetConfig(OMX_IN OMX_HANDLETYPE hComponent,
     OMX_IN OMX_INDEXTYPE nConfigIndex, OMX_IN OMX_PTR pConfigStruct)
 {
 
