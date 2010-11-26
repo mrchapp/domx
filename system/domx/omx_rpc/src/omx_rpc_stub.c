@@ -825,10 +825,12 @@ RPC_OMX_ERRORTYPE RPC_AllocateBuffer(RPC_OMX_HANDLE hRPCCtx,
 		if (offset != 0)
 		{
 			RPC_GETFIELDCOPYTYPE(pMsgBody, offset,
-			    (OMX_TI_PLATFORMPRIVATE *) ((*ppBufferHdr)->
-				pPlatformPrivate), OMX_TI_PLATFORMPRIVATE);
+			    (OMX_TI_PLATFORMPRIVATE
+				*) ((*ppBufferHdr)->pPlatformPrivate),
+			    OMX_TI_PLATFORMPRIVATE);
 			DOMX_DEBUG("Done copying plat pvt., aux buf = 0x%x",
-			    ((OMX_TI_PLATFORMPRIVATE *) ((*ppBufferHdr)->
+			    ((OMX_TI_PLATFORMPRIVATE
+				    *) ((*ppBufferHdr)->
 				    pPlatformPrivate))->pAuxBuf1);
 		}
 #endif
@@ -905,8 +907,8 @@ RPC_OMX_ERRORTYPE RPC_UseBuffer(RPC_OMX_HANDLE hRPCCtx,
 #ifdef TILER_BUFF
 	DOMX_DEBUG(" Getting aux buf");
 	mappedAddress2 =
-	    (OMX_U32) ((OMX_TI_PLATFORMPRIVATE *) ((*ppBufferHdr)->
-		pPlatformPrivate))->pAuxBuf1;
+	    (OMX_U32) ((OMX_TI_PLATFORMPRIVATE
+		*) ((*ppBufferHdr)->pPlatformPrivate))->pAuxBuf1;
 #endif
 
 	DOMX_DEBUG(" DEBUG - MAPPING - pBuffer = %x", pBuffer);
@@ -998,10 +1000,12 @@ RPC_OMX_ERRORTYPE RPC_UseBuffer(RPC_OMX_HANDLE hRPCCtx,
 		if (offset != 0)
 		{
 			RPC_GETFIELDCOPYTYPE(pMsgBody, offset,
-			    (OMX_TI_PLATFORMPRIVATE *) ((*ppBufferHdr)->
-				pPlatformPrivate), OMX_TI_PLATFORMPRIVATE);
+			    (OMX_TI_PLATFORMPRIVATE
+				*) ((*ppBufferHdr)->pPlatformPrivate),
+			    OMX_TI_PLATFORMPRIVATE);
 			DOMX_DEBUG("Done copying plat pvt., aux buf = 0x%x",
-			    ((OMX_TI_PLATFORMPRIVATE *) ((*ppBufferHdr)->
+			    ((OMX_TI_PLATFORMPRIVATE
+				    *) ((*ppBufferHdr)->
 				    pPlatformPrivate))->pAuxBuf1);
 		}
 #endif
@@ -1138,8 +1142,8 @@ RPC_OMX_ERRORTYPE RPC_EmptyThisBuffer(RPC_OMX_HANDLE hRPCCtx,
 	if (pBufferHdr->pPlatformPrivate != NULL)
 	{
 		pAuxBuf1 =
-		    ((OMX_TI_PLATFORMPRIVATE *) (pBufferHdr->
-			pPlatformPrivate))->pAuxBuf1;
+		    ((OMX_TI_PLATFORMPRIVATE
+			*) (pBufferHdr->pPlatformPrivate))->pAuxBuf1;
 	}
 	RPC_SETFIELDVALUE(pMsgBody, nPos, pAuxBuf1, OMX_U8 *);
 
@@ -1235,8 +1239,8 @@ RPC_OMX_ERRORTYPE RPC_FillThisBuffer(RPC_OMX_HANDLE hRPCCtx,
 	if (pBufferHdr->pPlatformPrivate != NULL)
 	{
 		pAuxBuf1 =
-		    ((OMX_TI_PLATFORMPRIVATE *) (pBufferHdr->
-			pPlatformPrivate))->pAuxBuf1;
+		    ((OMX_TI_PLATFORMPRIVATE
+			*) (pBufferHdr->pPlatformPrivate))->pAuxBuf1;
 	}
 	RPC_SETFIELDVALUE(pMsgBody, nPos, pAuxBuf1, OMX_U8 *);
 

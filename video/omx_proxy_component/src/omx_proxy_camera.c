@@ -341,7 +341,7 @@ OMX_ERRORTYPE OMX_ComponentInit(OMX_HANDLETYPE hComponent)
 		numofInstance = numofInstance + 1;
 
 		/* Configure Ducati to use DCC buffer from A9 side
-		   *ONLY* if DCC_Init is successful. */
+		 *ONLY* if DCC_Init is successful. */
 		if (dcc_eError == OMX_ErrorNone)
 		{
 			dcc_eError = send_DCCBufPtr(hComponent);
@@ -549,7 +549,7 @@ OMX_S32 read_DCCdir(OMX_PTR buffer, OMX_STRING * dir_path, OMX_U16 numofURI)
 				{
 					DOMX_DEBUG
 					    ("\n\t DCC Profiles copying into buffer => %s mpu_addr: %p",
-					     temp, buffer);
+					    temp, buffer);
 					pFile = fopen(temp, "rb");
 					if (pFile == NULL)
 					{
