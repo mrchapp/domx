@@ -69,6 +69,7 @@
 extern RPC_Object rpcHndl[CORE_MAX];
 extern COREID TARGET_CORE_ID;
 
+extern OMX_BOOL ducatiFault;
 /******************************************************************
  *   MACROS - LOCAL
  ******************************************************************/
@@ -123,6 +124,12 @@ extern COREID TARGET_CORE_ID;
         "Async error check returned error"); \
     } while(0)
 
+#define RPC_exitOnDucatiFault() do { \
+   if(ducatiFault == OMX_TRUE) { \
+       RPC_assert(0, RPC_OMX_ErrorUnknown, "Duacti Fault Detected. Function exec blocked"); \
+   } \
+   } while(0)
+
 /* ===========================================================================*/
 /**
  * @name RPC_GetHandle()
@@ -166,6 +173,8 @@ RPC_OMX_ERRORTYPE RPC_GetHandle(RPC_OMX_HANDLE hRPCCtx,
 	DOMX_ENTER("");
 	DOMX_DEBUG("RPC_GetHandle: Recieved GetHandle request from %s",
 	    cComponentName);
+
+	RPC_exitOnDucatiFault();
 
 	RPC_UTIL_GetLocalServerName(cComponentName,
 	    &CallingCorercmServerName);
@@ -271,6 +280,8 @@ RPC_OMX_ERRORTYPE RPC_FreeHandle(RPC_OMX_HANDLE hRPCCtx,
 
 	DOMX_ENTER("");
 
+	RPC_exitOnDucatiFault();
+
 	fxnIdx =
 	    rpcHndl[TARGET_CORE_ID].rpcFxns[RPC_OMX_FXN_IDX_FREE_HANDLE].
 	    rpcFxnIdx;
@@ -335,6 +346,8 @@ RPC_OMX_ERRORTYPE RPC_SetParameter(RPC_OMX_HANDLE hRPCCtx,
 
 	OMX_U32 structSize = 0;
 	OMX_U32 offset = 0;
+
+	RPC_exitOnDucatiFault();
 
 	fxnIdx =
 	    rpcHndl[TARGET_CORE_ID].rpcFxns[RPC_OMX_FXN_IDX_SET_PARAMETER].
@@ -408,6 +421,8 @@ RPC_OMX_ERRORTYPE RPC_GetParameter(RPC_OMX_HANDLE hRPCCtx,
 	OMX_U32 offset = 0;
 
 	DOMX_ENTER("");
+
+	RPC_exitOnDucatiFault();
 
 	fxnIdx =
 	    rpcHndl[TARGET_CORE_ID].rpcFxns[RPC_OMX_FXN_IDX_GET_PARAMETER].
@@ -488,6 +503,8 @@ RPC_OMX_ERRORTYPE RPC_SetConfig(RPC_OMX_HANDLE hRPCCtx,
 
 	DOMX_ENTER("");
 
+	RPC_exitOnDucatiFault();
+
 	fxnIdx =
 	    rpcHndl[TARGET_CORE_ID].rpcFxns[RPC_OMX_FXN_IDX_SET_CONFIG].
 	    rpcFxnIdx;
@@ -557,6 +574,8 @@ RPC_OMX_ERRORTYPE RPC_GetConfig(RPC_OMX_HANDLE hRPCCtx,
 	OMX_U32 offset = 0;
 
 	DOMX_ENTER("");
+
+	RPC_exitOnDucatiFault();
 
 	fxnIdx =
 	    rpcHndl[TARGET_CORE_ID].rpcFxns[RPC_OMX_FXN_IDX_GET_CONFIG].
@@ -635,6 +654,8 @@ RPC_OMX_ERRORTYPE RPC_SendCommand(RPC_OMX_HANDLE hRPCCtx,
 	OMX_U32 offset = 0;
 
 	DOMX_ENTER("");
+
+	RPC_exitOnDucatiFault();
 
 	fxnIdx =
 	    rpcHndl[TARGET_CORE_ID].rpcFxns[RPC_OMX_FXN_IDX_SEND_CMD].
@@ -720,6 +741,8 @@ RPC_OMX_ERRORTYPE RPC_AllocateBuffer(RPC_OMX_HANDLE hRPCCtx,
 	OMX_BUFFERHEADERTYPE *pBufferHdr = *ppBufferHdr;
 
 	DOMX_ENTER("");
+
+	RPC_exitOnDucatiFault();
 
 	fxnIdx =
 	    rpcHndl[TARGET_CORE_ID].rpcFxns[RPC_OMX_FXN_IDX_ALLOCATE_BUFFER].
@@ -865,6 +888,8 @@ RPC_OMX_ERRORTYPE RPC_UseBuffer(RPC_OMX_HANDLE hRPCCtx,
 	OMX_BUFFERHEADERTYPE *pBufferHdr = *ppBufferHdr;
 
 	DOMX_ENTER("");
+
+	RPC_exitOnDucatiFault();
 
 	fxnIdx =
 	    rpcHndl[TARGET_CORE_ID].rpcFxns[RPC_OMX_FXN_IDX_USE_BUFFER].
@@ -1023,6 +1048,8 @@ RPC_OMX_ERRORTYPE RPC_FreeBuffer(RPC_OMX_HANDLE hRPCCtx,
 
 	DOMX_ENTER("");
 
+	RPC_exitOnDucatiFault();
+
 	fxnIdx =
 	    rpcHndl[TARGET_CORE_ID].rpcFxns[RPC_OMX_FXN_IDX_FREE_BUFFER].
 	    rpcFxnIdx;
@@ -1087,6 +1114,8 @@ RPC_OMX_ERRORTYPE RPC_EmptyThisBuffer(RPC_OMX_HANDLE hRPCCtx,
 #endif
 
 	DOMX_ENTER("");
+
+	RPC_exitOnDucatiFault();
 
 	fxnIdx =
 	    rpcHndl[TARGET_CORE_ID].rpcFxns[RPC_OMX_FXN_IDX_EMPTYTHISBUFFER].
@@ -1183,6 +1212,8 @@ RPC_OMX_ERRORTYPE RPC_FillThisBuffer(RPC_OMX_HANDLE hRPCCtx,
 
 	DOMX_ENTER("");
 
+	RPC_exitOnDucatiFault();
+
 	fxnIdx =
 	    rpcHndl[TARGET_CORE_ID].rpcFxns[RPC_OMX_FXN_IDX_FILLTHISBUFFER].
 	    rpcFxnIdx;
@@ -1271,6 +1302,8 @@ RPC_OMX_ERRORTYPE RPC_GetState(RPC_OMX_HANDLE hRPCCtx, OMX_STATETYPE * pState,
 
 	DOMX_ENTER("");
 
+	RPC_exitOnDucatiFault();
+
 	*pState = OMX_StateInvalid;
 
 	fxnIdx =
@@ -1340,6 +1373,8 @@ RPC_OMX_ERRORTYPE RPC_GetComponentVersion(RPC_OMX_HANDLE hRPCCtx,
 	RPC_OMX_HANDLE hComp = hCtx->remoteHandle;
 
 	DOMX_ENTER("");
+
+	RPC_exitOnDucatiFault();
 
 	fxnIdx =
 	    rpcHndl[TARGET_CORE_ID].rpcFxns[RPC_OMX_FXN_IDX_GET_VERSION].
@@ -1427,6 +1462,8 @@ RPC_OMX_ERRORTYPE RPC_GetExtensionIndex(RPC_OMX_HANDLE hRPCCtx,
 
 	OMX_S16 status;
 	RPC_INDEX fxnIdx;
+
+	RPC_exitOnDucatiFault();
 
 	fxnIdx =
 	    rpcHndl[TARGET_CORE_ID].rpcFxns[RPC_OMX_FXN_IDX_GET_EXT_INDEX].

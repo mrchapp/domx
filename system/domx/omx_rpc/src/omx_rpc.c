@@ -56,6 +56,7 @@
 #include <string.h>
 #include <stdio.h>
 #include <Std.h>
+#include <pthread.h>
 
 #include <OMX_Types.h>
 #include <timm_osal_interfaces.h>
@@ -69,6 +70,7 @@
 
 /*-------program files ----------------------------------------*/
 #include "omx_rpc.h"
+#include "omx_proxy_common.h"
 #include "omx_rpc_stub.h"
 #include "omx_rpc_skel.h"
 #include "omx_rpc_internal.h"
@@ -115,6 +117,14 @@ OMX_PTR pCreateMutex = NULL;
 ProcMgr_Handle procMgrHandle = NULL;
 ProcMgr_Handle procMgrHandle1 = NULL;
 
+/*Ducati fault handler*/
+OMX_S32 currentNumOfComps = 0;
+OMX_HANDLETYPE componentTable[MAX_NUM_COMPS_PER_PROCESS] = { 0 };
+
+OMX_BOOL ducatiFault = OMX_FALSE;
+pthread_t ducatiFaultHandler;
+OMX_PTR pFaultMutex = NULL;
+
 /* ************************* EXTERNS, FUNCTION DECLARATIONS ***************************** */
 RPC_INDEX fxnExitidx, getFxnIndexFromRemote_skelIdx;
 static Int32 fxnExit(UInt32 size, UInt32 * data);
@@ -130,6 +140,7 @@ RPC_OMX_ERRORTYPE _RPC_IpcDestroy();
 RPC_OMX_ERRORTYPE _RPC_ClientCreate(OMX_STRING cComponentName);
 RPC_OMX_ERRORTYPE _RPC_ClientDestroy();
 
+static void *RPC_DucatiFaultHandler(void *);
 /* ===========================================================================*/
 /**
  * @name RPC_InstanceInit()
@@ -196,6 +207,28 @@ RPC_OMX_ERRORTYPE RPC_InstanceInit(OMX_STRING cComponentName,
 		RPC_assert(eRPCError == RPC_OMX_ErrorNone, eRPCError,
 		    "Client create failed");
 		bClientCreated = OMX_TRUE;
+
+		/*Create the Ducati Fault Handler */
+		/*pthread_create use instead of TIMM_OSAL_TaskCreate.
+		   TIMM_OSAL_TaskCreate, in addition to calling pthread_create
+		   allocates memory to maintain TIMM_OSAK_Task context. During
+		   fault recovery this memory also needs to be
+		   explicitly cleaned. However, when an MMU fault
+		   occurs, in order to clean this memory,  there is no way but
+		   to invoke TIMM_OSAL_TaskDelete
+		   from the context of the thread which we are trying to delete.
+		   To avoid this, only option is to use pthread_create direcly,
+		   thus avoiding any additional memory allocation.
+		   Clean up of the thread is then left to kernel. */
+
+		if (SUCCESS != pthread_create(&ducatiFaultHandler,
+			NULL, RPC_DucatiFaultHandler, NULL))
+		{
+			eRPCError = RPC_OMX_ErrorUnknown;
+		}
+
+		RPC_assert(eRPCError == RPC_OMX_ErrorNone, eRPCError,
+		    "Creation of ducati fault handler failed.");
 	}
 
 	/* updating the RCM client handle within rpc context */
@@ -305,6 +338,9 @@ RPC_OMX_ERRORTYPE RPC_InstanceDeInit(RPC_OMX_HANDLE hRPCCtx)
 	/*For last instance, shut down everything */
 	if (nInstanceCount == 0)
 	{
+		currentNumOfComps = 0;
+		ducatiFault = OMX_FALSE;
+
 		eTmpError = _RPC_ClientDestroy();
 		if (eTmpError != RPC_OMX_ErrorNone)
 		{
@@ -1013,6 +1049,13 @@ void __attribute__ ((constructor)) RPC_Setup(void)
 	{
 		TIMM_OSAL_Error("Creation of default mutex failed");
 	}
+
+	eError = TIMM_OSAL_MutexCreate(&pFaultMutex);
+
+	if (eError != TIMM_OSAL_ERR_NONE)
+	{
+		TIMM_OSAL_Error("Creation of ducati fault mutex failed.");
+	}
 }
 
 
@@ -1033,4 +1076,93 @@ void __attribute__ ((destructor)) RPC_Destroy(void)
 	{
 		TIMM_OSAL_Error("Destruction of default mutex failed");
 	}
+
+	eError = TIMM_OSAL_MutexDelete(pFaultMutex);
+
+	if (eError != TIMM_OSAL_ERR_NONE)
+	{
+		TIMM_OSAL_Error("Deletion of ducati fault mutex failed.");
+	}
+}
+
+/*===============================================================*/
+/** @fn RPC_DucatiFaultHandler : This function listens to Ducati
+ *                    MMU faults and Ducati Proc Stop due to
+ *                    Syslink Daemon Crash and posts error notificaion
+ *                    to the Client. It also sets a global variable
+ *                    which prevents any further calls to Ducati.
+ */
+/*===============================================================*/
+static void *RPC_DucatiFaultHandler(void *data)
+{
+	OMX_U32 status = 0;
+	OMX_U32 count;
+	char *events_name[] =
+	    { "MMUFault", "PROC_ERROR", "PROC_STOP", "PROC_START" };
+	ProcMgr_EventType events[] = { PROC_STOP, PROC_MMU_FAULT };
+	UInt i;
+	RPC_OMX_ERRORTYPE tRPCError = RPC_OMX_ErrorNone;
+	OMX_COMPONENTTYPE *pHandle = NULL;
+	PROXY_COMPONENT_PRIVATE *pCompPrv = NULL;
+
+	DOMX_ENTER("Starting the DOMX MMU fault recovery handler\n");
+	DOMX_DEBUG("Waiting fatal erros from AppM3\n");
+
+	status = ProcMgr_waitForMultipleEvents(1,	/* AppM3 ID */
+	    events, 2, -1, &i);
+
+	if (status != PROCMGR_SUCCESS)
+	{
+		DOMX_ERROR("Error ProcMgr_waitForMultipleEvents %d\n",
+		    status);
+		DOMX_ERROR("Cannot perform error recovery.\n");
+		goto EXIT;
+	}
+
+	DOMX_ERROR("Received %s notification from %s\n",
+	    events_name[events[i]], "AppM3");
+
+	ducatiFault = OMX_TRUE;
+
+	for (i = 0; i < MAX_NUM_COMPS_PER_PROCESS; i++)
+	{
+		if (componentTable[i])
+		{
+			pHandle = (OMX_COMPONENTTYPE *) componentTable[i];
+
+			pCompPrv =
+			    (PROXY_COMPONENT_PRIVATE *)
+			    pHandle->pComponentPrivate;
+
+			tRPCError =
+			    pCompPrv->proxyEventHandler(componentTable[i],
+			    pCompPrv->pILAppData, OMX_EventError,
+			    OMX_ErrorHardware, 0, NULL);
+
+			for (count = 0; count < pCompPrv->nTotalBuffers;
+			    count++)
+			{
+				/* The FreeBuffer API's 2nd argument should be
+				   a valid port index. The OMX_BUFFERHEADERTYPE
+				   structure containts two fields
+				   nOuputPortIndex and nInputPortIndex. The OMX
+				   IL standard does not specify what value of
+				   port index is an invalid value. Hence, at
+				   this point of error recovery, it is not
+				   possible to distigush which of the indices
+				   contains a valide value. However, this does
+				   not matter as the main intent of calling
+				   FreeBuffer here is to revert the memory mapping
+				   and to de-allocate omx buffer headers. Hence,
+				   a default value of '0' is passed as port
+				   index */
+				pHandle->FreeBuffer(componentTable[i],
+				    0, pCompPrv->tBufList[count].pBufHeader);
+			}
+			pHandle->ComponentDeInit(componentTable[i]);
+		}
+	}
+      EXIT:
+	DOMX_EXIT("Closing the DOMX MMU fault recovery handler.\n");
+	return NULL;
 }
