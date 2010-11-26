@@ -2022,8 +2022,6 @@ typedef struct OMX_TI_CONFIG_EXIF_TAGS {
 	OMX_S8*                 pCopyrightBuff;
 	OMX_U32                 ulCopyrightBuffSizeBytes;
 
-	OMX_TI_EXIFTAGSTATUS    eStatusSensorTagsAvailable;
-	OMX_BOOL                bSensorTagsAvailable;
 	OMX_TI_EXIFTAGSTATUS    eStatusExifVersion;
 	OMX_S8                  cExifVersion[4];
 	OMX_TI_EXIFTAGSTATUS    eStatusFlashpixVersion;
@@ -2079,13 +2077,13 @@ typedef struct OMX_TI_CONFIG_EXIF_TAGS {
 	OMX_S8*                 pOECFBuff;
 	OMX_U32                 ulOECFBuffSizeBytes;
 	OMX_TI_EXIFTAGSTATUS    eStatusShutterSpeedValue;
-	OMX_U16                 usShutterSpeedValue[5];
+	OMX_S32                 slShutterSpeedValue[2];
 	OMX_TI_EXIFTAGSTATUS    eStatusApertureValue;
 	OMX_U32                 ulApertureValue[2];
 	OMX_TI_EXIFTAGSTATUS    eStatusBrightnessValue;
-	OMX_U16                 usBrightnessValue[5];
+	OMX_S32                 slBrightnessValue[2];
 	OMX_TI_EXIFTAGSTATUS    eStatusExposureBiasValue;
-	OMX_U16                 usExposureBiasValue[5];
+	OMX_S32                 slExposureBiasValue[2];
 	OMX_TI_EXIFTAGSTATUS    eStatusMaxApertureValue;
 	OMX_U32                 ulMaxApertureValue[2];
 	OMX_TI_EXIFTAGSTATUS    eStatusSubjectDistance;
@@ -2157,7 +2155,7 @@ typedef struct OMX_TI_CONFIG_EXIF_TAGS {
 	OMX_U8*                 pPrivateTiffHeaderPointer; //Should not be used by the application
 
 	OMX_TI_EXIFTAGSTATUS    eStatusGpsVersionId;
-	OMX_U8                  usGpsVersionId[4];
+	OMX_U8                  ucGpsVersionId[4];
 	OMX_TI_EXIFTAGSTATUS    eStatusGpslatitudeRef;
 	OMX_S8                  cGpslatitudeRef[2];
 	OMX_TI_EXIFTAGSTATUS    eStatusGpsLatitude;
@@ -2167,7 +2165,7 @@ typedef struct OMX_TI_CONFIG_EXIF_TAGS {
 	OMX_TI_EXIFTAGSTATUS    eStatusGpsLongitude;
 	OMX_U32                 ulGpsLongitude[6];
 	OMX_TI_EXIFTAGSTATUS    eStatusGpsAltitudeRef;
-	OMX_U8                  usGpsAltitudeRef;
+	OMX_U8                  ucGpsAltitudeRef;
 	OMX_TI_EXIFTAGSTATUS    eStatusGpsAltitude;
 	OMX_U32                 ulGpsAltitude[2];
 	OMX_TI_EXIFTAGSTATUS    eStatusGpsTimeStamp;
@@ -2212,9 +2210,9 @@ typedef struct OMX_TI_CONFIG_EXIF_TAGS {
 	OMX_S8                  cGpsDestDistanceRef[2];
 	OMX_TI_EXIFTAGSTATUS    eStatusGpsDestDistance;
 	OMX_U32                 ulGpsDestDistance[2];
-	OMX_TI_EXIFTAGSTATUS    eStatusGpsProcessingMode;
-	OMX_S8*                 pGpsProcessingModeBuff;
-	OMX_U32                 ulGpsProcessingModeBuffSizeBytes;
+	OMX_TI_EXIFTAGSTATUS    eStatusGpsProcessingMethod;
+	OMX_S8*                 pGpsProcessingMethodBuff;
+	OMX_U32                 ulGpsProcessingMethodBuffSizeBytes;
 	OMX_TI_EXIFTAGSTATUS    eStatusGpsAreaInformation;
 	OMX_S8*                 pGpsAreaInformationBuff;
 	OMX_U32                 ulGpsAreaInformationBuffSizeBytes;
