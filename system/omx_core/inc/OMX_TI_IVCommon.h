@@ -2421,6 +2421,34 @@ typedef struct OMX_TI_CONFIG_AAASKIPBUFFERTYPE {
 	OMX_U32 AAAskipBuffSize;
 } OMX_TI_CONFIG_AAASKIPBUFFERTYPE;
 
+
+/**
+ * The OMX_TI_BRIGHTNESSCONTRASTCRTLTYPE enumeration is used to define the
+ * brightness and contrast mode types.
+ */
+typedef enum OMX_TI_BRIGHTNESSCONTRASTCRTLTYPE {
+	OMX_TI_BceModeOff = 0,
+	OMX_TI_BceModeOn,
+	OMX_TI_BceModeAuto,
+	OMX_TI_BceModeMax = 0x7FFFFFFF
+} OMX_TI_BRIGHTNESSCONTRASTCRTLTYPE;
+
+/**
+ * Local and global brightness contrast type.
+ *
+ * STRUCT MEMBERS:
+ *  nSize             : Size of the structure in bytes
+ *  nVersion          : OMX specification version information
+ *  nPortIndex        : Port that this structure applies to
+ *  eControl          : Control field for GLBCE
+ */
+typedef struct OMX_TI_CONFIG_LOCAL_AND_GLOBAL_BRIGHTNESSCONTRASTTYPE {
+	OMX_U32 nSize;
+	OMX_VERSIONTYPE nVersion;
+	OMX_U32 nPortIndex;
+	OMX_TI_BRIGHTNESSCONTRASTCRTLTYPE eControl;
+} OMX_TI_CONFIG_LOCAL_AND_GLOBAL_BRIGHTNESSCONTRASTTYPE;
+
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */
