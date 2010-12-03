@@ -1053,6 +1053,7 @@ static OMX_ERRORTYPE PROXY_FreeBuffer(OMX_IN OMX_HANDLETYPE hComponent,
 	OMX_U32 count = 0;
 	OMX_ERRORTYPE eError = OMX_ErrorNone, eTmpError = OMX_ErrorNone;
 	OMX_S32 nReturn = 0;
+	OMX_U32 pBuffer = 0;
 
 	if (TIMM_OSAL_ERR_NONE !=
 	    TIMM_OSAL_MutexObtain(pFaultMutex, TIMM_OSAL_SUSPEND))
@@ -1088,6 +1089,15 @@ static OMX_ERRORTYPE PROXY_FreeBuffer(OMX_IN OMX_HANDLETYPE hComponent,
 	/*Not having asserts from this point since even if error occurs during
 	   unmapping/freeing, still trying to clean up as much as possible */
 
+	/* Will be sending the buffer pointer to Ducati as well. This is to
+	   catch errors in case NULL buffer is sent in PA mode */
+	if (pBufferHdr->pBuffer == NULL)
+	{
+		pBuffer = 0;
+	} else
+	{
+		pBuffer = pCompPrv->tBufList[count].pBufferMapped;
+	}
 	/*Unmap metadata buffer on Chiron if was mapped earlier */
 	eTmpError = RPC_UnMapMetaData_Host(pBufferHdr);
 	if (eTmpError != OMX_ErrorNone)
@@ -1098,7 +1108,8 @@ static OMX_ERRORTYPE PROXY_FreeBuffer(OMX_IN OMX_HANDLETYPE hComponent,
 
 	eRPCError =
 	    RPC_FreeBuffer(pCompPrv->hRemoteComp, nPortIndex,
-	    pCompPrv->tBufList[count].pBufHeaderRemote, &eCompReturn);
+	    pCompPrv->tBufList[count].pBufHeaderRemote, pBuffer,
+	    &eCompReturn);
 	if (eRPCError == RPC_OMX_ErrorNone)
 	{
 		DOMX_DEBUG("RPC Free Buffer Successful");

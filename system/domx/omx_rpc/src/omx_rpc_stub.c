@@ -1035,7 +1035,7 @@ RPC_OMX_ERRORTYPE RPC_UseBuffer(RPC_OMX_HANDLE hRPCCtx,
  */
 /* ===========================================================================*/
 RPC_OMX_ERRORTYPE RPC_FreeBuffer(RPC_OMX_HANDLE hRPCCtx,
-    OMX_IN OMX_U32 nPortIndex, OMX_IN OMX_U32 BufHdrRemote,
+    OMX_IN OMX_U32 nPortIndex, OMX_IN OMX_U32 BufHdrRemote, OMX_U32 pBuffer,
     OMX_ERRORTYPE * eCompReturn)
 {
 	RPC_OMX_ERRORTYPE eRPCError = RPC_OMX_ErrorNone;
@@ -1068,6 +1068,9 @@ RPC_OMX_ERRORTYPE RPC_FreeBuffer(RPC_OMX_HANDLE hRPCCtx,
 	RPC_SETFIELDVALUE(pMsgBody, nPos, nPortIndex, OMX_U32);
 
 	RPC_SETFIELDVALUE(pMsgBody, nPos, BufHdrRemote, OMX_U32);
+	/* Buffer is being sent separately only to catch NULL buffer errors
+	   in PA mode */
+	RPC_SETFIELDVALUE(pMsgBody, nPos, pBuffer, OMX_U32);
 
 	pPacket->poolId = hCtx->nPoolId;
 	pPacket->jobId = hCtx->nJobId;

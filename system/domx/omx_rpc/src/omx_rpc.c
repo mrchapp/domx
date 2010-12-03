@@ -85,7 +85,7 @@
 /*The version nos. start with 1 and keep on incrementing every time there is a
 protocol change in DOMX. This is just a marker to ensure that A9-Ducati DOMX
 versions are in sync and does not indicate anything else*/
-#define DOMX_VERSION 8
+#define DOMX_VERSION 9
 /* ******************************* EXTERNS ********************************* */
 extern char rpcFxns[][MAX_FUNCTION_NAME_LENGTH];
 extern rpcSkelArr rpcSkelFxns[];
