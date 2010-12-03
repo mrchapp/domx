@@ -1874,14 +1874,24 @@ OMX_ERRORTYPE OMX_ProxyCommonInit(OMX_HANDLETYPE hComponent)
 	    OMX_ErrorBadParameter,
 	    "Maximum number of components that can be created per process reached");
 
+	if (TIMM_OSAL_ERR_NONE !=
+	    TIMM_OSAL_MutexObtain(pFaultMutex, TIMM_OSAL_SUSPEND))
+	{
+		PROXY_assert(0, OMX_ErrorUndefined,
+		    "Error obtaining the ducati component table mutex");
+	}
+
 	for (i = 0; i < MAX_NUM_COMPS_PER_PROCESS; i++)
 	{
 		if (componentTable[i] == 0)
 		{
 			componentTable[i] = hComponent;
 			currentNumOfComps++;
+			break;
 		}
 	}
+
+	TIMM_OSAL_MutexRelease(pFaultMutex);
 
 	pCompPrv = (PROXY_COMPONENT_PRIVATE *) hComp->pComponentPrivate;
 
