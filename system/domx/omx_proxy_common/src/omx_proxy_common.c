@@ -246,6 +246,11 @@ static OMX_ERRORTYPE PROXY_EmptyBufferDone(OMX_HANDLETYPE hComponent,
 			pBufHdr->pBuffer =
 			    (OMX_U8 *) pCompPrv->
 			    tBufList[count].pBufferActual;
+			/* Setting mark info to NULL. This would always be
+			   NULL in EBD, whether component has propagated the
+			   mark or has generated mark event */
+			pBufHdr->hMarkTargetComponent = NULL;
+			pBufHdr->pMarkData = NULL;
 			break;
 		}
 	}
