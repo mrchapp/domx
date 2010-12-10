@@ -1099,7 +1099,8 @@ static void *RPC_DucatiFaultHandler(void *data)
 	OMX_U32 count;
 	char *events_name[] =
 	    { "MMUFault", "PROC_ERROR", "PROC_STOP", "PROC_START" };
-	ProcMgr_EventType events[] = { PROC_STOP, PROC_MMU_FAULT };
+	ProcMgr_EventType events[] =
+	    { PROC_MMU_FAULT, PROC_ERROR, PROC_STOP };
 	UInt i;
 	RPC_OMX_ERRORTYPE tRPCError = RPC_OMX_ErrorNone;
 	OMX_COMPONENTTYPE *pHandle = NULL;
