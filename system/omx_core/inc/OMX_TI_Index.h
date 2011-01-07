@@ -212,7 +212,8 @@ typedef enum OMX_TI_INDEXTYPE {
     OMX_TI_IndexConfigAAAskipBuffer,            /**< reference: OMX_TI_CONFIG_AAASKIPBUFFERTYPE */
     OMX_TI_IndexParamStereoFrmLayout,           /**< reference: OMX_TI_FRAMELAYOUTTYPE */
     OMX_TI_IndexConfigLocalBrightnessContrastEnhance, /**< reference: OMX_TI_CONFIG_LOCAL_AND_GLOBAL_BRIGHTNESSCONTRASTTYPE */
-    OMX_TI_IndexConfigGlobalBrightnessContrastEnhance /**< reference: OMX_TI_CONFIG_LOCAL_AND_GLOBAL_BRIGHTNESSCONTRASTTYPE */
+    OMX_TI_IndexConfigGlobalBrightnessContrastEnhance, /**< reference: OMX_TI_CONFIG_LOCAL_AND_GLOBAL_BRIGHTNESSCONTRASTTYPE */
+    OMX_TI_IndexConfigVarFrmRange               /**< reference: OMX_TI_CONFIG_VARFRMRANGETYPE */
 } OMX_TI_INDEXTYPE;
 
 
