@@ -213,7 +213,9 @@ typedef enum OMX_TI_INDEXTYPE {
     OMX_TI_IndexParamStereoFrmLayout,           /**< reference: OMX_TI_FRAMELAYOUTTYPE */
     OMX_TI_IndexConfigLocalBrightnessContrastEnhance, /**< reference: OMX_TI_CONFIG_LOCAL_AND_GLOBAL_BRIGHTNESSCONTRASTTYPE */
     OMX_TI_IndexConfigGlobalBrightnessContrastEnhance, /**< reference: OMX_TI_CONFIG_LOCAL_AND_GLOBAL_BRIGHTNESSCONTRASTTYPE */
-    OMX_TI_IndexConfigVarFrmRange               /**< reference: OMX_TI_CONFIG_VARFRMRANGETYPE */
+    OMX_TI_IndexConfigVarFrmRange,              /**< reference: OMX_TI_CONFIG_VARFRMRANGETYPE */
+    OMX_TI_IndexParamAVCHRDBufferSizeSetting,   /**< reference: OMX_TI_VIDEO_PARAM_AVCHRDBUFFERSETTING */
+    OMX_TI_IndexConfigAVCHRDBufferSizeSetting   /**< reference: OMX_TI_VIDEO_CONFIG_AVCHRDBUFFERSETTING */
 } OMX_TI_INDEXTYPE;
 
 
