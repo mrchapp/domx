@@ -1522,7 +1522,7 @@ static OMX_ERRORTYPE PROXY_SendCommand(OMX_IN OMX_HANDLETYPE hComponent,
 				pCompPrv->nNumOfLines[i] = 0;
 		} else
 		{
-			PROXY_assert(nParam <= PROXY_MAXNUMOFPORTS,
+			PROXY_assert(nParam < PROXY_MAXNUMOFPORTS,
 			    OMX_ErrorBadParameter, "Invalid Port Number");
 			pCompPrv->nNumOfLines[nParam] = 0;
 		}
@@ -1943,6 +1943,7 @@ OMX_ERRORTYPE OMX_ProxyCommonInit(OMX_HANDLETYPE hComponent)
 			DOMX_ERROR(" ERROR executing OMX_GetHandle remotely");
 			eError = eCompReturn;
 			RPC_InstanceDeInit(hRemoteComp);
+			goto EXIT;
 		}
 	} else
 	{
