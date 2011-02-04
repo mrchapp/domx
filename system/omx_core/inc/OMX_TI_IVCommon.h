@@ -1449,6 +1449,9 @@ typedef enum OMX_EXT_EXTRADATATYPE
    OMX_TI_SEIinfo2010Frame2,    /**< 0x7F000016 Used for 2010 SEI message to be provided by video decoders */
    OMX_TI_RangeMappingInfo,     /**< 0x7F000017 Used for Range mapping info provided by Video Decoders */
    OMX_TI_RescalingInfo,        /**< 0x7F000018 Used for width/height rescaling info provided by Video Decoders */
+   OMX_TI_WhiteBalanceOverWrite,        /**< 0x7F000019 Used for manual AWB settings */
+   OMX_TI_ExtraData_Count,
+   OMX_TI_ExtraData_Max = OMX_TI_ExtraData_Count - 1,
 } OMX_EXT_EXTRADATATYPE;
 
 
